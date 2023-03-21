@@ -5,6 +5,7 @@ const _M = {
   computed: {
     //--------------------------------------
     GuiExplainContext() {
+      let load = Ti.Util.explainObj(this, this.load);
       return {
         moduleName: this.moduleName,
         rootState: this.rootState,
@@ -12,7 +13,7 @@ const _M = {
         thingSetId: this.thingSetId,
         oTs: this.oTs,
         //------------------------------
-        load: this.load,
+        load,
         //------------------------------
         aggQuery: this.aggQuery,
         agg: this.agg,
@@ -50,7 +51,7 @@ const _M = {
         currentDataHomeObj: this.dataHomeObj,
         currentDataDirName: this.dataDirName,
         //------------------------------
-        ...this.getters,
+        ...this.getters
       };
     },
     //--------------------------------------
@@ -79,32 +80,32 @@ const _M = {
       return {
         "reloading": {
           icon: "fas-spinner fa-spin",
-          text: "i18n:loading",
+          text: "i18n:loading"
         },
         "doing": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:doing",
+          text: "i18n:doing"
         },
         "saving": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:saving",
+          text: "i18n:saving"
         },
         "deleting": {
           icon: "zmdi-refresh fa-spin",
-          text: "i18n:del-ing",
+          text: "i18n:del-ing"
         },
         "publishing": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:publishing",
+          text: "i18n:publishing"
         },
         "restoring": {
           icon: "zmdi-time-restore zmdi-hc-spin",
-          text: "i18n:thing-restoring",
+          text: "i18n:thing-restoring"
         },
         "cleaning": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:thing-cleaning",
-        },
+          text: "i18n:thing-cleaning"
+        }
       };
     },
     //--------------------------------------
@@ -118,11 +119,11 @@ const _M = {
         this.status.cleaning
         ? true
         : false;
-    },
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods: {},
+  methods: {}
   ///////////////////////////////////////////
 };
 export default _M;

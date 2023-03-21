@@ -20,10 +20,10 @@ const _M = {
       default: null
     },
     "text": {
-      type: String,
+      type: String
     },
     "href": {
-      type: String,
+      type: String
     },
     // Show the process `0.0-1.0` during the uploading
     "progress": {
@@ -62,14 +62,18 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
+    },
     "placeholder": {
       type: String,
-      default: "i18n:no-selected",
+      default: "i18n:no-selected"
     },
     "hideBorder": {
       type: Boolean,
       default: false
-    },
+    }
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -87,63 +91,63 @@ const _M = {
         "no-readonly": !this.readonly,
         "has-text": this.hasText,
         "no-text": !this.hasText
-      })
+      });
     },
     //--------------------------------------
     hasPreview() {
-      return this.preview ? true : false
+      return this.preview ? true : false;
     },
     //--------------------------------------
     hasText() {
-      return this.text ? true : false
+      return this.text ? true : false;
     },
     //--------------------------------------
     hasHref() {
-      return this.href ? true : false
+      return this.href ? true : false;
     },
     //--------------------------------------
     isEditable() {
-      return !this.readonly
+      return !this.readonly;
     },
     //--------------------------------------
     isShowProgress() {
-      return this.progress > 0
+      return this.progress > 0;
     },
     //--------------------------------------
     ProgressTip() {
-      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false });
     },
     //--------------------------------------
     ProgressStyle() {
-      return { width: this.ProgressTip }
+      return { width: this.ProgressTip };
     },
     //--------------------------------------
     PreviewIcon() {
       if (this.uploadFile) {
-        let file = this.uploadFile
+        let file = this.uploadFile;
         return Ti.Icons.get({
           type: Ti.Util.getSuffixName(file.name),
           mime: file.type,
           race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
-        })
+        });
       }
       // Tip Remove
       if (this.hasText && this.mouseEnterPrefix) {
-        return "zmdi-close-circle"
+        return this.prefixHoverIcon;
       }
       // Normal image
       if (this.preview) {
-        return this.preview
+        return this.preview;
       }
       // Show Icon
-      return "zmdi-folder-outline"
+      return "zmdi-folder-outline";
     },
     //--------------------------------------
     BoxItemText() {
       if (this.text) {
-        return this.text
+        return this.text;
       }
-      return Ti.I18n.text(this.placeholder)
+      return Ti.I18n.text(this.placeholder);
     },
     //--------------------------------------
     ActionItems() {
@@ -155,7 +159,7 @@ const _M = {
           icon: "fas-upload",
           text: "i18n:select",
           action: () => {
-            this.$refs.file.click()
+            this.$refs.file.click();
           }
         },
         download: {
@@ -174,18 +178,18 @@ const _M = {
             this.OnOpen();
           }
         }
-      }
+      };
 
       if (this.isEditable) {
-        items.push(_.omit(itActions.select, "text"))
+        items.push(_.omit(itActions.select, "text"));
         if (this.hasPreview) {
-          mores.push(itActions.download, itActions.open)
+          mores.push(itActions.download, itActions.open);
         }
       }
       // Readonly
       else if (this.hasPreview) {
-        items.push(_.omit(itActions.open, "text"))
-        mores.push(itActions.download)
+        items.push(_.omit(itActions.open, "text"));
+        mores.push(itActions.download);
       }
 
       // More actions
@@ -194,32 +198,32 @@ const _M = {
           let handler;
           if (_.isString(at.action)) {
             handler = () => {
-              this.$notify(at.action, at.payload)
-            }
+              this.$notify(at.action, at.payload);
+            };
           }
           if (_.isFunction(at.action)) {
             handler = () => {
-              at.action(at.payload, this)
-            }
+              at.action(at.payload, this);
+            };
           }
           mores.push({
             icon: at.icon,
             text: at.text,
             className: at.className,
             handler
-          })
+          });
         }
       }
 
       if (!_.isEmpty(mores)) {
         items.push({
-          icon: 'zmdi-more-vert',
+          icon: "zmdi-more-vert",
           topHoverOpen: true,
           items: mores
-        })
+        });
       }
 
-      return items
+      return items;
     }
     //--------------------------------------
   },
@@ -227,56 +231,55 @@ const _M = {
   methods: {
     //--------------------------------------
     OnMouseEnterPrefix() {
-      if (this.hasText)
-        this.mouseEnterPrefix = true
+      if (this.hasText) this.mouseEnterPrefix = true;
     },
     //--------------------------------------
     OnMouseLeaverPrefix() {
-      this.mouseEnterPrefix = false
+      this.mouseEnterPrefix = false;
     },
     //--------------------------------------
     OnRemove() {
-      this.mouseEnterPrefix = false
-      this.$notify("remove")
+      this.mouseEnterPrefix = false;
+      this.$notify("remove");
     },
     //--------------------------------------
     OnClickToEdit() {
       if (this.readonly) {
-        this.$notify("open")
+        this.$notify("open");
       } else {
-        this.$refs.file.click()
+        this.$refs.file.click();
       }
     },
     //--------------------------------------
     async OnDropFiles(files) {
-      let file = _.get(files, 0)
+      let file = _.get(files, 0);
       if (file && !this.readonly) {
-        this.$notify("upload", file)
+        this.$notify("upload", file);
       }
     },
     //--------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
-      await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      await this.OnDropFiles(evt.target.files);
+      this.$refs.file.value = "";
     },
     //--------------------------------------
     OnRemove() {
-      this.$notify("remove")
+      this.$notify("remove");
     },
     //--------------------------------------
     OnOpen() {
-      this.$notify("open")
+      this.$notify("open");
     },
     //--------------------------------------
     OnExlink() {
-      this.$notify("exlink")
+      this.$notify("exlink");
     },
     //--------------------------------------
     OnDownload() {
-      this.$notify("download")
+      this.$notify("download");
     }
     //--------------------------------------
   }
   //////////////////////////////////////////
-}
+};
 export default _M;

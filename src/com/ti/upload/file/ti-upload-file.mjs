@@ -3,7 +3,7 @@ const _M = {
   data: () => ({
     myArea: 0,
     myActionsWidth: 0,
-    showMoreActions:false
+    showMoreActions: false
   }),
   /////////////////////////////////////////
   props: {
@@ -37,7 +37,7 @@ const _M = {
     "previewType": {
       type: String,
       default: "obj",
-      validator: v => /^(obj|link)$/.test(v)
+      validator: (v) => /^(obj|link)$/.test(v)
     },
     // support remove the objects
     "removable": {
@@ -63,18 +63,22 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
+    },
     "actionLimit": {
       type: Number,
-      default: 3,
+      default: 3
     },
     "areaSize": {
       type: Object,
       default: () => ({
         //xl: (800 * 800),
-        xs: (100 * 100),
-        sm: (200 * 200),
-        md: (400 * 400),
-        lg: (600 * 600),
+        xs: 100 * 100,
+        sm: 200 * 200,
+        md: 400 * 400,
+        lg: 600 * 600
       })
     },
     //------------------------------------------------
@@ -103,26 +107,21 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass(
-        `is-area-${this.AreaType}`)
+      return this.getTopClass(`is-area-${this.AreaType}`);
     },
     //--------------------------------------
     AreaType() {
       let AS = this.areaSize;
-      let ar = this.myArea
+      let ar = this.myArea;
       if (ar <= 0) {
-        return "nil"
+        return "nil";
       }
-      if (_.inRange(ar, 0, AS.xs + 1))
-        return "xs"
-      if (_.inRange(ar, AS.xs, AS.sm + 1))
-        return "sm"
-      if (_.inRange(ar, AS.sm, AS.md + 1))
-        return "md"
-      if (_.inRange(ar, AS.md, AS.lg + 1))
-        return "lg"
+      if (_.inRange(ar, 0, AS.xs + 1)) return "xs";
+      if (_.inRange(ar, AS.xs, AS.sm + 1)) return "sm";
+      if (_.inRange(ar, AS.sm, AS.md + 1)) return "md";
+      if (_.inRange(ar, AS.md, AS.lg + 1)) return "lg";
 
-      return "xl"
+      return "xl";
     },
     //--------------------------------------
     ThumbStyle() {
@@ -131,23 +130,23 @@ const _M = {
         height: this.height,
         maxWidth: this.maxWidth,
         maxHeight: this.maxHeight
-      })
+      });
     },
     //--------------------------------------
     ActionsStyle() {
       if (/^(xs|sm)$/.test(this.AreaType)) {
         return {
           right: Ti.Css.toSize(this.myActionsWidth * -1)
-        }
+        };
       }
     },
     //--------------------------------------
     hasPreview() {
-      return this.preview ? true : false
+      return this.preview ? true : false;
     },
     //--------------------------------------
     isShowActions() {
-      return !_.isEmpty(this.ActionItems)
+      return !_.isEmpty(this.ActionItems);
     },
     //--------------------------------------
     ActionItems() {
@@ -160,7 +159,7 @@ const _M = {
           handler: () => {
             this.OnRemove();
           }
-        })
+        });
       }
       if (this.isShowOpenIcon) {
         items.push({
@@ -170,7 +169,7 @@ const _M = {
           handler: () => {
             this.OnOpen();
           }
-        })
+        });
       }
       if (this.isShowExlink) {
         items.push({
@@ -180,7 +179,7 @@ const _M = {
           handler: () => {
             this.OnExlink();
           }
-        })
+        });
       }
       if (this.isShowDownloadIcon) {
         items.push({
@@ -190,159 +189,154 @@ const _M = {
           handler: () => {
             this.OnDownload();
           }
-        })
+        });
       }
       if (_.isArray(this.actions)) {
         for (let at of this.actions) {
           let handler;
           if (_.isString(at.action)) {
             handler = () => {
-              this.$notify(at.action, at.payload)
-            }
+              this.$notify(at.action, at.payload);
+            };
           }
           if (_.isFunction(at.action)) {
             handler = () => {
-              at.action(at.payload, this)
-            }
+              at.action(at.payload, this);
+            };
           }
           items.push({
             icon: at.icon,
             text: at.text,
             className: at.className,
             handler
-          })
+          });
         }
       }
-      
 
       return items;
     },
     //--------------------------------------
-    TopActionItems(){
-      let items =this.ActionItems;
-      let N = this.actionLimit
+    TopActionItems() {
+      let items = this.ActionItems;
+      let N = this.actionLimit;
       if (items.length > N) {
         let I = N - 1;
-        let list = items.slice(0, I)
+        let list = items.slice(0, I);
         list.push({
-          icon:"zmdi-settings",
-          text:"i18n:more",
-          hoverMore:true
-        })
+          icon: "zmdi-settings",
+          text: "i18n:more",
+          hoverMore: true
+        });
         return list;
       }
       return items;
     },
     //--------------------------------------
-    MoreActionItems(){
-      let items =this.ActionItems;
-      let N = this.actionLimit
+    MoreActionItems() {
+      let items = this.ActionItems;
+      let N = this.actionLimit;
       if (items.length > N) {
         let I = N - 1;
-        return items.slice(I)
+        return items.slice(I);
       }
-      
     },
     //--------------------------------------
     isShowRemoveIcon() {
       if (!this.uploadFile && this.hasPreview && !this.readonly) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     //--------------------------------------
     isShowOpenIcon() {
-      return this.openable&& this.hasPreview
+      return this.openable && this.hasPreview;
     },
     //--------------------------------------
     isShowDownloadIcon() {
-      return this.downloadable &&this.hasPreview
+      return this.downloadable && this.hasPreview;
     },
     //--------------------------------------
     isShowExlink() {
-      return this.exlink && !this.hasPreview
+      return this.exlink && !this.hasPreview;
     },
     //--------------------------------------
     PreviewIcon() {
       if (this.uploadFile) {
-        return { type: "localFile", value: this.uploadFile }
+        return { type: "localFile", value: this.uploadFile };
       }
       // Normal image
       if (this.preview) {
-        return this.preview
+        return this.preview;
       }
       // Show Icon
-      return "zmdi-plus"
+      return "zmdi-plus";
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
-    OnMouseEnter({hoverMore}={}){
-      if(!hoverMore){
+    OnMouseEnter({ hoverMore } = {}) {
+      if (!hoverMore) {
         return;
       }
       this.showMoreActions = true;
-      this.$nextTick(()=>{
-
-      })
+      this.$nextTick(() => {});
     },
     //--------------------------------------
     OnClickToEdit() {
       if ("link" == this.previewType) {
-        this.$notify("exlink")
+        this.$notify("exlink");
       } else if (this.readonly) {
-        this.$notify("open")
+        this.$notify("open");
       } else {
-        this.$refs.file.click()
+        this.$refs.file.click();
       }
     },
     //--------------------------------------
     async OnDropFiles(files) {
-      let file = _.get(files, 0)
+      let file = _.get(files, 0);
       if (file && !this.readonly) {
-        this.$notify("upload", file)
+        this.$notify("upload", file);
       }
     },
     //--------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
-      await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      await this.OnDropFiles(evt.target.files);
+      this.$refs.file.value = "";
     },
     //--------------------------------------
     OnRemove() {
-      this.$notify("remove")
+      this.$notify("remove");
     },
     //--------------------------------------
     OnOpen() {
-      this.$notify("open")
+      this.$notify("open");
     },
     //--------------------------------------
     OnExlink() {
-      this.$notify("exlink")
+      this.$notify("exlink");
     },
     //--------------------------------------
     OnDownload() {
-      this.$notify("download")
+      this.$notify("download");
     },
     //--------------------------------------
     recountArea() {
-      let rect = Ti.Rects.createBy(this.$refs.thumb)
-      if (_.isEmpty(rect))
-        return
-      this.myArea = rect.width * rect.height
+      let rect = Ti.Rects.createBy(this.$refs.thumb);
+      if (_.isEmpty(rect)) return;
+      this.myArea = rect.width * rect.height;
       if (this.$refs.actions) {
-        this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width
+        this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width;
       } else {
-        this.myActionsWidth = 0
+        this.myActionsWidth = 0;
       }
     },
     //--------------------------------------
     shouldRecountArea() {
       _.delay(() => {
-        this.recountArea()
-      }, 10)
+        this.recountArea();
+      }, 10);
     }
     //--------------------------------------
   },
@@ -358,18 +352,18 @@ const _M = {
   created: function () {
     Ti.Viewport.watch(this, {
       resize: () => {
-        this.recountArea()
+        this.recountArea();
       }
-    })
+    });
   },
   //////////////////////////////////////////
   mounted: function () {
-    this.$nextTick(() => this.recountArea())
+    this.$nextTick(() => this.recountArea());
   },
   //////////////////////////////////////////
   beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
+    Ti.Viewport.unwatch(this);
   }
   //////////////////////////////////////////
-}
+};
 export default _M;

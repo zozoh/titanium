@@ -4,6 +4,7 @@ const _M = {
     srcAsUrl: false,
     src_ts: null,
     oFile: null,
+    oTarget: null,
     uploadFile: null,
     progress: -1
   }),
@@ -23,7 +24,7 @@ const _M = {
     "valueType": {
       type: String,
       default: "obj",
-      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+      validator: (v) => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Auto append the extra-meta after file been uploaded
     "fileMeta": {
@@ -93,6 +94,12 @@ const _M = {
       type: Array,
       default: () => []
     },
+    // remove  the refer file when click remove button
+    // default is undefined, it will auto determined by target
+    // is same target, then true, else false
+    "shallowRemove": {
+      tyep: Boolean
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -113,94 +120,130 @@ const _M = {
     "maxHeight": {
       type: [String, Number],
       default: undefined
-    },
+    }
   },
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
     AcceptTypes() {
-      if (_.isString(this.supportTypes))
-        return this.supportTypes.split(",")
-      return this.supportTypes
+      if (_.isString(this.supportTypes)) return this.supportTypes.split(",");
+      return this.supportTypes;
     },
     //--------------------------------------
     AcceptMimes() {
-      if (_.isString(this.supportMimes))
-        return this.supportMimes.split(",")
-      return this.supportMimes
+      if (_.isString(this.supportMimes)) return this.supportMimes.split(",");
+      return this.supportMimes;
     },
     //--------------------------------------
     ImageFilter() {
-      if (!this.filter)
-        return []
-      return [].concat(this.filter)
+      if (!this.filter) return [];
+      return [].concat(this.filter);
     },
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
       if (this.srcAsUrl) {
         return {
-          type: "image", value: this.value
-        }
+          type: "image",
+          value: this.value
+        };
       }
       //....................................
       if (this.oFile) {
         //..................................
         // Image
         if (Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
-          let ss = ["/o/content?str=id:", this.oFile.id]
+          let ss = ["/o/content?str=id:", this.oFile.id];
           if (this.src_ts) {
-            ss.push("&_t=")
-            ss.push(this.src_ts)
+            ss.push("&_t=");
+            ss.push(this.src_ts);
           }
           return {
-            type: "image", value: ss.join("")
-          }
+            type: "image",
+            value: ss.join("")
+          };
         }
         //..................................
         // Video
         if (Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
-          let ss = ["/o/content?str=id:", this.oFile.video_cover]
+          let ss = ["/o/content?str=id:", this.oFile.video_cover];
           if (this.src_ts) {
-            ss.push("&_t=")
-            ss.push(this.src_ts)
+            ss.push("&_t=");
+            ss.push(this.src_ts);
           }
           return {
-            type: "image", value: ss.join("")
-          }
+            type: "image",
+            value: ss.join("")
+          };
         }
         //..................................
         // Others just get the icon font
-        return Wn.Util.getObjIcon(this.oFile)
+        return Wn.Util.getObjIcon(this.oFile);
       }
     },
     //--------------------------------------
     PreviewType() {
-      return this.srcAsUrl ? "link" : "obj"
+      return this.srcAsUrl ? "link" : "obj";
     },
     //--------------------------------------
     FileTitle() {
       if (this.srcAsUrl) {
-        return this.value
+        return this.value;
       }
       //....................................
       if (this.oFile) {
-        return Ti.Util.getFallback(this.oFile, "title", "nm")
+        return Ti.Util.getFallback(this.oFile, "title", "nm");
       }
-      return this.value
+      return this.value;
     },
     //--------------------------------------
     FileHref() {
-      if(this.srcAsUrl){
-        return this.value
+      if (this.srcAsUrl) {
+        return this.value;
       }
-      if(this.oFile){
-        return Wn.Util.getAppLinkStr(this.oFile)
+      if (this.oFile) {
+        return Wn.Util.getAppLinkStr(this.oFile);
       }
     },
     //--------------------------------------
+    FileLocal() {
+      if (this.oFile && this.oFile.local) {
+        return {
+          type: Ti.Util.getSuffixName(this.oFile.local.name, true),
+          name: this.oFile.local.name,
+          majorName: Ti.Util.getMajorName(this.oFile.local.name),
+          type: this.oFile.local.mime,
+          size: this.oFile.local.size,
+          path: Wn.Io.getFormedPath(this.oFile)
+        };
+      }
+    },
+    //--------------------------------------
+    FileTarget() {
+      return Ti.S.renderBy(this.target, this.FileLocal);
+    },
+    //--------------------------------------
+    isShallowRemove() {
+      if (_.isBoolean(this.shallowRemove)) {
+        return this.shallowRemove;
+      }
+      if (!this.FileLocal) {
+        return false;
+      }
+      if (this.oTarget && this.oFile) {
+        return this.oTarget.id != this.oFile.id;
+      }
+      return this.FileLocal.path != this.FileTarget;
+    },
+    //--------------------------------------
+    UploadPrefixHoverIcon(){
+      return this.isShallowRemove
+       ? "zmdi-close"
+       : "far-trash-alt"
+    },
+    //--------------------------------------
     TheActions() {
-      return Ti.Util.explainObj(this.oFile || {}, this.actions) || []
+      return Ti.Util.explainObj(this.oFile || {}, this.actions) || [];
     }
     //--------------------------------------
   },
@@ -209,11 +252,11 @@ const _M = {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
       if (!_.isEmpty(list)) {
-        let invalid = true
+        let invalid = true;
         for (let li of list) {
           if (li == str) {
-            invalid = false
-            break
+            invalid = false;
+            break;
           }
         }
         if (invalid) {
@@ -221,41 +264,42 @@ const _M = {
             type: "warn",
             icon: "zmdi-alert-triangle",
             vars
-          })
-          return false
+          });
+          return false;
         }
       }
-      return true
+      return true;
     },
     //--------------------------------------
     async OnExlink() {
-      let value = this.srcAsUrl ? this.value : undefined
-      let src = _.trim(await Ti.Prompt("i18n:exlink-tip-img", {
-        width: "80%",
-        value
-      }))
+      let value = this.srcAsUrl ? this.value : undefined;
+      let src = _.trim(
+        await Ti.Prompt("i18n:exlink-tip-img", {
+          width: "80%",
+          value
+        })
+      );
       // User cancel
-      if (!src)
-        return
+      if (!src) return;
 
-      this.$notify("change", src)
+      this.$notify("change", src);
     },
     //--------------------------------------
     async OnOpen() {
       if (this.srcAsUrl) {
-        await Ti.Be.Open(this.value)
+        await Ti.Be.Open(this.value);
       }
       // remove the thumb file
       else if (this.oFile) {
-        let link = Wn.Util.getAppLink(this.oFile)
+        let link = Wn.Util.getAppLink(this.oFile);
         //console.log("it will open ", link)
-        await Ti.Be.Open(link.url, { params: link.params })
+        await Ti.Be.Open(link.url, { params: link.params });
       }
     },
     //--------------------------------------
     async OnDownload() {
       if (this.srcAsUrl) {
-        await Ti.Be.Open(this.value)
+        await Ti.Be.Open(this.value);
       }
       // remove the thumb file
       else if (this.oFile) {
@@ -265,28 +309,28 @@ const _M = {
             str: `id:${this.oFile.id}`,
             d: true
           }
-        })
+        });
       }
     },
     //--------------------------------------
     async OnRemove() {
       // remove the thumb file
-      if (this.oFile) {
-        await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
+      if (this.oFile && !this.isShallowRemove) {
+        await Wn.Sys.exec2(`rm id:${this.oFile.id}`);
       }
       // Notify the change
-      this.$notify("change", null)
+      this.$notify("change", null);
     },
     //--------------------------------------
     async OnUpload(file) {
       //console.log("it will upload ", file)
       // Guard: no target
       if (!this.target) {
-        return await Ti.Toast.Open("i18n:nil-target", "warn")
+        return await Ti.Toast.Open("i18n:nil-target", "warn");
       }
       //................................
       // Check file size
-      let fileSize = file.size
+      let fileSize = file.size;
       if (this.minFileSize > 0 && fileSize < this.minFileSize) {
         return await Ti.Alert("i18n:wn-invalid-fsize-min", {
           type: "warn",
@@ -295,7 +339,7 @@ const _M = {
             minSize: Ti.S.sizeText(this.minFileSize),
             fileSize: Ti.S.sizeText(fileSize)
           }
-        })
+        });
       }
       if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
         return await Ti.Alert("i18n:wn-invalid-fsize-max", {
@@ -305,24 +349,30 @@ const _M = {
             maxSize: Ti.S.sizeText(this.maxFileSize),
             fileSize: Ti.S.sizeText(fileSize)
           }
-        })
+        });
       }
       //................................
       // Check for support Types
-      let type = Ti.Util.getSuffixName(file.name, true)
-      if (!await this.assertListHas(
-        this.AcceptTypes, type,
-        'i18n:wn-invalid-types',
-        { current: type, supports: this.AcceptTypes.join(", ") })
+      let type = Ti.Util.getSuffixName(file.name, true);
+      if (
+        !(await this.assertListHas(
+          this.AcceptTypes,
+          type,
+          "i18n:wn-invalid-types",
+          { current: type, supports: this.AcceptTypes.join(", ") }
+        ))
       ) {
-        return
+        return;
       }
-      if (!await this.assertListHas(
-        this.AcceptMimes, file.type,
-        'i18n:wn-invalid-mimes',
-        { current: file.type, supports: this.AcceptMimes.join(", ") })
+      if (
+        !(await this.assertListHas(
+          this.AcceptMimes,
+          file.type,
+          "i18n:wn-invalid-mimes",
+          { current: file.type, supports: this.AcceptMimes.join(", ") }
+        ))
       ) {
-        return
+        return;
       }
 
       //................................
@@ -331,90 +381,101 @@ const _M = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      }
+      };
       //................................
       // Prepare customized file meta
       // Merge them to vars, then we can make target path more-dyna
-      _.assign(vars, this.fileMeta)
-      let taPath = Ti.S.renderBy(this.target, vars)
+      _.assign(vars, this.fileMeta);
+      let taPath = Ti.S.renderBy(this.target, vars);
 
       //................................
       // Upload file to destination
-      this.uploadFile = file
-      this.progress = 0
+      this.uploadFile = file;
+      this.progress = 0;
 
       let { ok, msg, data } = await Wn.Io.uploadFile(file, {
         target: taPath,
         mode: "r",
         progress: (pe) => {
-          this.progress = pe.loaded / pe.total
+          this.progress = pe.loaded / pe.total;
         }
-      })
+      });
 
       //................................
       // Reset upload
-      this.uploadFile = null
-      this.progress = -1
+      this.uploadFile = null;
+      this.progress = -1;
 
       //................................
       // Fail to upload
       if (!ok) {
-        await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
-        return
+        await Ti.Alert(`i18n:${msg}`, {
+          type: "warn",
+          icon: "zmdi-alert-triangle"
+        });
+        return;
       }
 
       //................................
       // Extra-file-meta
       if (!_.isEmpty(this.fileMeta)) {
-        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
-        let metaJson = JSON.stringify(fileMeta)
-        let cmdText = `o id:${data.id} @update @json -cqn`
-        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta);
+        let metaJson = JSON.stringify(fileMeta);
+        let cmdText = `o id:${data.id} @update @json -cqn`;
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" });
       }
 
       //................................
       // do Filter
       if (!_.isEmpty(this.ImageFilter)) {
         let cmd = [
-          "imagic", `id:${data.id}`,
-          `-filter "${this.ImageFilter.join(" ")}"`]
+          "imagic",
+          `id:${data.id}`,
+          `-filter "${this.ImageFilter.join(" ")}"`
+        ];
         if (this.quality > 0 && this.quality <= 1) {
-          cmd.push(`-qa ${this.quality}`)
+          cmd.push(`-qa ${this.quality}`);
         }
-        cmd.push("-out inplace")
-        let cmdText = cmd.join(" ")
-        await Wn.Sys.exec2(cmdText)
+        cmd.push("-out inplace");
+        let cmdText = cmd.join(" ");
+        await Wn.Sys.exec2(cmdText);
       }
 
       //................................
       // done
-      this.src_ts = Date.now()
-      this.oFile = data
+      this.src_ts = Date.now();
+      this.oFile = data;
 
       //................................
       // Transform value
-      let val = Wn.Io.formatObjPath(data, this.valueType)
+      let val = Wn.Io.formatObjPath(data, this.valueType);
 
       //................................
-      this.$notify("change", val)
+      this.$notify("change", val);
     },
     //--------------------------------------
     async reload() {
-      this.srcAsUrl = /^https?:\/\//.test(this.value)
+      this.srcAsUrl = /^https?:\/\//.test(this.value);
       if (this.srcAsUrl) {
-        return
+        return;
       }
       //console.log("reload")
       if (_.isString(this.value)) {
-        this.oFile = await Wn.Io.loadMetaBy(this.value)
+        this.oFile = await Wn.Io.loadMetaBy(this.value);
       }
       // Object
       else if (this.value && this.value.id && this.value.mime) {
-        this.oFile = _.cloneDeep(this.value)
+        this.oFile = _.cloneDeep(this.value);
       }
       // Reset
       else {
-        this.oFile = null
+        this.oFile = null;
+      }
+
+      if (this.FileTarget) {
+        this.oTarget = await Wn.Io.loadMeta(this.FileTarget);
+      } else {
+        this.oTarget = null;
       }
     }
     //--------------------------------------
@@ -422,13 +483,13 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "value": function () {
-      this.reload()
+      this.reload();
     }
   },
   //////////////////////////////////////////
   mounted: async function () {
-    await this.reload()
+    await this.reload();
   }
   //////////////////////////////////////////
-}
+};
 export default _M;

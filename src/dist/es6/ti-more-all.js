@@ -1,4 +1,4 @@
-// Pack At: 2023-03-19 22:07:31
+// Pack At: 2023-03-21 21:54:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9059,10 +9059,10 @@ const _M = {
       default: null
     },
     "text": {
-      type: String,
+      type: String
     },
     "href": {
-      type: String,
+      type: String
     },
     // Show the process `0.0-1.0` during the uploading
     "progress": {
@@ -9101,14 +9101,18 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
+    },
     "placeholder": {
       type: String,
-      default: "i18n:no-selected",
+      default: "i18n:no-selected"
     },
     "hideBorder": {
       type: Boolean,
       default: false
-    },
+    }
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -9126,63 +9130,63 @@ const _M = {
         "no-readonly": !this.readonly,
         "has-text": this.hasText,
         "no-text": !this.hasText
-      })
+      });
     },
     //--------------------------------------
     hasPreview() {
-      return this.preview ? true : false
+      return this.preview ? true : false;
     },
     //--------------------------------------
     hasText() {
-      return this.text ? true : false
+      return this.text ? true : false;
     },
     //--------------------------------------
     hasHref() {
-      return this.href ? true : false
+      return this.href ? true : false;
     },
     //--------------------------------------
     isEditable() {
-      return !this.readonly
+      return !this.readonly;
     },
     //--------------------------------------
     isShowProgress() {
-      return this.progress > 0
+      return this.progress > 0;
     },
     //--------------------------------------
     ProgressTip() {
-      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false })
+      return Ti.S.toPercent(this.progress, { fixed: 1, auto: false });
     },
     //--------------------------------------
     ProgressStyle() {
-      return { width: this.ProgressTip }
+      return { width: this.ProgressTip };
     },
     //--------------------------------------
     PreviewIcon() {
       if (this.uploadFile) {
-        let file = this.uploadFile
+        let file = this.uploadFile;
         return Ti.Icons.get({
           type: Ti.Util.getSuffixName(file.name),
           mime: file.type,
           race: Ti.Util.isNil(file.type) ? "DIR" : "FILE"
-        })
+        });
       }
       // Tip Remove
       if (this.hasText && this.mouseEnterPrefix) {
-        return "zmdi-close-circle"
+        return this.prefixHoverIcon;
       }
       // Normal image
       if (this.preview) {
-        return this.preview
+        return this.preview;
       }
       // Show Icon
-      return "zmdi-folder-outline"
+      return "zmdi-folder-outline";
     },
     //--------------------------------------
     BoxItemText() {
       if (this.text) {
-        return this.text
+        return this.text;
       }
-      return Ti.I18n.text(this.placeholder)
+      return Ti.I18n.text(this.placeholder);
     },
     //--------------------------------------
     ActionItems() {
@@ -9194,7 +9198,7 @@ const _M = {
           icon: "fas-upload",
           text: "i18n:select",
           action: () => {
-            this.$refs.file.click()
+            this.$refs.file.click();
           }
         },
         download: {
@@ -9213,18 +9217,18 @@ const _M = {
             this.OnOpen();
           }
         }
-      }
+      };
 
       if (this.isEditable) {
-        items.push(_.omit(itActions.select, "text"))
+        items.push(_.omit(itActions.select, "text"));
         if (this.hasPreview) {
-          mores.push(itActions.download, itActions.open)
+          mores.push(itActions.download, itActions.open);
         }
       }
       // Readonly
       else if (this.hasPreview) {
-        items.push(_.omit(itActions.open, "text"))
-        mores.push(itActions.download)
+        items.push(_.omit(itActions.open, "text"));
+        mores.push(itActions.download);
       }
 
       // More actions
@@ -9233,32 +9237,32 @@ const _M = {
           let handler;
           if (_.isString(at.action)) {
             handler = () => {
-              this.$notify(at.action, at.payload)
-            }
+              this.$notify(at.action, at.payload);
+            };
           }
           if (_.isFunction(at.action)) {
             handler = () => {
-              at.action(at.payload, this)
-            }
+              at.action(at.payload, this);
+            };
           }
           mores.push({
             icon: at.icon,
             text: at.text,
             className: at.className,
             handler
-          })
+          });
         }
       }
 
       if (!_.isEmpty(mores)) {
         items.push({
-          icon: 'zmdi-more-vert',
+          icon: "zmdi-more-vert",
           topHoverOpen: true,
           items: mores
-        })
+        });
       }
 
-      return items
+      return items;
     }
     //--------------------------------------
   },
@@ -9266,58 +9270,57 @@ const _M = {
   methods: {
     //--------------------------------------
     OnMouseEnterPrefix() {
-      if (this.hasText)
-        this.mouseEnterPrefix = true
+      if (this.hasText) this.mouseEnterPrefix = true;
     },
     //--------------------------------------
     OnMouseLeaverPrefix() {
-      this.mouseEnterPrefix = false
+      this.mouseEnterPrefix = false;
     },
     //--------------------------------------
     OnRemove() {
-      this.mouseEnterPrefix = false
-      this.$notify("remove")
+      this.mouseEnterPrefix = false;
+      this.$notify("remove");
     },
     //--------------------------------------
     OnClickToEdit() {
       if (this.readonly) {
-        this.$notify("open")
+        this.$notify("open");
       } else {
-        this.$refs.file.click()
+        this.$refs.file.click();
       }
     },
     //--------------------------------------
     async OnDropFiles(files) {
-      let file = _.get(files, 0)
+      let file = _.get(files, 0);
       if (file && !this.readonly) {
-        this.$notify("upload", file)
+        this.$notify("upload", file);
       }
     },
     //--------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
-      await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      await this.OnDropFiles(evt.target.files);
+      this.$refs.file.value = "";
     },
     //--------------------------------------
     OnRemove() {
-      this.$notify("remove")
+      this.$notify("remove");
     },
     //--------------------------------------
     OnOpen() {
-      this.$notify("open")
+      this.$notify("open");
     },
     //--------------------------------------
     OnExlink() {
-      this.$notify("exlink")
+      this.$notify("exlink");
     },
     //--------------------------------------
     OnDownload() {
-      this.$notify("download")
+      this.$notify("download");
     }
     //--------------------------------------
   }
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -12665,6 +12668,7 @@ const _M = {
   computed: {
     //--------------------------------------
     GuiExplainContext() {
+      let load = Ti.Util.explainObj(this, this.load);
       return {
         moduleName: this.moduleName,
         rootState: this.rootState,
@@ -12672,7 +12676,7 @@ const _M = {
         thingSetId: this.thingSetId,
         oTs: this.oTs,
         //------------------------------
-        load: this.load,
+        load,
         //------------------------------
         aggQuery: this.aggQuery,
         agg: this.agg,
@@ -12710,7 +12714,7 @@ const _M = {
         currentDataHomeObj: this.dataHomeObj,
         currentDataDirName: this.dataDirName,
         //------------------------------
-        ...this.getters,
+        ...this.getters
       };
     },
     //--------------------------------------
@@ -12739,32 +12743,32 @@ const _M = {
       return {
         "reloading": {
           icon: "fas-spinner fa-spin",
-          text: "i18n:loading",
+          text: "i18n:loading"
         },
         "doing": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:doing",
+          text: "i18n:doing"
         },
         "saving": {
           icon: "zmdi-settings fa-spin",
-          text: "i18n:saving",
+          text: "i18n:saving"
         },
         "deleting": {
           icon: "zmdi-refresh fa-spin",
-          text: "i18n:del-ing",
+          text: "i18n:del-ing"
         },
         "publishing": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:publishing",
+          text: "i18n:publishing"
         },
         "restoring": {
           icon: "zmdi-time-restore zmdi-hc-spin",
-          text: "i18n:thing-restoring",
+          text: "i18n:thing-restoring"
         },
         "cleaning": {
           icon: "zmdi-settings zmdi-hc-spin",
-          text: "i18n:thing-cleaning",
-        },
+          text: "i18n:thing-cleaning"
+        }
       };
     },
     //--------------------------------------
@@ -12778,11 +12782,11 @@ const _M = {
         this.status.cleaning
         ? true
         : false;
-    },
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods: {},
+  methods: {}
   ///////////////////////////////////////////
 };
 return _M;;
@@ -32863,7 +32867,7 @@ const _M = {
   data: () => ({
     myArea: 0,
     myActionsWidth: 0,
-    showMoreActions:false
+    showMoreActions: false
   }),
   /////////////////////////////////////////
   props: {
@@ -32897,7 +32901,7 @@ const _M = {
     "previewType": {
       type: String,
       default: "obj",
-      validator: v => /^(obj|link)$/.test(v)
+      validator: (v) => /^(obj|link)$/.test(v)
     },
     // support remove the objects
     "removable": {
@@ -32923,18 +32927,22 @@ const _M = {
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
+    "prefixHoverIcon": {
+      type: String,
+      default: "zmdi-close-circle"
+    },
     "actionLimit": {
       type: Number,
-      default: 3,
+      default: 3
     },
     "areaSize": {
       type: Object,
       default: () => ({
         //xl: (800 * 800),
-        xs: (100 * 100),
-        sm: (200 * 200),
-        md: (400 * 400),
-        lg: (600 * 600),
+        xs: 100 * 100,
+        sm: 200 * 200,
+        md: 400 * 400,
+        lg: 600 * 600
       })
     },
     //------------------------------------------------
@@ -32963,26 +32971,21 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass(
-        `is-area-${this.AreaType}`)
+      return this.getTopClass(`is-area-${this.AreaType}`);
     },
     //--------------------------------------
     AreaType() {
       let AS = this.areaSize;
-      let ar = this.myArea
+      let ar = this.myArea;
       if (ar <= 0) {
-        return "nil"
+        return "nil";
       }
-      if (_.inRange(ar, 0, AS.xs + 1))
-        return "xs"
-      if (_.inRange(ar, AS.xs, AS.sm + 1))
-        return "sm"
-      if (_.inRange(ar, AS.sm, AS.md + 1))
-        return "md"
-      if (_.inRange(ar, AS.md, AS.lg + 1))
-        return "lg"
+      if (_.inRange(ar, 0, AS.xs + 1)) return "xs";
+      if (_.inRange(ar, AS.xs, AS.sm + 1)) return "sm";
+      if (_.inRange(ar, AS.sm, AS.md + 1)) return "md";
+      if (_.inRange(ar, AS.md, AS.lg + 1)) return "lg";
 
-      return "xl"
+      return "xl";
     },
     //--------------------------------------
     ThumbStyle() {
@@ -32991,23 +32994,23 @@ const _M = {
         height: this.height,
         maxWidth: this.maxWidth,
         maxHeight: this.maxHeight
-      })
+      });
     },
     //--------------------------------------
     ActionsStyle() {
       if (/^(xs|sm)$/.test(this.AreaType)) {
         return {
           right: Ti.Css.toSize(this.myActionsWidth * -1)
-        }
+        };
       }
     },
     //--------------------------------------
     hasPreview() {
-      return this.preview ? true : false
+      return this.preview ? true : false;
     },
     //--------------------------------------
     isShowActions() {
-      return !_.isEmpty(this.ActionItems)
+      return !_.isEmpty(this.ActionItems);
     },
     //--------------------------------------
     ActionItems() {
@@ -33020,7 +33023,7 @@ const _M = {
           handler: () => {
             this.OnRemove();
           }
-        })
+        });
       }
       if (this.isShowOpenIcon) {
         items.push({
@@ -33030,7 +33033,7 @@ const _M = {
           handler: () => {
             this.OnOpen();
           }
-        })
+        });
       }
       if (this.isShowExlink) {
         items.push({
@@ -33040,7 +33043,7 @@ const _M = {
           handler: () => {
             this.OnExlink();
           }
-        })
+        });
       }
       if (this.isShowDownloadIcon) {
         items.push({
@@ -33050,159 +33053,154 @@ const _M = {
           handler: () => {
             this.OnDownload();
           }
-        })
+        });
       }
       if (_.isArray(this.actions)) {
         for (let at of this.actions) {
           let handler;
           if (_.isString(at.action)) {
             handler = () => {
-              this.$notify(at.action, at.payload)
-            }
+              this.$notify(at.action, at.payload);
+            };
           }
           if (_.isFunction(at.action)) {
             handler = () => {
-              at.action(at.payload, this)
-            }
+              at.action(at.payload, this);
+            };
           }
           items.push({
             icon: at.icon,
             text: at.text,
             className: at.className,
             handler
-          })
+          });
         }
       }
-      
 
       return items;
     },
     //--------------------------------------
-    TopActionItems(){
-      let items =this.ActionItems;
-      let N = this.actionLimit
+    TopActionItems() {
+      let items = this.ActionItems;
+      let N = this.actionLimit;
       if (items.length > N) {
         let I = N - 1;
-        let list = items.slice(0, I)
+        let list = items.slice(0, I);
         list.push({
-          icon:"zmdi-settings",
-          text:"i18n:more",
-          hoverMore:true
-        })
+          icon: "zmdi-settings",
+          text: "i18n:more",
+          hoverMore: true
+        });
         return list;
       }
       return items;
     },
     //--------------------------------------
-    MoreActionItems(){
-      let items =this.ActionItems;
-      let N = this.actionLimit
+    MoreActionItems() {
+      let items = this.ActionItems;
+      let N = this.actionLimit;
       if (items.length > N) {
         let I = N - 1;
-        return items.slice(I)
+        return items.slice(I);
       }
-      
     },
     //--------------------------------------
     isShowRemoveIcon() {
       if (!this.uploadFile && this.hasPreview && !this.readonly) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     //--------------------------------------
     isShowOpenIcon() {
-      return this.openable&& this.hasPreview
+      return this.openable && this.hasPreview;
     },
     //--------------------------------------
     isShowDownloadIcon() {
-      return this.downloadable &&this.hasPreview
+      return this.downloadable && this.hasPreview;
     },
     //--------------------------------------
     isShowExlink() {
-      return this.exlink && !this.hasPreview
+      return this.exlink && !this.hasPreview;
     },
     //--------------------------------------
     PreviewIcon() {
       if (this.uploadFile) {
-        return { type: "localFile", value: this.uploadFile }
+        return { type: "localFile", value: this.uploadFile };
       }
       // Normal image
       if (this.preview) {
-        return this.preview
+        return this.preview;
       }
       // Show Icon
-      return "zmdi-plus"
+      return "zmdi-plus";
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
-    OnMouseEnter({hoverMore}={}){
-      if(!hoverMore){
+    OnMouseEnter({ hoverMore } = {}) {
+      if (!hoverMore) {
         return;
       }
       this.showMoreActions = true;
-      this.$nextTick(()=>{
-
-      })
+      this.$nextTick(() => {});
     },
     //--------------------------------------
     OnClickToEdit() {
       if ("link" == this.previewType) {
-        this.$notify("exlink")
+        this.$notify("exlink");
       } else if (this.readonly) {
-        this.$notify("open")
+        this.$notify("open");
       } else {
-        this.$refs.file.click()
+        this.$refs.file.click();
       }
     },
     //--------------------------------------
     async OnDropFiles(files) {
-      let file = _.get(files, 0)
+      let file = _.get(files, 0);
       if (file && !this.readonly) {
-        this.$notify("upload", file)
+        this.$notify("upload", file);
       }
     },
     //--------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
-      await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      await this.OnDropFiles(evt.target.files);
+      this.$refs.file.value = "";
     },
     //--------------------------------------
     OnRemove() {
-      this.$notify("remove")
+      this.$notify("remove");
     },
     //--------------------------------------
     OnOpen() {
-      this.$notify("open")
+      this.$notify("open");
     },
     //--------------------------------------
     OnExlink() {
-      this.$notify("exlink")
+      this.$notify("exlink");
     },
     //--------------------------------------
     OnDownload() {
-      this.$notify("download")
+      this.$notify("download");
     },
     //--------------------------------------
     recountArea() {
-      let rect = Ti.Rects.createBy(this.$refs.thumb)
-      if (_.isEmpty(rect))
-        return
-      this.myArea = rect.width * rect.height
+      let rect = Ti.Rects.createBy(this.$refs.thumb);
+      if (_.isEmpty(rect)) return;
+      this.myArea = rect.width * rect.height;
       if (this.$refs.actions) {
-        this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width
+        this.myActionsWidth = this.$refs.actions.getBoundingClientRect().width;
       } else {
-        this.myActionsWidth = 0
+        this.myActionsWidth = 0;
       }
     },
     //--------------------------------------
     shouldRecountArea() {
       _.delay(() => {
-        this.recountArea()
-      }, 10)
+        this.recountArea();
+      }, 10);
     }
     //--------------------------------------
   },
@@ -33218,20 +33216,20 @@ const _M = {
   created: function () {
     Ti.Viewport.watch(this, {
       resize: () => {
-        this.recountArea()
+        this.recountArea();
       }
-    })
+    });
   },
   //////////////////////////////////////////
   mounted: function () {
-    this.$nextTick(() => this.recountArea())
+    this.$nextTick(() => this.recountArea());
   },
   //////////////////////////////////////////
   beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
+    Ti.Viewport.unwatch(this);
   }
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -71480,6 +71478,7 @@ const _M = {
     srcAsUrl: false,
     src_ts: null,
     oFile: null,
+    oTarget: null,
     uploadFile: null,
     progress: -1
   }),
@@ -71499,7 +71498,7 @@ const _M = {
     "valueType": {
       type: String,
       default: "obj",
-      validator: v => /^(obj|path|fullPath|idPath|id)$/.test(v)
+      validator: (v) => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Auto append the extra-meta after file been uploaded
     "fileMeta": {
@@ -71569,6 +71568,12 @@ const _M = {
       type: Array,
       default: () => []
     },
+    // remove  the refer file when click remove button
+    // default is undefined, it will auto determined by target
+    // is same target, then true, else false
+    "shallowRemove": {
+      tyep: Boolean
+    },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
@@ -71589,94 +71594,130 @@ const _M = {
     "maxHeight": {
       type: [String, Number],
       default: undefined
-    },
+    }
   },
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
     AcceptTypes() {
-      if (_.isString(this.supportTypes))
-        return this.supportTypes.split(",")
-      return this.supportTypes
+      if (_.isString(this.supportTypes)) return this.supportTypes.split(",");
+      return this.supportTypes;
     },
     //--------------------------------------
     AcceptMimes() {
-      if (_.isString(this.supportMimes))
-        return this.supportMimes.split(",")
-      return this.supportMimes
+      if (_.isString(this.supportMimes)) return this.supportMimes.split(",");
+      return this.supportMimes;
     },
     //--------------------------------------
     ImageFilter() {
-      if (!this.filter)
-        return []
-      return [].concat(this.filter)
+      if (!this.filter) return [];
+      return [].concat(this.filter);
     },
     //--------------------------------------
     // Display image for <ti-thumb>
     PreviewIcon() {
       if (this.srcAsUrl) {
         return {
-          type: "image", value: this.value
-        }
+          type: "image",
+          value: this.value
+        };
       }
       //....................................
       if (this.oFile) {
         //..................................
         // Image
         if (Wn.Obj.isMime(this.oFile, /^(image\/)/)) {
-          let ss = ["/o/content?str=id:", this.oFile.id]
+          let ss = ["/o/content?str=id:", this.oFile.id];
           if (this.src_ts) {
-            ss.push("&_t=")
-            ss.push(this.src_ts)
+            ss.push("&_t=");
+            ss.push(this.src_ts);
           }
           return {
-            type: "image", value: ss.join("")
-          }
+            type: "image",
+            value: ss.join("")
+          };
         }
         //..................................
         // Video
         if (Wn.Obj.isMime(this.oFile, /^(video\/)/)) {
-          let ss = ["/o/content?str=id:", this.oFile.video_cover]
+          let ss = ["/o/content?str=id:", this.oFile.video_cover];
           if (this.src_ts) {
-            ss.push("&_t=")
-            ss.push(this.src_ts)
+            ss.push("&_t=");
+            ss.push(this.src_ts);
           }
           return {
-            type: "image", value: ss.join("")
-          }
+            type: "image",
+            value: ss.join("")
+          };
         }
         //..................................
         // Others just get the icon font
-        return Wn.Util.getObjIcon(this.oFile)
+        return Wn.Util.getObjIcon(this.oFile);
       }
     },
     //--------------------------------------
     PreviewType() {
-      return this.srcAsUrl ? "link" : "obj"
+      return this.srcAsUrl ? "link" : "obj";
     },
     //--------------------------------------
     FileTitle() {
       if (this.srcAsUrl) {
-        return this.value
+        return this.value;
       }
       //....................................
       if (this.oFile) {
-        return Ti.Util.getFallback(this.oFile, "title", "nm")
+        return Ti.Util.getFallback(this.oFile, "title", "nm");
       }
-      return this.value
+      return this.value;
     },
     //--------------------------------------
     FileHref() {
-      if(this.srcAsUrl){
-        return this.value
+      if (this.srcAsUrl) {
+        return this.value;
       }
-      if(this.oFile){
-        return Wn.Util.getAppLinkStr(this.oFile)
+      if (this.oFile) {
+        return Wn.Util.getAppLinkStr(this.oFile);
       }
     },
     //--------------------------------------
+    FileLocal() {
+      if (this.oFile && this.oFile.local) {
+        return {
+          type: Ti.Util.getSuffixName(this.oFile.local.name, true),
+          name: this.oFile.local.name,
+          majorName: Ti.Util.getMajorName(this.oFile.local.name),
+          type: this.oFile.local.mime,
+          size: this.oFile.local.size,
+          path: Wn.Io.getFormedPath(this.oFile)
+        };
+      }
+    },
+    //--------------------------------------
+    FileTarget() {
+      return Ti.S.renderBy(this.target, this.FileLocal);
+    },
+    //--------------------------------------
+    isShallowRemove() {
+      if (_.isBoolean(this.shallowRemove)) {
+        return this.shallowRemove;
+      }
+      if (!this.FileLocal) {
+        return false;
+      }
+      if (this.oTarget && this.oFile) {
+        return this.oTarget.id != this.oFile.id;
+      }
+      return this.FileLocal.path != this.FileTarget;
+    },
+    //--------------------------------------
+    UploadPrefixHoverIcon(){
+      return this.isShallowRemove
+       ? "zmdi-close"
+       : "far-trash-alt"
+    },
+    //--------------------------------------
     TheActions() {
-      return Ti.Util.explainObj(this.oFile || {}, this.actions) || []
+      return Ti.Util.explainObj(this.oFile || {}, this.actions) || [];
     }
     //--------------------------------------
   },
@@ -71685,11 +71726,11 @@ const _M = {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
       if (!_.isEmpty(list)) {
-        let invalid = true
+        let invalid = true;
         for (let li of list) {
           if (li == str) {
-            invalid = false
-            break
+            invalid = false;
+            break;
           }
         }
         if (invalid) {
@@ -71697,41 +71738,42 @@ const _M = {
             type: "warn",
             icon: "zmdi-alert-triangle",
             vars
-          })
-          return false
+          });
+          return false;
         }
       }
-      return true
+      return true;
     },
     //--------------------------------------
     async OnExlink() {
-      let value = this.srcAsUrl ? this.value : undefined
-      let src = _.trim(await Ti.Prompt("i18n:exlink-tip-img", {
-        width: "80%",
-        value
-      }))
+      let value = this.srcAsUrl ? this.value : undefined;
+      let src = _.trim(
+        await Ti.Prompt("i18n:exlink-tip-img", {
+          width: "80%",
+          value
+        })
+      );
       // User cancel
-      if (!src)
-        return
+      if (!src) return;
 
-      this.$notify("change", src)
+      this.$notify("change", src);
     },
     //--------------------------------------
     async OnOpen() {
       if (this.srcAsUrl) {
-        await Ti.Be.Open(this.value)
+        await Ti.Be.Open(this.value);
       }
       // remove the thumb file
       else if (this.oFile) {
-        let link = Wn.Util.getAppLink(this.oFile)
+        let link = Wn.Util.getAppLink(this.oFile);
         //console.log("it will open ", link)
-        await Ti.Be.Open(link.url, { params: link.params })
+        await Ti.Be.Open(link.url, { params: link.params });
       }
     },
     //--------------------------------------
     async OnDownload() {
       if (this.srcAsUrl) {
-        await Ti.Be.Open(this.value)
+        await Ti.Be.Open(this.value);
       }
       // remove the thumb file
       else if (this.oFile) {
@@ -71741,28 +71783,28 @@ const _M = {
             str: `id:${this.oFile.id}`,
             d: true
           }
-        })
+        });
       }
     },
     //--------------------------------------
     async OnRemove() {
       // remove the thumb file
-      if (this.oFile) {
-        await Wn.Sys.exec2(`rm id:${this.oFile.id}`)
+      if (this.oFile && !this.isShallowRemove) {
+        await Wn.Sys.exec2(`rm id:${this.oFile.id}`);
       }
       // Notify the change
-      this.$notify("change", null)
+      this.$notify("change", null);
     },
     //--------------------------------------
     async OnUpload(file) {
       //console.log("it will upload ", file)
       // Guard: no target
       if (!this.target) {
-        return await Ti.Toast.Open("i18n:nil-target", "warn")
+        return await Ti.Toast.Open("i18n:nil-target", "warn");
       }
       //................................
       // Check file size
-      let fileSize = file.size
+      let fileSize = file.size;
       if (this.minFileSize > 0 && fileSize < this.minFileSize) {
         return await Ti.Alert("i18n:wn-invalid-fsize-min", {
           type: "warn",
@@ -71771,7 +71813,7 @@ const _M = {
             minSize: Ti.S.sizeText(this.minFileSize),
             fileSize: Ti.S.sizeText(fileSize)
           }
-        })
+        });
       }
       if (this.maxFileSize > 0 && fileSize >= this.maxFileSize) {
         return await Ti.Alert("i18n:wn-invalid-fsize-max", {
@@ -71781,24 +71823,30 @@ const _M = {
             maxSize: Ti.S.sizeText(this.maxFileSize),
             fileSize: Ti.S.sizeText(fileSize)
           }
-        })
+        });
       }
       //................................
       // Check for support Types
-      let type = Ti.Util.getSuffixName(file.name, true)
-      if (!await this.assertListHas(
-        this.AcceptTypes, type,
-        'i18n:wn-invalid-types',
-        { current: type, supports: this.AcceptTypes.join(", ") })
+      let type = Ti.Util.getSuffixName(file.name, true);
+      if (
+        !(await this.assertListHas(
+          this.AcceptTypes,
+          type,
+          "i18n:wn-invalid-types",
+          { current: type, supports: this.AcceptTypes.join(", ") }
+        ))
       ) {
-        return
+        return;
       }
-      if (!await this.assertListHas(
-        this.AcceptMimes, file.type,
-        'i18n:wn-invalid-mimes',
-        { current: file.type, supports: this.AcceptMimes.join(", ") })
+      if (
+        !(await this.assertListHas(
+          this.AcceptMimes,
+          file.type,
+          "i18n:wn-invalid-mimes",
+          { current: file.type, supports: this.AcceptMimes.join(", ") }
+        ))
       ) {
-        return
+        return;
       }
 
       //................................
@@ -71807,90 +71855,101 @@ const _M = {
         type,
         name: file.name,
         majorName: Ti.Util.getMajorName(file.name)
-      }
+      };
       //................................
       // Prepare customized file meta
       // Merge them to vars, then we can make target path more-dyna
-      _.assign(vars, this.fileMeta)
-      let taPath = Ti.S.renderBy(this.target, vars)
+      _.assign(vars, this.fileMeta);
+      let taPath = Ti.S.renderBy(this.target, vars);
 
       //................................
       // Upload file to destination
-      this.uploadFile = file
-      this.progress = 0
+      this.uploadFile = file;
+      this.progress = 0;
 
       let { ok, msg, data } = await Wn.Io.uploadFile(file, {
         target: taPath,
         mode: "r",
         progress: (pe) => {
-          this.progress = pe.loaded / pe.total
+          this.progress = pe.loaded / pe.total;
         }
-      })
+      });
 
       //................................
       // Reset upload
-      this.uploadFile = null
-      this.progress = -1
+      this.uploadFile = null;
+      this.progress = -1;
 
       //................................
       // Fail to upload
       if (!ok) {
-        await Ti.Alert(`i18n:${msg}`, { type: "warn", icon: "zmdi-alert-triangle" })
-        return
+        await Ti.Alert(`i18n:${msg}`, {
+          type: "warn",
+          icon: "zmdi-alert-triangle"
+        });
+        return;
       }
 
       //................................
       // Extra-file-meta
       if (!_.isEmpty(this.fileMeta)) {
-        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta)
-        let metaJson = JSON.stringify(fileMeta)
-        let cmdText = `o id:${data.id} @update @json -cqn`
-        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" })
+        let fileMeta = Ti.Util.explainObj(vars, this.fileMeta);
+        let metaJson = JSON.stringify(fileMeta);
+        let cmdText = `o id:${data.id} @update @json -cqn`;
+        data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" });
       }
 
       //................................
       // do Filter
       if (!_.isEmpty(this.ImageFilter)) {
         let cmd = [
-          "imagic", `id:${data.id}`,
-          `-filter "${this.ImageFilter.join(" ")}"`]
+          "imagic",
+          `id:${data.id}`,
+          `-filter "${this.ImageFilter.join(" ")}"`
+        ];
         if (this.quality > 0 && this.quality <= 1) {
-          cmd.push(`-qa ${this.quality}`)
+          cmd.push(`-qa ${this.quality}`);
         }
-        cmd.push("-out inplace")
-        let cmdText = cmd.join(" ")
-        await Wn.Sys.exec2(cmdText)
+        cmd.push("-out inplace");
+        let cmdText = cmd.join(" ");
+        await Wn.Sys.exec2(cmdText);
       }
 
       //................................
       // done
-      this.src_ts = Date.now()
-      this.oFile = data
+      this.src_ts = Date.now();
+      this.oFile = data;
 
       //................................
       // Transform value
-      let val = Wn.Io.formatObjPath(data, this.valueType)
+      let val = Wn.Io.formatObjPath(data, this.valueType);
 
       //................................
-      this.$notify("change", val)
+      this.$notify("change", val);
     },
     //--------------------------------------
     async reload() {
-      this.srcAsUrl = /^https?:\/\//.test(this.value)
+      this.srcAsUrl = /^https?:\/\//.test(this.value);
       if (this.srcAsUrl) {
-        return
+        return;
       }
       //console.log("reload")
       if (_.isString(this.value)) {
-        this.oFile = await Wn.Io.loadMetaBy(this.value)
+        this.oFile = await Wn.Io.loadMetaBy(this.value);
       }
       // Object
       else if (this.value && this.value.id && this.value.mime) {
-        this.oFile = _.cloneDeep(this.value)
+        this.oFile = _.cloneDeep(this.value);
       }
       // Reset
       else {
-        this.oFile = null
+        this.oFile = null;
+      }
+
+      if (this.FileTarget) {
+        this.oTarget = await Wn.Io.loadMeta(this.FileTarget);
+      } else {
+        this.oTarget = null;
       }
     }
     //--------------------------------------
@@ -71898,15 +71957,15 @@ const _M = {
   //////////////////////////////////////////
   watch: {
     "value": function () {
-      this.reload()
+      this.reload();
     }
   },
   //////////////////////////////////////////
   mounted: async function () {
-    await this.reload()
+    await this.reload();
   }
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -100508,6 +100567,7 @@ Ti.Preload("ti/com/wn/transfer/_com.json", {
 Ti.Preload("ti/com/wn/upload/file/wn-upload-file.html", `<TiUploadFile
   :preview="PreviewIcon"
   :preview-type="PreviewType"
+  :prefixHoverIcon="UploadPrefixHoverIcon"
   :exlink="exlink"
   :readonly="readonly"
   :actions="TheActions"
@@ -100545,6 +100605,7 @@ Ti.Preload("ti/com/wn/upload/file/_com.json", {
 Ti.Preload("ti/com/wn/upload/file-box/wn-upload-file-box.html", `<TiUploadFileBox
   :preview="PreviewIcon"
   :preview-type="PreviewType"
+  :prefixHoverIcon="UploadPrefixHoverIcon"
   :text="FileTitle"
   :href="FileHref"
   :exlink="exlink"
