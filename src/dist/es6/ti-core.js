@@ -1,4 +1,4 @@
-// Pack At: 2023-03-22 01:30:47
+// Pack At: 2023-03-22 23:24:30
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -6048,25 +6048,59 @@ const { Dom } = (function(){
       return window.SCROLL_BAR_SIZE;
     },
     //----------------------------------------------------
-    scrollIntoView($view, $row) {
+    scrollIntoView(
+      $view,
+      $row,
+      {
+        to = "auto", // top | bottom | center | auto
+        axis = "xy" // x | y | xy
+      } = {}
+    ) {
       if (!_.isElement($view) || !_.isElement($row)) {
         return;
       }
       let r_view = Ti.Rects.createBy($view);
       let r_row = Ti.Rects.createBy($row);
   
-      // test it need to scroll or not
-      if (!r_view.contains(r_row)) {
+      let testFnName = {
+        xy: "contains",
+        x: "containsX",
+        y: "containsY"
+      }[axis];
+  
+      let toMode = to;
+      if ("auto" == to) {
         // at bottom
         if (r_row.bottom > r_view.bottom) {
-          //console.log("at bottom", r_row.bottom - r_view.bottom)
-          $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2;
+          toMode = "bottom";
         }
         // at top
         else {
-          $view.scrollTop += r_row.top - r_view.top;
-          //console.log("at top", r_row.top - r_view.top)
+          toMode = "top";
         }
+      }
+  
+      // test it need to scroll or not
+      if (!r_view[testFnName](r_row)) {
+        // inMiddle
+        let offset = {
+          center: () => {
+            return r_row.y - r_view.bottom + r_view.height / 2;
+          },
+          top: () => {
+            return r_row.top - r_view.top;
+          },
+          bottom: () => {
+            $view.scrollTop += r_row.bottom - r_view.bottom + r_view.height / 2;
+          }
+        }[toMode];
+  
+        if (!_.isFunction(offset)) {
+          throw `Invalid scrollTo : '${toMode}'`;
+        }
+  
+        let off = offset();
+        $view.scrollTop += off;
       }
     }
     //----------------------------------------------------
@@ -14993,7 +15027,9 @@ const { WWW } = (function(){
         doAction
       } = {}
     ) {
-      //console.log("runApi", api)
+      // if (api && api.path == "obj/read") {
+      //   console.log("www.runApi", api);
+      // }
       //.....................................
       let apiRe;
       //.....................................
@@ -15033,7 +15069,7 @@ const { WWW } = (function(){
       }
       //.....................................
       let { reo, data } = apiRe;
-      let dc = { ...state, reo };
+      let dc = { ...state, reo, params, vars };
       //.....................................
       // Update or merge
       if (api.dataKey) {
@@ -19968,7 +20004,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230322.013047",
+  "version": "1.6-20230322.232430",
   "dev": false,
   "appName": null,
   "session": {},

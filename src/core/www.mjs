@@ -570,7 +570,9 @@ const TiWWW = {
       doAction
     } = {}
   ) {
-    //console.log("runApi", api)
+    // if (api && api.path == "obj/read") {
+    //   console.log("www.runApi", api);
+    // }
     //.....................................
     let apiRe;
     //.....................................
@@ -610,7 +612,7 @@ const TiWWW = {
     }
     //.....................................
     let { reo, data } = apiRe;
-    let dc = { ...state, reo };
+    let dc = { ...state, reo, params, vars };
     //.....................................
     // Update or merge
     if (api.dataKey) {

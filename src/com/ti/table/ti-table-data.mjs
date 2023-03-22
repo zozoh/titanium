@@ -22,14 +22,14 @@ export default {
       }
     */
     ],
-    myData: [],
+    myData: []
   }),
   ///////////////////////////////////////////////////
   computed: {
     //--------------------------------------
     TheData() {
       return this.tblRows;
-    },
+    }
     //--------------------------------------
   },
   ///////////////////////////////////////////////////
@@ -45,10 +45,10 @@ export default {
             itemData: it.rawData,
             displayItem: display[i],
             vars: {
-              rowId: id,
+              rowId: id
             },
             ...opt,
-            uniqKey: `row${id}-cell${index}-${i}`,
+            uniqKey: `row${id}-cell${index}-${i}`
           });
           if (disIt) {
             disIt.className = `item-${i}`;
@@ -69,13 +69,18 @@ export default {
                 autoLoadDictIcon,
                 prefixIcon,
                 editable,
+                enterNotifyName,
+                leaveNotifyName
               } = comConf;
-              if (!editable) {
+              if (!editable && !enterNotifyName && !leaveNotifyName) {
                 let text = value;
                 let icon = prefixIcon;
+                // Show empty placeholder
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
                   text = Ti.Util.fallback(placeholder, "i18n:blank");
-                } else if (dict) {
+                }
+                // Explain Dict
+                else if (dict) {
                   if (Ti.Util.isNil(autoLoadDictIcon)) {
                     autoLoadDictIcon = Ti.Config.getComProp(
                       "TiLabel",
@@ -89,37 +94,41 @@ export default {
                     icon = await $d.getItemIcon(value);
                   }
                 }
+                // Formater
                 if (format) {
                   if (_.isFunction(format)) {
                     text = format(text);
                   }
                 }
-
+                // I18n ...
                 if (/^i18n:/.test(text)) {
                   text = Ti.I18n.text(text);
                 }
+                // Define quick label
                 disIt.quickLabel = {
                   style,
                   className: Ti.Css.mergeClassName(className, disIt.className, {
-                    "is-hover-copy": hoverCopy,
+                    "is-hover-copy": hoverCopy
                   }),
                   hoverCopy,
                   newTab,
                   href,
                   target: newTab ? "_blank" : undefined,
-                  text,
+                  text
                 };
                 if (icon) {
                   disIt.quickLabel.iconHtml = Ti.Icons.fontIconHtml(icon);
                 }
               }
-            } else if (/^(TiIcon|ti-icon)$/.test(comType)) {
+            }
+            // Quick Icon
+            else if (/^(TiIcon|ti-icon)$/.test(comType)) {
               let { value, className } = comConf;
               let icon = Ti.Icons.parseFontIcon(value);
               if (icon && icon.className) {
                 disIt.quickIcon = {
                   className: Ti.Css.mergeClassName(className, disIt.className),
-                  iconClass: icon.className,
+                  iconClass: icon.className
                 };
               }
             }
@@ -139,10 +148,10 @@ export default {
         cell.index = i;
         cell.className = Ti.Css.mergeClassName(cell.className, {
           "has-align": hasAlign,
-          "not-align": !hasAlign,
+          "not-align": !hasAlign
         });
         cell.WrapperClass = {
-          "is-nowrap": fld.nowrap,
+          "is-nowrap": fld.nowrap
         };
         cell.displayItems = await this.genDisplays(it, fld.display);
         cells.push(cell);
@@ -172,7 +181,7 @@ export default {
           this.RowGroupTitleDisplay,
           {
             autoIgnoreNil: false,
-            autoIgnoreBlank: false,
+            autoIgnoreBlank: false
           }
         );
       }
@@ -225,7 +234,7 @@ export default {
       row.disClassName = Ti.Css.mergeClassNameBy(row, row.className, {
         "is-current": row.current,
         "is-checked": row.checked,
-        "no-checked": !row.checked,
+        "no-checked": !row.checked
       });
     },
     //--------------------------------------
@@ -261,9 +270,9 @@ export default {
       await this.evalTableRows();
 
       this.LOG("__eval_row_after_data: wait for scroll");
-      _.delay(() => {
-        this.scrollCurrentIntoView();
-      }, 0);
+      // _.delay(() => {
+      //   this.scrollCurrentIntoView();
+      // }, 0);
       // make sure it scrolled, maybe dom render so long ..
       // _.delay(() => {
       //   this.scrollCurrentIntoView()
@@ -312,8 +321,8 @@ export default {
         ids[oldCurrentId] = true;
       }
       this.reEvalRows(ids, { currentId, checkedIds });
-    },
+    }
     //--------------------------------------
-  },
+  }
   ///////////////////////////////////////////////////F
 };

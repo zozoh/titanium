@@ -329,7 +329,10 @@ export default {
         let $view = this.$el
         let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
         this.LOG("find row", $row)
-        Ti.Dom.scrollIntoView($view, $row)
+        Ti.Dom.scrollIntoView($view, $row, {
+          to:"center",
+          axis:"y"
+        })
       }
     },
     //--------------------------------------

@@ -484,10 +484,16 @@ const _M = {
           needResetData = method == api.autoResetData.toUpperCase()
         }
         if (needResetData) {
-          commit("removeDataKeys", [api.dataKey, api.rawDataKey])
+          let dc = { ...rootState, params, vars };
+          let key = Ti.Util.explainObj(dc, api.dataKey);
+          let rkey = Ti.Util.explainObj(dc, api.rawDataKey);
+          commit("removeDataKeys", [key, rkey])
         }
       }
       //.....................................  
+      // if (api && api.path == "obj/read") {
+      //   console.log("page.__run_api", api);
+      // }
       return await Ti.WWW.runApiAndPrcessReturn(rootState, api, {
         vars,
         params,
