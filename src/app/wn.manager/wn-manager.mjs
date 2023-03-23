@@ -350,6 +350,7 @@ const _M = {
 
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
+      console.log("openView", bombed)
       if (!bombed) {
         return
       }
@@ -401,6 +402,18 @@ const _M = {
         })
       }
     }
+  },
+  ///////////////////////////////////////////
+  created: function(){
+    Ti.Fuse.getOrCreate().add({
+      key: "wn-manager",
+      everythingOk: () => {
+        return !this.isLoading
+      },
+      fail: () => {
+        Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
+      }
+    })
   },
   ///////////////////////////////////////////
   mounted: async function () {

@@ -5,7 +5,7 @@ const _M = {
     myMappingFiles: [],
     myCanFields: {
       /*mappingName : []*/
-    },
+    }
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -18,13 +18,13 @@ const _M = {
     // Anyway, it need a mapping file, to get all avaliable fields.
     // [required]
     mappingPath: {
-      type: [String, Array],
+      type: [String, Array]
     },
     // If multi mapping paths, the first one(order by name) will
     // be used defaultly. But you can indicate it in this prop.
     // [optional]
     defaultMappingName: {
-      type: String,
+      type: String
     },
     // A Tmpl to get the output target path
     // the base render context :
@@ -36,49 +36,49 @@ const _M = {
     // If function, it will be invoke as `(context={}):String`
     // [required]
     outputName: {
-      type: [String, Function],
+      type: [String, Function]
     },
     // TODO: Maybe allow user to choose the output folder in futrue
     outputTarget: {
-      type: [String, Function],
+      type: [String, Function]
       // sunc as "~/tmp/${name}"
     },
     // additional render vars for output target
     vars: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     data: {
-      type: Object,
+      type: Object
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     outputType: {
       type: String,
-      default: "xlsx",
+      default: "xlsx"
     },
     outputTypeOptions: {
       type: Array,
-      default: () => ["xlsx", "json"],
+      default: () => ["xlsx", "json"]
     },
     outputMode: {
       type: String,
-      default: "checked",
+      default: "checked"
     },
     outputModeOptions: {
       type: Array,
-      default: () => ["checked", "current", "scope"],
+      default: () => ["checked", "current", "scope"]
     },
     // Auto remove target when expired.
     // null, never expired
     targetExpi: {
       type: String,
-      default: "1h",
+      default: "1h"
     },
     targetExpiOptions: {
       type: Array,
-      default: () => ["1h", "6h", "1d", "never"],
+      default: () => ["1h", "6h", "1d", "never"]
     },
     // AutoMatch expression Object, to filter the default mapping fields
     // if nil, all fields will be selected
@@ -114,16 +114,16 @@ const _M = {
     //-----------------------------------
     title: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     gridColumnHint: {
       type: [String, Array],
-      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]",
+      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]"
     },
     fieldsGridColumnHint: {
       type: [String, Array],
-      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]",
-    },
+      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]"
+    }
   },
   ///////////////////////////////////////////////////////
   computed: {
@@ -174,7 +174,7 @@ const _M = {
           name: "mapping",
           tip: {
             text: "i18n:wn-export-c-mapping-tip",
-            size: "normal",
+            size: "normal"
           },
           comType: "TiDroplist",
           comConf: {
@@ -183,8 +183,8 @@ const _M = {
             iconBy: "icon",
             valueBy: "id",
             textBy: "title|nm",
-            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
-          },
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"]
+          }
         });
       }
 
@@ -201,12 +201,12 @@ const _M = {
             title: "i18n:wn-export-choose-fields",
             options: this.MappingFields,
             gridColumnHint: this.fieldsGridColumnHint,
-            autoI18n: true,
-          },
+            autoI18n: true
+          }
         },
         {
           icon: "zmdi-settings",
-          title: "i18n:wn-export-setup",
+          title: "i18n:wn-export-setup"
         }
       );
 
@@ -222,8 +222,8 @@ const _M = {
           comType: "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputTypeOptions,
-          },
+            options: this.OutputTypeOptions
+          }
         });
       }
 
@@ -232,11 +232,12 @@ const _M = {
         fields.push({
           title: "i18n:wn-export-c-mode",
           name: "mode",
-          comType: "TiSwitcher",
+          comType:
+            this.OutputModeOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputModeOptions,
-          },
+            options: this.OutputModeOptions
+          }
         });
       }
       fields.push({
@@ -244,13 +245,13 @@ const _M = {
         name: "scope",
         tip: "[small]i18n:wn-data-scope-tip",
         visible: {
-          mode: "scope",
+          mode: "scope"
         },
         comType: "TiInput",
         comConf: {
           placeholder: "i18n:wn-data-scope-phd",
-          width: "2rem",
-        },
+          width: "2rem"
+        }
       });
 
       if (this.TargetExpiOptions.length > 1) {
@@ -262,8 +263,8 @@ const _M = {
             this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.TargetExpiOptions,
-          },
+            options: this.TargetExpiOptions
+          }
         });
 
         // Output target name
@@ -278,12 +279,12 @@ const _M = {
             hover: ["prefixIcon", "suffixText"],
             prefixIcon: "zmdi-minus",
             suffixText: "i18n:reset",
-            suffixTextNotifyName: "target_name:reset",
-          },
+            suffixTextNotifyName: "target_name:reset"
+          }
         });
       }
       return fields;
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
@@ -308,7 +309,7 @@ const _M = {
       let payload = Ti.DateTime.genFormatContext(d);
       payload.today = Ti.DateTime.format(d, "yyyy-MM-dd");
       payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss");
-      _.assign(payload, this.vars)
+      _.assign(payload, this.vars);
       if (_.isFunction(target)) {
         return target(payload);
       }
@@ -336,7 +337,7 @@ const _M = {
       if (_.isString(it)) {
         return {
           "xlsx": { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
-          "json": { value: "json", text: "i18n:wn-export-c-type-json" },
+          "json": { value: "json", text: "i18n:wn-export-c-type-json" }
         }[it];
       }
       return it;
@@ -347,14 +348,14 @@ const _M = {
         return {
           "checked": {
             value: "checked",
-            text: "i18n:wn-export-c-mode-checked",
+            text: "i18n:wn-export-c-mode-checked"
           },
           "current": {
             value: "current",
-            text: "i18n:wn-export-c-mode-current",
+            text: "i18n:wn-export-c-mode-current"
           },
           "scope": { value: "scope", text: "i18n:wn-data-scope" },
-          "all": { value: "all", text: "i18n:wn-export-c-mode-all" },
+          "all": { value: "all", text: "i18n:wn-export-c-mode-all" }
         }[it];
       }
       return it;
@@ -375,7 +376,7 @@ const _M = {
             "14d": { value: "14d", text: "i18n:wn-expi-14d" },
             "30d": { value: "30d", text: "i18n:wn-expi-30d" },
 
-            "never": { value: null, text: "i18n:wn-expi-never" },
+            "never": { value: null, text: "i18n:wn-expi-never" }
           }[it] || { text: it, value: it }
         );
       }
@@ -398,7 +399,7 @@ const _M = {
             else if (_.isString(li)) {
               cans.push({
                 text: li,
-                value: key,
+                value: key
               });
             }
             // Complex: "race": {...}
@@ -406,13 +407,13 @@ const _M = {
               cans.push({
                 text: li.name,
                 value: key,
-                asDefault: li.asDefault,
+                asDefault: li.asDefault
               });
             }
           });
         }
         this.myCanFields = _.assign({}, this.myCanFields, {
-          [this.MappingFileId]: cans,
+          [this.MappingFileId]: cans
         });
       }
     },
@@ -428,7 +429,7 @@ const _M = {
           continue;
         }
         let oF = await Wn.Sys.exec2(`o '${path}' @name @json '${fld}' -cqn`, {
-          as: "json",
+          as: "json"
         });
         if (oF && oF.id) {
           if ("DIR" == oF.race) {
@@ -469,7 +470,7 @@ const _M = {
         mapping: mappingId,
         name: this.genOutputName(
           _.get(this.data, "outputName") || this.outputName
-        ),
+        )
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;
@@ -491,14 +492,14 @@ const _M = {
       if (!_.isEqual(this.data, data)) {
         this.$notify("change", data);
       }
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {
     //console.log("mouned")
     await this.reload();
-  },
+  }
   ///////////////////////////////////////////////////////
 };
 export default _M;

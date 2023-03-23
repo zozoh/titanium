@@ -21,7 +21,7 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
-    let modes = ["current", "scope"];
+    let modes = ["current", "scope", "all"];
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
     if (!_.isEmpty(ids)) {
       modes.splice(0, 0, "checked");

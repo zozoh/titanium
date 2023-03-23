@@ -1,4 +1,4 @@
-// Pack At: 2023-03-24 01:07:23
+// Pack At: 2023-03-24 02:13:03
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5819,8 +5819,8 @@ const _M = {
     let se = _.cloneDeep(state.exportSettings || {});
     _.assign(se, settings);
     state.exportSettings = se;
-    let lse = _.pick(se, "mapping", "fields", "type", "mode", "expi");
-    state.LOG("Keep Export Settings", lse)
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Export Settings", lse);
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -5835,7 +5835,16 @@ const _M = {
       "scope",
       "expi"
     );
-    state.LOG("Keep Export Settings", lse)
+    state.LOG("Keep Export Settings", lse);
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
+  assignImportSettings(state, settings) {
+    let se = _.cloneDeep(state.importSettings || {});
+    _.assign(se, settings);
+    state.importSettings = se;
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Import Settings", lse);
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -5850,7 +5859,7 @@ const _M = {
       "scope",
       "expi"
     );
-    state.LOG("Keep Import Settings", lse)
+    state.LOG("Keep Import Settings", lse);
     saveLocalBehavior(state, "importSettings", lse);
   },
   //----------------------------------------
@@ -5934,7 +5943,7 @@ const _M = {
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter;
+    state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
     saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
@@ -12918,7 +12927,7 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
-    let modes = ["current", "scope"];
+    let modes = ["current", "scope", "all"];
     let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
     if (!_.isEmpty(ids)) {
       modes.splice(0, 0, "checked");
@@ -20150,7 +20159,7 @@ const _M = {
     myMappingFiles: [],
     myCanFields: {
       /*mappingName : []*/
-    },
+    }
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -20163,13 +20172,13 @@ const _M = {
     // Anyway, it need a mapping file, to get all avaliable fields.
     // [required]
     mappingPath: {
-      type: [String, Array],
+      type: [String, Array]
     },
     // If multi mapping paths, the first one(order by name) will
     // be used defaultly. But you can indicate it in this prop.
     // [optional]
     defaultMappingName: {
-      type: String,
+      type: String
     },
     // A Tmpl to get the output target path
     // the base render context :
@@ -20181,49 +20190,49 @@ const _M = {
     // If function, it will be invoke as `(context={}):String`
     // [required]
     outputName: {
-      type: [String, Function],
+      type: [String, Function]
     },
     // TODO: Maybe allow user to choose the output folder in futrue
     outputTarget: {
-      type: [String, Function],
+      type: [String, Function]
       // sunc as "~/tmp/${name}"
     },
     // additional render vars for output target
     vars: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     data: {
-      type: Object,
+      type: Object
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     outputType: {
       type: String,
-      default: "xlsx",
+      default: "xlsx"
     },
     outputTypeOptions: {
       type: Array,
-      default: () => ["xlsx", "json"],
+      default: () => ["xlsx", "json"]
     },
     outputMode: {
       type: String,
-      default: "checked",
+      default: "checked"
     },
     outputModeOptions: {
       type: Array,
-      default: () => ["checked", "current", "scope"],
+      default: () => ["checked", "current", "scope"]
     },
     // Auto remove target when expired.
     // null, never expired
     targetExpi: {
       type: String,
-      default: "1h",
+      default: "1h"
     },
     targetExpiOptions: {
       type: Array,
-      default: () => ["1h", "6h", "1d", "never"],
+      default: () => ["1h", "6h", "1d", "never"]
     },
     // AutoMatch expression Object, to filter the default mapping fields
     // if nil, all fields will be selected
@@ -20259,16 +20268,16 @@ const _M = {
     //-----------------------------------
     title: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     gridColumnHint: {
       type: [String, Array],
-      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]",
+      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]"
     },
     fieldsGridColumnHint: {
       type: [String, Array],
-      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]",
-    },
+      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]"
+    }
   },
   ///////////////////////////////////////////////////////
   computed: {
@@ -20319,7 +20328,7 @@ const _M = {
           name: "mapping",
           tip: {
             text: "i18n:wn-export-c-mapping-tip",
-            size: "normal",
+            size: "normal"
           },
           comType: "TiDroplist",
           comConf: {
@@ -20328,8 +20337,8 @@ const _M = {
             iconBy: "icon",
             valueBy: "id",
             textBy: "title|nm",
-            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
-          },
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"]
+          }
         });
       }
 
@@ -20346,12 +20355,12 @@ const _M = {
             title: "i18n:wn-export-choose-fields",
             options: this.MappingFields,
             gridColumnHint: this.fieldsGridColumnHint,
-            autoI18n: true,
-          },
+            autoI18n: true
+          }
         },
         {
           icon: "zmdi-settings",
-          title: "i18n:wn-export-setup",
+          title: "i18n:wn-export-setup"
         }
       );
 
@@ -20367,8 +20376,8 @@ const _M = {
           comType: "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputTypeOptions,
-          },
+            options: this.OutputTypeOptions
+          }
         });
       }
 
@@ -20377,11 +20386,12 @@ const _M = {
         fields.push({
           title: "i18n:wn-export-c-mode",
           name: "mode",
-          comType: "TiSwitcher",
+          comType:
+            this.OutputModeOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputModeOptions,
-          },
+            options: this.OutputModeOptions
+          }
         });
       }
       fields.push({
@@ -20389,13 +20399,13 @@ const _M = {
         name: "scope",
         tip: "[small]i18n:wn-data-scope-tip",
         visible: {
-          mode: "scope",
+          mode: "scope"
         },
         comType: "TiInput",
         comConf: {
           placeholder: "i18n:wn-data-scope-phd",
-          width: "2rem",
-        },
+          width: "2rem"
+        }
       });
 
       if (this.TargetExpiOptions.length > 1) {
@@ -20407,8 +20417,8 @@ const _M = {
             this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.TargetExpiOptions,
-          },
+            options: this.TargetExpiOptions
+          }
         });
 
         // Output target name
@@ -20423,12 +20433,12 @@ const _M = {
             hover: ["prefixIcon", "suffixText"],
             prefixIcon: "zmdi-minus",
             suffixText: "i18n:reset",
-            suffixTextNotifyName: "target_name:reset",
-          },
+            suffixTextNotifyName: "target_name:reset"
+          }
         });
       }
       return fields;
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
@@ -20453,7 +20463,7 @@ const _M = {
       let payload = Ti.DateTime.genFormatContext(d);
       payload.today = Ti.DateTime.format(d, "yyyy-MM-dd");
       payload.now = Ti.DateTime.format(d, "yyyy-MM-dd_HHmmss");
-      _.assign(payload, this.vars)
+      _.assign(payload, this.vars);
       if (_.isFunction(target)) {
         return target(payload);
       }
@@ -20481,7 +20491,7 @@ const _M = {
       if (_.isString(it)) {
         return {
           "xlsx": { value: "xlsx", text: "i18n:wn-export-c-type-xls" },
-          "json": { value: "json", text: "i18n:wn-export-c-type-json" },
+          "json": { value: "json", text: "i18n:wn-export-c-type-json" }
         }[it];
       }
       return it;
@@ -20492,14 +20502,14 @@ const _M = {
         return {
           "checked": {
             value: "checked",
-            text: "i18n:wn-export-c-mode-checked",
+            text: "i18n:wn-export-c-mode-checked"
           },
           "current": {
             value: "current",
-            text: "i18n:wn-export-c-mode-current",
+            text: "i18n:wn-export-c-mode-current"
           },
           "scope": { value: "scope", text: "i18n:wn-data-scope" },
-          "all": { value: "all", text: "i18n:wn-export-c-mode-all" },
+          "all": { value: "all", text: "i18n:wn-export-c-mode-all" }
         }[it];
       }
       return it;
@@ -20520,7 +20530,7 @@ const _M = {
             "14d": { value: "14d", text: "i18n:wn-expi-14d" },
             "30d": { value: "30d", text: "i18n:wn-expi-30d" },
 
-            "never": { value: null, text: "i18n:wn-expi-never" },
+            "never": { value: null, text: "i18n:wn-expi-never" }
           }[it] || { text: it, value: it }
         );
       }
@@ -20543,7 +20553,7 @@ const _M = {
             else if (_.isString(li)) {
               cans.push({
                 text: li,
-                value: key,
+                value: key
               });
             }
             // Complex: "race": {...}
@@ -20551,13 +20561,13 @@ const _M = {
               cans.push({
                 text: li.name,
                 value: key,
-                asDefault: li.asDefault,
+                asDefault: li.asDefault
               });
             }
           });
         }
         this.myCanFields = _.assign({}, this.myCanFields, {
-          [this.MappingFileId]: cans,
+          [this.MappingFileId]: cans
         });
       }
     },
@@ -20573,7 +20583,7 @@ const _M = {
           continue;
         }
         let oF = await Wn.Sys.exec2(`o '${path}' @name @json '${fld}' -cqn`, {
-          as: "json",
+          as: "json"
         });
         if (oF && oF.id) {
           if ("DIR" == oF.race) {
@@ -20614,7 +20624,7 @@ const _M = {
         mapping: mappingId,
         name: this.genOutputName(
           _.get(this.data, "outputName") || this.outputName
-        ),
+        )
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;
@@ -20636,14 +20646,14 @@ const _M = {
       if (!_.isEqual(this.data, data)) {
         this.$notify("change", data);
       }
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {
     //console.log("mouned")
     await this.reload();
-  },
+  }
   ///////////////////////////////////////////////////////
 };
 return _M;;
@@ -25064,7 +25074,7 @@ const _M = {
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter
+    state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
     saveLocalBehavior(state, "filter", filter)
   },
   //----------------------------------------
@@ -54699,26 +54709,26 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //-------------------------------------
     TheItems() {
-      let list = []
+      let list = [];
       if (_.isArray(this.items)) {
         for (let it of this.items) {
-          list.push(this.evalItem(it))
+          list.push(this.evalItem(it));
         }
       }
       return list;
     },
     //-------------------------------------
     theHighlightItemId() {
-      let list = this.joinHighlightItems([], this.items)
+      let list = this.joinHighlightItems([], this.items);
       if (list.length > 0) {
         // Sort the list, 0->N, the first one should be the hightlight one
-        list.sort((it0, it1) => it0.score - it1.score)
+        list.sort((it0, it1) => it0.score - it1.score);
         // Get the first one
-        return _.first(list).id
+        return _.first(list).id;
       }
     }
     //-------------------------------------
@@ -54728,32 +54738,42 @@ const _M = {
     //-------------------------------------
     evalItem(it = {}, depth = 1) {
       // Children
-      let items = null
+      let items = null;
       if (_.isArray(it.items)) {
-        items = []
+        items = [];
         for (let subIt of it.items) {
-          items.push(this.evalItem(subIt, depth + 1))
+          items.push(this.evalItem(subIt, depth + 1));
         }
       }
       // Store status
-      let groupStatusStoreKey = undefined
+      let groupStatusStoreKey = undefined;
       if (this.statusStoreKey) {
-        groupStatusStoreKey = this.statusStoreKey + "_" + it.key
+        groupStatusStoreKey = this.statusStoreKey + "_" + it.key;
       }
 
       // Self
-      let re = _.assign(_.pick(it, [
-        "id", "key", "depth", "icon", "title", "tip", "path", "view"
-      ]), {
-        items,
-        groupStatusStoreKey,
-        highlightId: this.theHighlightItemId,
-        href: it.id ? Wn.Util.getAppLink(it.id) + "" : null
-      })
+      let re = _.assign(
+        _.pick(it, [
+          "id",
+          "key",
+          "depth",
+          "icon",
+          "title",
+          "tip",
+          "path",
+          "view"
+        ]),
+        {
+          items,
+          groupStatusStoreKey,
+          highlightId: this.theHighlightItemId,
+          href: it.id ? Wn.Util.getAppLink(it.id) + "" : null
+        }
+      );
       if (this.hideIcon > 0 && depth > this.hideIcon) {
-        delete re.icon
+        delete re.icon;
       }
-      return re
+      return re;
     },
     //-------------------------------------
     joinHighlightItems(list = [], items = []) {
@@ -54761,42 +54781,52 @@ const _M = {
         for (let it of items) {
           // Match the ID, 0
           if (it.id == this.highlightItemId) {
-            list.push({ score: 0, id: it.id })
+            list.push({ score: 0, id: it.id });
           }
           // Match the Path, 1 or more
-          else if (it.path && it.id
-            && this.highlightItemPath
-            && this.highlightItemPath.startsWith(it.path)) {
-            let diff = this.highlightItemPath.length - it.path.length
-            list.push({ score: 1 + diff, id: it.id })
+          else if (
+            it.path &&
+            it.id &&
+            this.highlightItemPath &&
+            this.highlightItemPath.startsWith(it.path)
+          ) {
+            let diff = this.highlightItemPath.length - it.path.length;
+            list.push({ score: 1 + diff, id: it.id });
           }
           // Join Children
           if (it.items) {
-            this.joinHighlightItems(list, it.items)
+            this.joinHighlightItems(list, it.items);
           }
         }
       }
       // Return self
-      return list
+      return list;
     },
     //-------------------------------------
-    onItemActived(payload = {}) {
-      this.$notify("item:active", payload)
+    async OnItemActived(payload = {}) {
+      
+      // Guard for fure
+      let bombed = await Ti.Fuse.fire();
+      console.log("OnItemActived", bombed)
+      if (!bombed) {
+        return;
+      }
+      this.$notify("item:active", payload);
     },
     //--------------------------------------
     scrollCurrentIntoView() {
       //console.log("scrollCurrentIntoView")
       if (this.theHighlightItemId) {
-        let $view = this.$el
-        let $row = Ti.Dom.find(".side-nav-item.is-highlight", $view)
-        Ti.Dom.scrollIntoView($view, $row)
+        let $view = this.$el;
+        let $row = Ti.Dom.find(".side-nav-item.is-highlight", $view);
+        Ti.Dom.scrollIntoView($view, $row, { to: "center", axis: "y" });
       }
     },
     //-------------------------------------
-    delayScrollCurrentIntoView(delay=500) {
+    delayScrollCurrentIntoView(delay = 500) {
       _.delay(() => {
-        this.scrollCurrentIntoView()
-      }, delay)
+        this.scrollCurrentIntoView();
+      }, delay);
     }
     //-------------------------------------
   },
@@ -54807,13 +54837,13 @@ const _M = {
   //////////////////////////////////////////
   mounted() {
     this.$nextTick(() => {
-      this.delayScrollCurrentIntoView(0)
-      this.delayScrollCurrentIntoView(100)
-      this.delayScrollCurrentIntoView(500)
-    })
+      this.delayScrollCurrentIntoView(0);
+      this.delayScrollCurrentIntoView(100);
+      this.delayScrollCurrentIntoView(500);
+    });
   }
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -69935,6 +69965,7 @@ const _M = {
 
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
+      console.log("openView", bombed)
       if (!bombed) {
         return
       }
@@ -69986,6 +70017,18 @@ const _M = {
         })
       }
     }
+  },
+  ///////////////////////////////////////////
+  created: function(){
+    Ti.Fuse.getOrCreate().add({
+      key: "wn-manager",
+      everythingOk: () => {
+        return !this.isLoading
+      },
+      fail: () => {
+        Ti.Toast.Open("i18n:wn-manager-is-loading", "warn")
+      }
+    })
   },
   ///////////////////////////////////////////
   mounted: async function () {
@@ -98900,7 +98943,7 @@ Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-si
   <side-nav-item v-for="it in TheItems"
     :key="it.key"
     v-bind="it"
-    @item:actived="onItemActived"/>
+    @item:actived="OnItemActived"/>
 </div>`);
 //========================================
 // JOIN <wn-gui-side-nav.mjs> ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs
@@ -106362,7 +106405,9 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
   "wn-rename-too-long": "名称过长",
   "wn-thing-manager": "数据管理器",
-  "wn-view-opening": "正在加载界面..."
+  "wn-view-opening": "正在加载界面...",
+  "wn-manager-no-meta": "管理器未设置对象",
+  "wn-manager-is-loading": "管理器正在加载数据"
 });
 //========================================
 // JOIN <wn-obj-preview.i18n.json> ti/i18n/zh-cn/wn-obj-preview.i18n.json

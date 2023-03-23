@@ -34,5 +34,7 @@
   "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
   "wn-rename-too-long": "名称过长",
   "wn-thing-manager": "数据管理器",
-  "wn-view-opening": "正在加载界面..."
+  "wn-view-opening": "正在加载界面...",
+  "wn-manager-no-meta": "管理器未设置对象",
+  "wn-manager-is-loading": "管理器正在加载数据"
 }

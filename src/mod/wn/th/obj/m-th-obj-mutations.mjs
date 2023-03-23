@@ -64,8 +64,8 @@ const _M = {
     let se = _.cloneDeep(state.exportSettings || {});
     _.assign(se, settings);
     state.exportSettings = se;
-    let lse = _.pick(se, "mapping", "fields", "type", "mode", "expi");
-    state.LOG("Keep Export Settings", lse)
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Export Settings", lse);
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -80,7 +80,16 @@ const _M = {
       "scope",
       "expi"
     );
-    state.LOG("Keep Export Settings", lse)
+    state.LOG("Keep Export Settings", lse);
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
+  assignImportSettings(state, settings) {
+    let se = _.cloneDeep(state.importSettings || {});
+    _.assign(se, settings);
+    state.importSettings = se;
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Import Settings", lse);
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -95,7 +104,7 @@ const _M = {
       "scope",
       "expi"
     );
-    state.LOG("Keep Import Settings", lse)
+    state.LOG("Keep Import Settings", lse);
     saveLocalBehavior(state, "importSettings", lse);
   },
   //----------------------------------------
@@ -179,7 +188,7 @@ const _M = {
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter;
+    state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
     saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------

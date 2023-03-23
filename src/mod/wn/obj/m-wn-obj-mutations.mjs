@@ -72,7 +72,7 @@ const _M = {
   },
   //----------------------------------------
   setFilter(state, filter) {
-    state.filter = filter
+    state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
     saveLocalBehavior(state, "filter", filter)
   },
   //----------------------------------------
