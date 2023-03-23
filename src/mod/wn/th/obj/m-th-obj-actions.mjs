@@ -345,10 +345,10 @@ const _M = {
 
     // Import/export
     if (exportSettings) {
-      commit("setExportSettings", exportSettings);
+      commit("assignExportSettings", exportSettings);
     }
     if (importSettings) {
-      commit("setImportSettings", importSettings);
+      commit("assignImportSettings", importSettings);
     }
 
     // Apply agg setting
@@ -412,6 +412,7 @@ const _M = {
     }
     // Apply schema behaviors
     if (!_.isEmpty(be)) {
+      state.LOG("updateSchemaBehavior", be);
       commit("setLbkOff");
       dispatch("applyBehavior", be);
       commit("setLbkOn");

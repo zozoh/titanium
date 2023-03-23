@@ -141,7 +141,7 @@ const _M = {
     },
     //---------------------------------------------------
     OutputModeOptions() {
-      console.log("computed OutputModeOptions",this.outputModeOptions)
+      //console.log("computed OutputModeOptions",this.outputModeOptions)
       return this.explainOptions(
         this.outputModeOptions,
         this.explainOutputModeOption

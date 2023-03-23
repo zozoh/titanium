@@ -60,14 +60,40 @@ const _M = {
     state.lbkOff = !on;
   },
   //----------------------------------------
+  assignExportSettings(state, settings) {
+    let se = _.cloneDeep(state.exportSettings || {});
+    _.assign(se, settings);
+    state.exportSettings = se;
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "expi");
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
   setExportSettings(state, settings) {
     state.exportSettings = settings;
-    saveLocalBehavior(state, "exportSettings", settings);
+    let lse = _.pick(
+      settings,
+      "mapping",
+      "fields",
+      "type",
+      "mode",
+      "scope",
+      "expi"
+    );
+    saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
   setImportSettings(state, settings) {
     state.importSettings = settings;
-    saveLocalBehavior(state, "importSettings", settings);
+    let lse = _.pick(
+      settings,
+      "mapping",
+      "fields",
+      "type",
+      "mode",
+      "scope",
+      "expi"
+    );
+    saveLocalBehavior(state, "importSettings", lse);
   },
   //----------------------------------------
   setGuiShown(state, shown) {

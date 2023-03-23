@@ -27,9 +27,22 @@ const _M = {
       modes.splice(0, 0, "checked");
     }
 
-    console.log(modes);
+    //console.log(modes);
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
     let tsTitle = Ti.I18n.text(tsName);
+
+    // Settings
+    let settings = _.cloneDeep(state.exportSettings) || {};
+    _.defaults(settings, {
+      "mappingPath": `id:${state.thingSetId}/export/`,
+      "defaultMappingName": undefined,
+      "outputName": `${tsTitle}-\${now}`,
+      "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
+      "outputModeOptions": modes,
+      "outputMode": _.first(modes)
+    });
+    settings = Ti.Util.explainObj(state, settings);
+    state.LOG("export settings:", settings);
 
     // Open Dialog Wizard to export data
     let re = await Ti.App.Open({
@@ -38,18 +51,11 @@ const _M = {
       position: "top",
       minWidth: "90%",
       height: "90%",
-      result: _.cloneDeep(state.exportSettings) || {},
+      result: settings,
       model: { event: "change", prop: "data" },
       comType: "WnDataExporterForm",
-      comConf: {
-        "mappingPath": `id:${state.thingSetId}/export/`,
-        "defaultMappingName": undefined,
-        "outputName": `${tsTitle}-\${now}`,
-        "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
-        "outputModeOptions": modes,
-        "outputMode": _.first(modes),
-      },
-      components: ["@com:wn/data/exporter-form"],
+      comConf: settings,
+      components: ["@com:wn/data/exporter-form"]
     });
 
     // User Cancel
@@ -83,7 +89,7 @@ const _M = {
         mapping,
         fields = [],
         outputPath,
-        expi,
+        expi
       } = {}) => {
         let cmds = [`thing id:${state.thingSetId} query -cqn`];
 
@@ -122,7 +128,7 @@ const _M = {
           if (limit > 1000) {
             if (
               !(await Ti.Confirm("i18n:wn-export-confirm-many", {
-                type: "warn",
+                type: "warn"
               }))
             ) {
               return;
@@ -136,9 +142,15 @@ const _M = {
         // Checked ids
         else if ("checked" == mode) {
           fltInput = JSON.stringify({
-            id: Ti.Util.getTruthyKeyInArray(state.checkedIds),
+            id: Ti.Util.getTruthyKeyInArray(state.checkedIds)
           });
         }
+        //.........................
+        // All
+        else if ("all" == mode) {
+          // Do nothing
+        }
+        //.........................
         // Invalid Mode
         else {
           throw Ti.Err.make("e.export_data.UnknownMode", mode);
@@ -163,9 +175,9 @@ const _M = {
         return {
           cmdText: cmds.join(" "),
           input: fltInput,
-          outputPath,
+          outputPath
         };
-      },
+      }
       //.....................................
       //
       //             As JSON
@@ -186,7 +198,7 @@ const _M = {
       // Save Settings
       let settings = _.omit(re, "name", "mode", "type", "expi", "scope");
       state.LOG("Store Settings:", settings);
-      commit("setExportSettings", settings);
+      commit("assignExportSettings", settings);
 
       // Get Return Params
       cmdText = gre.cmdText;
@@ -196,7 +208,7 @@ const _M = {
     } catch (E) {
       // Fail to Generate the command
       Ti.Alert(E.toString() || "Some Erro Happend IN Gen Command", {
-        type: "error",
+        type: "error"
       });
       throw E;
     }
@@ -210,8 +222,8 @@ const _M = {
     commit("setStatus", {
       doing: {
         icon: "zmdi-settings fa-spin",
-        text: `i18n:wn-export-ing-tip`,
-      },
+        text: `i18n:wn-export-ing-tip`
+      }
     });
 
     let oOut;
@@ -260,18 +272,18 @@ const _M = {
                 icon: "fas-download",
                 text: ":=nm",
                 href: ":->/o/content?str=id:${id}&d=true",
-                newtab: true,
+                newtab: true
               },
               {
                 icon: "fas-external-link-alt",
                 text: "i18n:wn-export-open-dir",
                 href: Wn.Util.getAppLink(oOut.pid),
-                newtab: true,
-              },
+                newtab: true
+              }
             ]
-          : [],
+          : []
       },
-      components: ["@com:web/meta/badge"],
+      components: ["@com:web/meta/badge"]
     });
   },
   //----------------------------------------
@@ -300,9 +312,9 @@ const _M = {
       comConf: {
         "mappingPath": `id:${state.thingSetId}/import/`,
         "defaultMappingName": undefined,
-        "uploadTarget": `id:${state.thingSetId}/tmp/import/`,
+        "uploadTarget": `id:${state.thingSetId}/tmp/import/`
       },
-      components: ["@com:wn/data/importer-form"],
+      components: ["@com:wn/data/importer-form"]
     });
 
     // User Cancel
@@ -321,7 +333,7 @@ const _M = {
     if (limit > 1000) {
       if (
         !(await Ti.Confirm("i18n:wn-import-confirm-many", {
-          type: "warn",
+          type: "warn"
         }))
       ) {
         return;
@@ -343,18 +355,18 @@ const _M = {
       `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`,
       "@beans -limit " + limit + " -skip " + skip,
       `| thing 'id:${state.thingSetId}' create -fields ${unique} ${nohook} `,
-      `-process '${process || "<auto>"}'`,
+      `-process '${process || "<auto>"}'`
     ];
     let cmdText = cmds.join(" ");
     console.log(cmdText);
 
     // Process in Command panel
     await Wn.OpenCmdPanel(cmdText, {
-      title: "i18n:import-data",
+      title: "i18n:import-data"
     });
 
     // 刷新主界面
-    await this.dispatch("main/reloadData")
+    await this.dispatch("main/reloadData");
   },
   //----------------------------------------
   //
@@ -551,7 +563,7 @@ const _M = {
 
     commit("setStatus", { reloading: false });
     state.LOG(" - query done:", reo);
-  },
+  }
   //--------------------------------------------
 };
 export default _M;
