@@ -48,6 +48,10 @@ export default {
     type: [String, Function],
     default: undefined
   },
+  "autoValueTip": {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -69,4 +73,4 @@ export default {
     type: [Number, String],
     default: null
   }
-}
+};

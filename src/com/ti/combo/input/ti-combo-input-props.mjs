@@ -64,6 +64,10 @@ export default {
     type: Number,
     default: 500
   },
+  "autoValueTip": {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------

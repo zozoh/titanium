@@ -1,3 +1,4 @@
+const COM_TYPE = "TiComboInput";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -49,6 +50,25 @@ const _M = {
       return this.getTopClass({
         "full-field": !hasWidth,
       })
+    },
+    //------------------------------------------------
+    ValueTip() {
+      if(this.autoValueTip){
+        let tip = this.value
+        if (this.myItem && this.Dict) {
+          let text = this.Dict.getText(this.myItem)
+          let value = this.Dict.getValue(this.myItem)
+          tip = `<strong>${text}</strong>: <codd>${value}</code>`
+        }
+        return {
+          "data-ti-tip": tip,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "html",
+            "data-ti-keyboard":"ctrl"
+        }
+      }
     },
     //------------------------------------------------
     TheInputProps() {
@@ -167,11 +187,15 @@ const _M = {
     //------------------------------------------------
     DropComType() { return this.dropComType || "ti-list" },
     DropComConf() {
-      return _.assign({
-        display: this.dropDisplay || [
+      let display = this.dropDisplay
+      if(!display){
+        display = Ti.Config.getComProp(COM_TYPE, "dropDisplay", [
           "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
-        ],
+        ])
+      }
+      return _.assign({
+        display,
         blankAs: {
           className: "as-mid-tip"
         },

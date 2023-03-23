@@ -46,6 +46,17 @@ export default {
         let itV = this.Dict.getValue(it);
         let text = this.Dict.getText(it);
         text = Ti.I18n.text(text);
+        let tip;
+        if(this.autoValueTip){
+          tip = {
+            "data-ti-tip": `<strong>${text}</strong>: <codd>${itV}</code>`,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "html",
+            "data-ti-keyboard":"ctrl"
+          }
+        }
         return {
           index,
           className: {
@@ -53,6 +64,7 @@ export default {
             "is-focused": index == this.myFocusIndex
           },
           text,
+          tip,
           value: itV,
           icon: this.Dict.getIcon(it) || this.defaultIcon
         };

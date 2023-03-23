@@ -1,4 +1,4 @@
-// Pack At: 2023-03-22 23:24:30
+// Pack At: 2023-03-23 21:23:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16022,6 +16022,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Number,
     default: 500
   },
+  "autoValueTip": {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -22903,6 +22907,18 @@ const _M = {
       })
     },
     //------------------------------------------------
+    InputValueTip(){
+      let tip = this.valueTip
+      if(this.valueTip){
+        if(_.isString(this.valueTip)) {
+          return {
+            "data-ti-tip": this.valueTip
+          }
+        }
+      }
+      return tip
+    },
+    //------------------------------------------------
     TheValue() {
       if (!_.isUndefined(this.inputingValue)) {
         return this.inputingValue
@@ -28950,6 +28966,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let itV = this.Dict.getValue(it);
         let text = this.Dict.getText(it);
         text = Ti.I18n.text(text);
+        let tip;
+        if(this.autoValueTip){
+          tip = {
+            "data-ti-tip": `<strong>${text}</strong>: <codd>${itV}</code>`,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "html",
+            "data-ti-keyboard":"ctrl"
+          }
+        }
         return {
           index,
           className: {
@@ -28957,6 +28984,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "is-focused": index == this.myFocusIndex
           },
           text,
+          tip,
           value: itV,
           icon: this.Dict.getIcon(it) || this.defaultIcon
         };
@@ -39266,7 +39294,8 @@ const _M = {
     "valueType": {
       type: String,
       default: "ms-range",
-      validator: v => /^(ms-(array|range)|ds-(array|range)|date-array)$/.test(v)
+      validator: (v) =>
+        /^(ms-(array|range)|ds-(array|range)|date-array)$/.test(v)
     },
     //-----------------------------------
     // Behavior
@@ -39289,7 +39318,7 @@ const _M = {
     },
     "endYear": {
       type: [Number, String],
-      default: (new Date().getFullYear() + 1)
+      default: new Date().getFullYear() + 1
     },
     //-----------------------------------
     // Aspect
@@ -39338,78 +39367,80 @@ const _M = {
   computed: {
     //------------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return Ti.Css.mergeClassName(this.className);
     },
     //------------------------------------------------
-    isCollapse() { return "collapse" == this.status },
-    isExtended() { return "extended" == this.status },
+    isCollapse() {
+      return "collapse" == this.status;
+    },
+    isExtended() {
+      return "extended" == this.status;
+    },
     //--------------------------------------
     theValue() {
       if (_.isEmpty(this.value)) {
-        return null
+        return null;
       }
       if (_.isString(this.value)) {
-        let str = _.trim(this.value)
-        let m = /^[[(](.+)[\])]$/.exec(str)
+        let str = _.trim(this.value);
+        let m = /^[[(](.+)[\])]$/.exec(str);
         if (m) {
-          str = _.trim(m[1])
+          str = _.trim(m[1]);
         }
-        let ss = Ti.S.toArray(str, { sep: "," })
+        let ss = Ti.S.toArray(str, { sep: "," });
         if (ss.length > 0) {
           return Ti.Types.toDate(ss);
         }
-        return Ti.Types.toDate(str)
+        return Ti.Types.toDate(str);
       }
-      return Ti.Types.toDate(this.value)
+      return Ti.Types.toDate(this.value);
     },
     //--------------------------------------
     theDate() {
       if (_.isArray(this.theValue) && !_.isEmpty(this.theValue)) {
-        return Ti.Types.toDate(this.theValue[0])
+        return Ti.Types.toDate(this.theValue[0]);
       }
       if (this.theValue) {
-        return Ti.Types.toDate(this.theValue)
+        return Ti.Types.toDate(this.theValue);
       }
     },
     //--------------------------------------
     theRangeInMs() {
       if (!this.theDate) {
-        return []
+        return [];
       }
       // Move to 00:00:00
-      let dt0 = new Date(this.theDate)
+      let dt0 = new Date(this.theDate);
       // Define the dt1
       let dt1;
       if (_.isArray(this.theValue) && this.theValue.length > 1) {
-        dt1 = Ti.Types.toDate(this.theValue[1])
+        dt1 = Ti.Types.toDate(this.theValue[1]);
       }
       // The End of the Day
       else {
-        dt1 = new Date(dt0)
+        dt1 = new Date(dt0);
       }
       // Make the range
-      let msRange = [dt0.getTime(), dt1.getTime()].sort()
+      let msRange = [dt0.getTime(), dt1.getTime()].sort();
 
       // dt0 start of the day
-      dt0 = Ti.DateTime.setTime(new Date(msRange[0]))
+      dt0 = Ti.DateTime.setTime(new Date(msRange[0]));
       // dt1 end of the day
-      dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1]))
+      dt1 = Ti.DateTime.setDayLastTime(new Date(msRange[1]));
 
       // rebuild the range
-      return [dt0.getTime(), dt1.getTime()]
+      return [dt0.getTime(), dt1.getTime()];
     },
     //------------------------------------------------
     theRange() {
       if (_.isEmpty(this.theRangeInMs)) {
-        return []
+        return [];
       }
-      return [
-        new Date(this.theRangeInMs[0]),
-        new Date(this.theRangeInMs[1])]
+      return [new Date(this.theRangeInMs[0]), new Date(this.theRangeInMs[1])];
     },
     //------------------------------------------------
     theDropRange() {
-      return this.runtime || this.theRange
+      return this.runtime || this.theRange;
     },
     //------------------------------------------------
     theRangeValue() {
@@ -39417,59 +39448,65 @@ const _M = {
         valueType: "ds-array",
         format: "yyyy-MM-dd",
         collapse: true
-      }).join(", ")
+      }).join(", ");
     },
     //------------------------------------------------
     theRangeText() {
       if (!_.isEmpty(this.theRange)) {
-        let dt0 = this.theRange[0]
-        let dt1 = this.theRange[1]
-        let yy0 = dt0.getFullYear()
-        let MM0 = dt0.getMonth()
-        let dd0 = dt0.getDate()
-        let yy1 = dt1.getFullYear()
-        let MM1 = dt1.getMonth()
-        let dd1 = dt1.getDate()
-        let MA0 = Ti.DateTime.getMonthAbbr(MM0)
-        let MA1 = Ti.DateTime.getMonthAbbr(MM1)
-        let MT0 = Ti.I18n.get(MA0)
-        let MT1 = Ti.I18n.get(MA1)
+        let dt0 = this.theRange[0];
+        let dt1 = this.theRange[1];
+        let yy0 = dt0.getFullYear();
+        let MM0 = dt0.getMonth();
+        let dd0 = dt0.getDate();
+        let yy1 = dt1.getFullYear();
+        let MM1 = dt1.getMonth();
+        let dd1 = dt1.getDate();
+        let MA0 = Ti.DateTime.getMonthAbbr(MM0);
+        let MA1 = Ti.DateTime.getMonthAbbr(MM1);
+        let MT0 = Ti.I18n.get(MA0);
+        let MT1 = Ti.I18n.get(MA1);
 
-        MM0++; MM1++;  // Month change to 1 base
+        MM0++;
+        MM1++; // Month change to 1 base
 
         let vars = {
-          yy0, yy1,
-          MM0, MM1,
-          dd0, dd1,
-          MA0, MA1,
-          MT0, MT1
-        }
+          yy0,
+          yy1,
+          MM0,
+          MM1,
+          dd0,
+          dd1,
+          MA0,
+          MA1,
+          MT0,
+          MT1
+        };
         // Beyond year
         if (yy0 != yy1) {
-          return Ti.I18n.getf("cal.d-range-beyond-years", vars)
+          return Ti.I18n.getf("cal.d-range-beyond-years", vars);
         }
         // Beyond month
         if (MM0 != MM1) {
-          return Ti.I18n.getf("cal.d-range-beyond-months", vars)
+          return Ti.I18n.getf("cal.d-range-beyond-months", vars);
         }
         // Beyond day
         if (dd0 != dd1) {
-          return Ti.I18n.getf("cal.d-range-beyond-days", vars)
+          return Ti.I18n.getf("cal.d-range-beyond-days", vars);
         }
         // Same day
-        return Ti.I18n.getf("cal.d-range-in-same-day", vars)
+        return Ti.I18n.getf("cal.d-range-in-same-day", vars);
       }
     },
     //------------------------------------------------
     theInputValue() {
       if (this.isExtended) {
-        return this.theRangeValue
+        return this.theRangeValue;
       }
-      return this.theRangeText
+      return this.theRangeText;
     },
     //------------------------------------------------
     theStatusIcon() {
-      return this.statusIcons[this.status]
+      return this.statusIcons[this.status];
     }
     //------------------------------------------------
   },
@@ -39478,42 +39515,42 @@ const _M = {
     //------------------------------------------------
     applyRuntime() {
       if (this.runtime) {
-        let rg = this.runtime
-        this.runtime = null
-        let rg2 = this.formatRangeValue(rg)
-        this.$notify("change", rg2)
+        let rg = this.runtime;
+        this.runtime = null;
+        let rg2 = this.formatRangeValue(rg);
+        this.$notify("change", rg2);
       }
     },
     //-----------------------------------------------
     doExtend() {
-      this.status = "extended"
+      this.status = "extended";
     },
     //-----------------------------------------------
     doCollapse({ escaped = false } = {}) {
-      this.status = "collapse"
+      this.status = "collapse";
       // Drop runtime
       if (escaped) {
-        this.runtime = null
+        this.runtime = null;
       }
       // Apply Changed for runtime
       else {
-        this.applyRuntime()
+        this.applyRuntime();
       }
     },
     //------------------------------------------------
     onInputFocused() {
-      this.doExtend()
+      this.doExtend();
     },
     //------------------------------------------------
     onChanged(val) {
-      let rg = this.parseDateRange(val)
+      let rg = this.parseDateRange(val);
       // Empty Range
       if (_.isEmpty(rg)) {
         this.$notify("change", null);
       }
       // Format the Range
       else {
-        let rg2 = this.formatRangeValue(rg)
+        let rg2 = this.formatRangeValue(rg);
         this.$notify("change", rg2);
       }
     },
@@ -39521,90 +39558,99 @@ const _M = {
     onClickStatusIcon() {
       // extended -> collapse
       if (this.isExtended) {
-        this.doCollapse()
+        this.doCollapse();
       }
       // collapse -> extended
       else {
-        this.doExtend()
+        this.doExtend();
       }
     },
     //------------------------------------------------
     onDateRangeChanged(rg) {
-      this.runtime = rg
+      this.runtime = rg;
     },
     //------------------------------------------------
     parseDateRange(val) {
-      console.log("parseDateRange", val)
+      console.log("parseDateRange", val);
       // Empty value as null
       if (_.isEmpty(val)) {
-        return []
+        return [];
       }
       // Parsed value
-      let ss = val.split(",")
+      let ss = val.split(",");
       // Empty
       if (_.isEmpty(ss)) {
-        return []
+        return [];
       }
       // One date
       if (ss.length == 1) {
-        let dt0 = Ti.Types.toDate(ss[0])
-        Ti.DateTime.setTime(dt0)
-        let dt1 = new Date(dt0.getTime())
-        Ti.DateTime.setDayLastTime(dt1)
-        return [dt0, dt1]
+        let dt0 = Ti.Types.toDate(ss[0]);
+        Ti.DateTime.setTime(dt0);
+        let dt1 = new Date(dt0.getTime());
+        Ti.DateTime.setDayLastTime(dt1);
+        return [dt0, dt1];
       }
       // range
-      let dt0 = Ti.Types.toDate(ss[0])
-      Ti.DateTime.setTime(dt0)
-      let dt1 = Ti.Types.toDate(ss[1])
-      Ti.DateTime.setDayLastTime(dt1)
+      let dt0 = Ti.Types.toDate(ss[0]);
+      Ti.DateTime.setTime(dt0);
+      let dt1 = Ti.Types.toDate(ss[1]);
+      Ti.DateTime.setDayLastTime(dt1);
       return [dt0, dt1].sort((dt0, dt1) => {
-        return dt0.getTime() - dt1.getTime()
-      })
+        return dt0.getTime() - dt1.getTime();
+      });
     },
     //------------------------------------------------
-    formatRangeValue(range, {
-      valueType, format, collapse = false
-    } = {}) {
+    formatRangeValue(range, { valueType, format, collapse = false } = {}) {
       //console.log("formatRangeValue", range)
-      let [d0, d1] = range || []
+      let [d0, d1] = range || [];
       if (!d0) {
-        return []
+        return [];
       }
       if (!d1) {
-        d1 = new Date(d0)
-        Ti.DateTime.setTime(d0)
-        Ti.DateTime.setDayLastTime(d1)
+        d1 = new Date(d0);
       }
-      valueType = valueType || this.valueType
-      format = format || this.format
+      // Padding date
+      Ti.DateTime.setTime(d0);
+      Ti.DateTime.setDayLastTime(d1);
+      // Check the value type
+      valueType = valueType || this.valueType;
+      format = format || this.format;
       // as range
-      let func = ({
-        "ms-range": () => `[${d0.getTime()},${d1.getTime()}]`,
-        "ms-array": () => [d0.getTime(), d1.getTime()],
-        "ds-range": () => '[' + [
-          Ti.Types.formatDate(d0, format),
-          Ti.Types.formatDate(d1, format),
-        ].join(",") + ']',
+      let func = {
+        "ms-range": () => {
+          return `[${d0.getTime()},${d1.getTime()}]`;
+        },
+        "ms-array": () => {
+          return [d0.getTime(), d1.getTime()];
+        },
+        "ds-range": () => {
+          return (
+            "[" +
+            [
+              Ti.Types.formatDate(d0, format),
+              Ti.Types.formatDate(d1, format)
+            ].join(",") +
+            "]"
+          );
+        },
         "ds-array": () => [
           Ti.Types.formatDate(d0, format),
-          Ti.Types.formatDate(d1, format),
+          Ti.Types.formatDate(d1, format)
         ],
         "date-array": () => [d0, d1]
-      })[valueType]
+      }[valueType];
       // As array
-      let re = func()
+      let re = func();
 
       if (collapse) {
-        if (re[0] == re[1])
-          return [re[0]]
+        if (re[0] == re[1]) return [re[0]];
       }
-      return re
+      return re;
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -42929,6 +42975,7 @@ return _M;;
 // EXPORT 'ti-combo-input.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/input/ti-combo-input.mjs'] = (function(){
+const COM_TYPE = "TiComboInput";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -42980,6 +43027,25 @@ const _M = {
       return this.getTopClass({
         "full-field": !hasWidth,
       })
+    },
+    //------------------------------------------------
+    ValueTip() {
+      if(this.autoValueTip){
+        let tip = this.value
+        if (this.myItem && this.Dict) {
+          let text = this.Dict.getText(this.myItem)
+          let value = this.Dict.getValue(this.myItem)
+          tip = `<strong>${text}</strong>: <codd>${value}</code>`
+        }
+        return {
+          "data-ti-tip": tip,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "html",
+            "data-ti-keyboard":"ctrl"
+        }
+      }
     },
     //------------------------------------------------
     TheInputProps() {
@@ -43098,11 +43164,15 @@ const _M = {
     //------------------------------------------------
     DropComType() { return this.dropComType || "ti-list" },
     DropComConf() {
-      return _.assign({
-        display: this.dropDisplay || [
+      let display = this.dropDisplay
+      if(!display){
+        display = Ti.Config.getComProp(COM_TYPE, "dropDisplay", [
           "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
-        ],
+        ])
+      }
+      return _.assign({
+        display,
         blankAs: {
           className: "as-mid-tip"
         },
@@ -84653,6 +84723,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [String, Function],
     default: undefined
   },
+  "autoValueTip": {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -84674,7 +84748,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Number, String],
     default: null
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -84863,47 +84937,50 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : undefined,
-  "format" : undefined,
-  "valueCase" : {
-    type : String,
-    default : undefined,
-    validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  "value": undefined,
+  "format": undefined,
+  "valueCase": {
+    type: String,
+    default: undefined,
+    validator: (cs) => Ti.Util.isNil(cs) || Ti.S.isValidCase(cs)
   },
-  "trimed" : {
-    type : Boolean,
-    default : true
+  "trimed": {
+    type: Boolean,
+    default: true
   },
-  "autoJsValue" : {
-    type : Boolean,
-    default : false
+  "autoJsValue": {
+    type: Boolean,
+    default: false
   },
   /* {test:AutoMatch, message} */
-  "validator" : {
-    type : Object
+  "validator": {
+    type: Object
+  },
+  "valueTip": {
+    type: [String, Object]
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "readonly" : {
+  "readonly": {
     type: Boolean,
-    default : false
+    default: false
   },
-  "focused" : {
-    type : Boolean,
-    default : false
+  "focused": {
+    type: Boolean,
+    default: false
   },
-  "hover" : {
-    type : [Array, String],
-    default : ()=>["prefixIcon", "suffixIcon"]
+  "hover": {
+    type: [Array, String],
+    default: () => ["prefixIcon", "suffixIcon"]
   },
-  "prefixIconForClean" : {
-    type : Boolean,
-    default : true
+  "prefixIconForClean": {
+    type: Boolean,
+    default: true
   },
-  "autoSelect" : {
-    type : Boolean,
-    default : undefined
+  "autoSelect": {
+    type: Boolean,
+    default: undefined
   },
   "prefixIconNotifyName": {
     type: String,
@@ -84928,50 +85005,50 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "placeholder" : {
-    type : [String, Number],
-    default : undefined
+  "placeholder": {
+    type: [String, Number],
+    default: undefined
   },
-  "autoI18n" : {
-    type : Boolean,
-    default : false
+  "autoI18n": {
+    type: Boolean,
+    default: false
   },
-  "hideBorder" : {
-    type : Boolean,
-    default : false
+  "hideBorder": {
+    type: Boolean,
+    default: false
   },
-  "prefixIcon" : {
-    type : [String, Object, Boolean],
-    default : undefined
+  "prefixIcon": {
+    type: [String, Object, Boolean],
+    default: undefined
   },
-  "prefixHoverIcon" : {
-    type : String,
-    default : "zmdi-close-circle"
+  "prefixHoverIcon": {
+    type: String,
+    default: "zmdi-close-circle"
   },
-  "prefixText" : {
-    type : [String, Number],
-    default : undefined
+  "prefixText": {
+    type: [String, Number],
+    default: undefined
   },
-  "suffixIcon" : {
-    type : [String, Object],
-    default : undefined
+  "suffixIcon": {
+    type: [String, Object],
+    default: undefined
   },
-  "suffixText" : {
-    type : [String, Number],
-    default : undefined
+  "suffixText": {
+    type: [String, Number],
+    default: undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -88132,7 +88209,7 @@ Ti.Preload("ti/com/ti/combo/input/ti-combo-input.html", `<ti-combo-box
   <template v-slot:box>
     <ti-input 
       v-bind="TheInputProps"
-
+      :valueTip="ValueTip"
       :value="InputValue"
       :focusValue="InputFocusValue"
       :prefix-icon="ThePrefixIcon"
@@ -91125,6 +91202,7 @@ Ti.Preload("ti/com/ti/input/ti-input-props.mjs", TI_PACK_EXPORTS['ti/com/ti/inpu
 Ti.Preload("ti/com/ti/input/ti-input.html", `<div class="ti-input full-field" 
   :class="TopClass" 
   :style="TopStyle"
+  v-bind="InputValueTip"
   v-ti-activable>
   <!--prefix:icon-->
   <div v-if="prefixIcon"
@@ -93011,6 +93089,7 @@ Ti.Preload("ti/com/ti/switcher/ti-switcher.html", `<div class="ti-switcher"
       <li v-for="it in TheItems" 
         :key="it.value"
         :class="it.className"
+        v-bind="it.tip"
         @click="OnClickItem(it, $event)"
         @mousedown="OnMouseDown(it)">
         <ti-icon class="it-icon"

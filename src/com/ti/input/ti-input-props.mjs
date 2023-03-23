@@ -2,47 +2,50 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "value" : undefined,
-  "format" : undefined,
-  "valueCase" : {
-    type : String,
-    default : undefined,
-    validator : (cs)=>(Ti.Util.isNil(cs)||Ti.S.isValidCase(cs))
+  "value": undefined,
+  "format": undefined,
+  "valueCase": {
+    type: String,
+    default: undefined,
+    validator: (cs) => Ti.Util.isNil(cs) || Ti.S.isValidCase(cs)
   },
-  "trimed" : {
-    type : Boolean,
-    default : true
+  "trimed": {
+    type: Boolean,
+    default: true
   },
-  "autoJsValue" : {
-    type : Boolean,
-    default : false
+  "autoJsValue": {
+    type: Boolean,
+    default: false
   },
   /* {test:AutoMatch, message} */
-  "validator" : {
-    type : Object
+  "validator": {
+    type: Object
+  },
+  "valueTip": {
+    type: [String, Object]
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "readonly" : {
+  "readonly": {
     type: Boolean,
-    default : false
+    default: false
   },
-  "focused" : {
-    type : Boolean,
-    default : false
+  "focused": {
+    type: Boolean,
+    default: false
   },
-  "hover" : {
-    type : [Array, String],
-    default : ()=>["prefixIcon", "suffixIcon"]
+  "hover": {
+    type: [Array, String],
+    default: () => ["prefixIcon", "suffixIcon"]
   },
-  "prefixIconForClean" : {
-    type : Boolean,
-    default : true
+  "prefixIconForClean": {
+    type: Boolean,
+    default: true
   },
-  "autoSelect" : {
-    type : Boolean,
-    default : undefined
+  "autoSelect": {
+    type: Boolean,
+    default: undefined
   },
   "prefixIconNotifyName": {
     type: String,
@@ -67,47 +70,47 @@ export default {
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "placeholder" : {
-    type : [String, Number],
-    default : undefined
+  "placeholder": {
+    type: [String, Number],
+    default: undefined
   },
-  "autoI18n" : {
-    type : Boolean,
-    default : false
+  "autoI18n": {
+    type: Boolean,
+    default: false
   },
-  "hideBorder" : {
-    type : Boolean,
-    default : false
+  "hideBorder": {
+    type: Boolean,
+    default: false
   },
-  "prefixIcon" : {
-    type : [String, Object, Boolean],
-    default : undefined
+  "prefixIcon": {
+    type: [String, Object, Boolean],
+    default: undefined
   },
-  "prefixHoverIcon" : {
-    type : String,
-    default : "zmdi-close-circle"
+  "prefixHoverIcon": {
+    type: String,
+    default: "zmdi-close-circle"
   },
-  "prefixText" : {
-    type : [String, Number],
-    default : undefined
+  "prefixText": {
+    type: [String, Number],
+    default: undefined
   },
-  "suffixIcon" : {
-    type : [String, Object],
-    default : undefined
+  "suffixIcon": {
+    type: [String, Object],
+    default: undefined
   },
-  "suffixText" : {
-    type : [String, Number],
-    default : undefined
+  "suffixText": {
+    type: [String, Number],
+    default: undefined
   },
   //-----------------------------------
   // Measure
   //-----------------------------------
-  "width" : {
-    type : [Number, String],
-    default : undefined
+  "width": {
+    type: [Number, String],
+    default: undefined
   },
-  "height" : {
-    type : [Number, String],
-    default : undefined
+  "height": {
+    type: [Number, String],
+    default: undefined
   }
-}
+};

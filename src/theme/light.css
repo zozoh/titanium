@@ -7554,14 +7554,13 @@ div.ti-input-tags {
           align-items: center;
           align-content: center;
           flex-wrap: wrap;
-          border-left: 1px solid rgba(0, 0, 0, 0.1);
           color: #444;
           background-color: #F0F0F0;
           cursor: pointer;
           font-size: 0.1rem;
           padding: 0.7em 0.5em;
           z-index: 2;
-          opacity: 0;
+          opacity: 0.7;
           transition: opacity 0.3s; }
           .ti-table > table > thead th .as-customized-btn:hover {
             color: #FFF;

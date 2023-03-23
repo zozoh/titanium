@@ -15,6 +15,7 @@
       <li v-for="it in TheItems" 
         :key="it.value"
         :class="it.className"
+        v-bind="it.tip"
         @click="OnClickItem(it, $event)"
         @mousedown="OnMouseDown(it)">
         <ti-icon class="it-icon"

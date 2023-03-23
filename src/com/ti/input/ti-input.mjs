@@ -46,6 +46,18 @@ const _M = {
       })
     },
     //------------------------------------------------
+    InputValueTip(){
+      let tip = this.valueTip
+      if(this.valueTip){
+        if(_.isString(this.valueTip)) {
+          return {
+            "data-ti-tip": this.valueTip
+          }
+        }
+      }
+      return tip
+    },
+    //------------------------------------------------
     TheValue() {
       if (!_.isUndefined(this.inputingValue)) {
         return this.inputingValue
