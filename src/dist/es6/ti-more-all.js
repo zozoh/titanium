@@ -1,4 +1,4 @@
-// Pack At: 2023-03-23 23:25:05
+// Pack At: 2023-03-24 01:07:23
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5820,6 +5820,7 @@ const _M = {
     _.assign(se, settings);
     state.exportSettings = se;
     let lse = _.pick(se, "mapping", "fields", "type", "mode", "expi");
+    state.LOG("Keep Export Settings", lse)
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -5834,6 +5835,7 @@ const _M = {
       "scope",
       "expi"
     );
+    state.LOG("Keep Export Settings", lse)
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -5848,6 +5850,7 @@ const _M = {
       "scope",
       "expi"
     );
+    state.LOG("Keep Import Settings", lse)
     saveLocalBehavior(state, "importSettings", lse);
   },
   //----------------------------------------
@@ -13090,9 +13093,7 @@ const _M = {
       let gre = await _gen_command(re);
 
       // Save Settings
-      let settings = _.omit(re, "name", "mode", "type", "expi", "scope");
-      state.LOG("Store Settings:", settings);
-      commit("assignExportSettings", settings);
+      commit("assignExportSettings", re);
 
       // Get Return Params
       cmdText = gre.cmdText;
@@ -77152,7 +77153,7 @@ const _M = {
     }
     state.LOG = () => {};
     // if ("main" == state.moduleName) {
-    //state.LOG = console.log;
+    // state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard

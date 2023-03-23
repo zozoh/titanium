@@ -65,6 +65,7 @@ const _M = {
     _.assign(se, settings);
     state.exportSettings = se;
     let lse = _.pick(se, "mapping", "fields", "type", "mode", "expi");
+    state.LOG("Keep Export Settings", lse)
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -79,6 +80,7 @@ const _M = {
       "scope",
       "expi"
     );
+    state.LOG("Keep Export Settings", lse)
     saveLocalBehavior(state, "exportSettings", lse);
   },
   //----------------------------------------
@@ -93,6 +95,7 @@ const _M = {
       "scope",
       "expi"
     );
+    state.LOG("Keep Import Settings", lse)
     saveLocalBehavior(state, "importSettings", lse);
   },
   //----------------------------------------

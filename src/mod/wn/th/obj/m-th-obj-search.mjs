@@ -196,9 +196,7 @@ const _M = {
       let gre = await _gen_command(re);
 
       // Save Settings
-      let settings = _.omit(re, "name", "mode", "type", "expi", "scope");
-      state.LOG("Store Settings:", settings);
-      commit("assignExportSettings", settings);
+      commit("assignExportSettings", re);
 
       // Get Return Params
       cmdText = gre.cmdText;
