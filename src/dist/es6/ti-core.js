@@ -1,4 +1,4 @@
-// Pack At: 2023-03-24 02:13:03
+// Pack At: 2023-03-24 17:55:39
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -680,6 +680,7 @@ const { Toptip } = (function(){
         size = m[7] || _.trim(size)
         content = _.trim(m[8])
       }
+      //console.log({mode,type,contentType,size})
       //
       // Get/Create wrapper
       //
@@ -791,7 +792,7 @@ const { Toptip } = (function(){
     getTipMeasureStyle(size) {
       let css = {}
       const setTipStyle = (key, val) => {
-        if (/^[0-9]$/.test(val)) {
+        if (/^[0-9]+$/.test(val)) {
           css[key] = `${val}px`
         } else {
           css[key] = val
@@ -20004,7 +20005,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230324.021303",
+  "version": "1.6-20230324.175539",
   "dev": false,
   "appName": null,
   "session": {},

@@ -110,6 +110,7 @@ const TiToptip = {
       size = m[7] || _.trim(size)
       content = _.trim(m[8])
     }
+    //console.log({mode,type,contentType,size})
     //
     // Get/Create wrapper
     //
@@ -221,7 +222,7 @@ const TiToptip = {
   getTipMeasureStyle(size) {
     let css = {}
     const setTipStyle = (key, val) => {
-      if (/^[0-9]$/.test(val)) {
+      if (/^[0-9]+$/.test(val)) {
         css[key] = `${val}px`
       } else {
         css[key] = val
