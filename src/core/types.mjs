@@ -1115,10 +1115,14 @@ const TiTypes = {
   },
   //.......................................
   formatDate(date, fmt = "yyyy-MM-dd") {
+    if (!date)
+      return
     return Ti.DateTime.format(date, fmt)
   },
   //.......................................
   formatDateTime(date, fmt = "yyyy-MM-dd HH:mm:ss") {
+    if (!date)
+      return
     return Ti.DateTime.format(date, fmt)
   },
   //.......................................

@@ -6,6 +6,7 @@ const _M = {
     //--------------------------------------
     GuiExplainContext() {
       let load = Ti.Util.explainObj(this, this.load);
+      console.log("GuiExplainContext",load)
       return {
         moduleName: this.moduleName,
         rootState: this.rootState,

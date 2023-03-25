@@ -7651,6 +7651,20 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
           color: #44AAFF;
           background-color: #FFF; }
+      .ti-table > table > tbody > tr.is-primary {
+        color: #FC4; }
+        .ti-table > table > tbody > tr.is-primary.is-checked {
+          color: #222;
+          background-color: #FC4; }
+          .ti-table > table > tbody > tr.is-primary.is-checked > td {
+            border-color: #222; }
+      .ti-table > table > tbody > tr.is-secondary {
+        color: #F48; }
+        .ti-table > table > tbody > tr.is-secondary.is-checked {
+          color: #FFF;
+          background-color: #F48; }
+          .ti-table > table > tbody > tr.is-secondary.is-checked > td {
+            border-color: #FFF; }
       .ti-table > table > tbody > tr.is-success {
         color: #5A5; }
         .ti-table > table > tbody > tr.is-success.is-checked {
@@ -7693,6 +7707,8 @@ div.ti-input-tags {
           background-color: rgba(160, 160, 160, 0.6); }
           .ti-table > table > tbody > tr.is-disable.is-checked > td {
             border-color: rgba(0, 0, 0, 0.38); }
+      .ti-table > table > tbody > tr.is-delete {
+        text-decoration: line-through; }
       .ti-table > table > tbody > tr.is-text {
         color: #00CC00; }
         .ti-table > table > tbody > tr.is-text.is-checked {
@@ -7707,6 +7723,20 @@ div.ti-input-tags {
           background-color: #44AAFF; }
           .ti-table > table > tbody > tr.is-number.is-checked > td {
             border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-paper {
+        color: #FFF; }
+        .ti-table > table > tbody > tr.is-paper.is-checked {
+          color: #444;
+          background-color: #FFF; }
+          .ti-table > table > tbody > tr.is-paper.is-checked > td {
+            border-color: #444; }
+      .ti-table > table > tbody > tr.is-boldtip {
+        color: #000; }
+        .ti-table > table > tbody > tr.is-boldtip.is-checked {
+          color: #aaffaa;
+          background-color: #000; }
+          .ti-table > table > tbody > tr.is-boldtip.is-checked > td {
+            border-color: #aaffaa; }
       .ti-table > table > tbody > tr.is-fake {
         color: rgba(220, 220, 220, 0.6);
         font-size: 0.1rem;
@@ -8463,6 +8493,16 @@ div.ti-input-tags {
     width: 4rem; }
   #ti-tip-wrapper[tip-size="big"] {
     width: 8rem; }
+  #ti-tip-wrapper[tip-type="primary"] > .ti-tip-box > main {
+    color: #222;
+    background-color: #FC4; }
+  #ti-tip-wrapper[tip-type="primary"] > .ti-tip-box .tip-arrow {
+    border-color: #FC4; }
+  #ti-tip-wrapper[tip-type="secondary"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #F48; }
+  #ti-tip-wrapper[tip-type="secondary"] > .ti-tip-box .tip-arrow {
+    border-color: #F48; }
   #ti-tip-wrapper[tip-type="info"] > .ti-tip-box > main {
     color: #FFF;
     background-color: #44AAFF; }
@@ -8478,11 +8518,21 @@ div.ti-input-tags {
     background-color: #FE0; }
   #ti-tip-wrapper[tip-type="warn"] > .ti-tip-box .tip-arrow {
     border-color: #FE0; }
+  #ti-tip-wrapper[tip-type="track"] > .ti-tip-box > main {
+    color: #666;
+    background-color: rgba(220, 220, 220, 0.6); }
+  #ti-tip-wrapper[tip-type="track"] > .ti-tip-box .tip-arrow {
+    border-color: rgba(220, 220, 220, 0.6); }
   #ti-tip-wrapper[tip-type="success"] > .ti-tip-box > main {
     color: #CFC;
     background-color: #5A5; }
   #ti-tip-wrapper[tip-type="success"] > .ti-tip-box .tip-arrow {
     border-color: #5A5; }
+  #ti-tip-wrapper[tip-type="number"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #44AAFF; }
+  #ti-tip-wrapper[tip-type="number"] > .ti-tip-box .tip-arrow {
+    border-color: #44AAFF; }
   #ti-tip-wrapper[tip-type="paper"] > .ti-tip-box > main {
     color: #444;
     background-color: #FFF; }

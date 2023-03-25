@@ -10,7 +10,7 @@ export default {
   // @see TiComboInputProp#dictVars
   "dictVars": {
     type: Object,
-    default: ()=>({})
+    default: () => ({})
   },
   "valueMustInDict": {
     type: Boolean,
@@ -19,14 +19,18 @@ export default {
   "valueCase": {
     type: String,
     default: undefined,
-    validator: (cs) => (Ti.Util.isNil(cs) || Ti.S.isValidCase(cs))
+    validator: (cs) => Ti.Util.isNil(cs) || Ti.S.isValidCase(cs)
   },
   "trimed": {
     type: Boolean,
     default: true
   },
+  // Context vars for prop format
+  "vars": {
+    type: Object
+  },
   "format": {
-    type: [String, Function],
+    type: [String, Function, Object],
     default: undefined
   },
   //-----------------------------------
@@ -63,6 +67,9 @@ export default {
     type: [String, Number],
     default: "i18n:nil"
   },
+  "valueTip": {
+    type: [Boolean, String, Object]
+  },
   "autoI18n": {
     type: Boolean,
     default: true
@@ -98,4 +105,4 @@ export default {
     type: [Number, String],
     default: undefined
   }
-}
+};

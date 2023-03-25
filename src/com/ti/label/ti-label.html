@@ -5,7 +5,7 @@
   @dblclick.left="OnDblClick"
   @mouseenter="OnMouseEnter"
   @mouseleave="OnMouseLeave"
-  :title="myDisplayText">
+  v-bind="LabelValueTip">
   <!--Hover copy indicator-->
   <div
     v-if="isHoverCopy"

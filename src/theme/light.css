@@ -7651,6 +7651,20 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number-tag {
           color: #08F;
           background-color: #FFF; }
+      .ti-table > table > tbody > tr.is-primary {
+        color: #2196f3; }
+        .ti-table > table > tbody > tr.is-primary.is-checked {
+          color: #FFF;
+          background-color: #2196f3; }
+          .ti-table > table > tbody > tr.is-primary.is-checked > td {
+            border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-secondary {
+        color: #ff4081; }
+        .ti-table > table > tbody > tr.is-secondary.is-checked {
+          color: #FFF;
+          background-color: #ff4081; }
+          .ti-table > table > tbody > tr.is-secondary.is-checked > td {
+            border-color: #FFF; }
       .ti-table > table > tbody > tr.is-success {
         color: #4caf50; }
         .ti-table > table > tbody > tr.is-success.is-checked {
@@ -7693,6 +7707,8 @@ div.ti-input-tags {
           background-color: #999; }
           .ti-table > table > tbody > tr.is-disable.is-checked > td {
             border-color: #CCC; }
+      .ti-table > table > tbody > tr.is-delete {
+        text-decoration: line-through; }
       .ti-table > table > tbody > tr.is-text {
         color: #080; }
         .ti-table > table > tbody > tr.is-text.is-checked {
@@ -7707,6 +7723,20 @@ div.ti-input-tags {
           background-color: #08F; }
           .ti-table > table > tbody > tr.is-number.is-checked > td {
             border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-paper {
+        color: #444; }
+        .ti-table > table > tbody > tr.is-paper.is-checked {
+          color: #F0F0F0;
+          background-color: #444; }
+          .ti-table > table > tbody > tr.is-paper.is-checked > td {
+            border-color: #F0F0F0; }
+      .ti-table > table > tbody > tr.is-boldtip {
+        color: #000; }
+        .ti-table > table > tbody > tr.is-boldtip.is-checked {
+          color: #EECC00;
+          background-color: #000; }
+          .ti-table > table > tbody > tr.is-boldtip.is-checked > td {
+            border-color: #EECC00; }
       .ti-table > table > tbody > tr.is-fake {
         color: #888;
         font-size: 0.1rem;
@@ -8463,6 +8493,16 @@ div.ti-input-tags {
     width: 4rem; }
   #ti-tip-wrapper[tip-size="big"] {
     width: 8rem; }
+  #ti-tip-wrapper[tip-type="primary"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #2196f3; }
+  #ti-tip-wrapper[tip-type="primary"] > .ti-tip-box .tip-arrow {
+    border-color: #2196f3; }
+  #ti-tip-wrapper[tip-type="secondary"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #ff4081; }
+  #ti-tip-wrapper[tip-type="secondary"] > .ti-tip-box .tip-arrow {
+    border-color: #ff4081; }
   #ti-tip-wrapper[tip-type="info"] > .ti-tip-box > main {
     color: #FFF;
     background-color: #2196f3; }
@@ -8478,11 +8518,21 @@ div.ti-input-tags {
     background-color: #FF8800; }
   #ti-tip-wrapper[tip-type="warn"] > .ti-tip-box .tip-arrow {
     border-color: #FF8800; }
+  #ti-tip-wrapper[tip-type="track"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #888; }
+  #ti-tip-wrapper[tip-type="track"] > .ti-tip-box .tip-arrow {
+    border-color: #888; }
   #ti-tip-wrapper[tip-type="success"] > .ti-tip-box > main {
     color: #CFC;
     background-color: #4caf50; }
   #ti-tip-wrapper[tip-type="success"] > .ti-tip-box .tip-arrow {
     border-color: #4caf50; }
+  #ti-tip-wrapper[tip-type="number"] > .ti-tip-box > main {
+    color: #FFF;
+    background-color: #08F; }
+  #ti-tip-wrapper[tip-type="number"] > .ti-tip-box .tip-arrow {
+    border-color: #08F; }
   #ti-tip-wrapper[tip-type="paper"] > .ti-tip-box > main {
     color: #F0F0F0;
     background-color: #444; }

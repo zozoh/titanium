@@ -108,7 +108,7 @@ const TiUtil = {
     {
       titles = [],
       otherTitle = { value: "Others", text: "Others" },
-      asList = false,
+      asList = false
     } = {}
   ) {
     let reMap = {};
@@ -133,7 +133,7 @@ const TiUtil = {
         if (!grp) {
           grp = {
             ...tit,
-            list: [],
+            list: []
           };
           reMap[gk] = grp;
         }
@@ -144,7 +144,7 @@ const TiUtil = {
     if (!_.isEmpty(others)) {
       reMap[otherTitle.value] = {
         ...otherTitle,
-        list: others,
+        list: others
       };
     }
     //...............................................
@@ -276,7 +276,7 @@ const TiUtil = {
     let sel = {
       firstAt: -1,
       lastAt: -1,
-      items: [],
+      items: []
     };
     let remains = [];
     _.forEach(list, (li, index) => {
@@ -292,7 +292,7 @@ const TiUtil = {
       else {
         remains.push({
           index,
-          item: li,
+          item: li
         });
       }
     });
@@ -307,7 +307,7 @@ const TiUtil = {
       head: () => 0,
       tail: () => list.length,
       prev: () => Math.max(0, sel.firstAt - 1),
-      next: () => Math.min(list.length, sel.lastAt + 2),
+      next: () => Math.min(list.length, sel.lastAt + 2)
     }[direction]();
 
     //console.log({sel, taIndex})
@@ -380,7 +380,7 @@ const TiUtil = {
         let pager = state[dataKey][pagerKey];
         state[dataKey] = {
           [listKey]: list,
-          [pagerKey]: pager,
+          [pagerKey]: pager
         };
       }
     }
@@ -428,7 +428,7 @@ const TiUtil = {
         let pager = state[dataKey][pagerKey];
         state[dataKey] = {
           [listKey]: list,
-          [pagerKey]: pager,
+          [pagerKey]: pager
         };
       }
     }
@@ -503,7 +503,7 @@ const TiUtil = {
       let pager = state[dataKey][pagerKey];
       state[dataKey] = {
         [listKey]: list,
-        [pagerKey]: pager,
+        [pagerKey]: pager
       };
     }
   },
@@ -545,7 +545,7 @@ const TiUtil = {
       root = _.identity,
       all = _.identity,
       leaf = _.identity,
-      node = _.identity,
+      node = _.identity
     } = {}
   ) {
     //..............................
@@ -684,7 +684,7 @@ const TiUtil = {
         if (!m || Ti.AutoMatch.test(m, context)) {
           return v;
         }
-      },
+      }
     } = options;
     // As String
     if (_.isArray(arms)) {
@@ -851,7 +851,7 @@ const TiUtil = {
                 }
               }
               return Ti.S.renderBy(tmpl, context);
-            },
+            }
             // :=xxx  # Get Value Later
             // ":=" : (val, dft)=>{
             //   return (c2)=>{return _.get(c2, val)}
@@ -1650,7 +1650,7 @@ const TiUtil = {
       funcSet = window,
       dftValue,
       notNil = false,
-      partial = "right", // "left" | "right" | Falsy
+      partial = "right" // "left" | "right" | Falsy
     } = {}
   ) {
     //.............................................
@@ -1685,7 +1685,7 @@ const TiUtil = {
         return TiUtil.genInvoking(invoke, {
           context,
           funcSet,
-          partial,
+          partial
         });
       }
       //...........................................
@@ -1711,11 +1711,15 @@ const TiUtil = {
    * @returns {Object} `{name:"Ti.X.XX", args:[]}`
    */
   parseInvoking(str) {
-    let callPath, callArgs;
+    let callPath, callArgs, partial;
     // Object mode
-    if (str.name && !_.isUndefined(str.args)) {
+    if (_.isObject(str) && str.name) {
       callPath = str.name;
-      callArgs = _.concat(str.args);
+      callArgs = [];
+      if (!_.isUndefined(str.args)) {
+        callArgs = _.concat(str.args);
+        partial = str.partial;
+      }
     }
     // String mode
     else {
@@ -1731,6 +1735,7 @@ const TiUtil = {
     return {
       name: callPath,
       args,
+      partial
     };
   },
   /***
@@ -1745,7 +1750,7 @@ const TiUtil = {
       args,
       dft = () => str,
       funcSet = window,
-      partial = "left", // "left" | "right" | "right?" | Falsy,
+      partial = "left" // "left" | "right" | "right?" | Falsy,
     } = {}
   ) {
     //.............................................
@@ -1756,6 +1761,7 @@ const TiUtil = {
     let invoke = TiUtil.parseInvoking(str);
     let callPath = invoke.name;
     let callArgs = invoke.args;
+    partial = invoke.partial || partial;
     if (_.isArray(args) && args.length > 0) {
       callArgs = args;
     }
@@ -1898,7 +1904,7 @@ const TiUtil = {
       return (it) => Ti.Util.translate(it, rawDataBy);
     }
     return (it) => it;
-  },
+  }
 };
 //-----------------------------------
 export const Util = TiUtil;

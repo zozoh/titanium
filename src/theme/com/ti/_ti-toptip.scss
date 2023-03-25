@@ -64,6 +64,22 @@
   //               Color
   //
   //-----------------------------------------
+  &[tip-type="primary"] > .ti-tip-box {
+    > main {
+      @include color($color-primary, r, c);
+    }
+    .tip-arrow {
+      border-color: map-get($color-primary, c);
+    }
+  }
+  &[tip-type="secondary"] > .ti-tip-box {
+    > main {
+      @include color($color-secondary, r, c);
+    }
+    .tip-arrow {
+      border-color: map-get($color-secondary, c);
+    }
+  }
   &[tip-type="info"] > .ti-tip-box {
     > main {
       @include color($color-info, r, c);
@@ -88,12 +104,28 @@
       border-color: map-get($color-warn, c);
     }
   }
+  &[tip-type="track"] > .ti-tip-box {
+    > main {
+      @include color($color-track, r, c);
+    }
+    .tip-arrow {
+      border-color: map-get($color-track, c);
+    }
+  }
   &[tip-type="success"] > .ti-tip-box {
     > main {
       @include color($color-success, r, c);
     }
     .tip-arrow {
       border-color: map-get($color-success, c);
+    }
+  }
+  &[tip-type="number"] > .ti-tip-box {
+    > main {
+      @include color($color-number, r, c);
+    }
+    .tip-arrow {
+      border-color: map-get($color-number, c);
     }
   }
   &[tip-type="paper"] > .ti-tip-box {

@@ -155,7 +155,7 @@
           font-size: SZ(10);
           padding: 0.7em 0.5em;
           z-index: $z-above + 1;
-          opacity: 0.7; 
+          opacity: 0.7;
           transition: opacity 0.3s;
 
           &:hover {
@@ -331,10 +331,27 @@
             }
           }
         }
+        @mixin row-status-color2($color: null) {
+          @include color($color, r);
+          &.is-checked {
+            @include color($color, c, r);
+            > td {
+              border-color: map-get($color, c);
+            }
+          }
+        }
         //-----------------------------------------
         //
         //               Status Color
         //
+        //-----------------------------------------
+        &.is-primary {
+          @include row-status-color($color-primary);
+        }
+        //-----------------------------------------
+        &.is-secondary {
+          @include row-status-color($color-secondary);
+        }
         //-----------------------------------------
         &.is-success {
           @include row-status-color($color-success);
@@ -360,12 +377,24 @@
           @include row-status-color($color-disable);
         }
         //-----------------------------------------
+        &.is-delete {
+          text-decoration: line-through;
+        }
+        //-----------------------------------------
         &.is-text {
           @include row-status-color($color-text);
         }
         //-----------------------------------------
         &.is-number {
           @include row-status-color($color-number);
+        }
+        //-----------------------------------------
+        &.is-paper {
+          @include row-status-color2($color-paper);
+        }
+        //-----------------------------------------
+        &.is-boldtip {
+          @include row-status-color2($color-boldtip);
         }
         //-----------------------------------------
         //
