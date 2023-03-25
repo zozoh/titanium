@@ -63,8 +63,8 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      if (/change$/.test(name))
-      console.log("WnThAdaptor.__on_events", name, payload)
+      // if (/change$/.test(name))
+      // console.log("WnThAdaptor.__on_events", name, payload)
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
