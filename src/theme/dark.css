@@ -7709,6 +7709,8 @@ div.ti-input-tags {
             border-color: rgba(0, 0, 0, 0.38); }
       .ti-table > table > tbody > tr.is-delete {
         text-decoration: line-through; }
+      .ti-table > table > tbody > tr.is-italic {
+        font-style: italic; }
       .ti-table > table > tbody > tr.is-text {
         color: #00CC00; }
         .ti-table > table > tbody > tr.is-text.is-checked {

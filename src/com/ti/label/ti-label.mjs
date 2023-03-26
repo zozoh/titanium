@@ -13,6 +13,10 @@ const _M = {
       type: Boolean,
       default: Ti.Config.getComProp(COM_TYPE, "autoLoadDictIcon", true)
     },
+    "valueTip": {
+      type: [Boolean, String, Object],
+      default: Ti.Config.getComProp(COM_TYPE, "valueTip", false)
+    },
     "valueClickable": {
       type: Boolean,
       default: false
@@ -77,7 +81,40 @@ const _M = {
           size: "auto",
           type: "secondary",
           contentType: "html",
-          text: `-><em>\${value}</em><br><pre>\${LabelVarText}</pre>`,
+          text: () => {
+            let isComplexObj = false;
+            if (_.isArray(this.value)) {
+              if (this.value.length > 5) {
+                isComplexObj = true;
+              } else if (this.value.length >= 1) {
+                let it0 = this.value[0];
+                if (_.isObject(it0) && _.keys(it0).length > 3) {
+                  isComplexObj = true;
+                }
+              }
+            } else if (_.isObject(this.value)) {
+              if (_.keys(this.value).length > 3) {
+                isComplexObj = true;
+              }
+            }
+
+            let val_str = isComplexObj
+              ? JSON.stringify(this.value, null, "   ")
+              : JSON.stringify(this.value);
+
+            if (!_.isEmpty(this.vars)) {
+              return `<pre>${val_str}
+              \n------------ VARS ----------\n${JSON.stringify(
+                this.vars,
+                null,
+                "   "
+              )}</pre>`;
+            }
+
+            return isComplexObj
+              ? `<pre>${val_str}</pre>`
+              : `<code>${val_str}</code>`;
+          },
           keyboard: "ctrl"
         };
         // Dynamic call tip
@@ -94,7 +131,7 @@ const _M = {
         }
 
         // Explain it
-        let reTip = Ti.Util.explainObj(this, re);
+        let reTip = Ti.Util.explainObj(this, re, { evalFunc: true });
         return Ti.Toptip.toTipBind(reTip);
       }
     },
@@ -119,7 +156,6 @@ const _M = {
         }
         // Complex format
         if (_.isObject(this.format) && this.format.name) {
-          console.log("TheFormat", this.format);
           return Ti.Util.genInvoking(this.format, {
             context: this.vars || {},
             partial: "right"

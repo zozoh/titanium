@@ -1,4 +1,4 @@
-// Pack At: 2023-03-24 17:55:39
+// Pack At: 2023-03-27 01:48:42
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -584,7 +584,7 @@ const { Toptip } = (function(){
       :value="content"
       :type="type"
       theme="tipbox"
-      />`
+      />`;
       //........................................
       // Prepare the app info
       let appInfo = {
@@ -595,33 +595,29 @@ const { Toptip } = (function(){
             "viewport": "@mod:ti/viewport"
           }
         },
-        computed: {
-        },
-        methods: {
-        },
-        components: [
-          "@com:web/text/article"
-        ]
-      }
+        computed: {},
+        methods: {},
+        components: ["@com:web/text/article"]
+      };
       //........................................
       // create TiApp
       // console.log(appInfo)
-      let app = await Ti.App(appInfo)
-      this.app = app
-      await app.init()
+      let app = await Ti.App(appInfo);
+      this.app = app;
+      await app.init();
       //........................................
       // Mount to body
-      app.mountTo(this.$el)
+      app.mountTo(this.$el);
       //........................................
-      return this
+      return this;
     }
     //------------------------------------------
   }
   //////////////////////////////////////////////
   const TiToptip = {
     tipBox: null,
-    $target: null,   // the ele which trigger the tip
-    $wrapper: null,  // tip wrapper
+    $target: null, // the ele which trigger the tip
+    $wrapper: null, // tip wrapper
     targetRect: null,
     tipRect: null,
     //------------------------------------------
@@ -647,18 +643,18 @@ const { Toptip } = (function(){
     */
     async createTip($target, options = {}) {
       if (this.$target === $target) {
-        return
+        return;
       }
-      this.$target = $target
+      this.$target = $target;
       //console.log("createTip")
-      let tip = this.getTipData($target)
+      let tip = this.getTipData($target);
       let {
         type = "paper",
         size = "auto",
         content,
         contentType = "text",
         mode = "H",
-        vars= {}
+        vars = {}
       } = _.assign(tip, options);
       //Quick attrigbute
       // [
@@ -672,52 +668,56 @@ const { Toptip } = (function(){
       // 7) "auto",
       // 8) "xxxx: xxxx"
       // ]
-      let m = /^\[(([HV]):?)?(([^!]+)!)?(html|text|md)?(:?([^\]]+))?\]\s*(.+)/.exec(content)
+      let m =
+        /^\[(([HV]):?)?(([^!]+)!)?(html|text|md)?(:?([^\]]+))?\]\s*(.+)/.exec(
+          content
+        );
       if (m) {
-        mode = m[2] || mode
-        type = m[4] || type
-        contentType = m[5] || contentType
-        size = m[7] || _.trim(size)
-        content = _.trim(m[8])
+        mode = m[2] || mode;
+        type = m[4] || type;
+        contentType = m[5] || contentType;
+        size = m[7] || _.trim(size);
+        content = _.trim(m[8]);
       }
       //console.log({mode,type,contentType,size})
       //
       // Get/Create wrapper
       //
-      let { $wrapper, $foot, $stub, $arrow } = this.getTipWarpper(true)
+      let { $wrapper, $foot, $stub, $arrow } = this.getTipWarpper(true);
       // Update tip style
       Ti.Dom.setAttrs($wrapper, {
         "tip-size": size,
         "tip-type": type,
         "tip-ready": "no"
-      })
+      });
       //
       // Update Wrapper Measure
       //
-      let css = this.getTipMeasureStyle(size)
-      Ti.Dom.setStyle($wrapper, css)
+      let css = this.getTipMeasureStyle(size);
+      Ti.Dom.setStyle($wrapper, css);
       //
       // Format content
       //
       if (/^i18n:/.test(content)) {
-        content = Ti.I18n.translate(content.substring(5).trim())
+        content = Ti.I18n.translate(content.substring(5).trim());
       }
       // Dynamic Loading
       if (/^@tip:/.test(content)) {
         let path = Ti.S.renderBy(content, {
           lang: _.snakeCase(Ti.Env("LANG") || "zh-cn")
-        })
-        let ftp = Ti.Util.getSuffixName(content)
-        contentType = ({
-          "txt": "text",
-          "html": "html",
-          "md": "text"
-        })[ftp] || "text"
-        content = await Ti.Load(path)
+        });
+        let ftp = Ti.Util.getSuffixName(content);
+        contentType =
+          {
+            "txt": "text",
+            "html": "html",
+            "md": "text"
+          }[ftp] || "text";
+        content = await Ti.Load(path);
       }
       // Render content
-      if(!_.isEmpty(vars)){
-        content = Ti.Tmpl.exec(content, vars)
+      if (!_.isEmpty(vars)) {
+        content = Ti.Tmpl.exec(content, vars);
       }
       //
       // Open box
@@ -726,8 +726,8 @@ const { Toptip } = (function(){
         $el: $stub,
         content,
         type: contentType
-      })
-      await tipBox.open()
+      });
+      await tipBox.open();
   
       //
       // Dock tip to target
@@ -735,139 +735,138 @@ const { Toptip } = (function(){
       //
       let dock = Ti.Dom.dockTo($wrapper, $target, {
         mode,
-        space: ({
-          "H": { x: 0, y: 12 },
-          "V": { x: 12, y: 0 }
-        })[mode] || 0,
-        posListX: ({
+        space:
+          {
+            "H": { x: 0, y: 12 },
+            "V": { x: 12, y: 0 }
+          }[mode] || 0,
+        posListX: {
           "H": ["center"],
           "V": ["right", "left"]
-        })[mode],
-        posListY: ({
+        }[mode],
+        posListY: {
           "H": ["bottom", "top"],
           "V": ["center"]
-        })[mode]
-      })
+        }[mode]
+      });
       Ti.Dom.setAttrs($wrapper, {
-        "tip-at": dock.axis["H" == mode ? 'y' : 'x'],
-      })
+        "tip-at": dock.axis["H" == mode ? "y" : "x"]
+      });
   
       //
       // Move Arrow to Target by footer margin
       //
-      let arw = Ti.Rects.createBy($arrow)
-      let style = ({
+      let arw = Ti.Rects.createBy($arrow);
+      let style = {
         H: ({ left }, { x }) => {
           return {
             "margin-left": `${Math.round(x - left - arw.width / 2)}px`
-          }
+          };
         },
         V: ({ top }, { y }) => {
           return {
             "margin-top": `${Math.round(y - top - arw.height / 2)}px`
-          }
+          };
         }
-      })[mode](dock.srcRect, dock.targetRect)
-      Ti.Dom.setStyle($foot, style)
+      }[mode](dock.srcRect, dock.targetRect);
+      Ti.Dom.setStyle($foot, style);
   
       // Mark ready
       _.delay(() => {
-        Ti.Dom.setAttrs($wrapper, { "tip-ready": "yes" })
-      }, 10)
+        Ti.Dom.setAttrs($wrapper, { "tip-ready": "yes" });
+      }, 10);
   
-      // Mark Open 
-      this.$target = $target
-      this.tipBox = tipBox
-      this.targetRect = this.genRectScope(dock.targetRect)
-      this.tipRect = dock.srcRect
-  
+      // Mark Open
+      this.$target = $target;
+      this.tipBox = tipBox;
+      this.targetRect = this.genRectScope(dock.targetRect);
+      this.tipRect = dock.srcRect;
     },
     //------------------------------------------
     genRectScope(rect, space = 20) {
-      rect.width += space
-      rect.height += space
-      return rect.updateBy("xywh")
+      rect.width += space;
+      rect.height += space;
+      return rect.updateBy("xywh");
     },
     //------------------------------------------
     getTipMeasureStyle(size) {
-      let css = {}
+      let css = {};
       const setTipStyle = (key, val) => {
         if (/^[0-9]+$/.test(val)) {
-          css[key] = `${val}px`
+          css[key] = `${val}px`;
         } else {
-          css[key] = val
+          css[key] = val;
         }
-      }
-      let m = /^(([.0-9]*)(r?em|px)?)[Xx:,-](([.0-9]*)(r?em|px)?)$/.exec(size)
+      };
+      let m = /^(([.0-9]*)(r?em|px)?)[Xx:,-](([.0-9]*)(r?em|px)?)$/.exec(size);
       if (m) {
-        setTipStyle("width", m[1])
-        setTipStyle("height", m[4])
+        setTipStyle("width", m[1]);
+        setTipStyle("height", m[4]);
       }
-      return css
+      return css;
     },
     //------------------------------------------
     getTipData($target, options) {
-      let vars = {}
+      let vars = {};
       let tip = Ti.Dom.getData($target, (key, value) => {
         //console.log(key, value)
-        let m = /^(tiTip)(Vars)?(.*)?$/.exec(key)
+        let m = /^(tiTip)(Vars)?(.*)?$/.exec(key);
         if (m) {
           // Tip Template vars
           // data-ti-tip-vars-xxx
           if ("Vars" == m[2]) {
-            vars[_.lowerFirst(m[3])] = value
-            return 
+            vars[_.lowerFirst(m[3])] = value;
+            return;
           }
           // Tip setting
-          let name = _.camelCase(m[3] || "content")
-          return name
+          let name = _.camelCase(m[3] || "content");
+          return name;
         }
-      })
-      tip.vars = vars
-      return tip
+      });
+      tip.vars = vars;
+      return tip;
     },
     //------------------------------------------
     isInTargetRect(point) {
-      return this.isInRect('targetRect', point)
+      return this.isInRect("targetRect", point);
     },
     //------------------------------------------
     isInTipRect(point) {
-      return this.isInRect('tipRect', point)
+      return this.isInRect("tipRect", point);
     },
     //------------------------------------------
     // point: {x,y} window client coordinates
     isInRect(rectKey, point = {}) {
-      let rect = this[rectKey]
-      return rect && rect.hasPoint(point)
+      let rect = this[rectKey];
+      return rect && rect.hasPoint(point);
     },
     //------------------------------------------
     async OnHoverInTarget($el) {
       if (this.$target === $el) {
-        return
+        return;
       }
       //console.log("Hover")
       // Clone prev tip box
-      await this.destroy(true)
+      await this.destroy(true);
   
       // Create new one
-      this.createTip($el)
+      this.createTip($el);
     },
     //------------------------------------------
     OnHoverInBody() {
       if (this.closeCheckerIsSet || !this.tipBox) {
-        return
+        return;
       }
-      let point = this.point
+      let point = this.point;
       if (this.isInTipRect(point) || this.isInTargetRect(point)) {
-        return
+        return;
       }
-  
   
       _.delay(() => {
-        this.closeCheckerIsSet = false
-        let point = this.point
+        this.closeCheckerIsSet = false;
+        let point = this.point;
         if (this.isInTipRect(point) || this.isInTargetRect(point)) {
-          return
+          return;
         }
         // console.log("delay OUTSIDE", point,
         //   "\nTip:", this.isInTipRect(point),
@@ -877,84 +876,86 @@ const { Toptip } = (function(){
         //   `X:[${this.targetRect.left}, ${this.targetRect.right}]`,
         //   `Y:[${this.targetRect.top}, ${this.targetRect.bottom}]`)
   
-        this.destroy()
-        this.tipBox = null
-  
-      }, this.checkDelay + 1)
-      this.closeCheckerIsSet = true
+        this.destroy();
+        this.tipBox = null;
+      }, this.checkDelay + 1);
+      this.closeCheckerIsSet = true;
     },
     //------------------------------------------
     destroy(nodelay = false) {
       if (!this.tipBox || !this.tipBox.app) {
-        return
+        return;
       }
-      let { $wrapper, $main, $foot } = this.getTipWarpper(false)
+      let { $wrapper, $main, $foot } = this.getTipWarpper(false);
       const do_destroy = () => {
         // Destroy app
-        this.$target = null
-        this.targetRect = null
-        this.tipRect = null
+        this.$target = null;
+        this.targetRect = null;
+        this.tipRect = null;
   
         if (this.tipBox && this.tipBox.app) {
-          this.tipBox.app.destroy()
-          this.tipBox = null
+          this.tipBox.app.destroy();
+          this.tipBox = null;
         }
   
         // Clean DOM
-        $main.innerHTML = "<div></div>"
-        $wrapper.style = null
-        $foot.style = null
-      }
+        $main.innerHTML = "<div></div>";
+        $wrapper.style = null;
+        $foot.style = null;
+      };
   
       if ($wrapper) {
         // Removem DOM mark
         Ti.Dom.setAttrs($wrapper, {
           "tip-ready": "no"
-        })
+        });
         // destroy by move in
         if (nodelay) {
-          do_destroy()
+          do_destroy();
         }
         // destroy by move out
         else {
           return new Promise((resolve) => {
             _.delay(() => {
               do_destroy();
-              resolve(true)
-            }, 100)
-          })
+              resolve(true);
+            }, 100);
+          });
         }
       }
     },
     //------------------------------------------
     getTipWarpper(autoCreate = false) {
-      let $wrapper = this.$wrapper
+      let $wrapper = this.$wrapper;
       if (!$wrapper) {
         if (!autoCreate) {
-          return {}
+          return {};
         }
-        $wrapper = Ti.Dom.find("#ti-tip-wrapper")
+        $wrapper = Ti.Dom.find("#ti-tip-wrapper");
         if (!$wrapper) {
-          $wrapper = Ti.Dom.createElement({ tagName: "div", attrs: { id: 'ti-tip-wrapper' } })
-          Ti.Dom.appendToBody($wrapper)
-          this.$wrapper = $wrapper
+          $wrapper = Ti.Dom.createElement({
+            tagName: "div",
+            attrs: { id: "ti-tip-wrapper" }
+          });
+          Ti.Dom.appendToBody($wrapper);
+          this.$wrapper = $wrapper;
         }
       }
-      let $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+      let $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper);
       if (!$tip) {
         if (!autoCreate) {
-          return { $wrapper }
+          return { $wrapper };
         }
         $wrapper.innerHTML = `<div class="ti-tip-box">
           <main><div></div></main>
           <footer><span class="tip-arrow"></span></footer>
-        </div>`
-        $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper)
+        </div>`;
+        $tip = Ti.Dom.find(":scope > div.ti-tip-box", $wrapper);
       }
-      let $main = Ti.Dom.find(":scope > main", $tip)
-      let $foot = Ti.Dom.find(":scope > footer", $tip)
-      let $arrow = Ti.Dom.find(":scope > footer > .tip-arrow", $tip)
-      let $stub = Ti.Dom.find(":scope > div", $main)
+      let $main = Ti.Dom.find(":scope > main", $tip);
+      let $foot = Ti.Dom.find(":scope > footer", $tip);
+      let $arrow = Ti.Dom.find(":scope > footer > .tip-arrow", $tip);
+      let $stub = Ti.Dom.find(":scope > div", $main);
       return {
         $wrapper,
         $tip,
@@ -962,13 +963,12 @@ const { Toptip } = (function(){
         $foot,
         $arrow,
         $stub
-      }
+      };
     },
     //------------------------------------------
     drawHelper(name, rect) {
-  
-      let id = `ti-tip-box-helper-${name}`
-      let $el = Ti.Dom.find(`#${id}`)
+      let id = `ti-tip-box-helper-${name}`;
+      let $el = Ti.Dom.find(`#${id}`);
       if (rect) {
         //console.log("helper", name, rect + "")
         if (!$el) {
@@ -979,51 +979,74 @@ const { Toptip } = (function(){
               background: "rgba(255,255,0,0.3)",
               zIndex: 99999999999
             }
-          })
-          Ti.Dom.appendToBody($el)
+          });
+          Ti.Dom.appendToBody($el);
         }
-        let style = rect.toCss()
-        Ti.Dom.updateStyle($el, style)
+        let style = rect.toCss();
+        Ti.Dom.updateStyle($el, style);
       }
       // Remove helper
       else if ($el) {
-        Ti.Dom.remove($el)
+        Ti.Dom.remove($el);
       }
     },
     //------------------------------------------
     drawAllHelpers() {
-      this.drawHelper("tip", this.tipRect)
-      this.drawHelper("tag", this.targetRect)
+      this.drawHelper("tip", this.tipRect);
+      this.drawHelper("tag", this.targetRect);
     },
     //------------------------------------------
     watch() {
-      document.addEventListener("mousemove", evt => {
+      document.addEventListener("mousemove", (evt) => {
         let point = {
           x: evt.clientX,
           y: evt.clientY
-        }
-        TiToptip.point = point
-        let $el = Ti.Dom.closest(evt.target, "[data-ti-tip]", { includeSelf: true })
+        };
+        TiToptip.point = point;
+        let $el = Ti.Dom.closest(evt.target, "[data-ti-tip]", {
+          includeSelf: true
+        });
         if (!$el) {
-          TiToptip.OnHoverInBody()
+          TiToptip.OnHoverInBody();
         }
         // Find tip element
         else {
           // Get tip Element and tip data
-          let decKey = _.lowerCase($el.getAttribute("data-ti-keyboard"))
+          let decKey = _.lowerCase($el.getAttribute("data-ti-keyboard"));
           if (/^(ctrl|alt|shift|meta)$/.test(decKey)) {
             if (!evt[`${decKey}Key`]) {
-              return
+              return;
             }
           }
           // Then show the tip
-          TiToptip.OnHoverInTarget($el)
+          TiToptip.OnHoverInTarget($el);
         }
         //this.drawAllHelpers()
-      })
+      });
+    },
+    //------------------------------------------
+    toTipBind({
+      mode = "H",
+      size = "auto",
+      type = "secondary",
+      contentType = "text",
+      text,
+      keyboard
+    } = {}) {
+      if (!text) {
+        return;
+      }
+      return {
+        ["data-ti-tip-mode"]: mode,
+        ["data-ti-tip-size"]: size,
+        ["data-ti-tip-type"]: type,
+        ["data-ti-tip-contentType"]: contentType,
+        ["data-ti-tip"]: text,
+        ["data-ti-keyboard"]: keyboard ? keyboard : undefined
+      };
     }
     //------------------------------------------
-  }
+  };
   //////////////////////////////////////////////
   return {Toptip: TiToptip};
 })();
@@ -1778,16 +1801,24 @@ const { Alg } = (function(){
 //##################################################
 // # import { S } from "./str.mjs";
 const { S } = (function(){
-  const CN_NC0 = "零一二三四五六七八九";
-  const CN_NU0 = "个十百千万亿";
-  
   const TiStr = {
-    intToChineseNumber(input) {
+    intToChineseNumber(input, capitalized=false) {
+      if(capitalized){
+        return TiStr._to_chinese_number(input, {
+          CN_NC0 : "零壹贰叁肆伍陆柒捌玖", CN_NU0 : "个拾佰仟万亿"
+        })  
+      }
+      return TiStr._to_chinese_number(input)
+    },
+    _to_chinese_number(
+      input,
+      { CN_NC0 = "零一二三四五六七八九", CN_NU0 = "个十百千万亿" } = {}
+    ) {
       let re = "";
   
       // 考虑负数
       if (input < 0) {
-        re += '负';
+        re += "负";
         input *= -1;
       }
   
@@ -1817,7 +1848,6 @@ const { S } = (function(){
         n = nd;
       }
       let lastNSIndex = len - 1;
-      console.log(ns)
       // 现在我们有一个数字数组
       // [2][3][0][9] ...
       // 个 十 百 千 ...
@@ -1917,251 +1947,240 @@ const { S } = (function(){
       // 输出前，检查，最后一个字符是 '零' 删掉它
       lastI = re.length - 1;
       if (re[lastI] == CN_NC0[0]) {
-        return re.substring(0, lastI)
+        return re.substring(0, lastI);
       }
   
       return re;
     },
     sBlank(str, dft) {
-      if (TiStr.isBlank(str))
-        return dft
-      return str
+      if (TiStr.isBlank(str)) return dft;
+      return str;
     },
     isBlank(str) {
       if (_.isNumber(str) || _.isBoolean(str)) {
-        return false
+        return false;
       }
-      if (_.isString(str))
-        return !str || /^\s*$/.test(str)
-      return str ? false : true
+      if (_.isString(str)) return !str || /^\s*$/.test(str);
+      return str ? false : true;
     },
     splitIgnoreBlank(input, sep = ",") {
-      if (!input || !_.isString(input))
-        return []
+      if (!input || !_.isString(input)) return [];
       let list = input.split(sep);
-      let l2 = _.filter(list, li => !TiStr.isBlank(li))
-      return _.map(l2, li => _.trim(li))
+      let l2 = _.filter(list, (li) => !TiStr.isBlank(li));
+      return _.map(l2, (li) => _.trim(li));
     },
-    renderVars(vars = {}, fmt = "", {
-      iteratee,
-      regex,
-      safe
-    } = {}) {
+    renderVars(vars = {}, fmt = "", { iteratee, regex, safe } = {}) {
       if (_.isString(vars) || _.isNumber(vars)) {
-        vars = { val: vars }
+        vars = { val: vars };
       }
       if (!vars || _.isEmpty(vars)) {
-        return _.isArray(vars) ? [] : ""
+        return _.isArray(vars) ? [] : "";
       }
       return TiStr.renderBy(fmt, vars, {
-        iteratee, regex, safe
-      })
+        iteratee,
+        regex,
+        safe
+      });
     },
     /***
      * Replace the placeholder
      */
-    renderBy(str = "", vars = {}, {
-      iteratee,
-      regex = /(\${1,2})\{([^}]+)\}/g,
-      safe = false
-    } = {}) {
+    renderBy(
+      str = "",
+      vars = {},
+      { iteratee, regex = /(\${1,2})\{([^}]+)\}/g, safe = false } = {}
+    ) {
       if (!str) {
-        return _.isArray(vars) ? [] : ""
+        return _.isArray(vars) ? [] : "";
       }
       // Make sure the `vars` empty-free
-      vars = vars || {}
+      vars = vars || {};
       if (safe) {
-        let r2 = _.isRegExp(safe) ? safe : undefined
-        vars = TiStr.safeDeep(vars, r2)
+        let r2 = _.isRegExp(safe) ? safe : undefined;
+        vars = TiStr.safeDeep(vars, r2);
       }
       // Normlized args
       if (_.isRegExp(iteratee)) {
-        regex = iteratee
-        iteratee = undefined
+        regex = iteratee;
+        iteratee = undefined;
       }
       // Default iteratee
       if (!iteratee) {
         iteratee = ({ varName, vars, matched } = {}) => {
           if (matched.startsWith("$$")) {
-            return matched.substring(1)
+            return matched.substring(1);
           }
           // find default
-          let dft = matched
-          let pos = varName.indexOf('?')
+          let dft = matched;
+          let pos = varName.indexOf("?");
           if (pos > 0) {
-            dft = _.trim(varName.substring(pos + 1))
-            varName = _.trim(varName.substring(0, pos))
+            dft = _.trim(varName.substring(pos + 1));
+            varName = _.trim(varName.substring(0, pos));
           }
-          // I18n ? 
-          let i18n = false
+          // I18n ?
+          let i18n = false;
           if (varName.startsWith("i18n:")) {
-            i18n = true
-            varName = varName.substring(5).trim()
+            i18n = true;
+            varName = varName.substring(5).trim();
           }
           // pick value
-          let reValue = Ti.Util.fallback(
-            Ti.Util.getOrPick(vars, varName),
-            dft
-          )
+          let reValue = Ti.Util.fallback(Ti.Util.getOrPick(vars, varName), dft);
           if (i18n) {
-            return Ti.I18n.get(reValue)
+            return Ti.I18n.get(reValue);
           }
-          return reValue
-        }
+          return reValue;
+        };
       }
       // Array
       if (_.isArray(vars)) {
-        let re = []
+        let re = [];
         for (let i = 0; i < vars.length; i++) {
-          let vars2 = vars[i]
-          let s2 = TiStr.renderBy(str, vars2)
-          re.push(s2)
+          let vars2 = vars[i];
+          let s2 = TiStr.renderBy(str, vars2);
+          re.push(s2);
         }
-        return re
+        return re;
       }
       // Looping
-      let m
-      let ss = []
-      let last = 0
-      while (m = regex.exec(str)) {
-        let current = m.index
+      let m;
+      let ss = [];
+      let last = 0;
+      while ((m = regex.exec(str))) {
+        let current = m.index;
         if (current > last) {
-          ss.push(str.substring(last, current))
+          ss.push(str.substring(last, current));
         }
         let varValue = iteratee({
           vars,
           matched: m[0],
           prefix: m[1],
           varName: m[2]
-        })
-        ss.push(varValue)
-        last = regex.lastIndex
+        });
+        ss.push(varValue);
+        last = regex.lastIndex;
       }
       // Add tail
       if (last < str.length) {
-        ss.push(str.substring(last))
+        ss.push(str.substring(last));
       }
       // Return
-      return ss.join("")
+      return ss.join("");
     },
     /***
      * Replace the dangerous char in Object deeply.
-     * 
+     *
      * @param data{Array|Object|Any} : the value to be turn to safe
      * @param regex{RegExp} : which char should be removed
-     * 
+     *
      * @return data
      */
     safeDeep(data = {}, regex = /['"]/g) {
       // String to replace
       if (_.isString(data)) {
-        return data.replace(regex, "")
+        return data.replace(regex, "");
       }
       // Array
       else if (_.isArray(data)) {
-        return _.map(data, (v) => this.safeDeep(v, regex))
+        return _.map(data, (v) => this.safeDeep(v, regex));
       }
       // Object
       else if (_.isPlainObject(data)) {
-        return _.mapValues(data, (v) => this.safeDeep(v, regex))
+        return _.mapValues(data, (v) => this.safeDeep(v, regex));
       }
       // Others return
-      return data
+      return data;
     },
     /***
-    * Join with iteratee
-    */
+     * Join with iteratee
+     */
     joinWithoutNil(sep = "", ...args) {
-      let list2 = _.flattenDeep(args)
-      let list3 = _.filter(list2, li => !Ti.Util.isNil(li))
-      return list3.join(sep)
+      let list2 = _.flattenDeep(args);
+      let list3 = _.filter(list2, (li) => !Ti.Util.isNil(li));
+      return list3.join(sep);
     },
     /***
      * Join with iteratee
      */
     join(list = [], sep = "", iteratee = null) {
-      let list2 = _.flattenDeep(list)
+      let list2 = _.flattenDeep(list);
       if (_.isFunction(iteratee)) {
-        list2 = _.map(list2, iteratee)
-  
+        list2 = _.map(list2, iteratee);
       }
-      return list2.join(sep)
+      return list2.join(sep);
     },
     /***
      * Join without `null/undefined`
      */
     joinAs(list = [], sep = "", key = null) {
-      let iter = null
+      let iter = null;
       if (key) {
-        iter = li => {
-          if (_.isPlainObject(li))
-            return _.get(li, key)
-          return key
-        }
+        iter = (li) => {
+          if (_.isPlainObject(li)) return _.get(li, key);
+          return key;
+        };
       }
-      return TiStr.join(list, sep, iter)
+      return TiStr.join(list, sep, iter);
     },
     /***
      * Convert string to Js Object automatictly
      */
-    toJsValue(v = "", {
-      autoJson = true,
-      autoDate = true,
-      autoNil = false,
-      trimed = true,
-      context = {}
-    } = {}) {
+    toJsValue(
+      v = "",
+      {
+        autoJson = true,
+        autoDate = true,
+        autoNil = false,
+        trimed = true,
+        context = {}
+      } = {}
+    ) {
       //...............................................
-      // Array 
+      // Array
       if (_.isArray(v)) {
-        let re = []
-        let opt = { autoJson, autoDate, autoNil, trimed, context }
+        let re = [];
+        let opt = { autoJson, autoDate, autoNil, trimed, context };
         for (let it of v) {
-          let v2 = TiStr.toJsValue(it, opt)
-          re.push(v2)
+          let v2 = TiStr.toJsValue(it, opt);
+          re.push(v2);
         }
-        return re
+        return re;
       }
       //...............................................
       // Object
       if (_.isPlainObject(v)) {
-        let re = {}
-        let opt = { autoJson, autoDate, autoNil, trimed, context }
+        let re = {};
+        let opt = { autoJson, autoDate, autoNil, trimed, context };
         _.forEach(v, (it, key) => {
-          let v2 = TiStr.toJsValue(it, opt)
-          re[key] = v2
-        })
-        return re
+          let v2 = TiStr.toJsValue(it, opt);
+          re[key] = v2;
+        });
+        return re;
       }
       //...............................................
       // Number
       // Boolean
       // Nil
-      if (Ti.Util.isNil(v)
-        || _.isBoolean(v)
-        || _.isNumber(v)) {
-        return v
+      if (Ti.Util.isNil(v) || _.isBoolean(v) || _.isNumber(v)) {
+        return v;
       }
       //...............................................
       // Must by string
-      let str = trimed ? _.trim(v) : v
-      let dftAsNil = false
+      let str = trimed ? _.trim(v) : v;
+      let dftAsNil = false;
       if (str.endsWith("?")) {
-        dftAsNil = true
-        str = str.substring(0, str.length - 1).trim()
+        dftAsNil = true;
+        str = str.substring(0, str.length - 1).trim();
       }
       //...............................................
       // autoNil
       if (autoNil) {
-        if ("undefined" == str)
-          return undefined
-        if ("null" == str)
-          return null
+        if ("undefined" == str) return undefined;
+        if ("null" == str) return null;
       }
       //...............................................
       // The whole context
       if (".." == str) {
-        return context
+        return context;
       }
       //...............................................
       // Number
@@ -2170,38 +2189,38 @@ const { S } = (function(){
       }
       //...............................................
       // Try to get from context
-      let re = _.get(context, str)
+      let re = _.get(context, str);
       if (!_.isUndefined(re) || dftAsNil) {
-        return re
+        return re;
       }
       //...............................................
       // Boolean
       if (/^(true|false|yes|no|on|off)$/.test(str)) {
-        return /^(true|yes|on)$/.test(str)
+        return /^(true|yes|on)$/.test(str);
       }
       //...............................................
       // JS String
-      let m = /^'([^']*)'$/.exec(str)
+      let m = /^'([^']*)'$/.exec(str);
       if (m) {
-        return m[1]
+        return m[1];
       }
       //...............................................
       // try JSON
       if (autoJson) {
-        let re = Ti.Types.safeParseJson(v)
+        let re = Ti.Types.safeParseJson(v);
         if (!_.isUndefined(re)) {
-          return re
+          return re;
         }
       }
       //...............................................
       // try Date
       if (autoDate) {
         try {
-          return Ti.Types.toDate(v)
-        } catch (E) { }
+          return Ti.Types.toDate(v);
+        } catch (E) {}
       }
       // Then, it is a string
-      return str
+      return str;
     },
     /***
      * Join "a,b,c" like string to arguments
@@ -2212,135 +2231,134 @@ const { S } = (function(){
         // Maybe a json object
         if (/^\{.*\}$/.test(s)) {
           try {
-            return [eval(`(${s})`)]
-          } catch (E) { }
+            return [eval(`(${s})`)];
+          } catch (E) {}
         }
   
         // Take it as comma-sep list
-        let list = s.split(",")
+        let list = s.split(",");
         for (let li of list) {
-          let vs = _.trim(li)
-          if (!vs)
-            continue
-          let v = iteratee(vs)
-          args.push(v)
+          let vs = _.trim(li);
+          if (!vs) continue;
+          let v = iteratee(vs);
+          args.push(v);
         }
-        return args
+        return args;
       }
       // Array
       else if (_.isArray(s)) {
         for (let v of s) {
-          let v2 = iteratee(v)
-          args.push(v2)
+          let v2 = iteratee(v);
+          args.push(v2);
         }
       }
       // Others
       else if (!_.isUndefined(s)) {
-        args.push(s)
+        args.push(s);
       }
-      return args
+      return args;
     },
     /***
      * @param s{String|Array}
      * @param sep{RegExp|String}
      * @param ignoreNil{Boolean}
      */
-    toArray(s, {
-      sep = /[:,;\t\n\/]+/g,
-      ignoreNil = true
-    } = {}) {
+    toArray(s, { sep = /[:,;\t\n\/]+/g, ignoreNil = true } = {}) {
       // Nil
       if (Ti.Util.isNil(s)) {
-        return []
+        return [];
       }
       // Array
       if (_.isArray(s)) {
-        return s
+        return s;
       }
       // String to split
       if (_.isString(s) && sep) {
-        let ss = _.map(s.split(sep), v => _.trim(v))
+        let ss = _.map(s.split(sep), (v) => _.trim(v));
         if (ignoreNil) {
-          return _.without(ss, "")
+          return _.without(ss, "");
         }
-        return ss
+        return ss;
       }
       // Others -> wrap
-      return [s]
+      return [s];
     },
     toArrayBy(s, sep = ",") {
-      return TiStr.toArray(s, { sep, ignoreNil: true })
+      return TiStr.toArray(s, { sep, ignoreNil: true });
     },
     /***
      * Translate "XXX:A:im-pizza" or ["XXX","A","im-pizza"]
-     * 
+     *
      * ```
      * {text:"XXX",value:"A",icon:"im-pizza"}
      * ```
-     * 
+     *
      * @param s{String|Array}
      * @param sep{RegExp|String}
      * @param ignoreNil{Boolean}
      * @param keys{Array}
      */
-    toObject(s, {
-      sep = /[:,;\t\n\/]+/g,
-      ignoreNil = true,
-      keys = ["value", "text?value", "icon"]
-    } = {}) {
+    toObject(
+      s,
+      {
+        sep = /[:,;\t\n\/]+/g,
+        ignoreNil = true,
+        keys = ["value", "text?value", "icon"]
+      } = {}
+    ) {
       // Already Object
       if (_.isPlainObject(s) || _.isNull(s) || _.isUndefined(s)) {
-        return s
+        return s;
       }
       // Split value to array
-      let vs = TiStr.toArray(s, { sep, ignoreNil })
+      let vs = TiStr.toArray(s, { sep, ignoreNil });
   
       // Make sure keys as array
       if (_.isString(keys)) {
         keys = TiStr.toArray(keys, {
           sep: /[:,;\s]+/g
-        })
+        });
       }
   
       // Analyze the keys
-      let a_ks = []   // assign key list
-      let m_ks = []   // those keys must has value
-      _.forEach(keys, k => {
-        let ss = TiStr.toArray(k, { sep: "?" })
+      let a_ks = []; // assign key list
+      let m_ks = []; // those keys must has value
+      _.forEach(keys, (k) => {
+        let ss = TiStr.toArray(k, { sep: "?" });
         if (ss.length > 1) {
-          let k2 = ss[0]
-          a_ks.push(k2)
+          let k2 = ss[0];
+          a_ks.push(k2);
           m_ks.push({
             name: k2,
             backup: ss[1]
-          })
+          });
         } else {
-          a_ks.push(k)
+          a_ks.push(k);
         }
-      })
+      });
   
       // translate
-      let re = {}
+      let re = {};
       _.forEach(a_ks, (k, i) => {
-        let v = _.nth(vs, i)
+        let v = _.nth(vs, i);
         if (_.isUndefined(v) && ignoreNil) {
-          return
+          return;
         }
-        re[k] = v
-      })
+        re[k] = v;
+      });
       // Assign default
       for (let mk of m_ks) {
         if (_.isUndefined(re[mk.name])) {
-          re[mk.name] = re[mk.backup]
+          re[mk.name] = re[mk.backup];
         }
       }
   
       // done
-      return re
+      return re;
     },
     /***
      * String (multi-lines) to object list
-     * Translate 
+     * Translate
      * ```
      * A : Xiaobai : im-pizza
      * B : Peter
@@ -2356,97 +2374,109 @@ const { S } = (function(){
      *  {value:"D", text:"C"}
      * ]
      * ```
-     * 
+     *
      * @param s{String|Array}
      * @param sep{RegExp|String}
      * @param ignoreNil{Boolean}
      * @param keys{Array}
      */
-    toObjList(s, {
-      sepLine = /[,;\n]+/g,
-      sepPair = /[:|\/\t]+/g,
-      ignoreNil = true,
-      keys = ["value", "text?value", "icon"]
-    } = {}) {
+    toObjList(
+      s,
+      {
+        sepLine = /[,;\n]+/g,
+        sepPair = /[:|\/\t]+/g,
+        ignoreNil = true,
+        keys = ["value", "text?value", "icon"]
+      } = {}
+    ) {
       //console.log("toObjList", s)
-      let list = TiStr.toArray(s, { sep: sepLine, ignoreNil })
-      return _.map(list, v => TiStr.toObject(v, {
-        sep: sepPair,
-        ignoreNil, keys
-      }))
+      let list = TiStr.toArray(s, { sep: sepLine, ignoreNil });
+      return _.map(list, (v) =>
+        TiStr.toObject(v, {
+          sep: sepPair,
+          ignoreNil,
+          keys
+        })
+      );
     },
     /***
      * @param str{String} : Base64 input string
-     * @return Uint8Array 
+     * @return Uint8Array
      */
     base64ToU8Bytes(str) {
       let bytes = new Uint8Array();
       for (let i = 0; i < str.length; i++) {
         let c = str.charCodeAt(i);
-        if (c >= 0x010000 && c <= 0x10FFFF) {
-          bytes.push(((c >> 18) & 0x07) | 0xF0);
-          bytes.push(((c >> 12) & 0x3F) | 0x80);
-          bytes.push(((c >> 6) & 0x3F) | 0x80);
-          bytes.push((c & 0x3F) | 0x80);
-        } else if (c >= 0x000800 && c <= 0x00FFFF) {
-          bytes.push(((c >> 12) & 0x0F) | 0xE0);
-          bytes.push(((c >> 6) & 0x3F) | 0x80);
-          bytes.push((c & 0x3F) | 0x80);
-        } else if (c >= 0x000080 && c <= 0x0007FF) {
-          bytes.push(((c >> 6) & 0x1F) | 0xC0);
-          bytes.push((c & 0x3F) | 0x80);
+        if (c >= 0x010000 && c <= 0x10ffff) {
+          bytes.push(((c >> 18) & 0x07) | 0xf0);
+          bytes.push(((c >> 12) & 0x3f) | 0x80);
+          bytes.push(((c >> 6) & 0x3f) | 0x80);
+          bytes.push((c & 0x3f) | 0x80);
+        } else if (c >= 0x000800 && c <= 0x00ffff) {
+          bytes.push(((c >> 12) & 0x0f) | 0xe0);
+          bytes.push(((c >> 6) & 0x3f) | 0x80);
+          bytes.push((c & 0x3f) | 0x80);
+        } else if (c >= 0x000080 && c <= 0x0007ff) {
+          bytes.push(((c >> 6) & 0x1f) | 0xc0);
+          bytes.push((c & 0x3f) | 0x80);
         } else {
-          bytes.push(c & 0xFF);
+          bytes.push(c & 0xff);
         }
       }
       return bytes;
     },
     /**
      * Auto lower and add prefix "^.*"
-     * 
+     *
      * @param input input keywords
      */
     autoPrefixSearchStr(input, caseMode = "lower", start = false) {
-      let str = _.trim(input)
+      let str = _.trim(input);
       if (!str) {
-        return
+        return;
       }
-      str = TiStr.toCase(str, caseMode)
+      str = TiStr.toCase(str, caseMode);
       if (!str.startsWith("^")) {
         if (start) {
-          return "^" + str
+          return "^" + str;
         }
-        return "^.*" + str
+        return "^.*" + str;
       }
-      return str
+      return str;
     },
     /***
      * Get the display text for bytes
      */
-    sizeText(byte = 0, {
-      fixed = 2, M = 1024, bytes = false,
-      units = ["Bytes", "KB", "MB", "GB", "PB", "TB"] } = {}) {
-      let nb = byte
+    sizeText(
+      byte = 0,
+      {
+        fixed = 2,
+        M = 1024,
+        bytes = false,
+        units = ["Bytes", "KB", "MB", "GB", "PB", "TB"]
+      } = {}
+    ) {
+      let nb = byte;
       let i = 0;
       for (; i < units.length; i++) {
-        let nb2 = nb / M
+        let nb2 = nb / M;
         if (nb2 < 1) {
           break;
         }
-        nb = nb2
+        nb = nb2;
       }
-      let unit = units[i]
-      let re
+      let unit = units[i];
+      let re;
       if (nb == parseInt(nb)) {
-        re = (nb + unit)
+        re = nb + unit;
       } else {
-        re = nb.toFixed(fixed) + unit
+        re = nb.toFixed(fixed) + unit;
       }
   
       if (bytes && i > 0) {
-        return re + ` (${byte} bytes)`
+        return re + ` (${byte} bytes)`;
       }
-      return re
+      return re;
     },
     /***
      * Get the display percent text for a float number
@@ -2455,36 +2485,32 @@ const { S } = (function(){
      * @param auto Auto cut the ending zero '0.34000' => '0.34'
      */
     toPercent(n, { fixed = 2, auto = true } = {}) {
-      if (!_.isNumber(n))
-        return "NaN"
-      let nb = n * 100
+      if (!_.isNumber(n)) return "NaN";
+      let nb = n * 100;
       // Round
-      let str = fixed >= 0 ? nb.toFixed(fixed) : (nb + "")
+      let str = fixed >= 0 ? nb.toFixed(fixed) : nb + "";
       if (auto) {
-        let lastDot = str.lastIndexOf('.')
-        let lastZero = str.lastIndexOf('0')
+        let lastDot = str.lastIndexOf(".");
+        let lastZero = str.lastIndexOf("0");
         if (lastDot >= 0 && lastZero > lastDot) {
-          let last = str.length - 1
-          let pos = last
+          let last = str.length - 1;
+          let pos = last;
           for (; pos >= lastDot; pos--) {
-            if (str[pos] != '0')
-              break
+            if (str[pos] != "0") break;
           }
           if (pos == lastZero || pos == lastDot) {
             //pos --
+          } else {
+            pos++;
           }
-          else {
-            pos++
-          }
-          if (pos < str.length)
-            str = str.substring(0, pos)
+          if (pos < str.length) str = str.substring(0, pos);
         }
       }
-      return str + "%"
+      return str + "%";
     },
     /***
      * switch given `str` to special case, the modes below would be supported:
-     * 
+     *
      * @param str{String} - give string
      * @param mode{String} - Method of key name transformer function:
      *  - `"upper"` : to upport case
@@ -2494,44 +2520,43 @@ const { S } = (function(){
      *  - `"kebab"` : to kebab case
      *  - `"start"` : to start case
      *  - `null`  : keep orignal
-     * 
+     *
      * @return string which applied the case mode
      */
     toCase(str, mode) {
       // Guard
-      if (Ti.Util.isNil(str) || !mode)
-        return str
+      if (Ti.Util.isNil(str) || !mode) return str;
       // Find mode
-      let fn = TiStr.getCaseFunc(mode)
+      let fn = TiStr.getCaseFunc(mode);
       // Apply mode
       if (_.isFunction(fn)) {
-        return fn(str)
+        return fn(str);
       }
-      return str
+      return str;
     },
     getCaseFunc(mode) {
-      return ({
-        upper: (s) => s ? s.toUpperCase() : s,
-        lower: (s) => s ? s.toLowerCase() : s,
+      return {
+        upper: (s) => (s ? s.toUpperCase() : s),
+        lower: (s) => (s ? s.toLowerCase() : s),
         camel: (s) => _.camelCase(s),
         snake: (s) => _.snakeCase(s),
         kebab: (s) => _.kebabCase(s),
-        start: (s) => _.startCase(s),
-      })[mode]
+        start: (s) => _.startCase(s)
+      }[mode];
     },
     toComType(comType) {
-      return _.upperFirst(_.camelCase(comType))
+      return _.upperFirst(_.camelCase(comType));
     },
     isValidCase(mode) {
-      return _.isFunction(TiStr.getCaseFunc(mode))
+      return _.isFunction(TiStr.getCaseFunc(mode));
     },
     /***
      * Check given string is phone number or not
      */
     isPhoneNumber(s = "") {
-      return /^(\+\d{2})? *(\d{11})$/.test(s)
+      return /^(\+\d{2})? *(\d{11})$/.test(s);
     }
-  }
+  };
   //-----------------------------------
   return {S: TiStr};
 })();
@@ -10793,10 +10818,14 @@ const { Types } = (function(){
     },
     //.......................................
     formatDate(date, fmt = "yyyy-MM-dd") {
+      if (!date)
+        return
       return Ti.DateTime.format(date, fmt)
     },
     //.......................................
     formatDateTime(date, fmt = "yyyy-MM-dd HH:mm:ss") {
+      if (!date)
+        return
       return Ti.DateTime.format(date, fmt)
     },
     //.......................................
@@ -11825,7 +11854,7 @@ const { Util } = (function(){
       {
         titles = [],
         otherTitle = { value: "Others", text: "Others" },
-        asList = false,
+        asList = false
       } = {}
     ) {
       let reMap = {};
@@ -11850,7 +11879,7 @@ const { Util } = (function(){
           if (!grp) {
             grp = {
               ...tit,
-              list: [],
+              list: []
             };
             reMap[gk] = grp;
           }
@@ -11861,7 +11890,7 @@ const { Util } = (function(){
       if (!_.isEmpty(others)) {
         reMap[otherTitle.value] = {
           ...otherTitle,
-          list: others,
+          list: others
         };
       }
       //...............................................
@@ -11993,7 +12022,7 @@ const { Util } = (function(){
       let sel = {
         firstAt: -1,
         lastAt: -1,
-        items: [],
+        items: []
       };
       let remains = [];
       _.forEach(list, (li, index) => {
@@ -12009,7 +12038,7 @@ const { Util } = (function(){
         else {
           remains.push({
             index,
-            item: li,
+            item: li
           });
         }
       });
@@ -12024,7 +12053,7 @@ const { Util } = (function(){
         head: () => 0,
         tail: () => list.length,
         prev: () => Math.max(0, sel.firstAt - 1),
-        next: () => Math.min(list.length, sel.lastAt + 2),
+        next: () => Math.min(list.length, sel.lastAt + 2)
       }[direction]();
   
       //console.log({sel, taIndex})
@@ -12097,7 +12126,7 @@ const { Util } = (function(){
           let pager = state[dataKey][pagerKey];
           state[dataKey] = {
             [listKey]: list,
-            [pagerKey]: pager,
+            [pagerKey]: pager
           };
         }
       }
@@ -12145,7 +12174,7 @@ const { Util } = (function(){
           let pager = state[dataKey][pagerKey];
           state[dataKey] = {
             [listKey]: list,
-            [pagerKey]: pager,
+            [pagerKey]: pager
           };
         }
       }
@@ -12220,7 +12249,7 @@ const { Util } = (function(){
         let pager = state[dataKey][pagerKey];
         state[dataKey] = {
           [listKey]: list,
-          [pagerKey]: pager,
+          [pagerKey]: pager
         };
       }
     },
@@ -12262,7 +12291,7 @@ const { Util } = (function(){
         root = _.identity,
         all = _.identity,
         leaf = _.identity,
-        node = _.identity,
+        node = _.identity
       } = {}
     ) {
       //..............................
@@ -12401,7 +12430,7 @@ const { Util } = (function(){
           if (!m || Ti.AutoMatch.test(m, context)) {
             return v;
           }
-        },
+        }
       } = options;
       // As String
       if (_.isArray(arms)) {
@@ -12568,7 +12597,7 @@ const { Util } = (function(){
                   }
                 }
                 return Ti.S.renderBy(tmpl, context);
-              },
+              }
               // :=xxx  # Get Value Later
               // ":=" : (val, dft)=>{
               //   return (c2)=>{return _.get(c2, val)}
@@ -13367,7 +13396,7 @@ const { Util } = (function(){
         funcSet = window,
         dftValue,
         notNil = false,
-        partial = "right", // "left" | "right" | Falsy
+        partial = "right" // "left" | "right" | Falsy
       } = {}
     ) {
       //.............................................
@@ -13402,7 +13431,7 @@ const { Util } = (function(){
           return TiUtil.genInvoking(invoke, {
             context,
             funcSet,
-            partial,
+            partial
           });
         }
         //...........................................
@@ -13428,11 +13457,15 @@ const { Util } = (function(){
      * @returns {Object} `{name:"Ti.X.XX", args:[]}`
      */
     parseInvoking(str) {
-      let callPath, callArgs;
+      let callPath, callArgs, partial;
       // Object mode
-      if (str.name && !_.isUndefined(str.args)) {
+      if (_.isObject(str) && str.name) {
         callPath = str.name;
-        callArgs = _.concat(str.args);
+        callArgs = [];
+        if (!_.isUndefined(str.args)) {
+          callArgs = _.concat(str.args);
+          partial = str.partial;
+        }
       }
       // String mode
       else {
@@ -13448,6 +13481,7 @@ const { Util } = (function(){
       return {
         name: callPath,
         args,
+        partial
       };
     },
     /***
@@ -13462,7 +13496,7 @@ const { Util } = (function(){
         args,
         dft = () => str,
         funcSet = window,
-        partial = "left", // "left" | "right" | "right?" | Falsy,
+        partial = "left" // "left" | "right" | "right?" | Falsy,
       } = {}
     ) {
       //.............................................
@@ -13473,6 +13507,7 @@ const { Util } = (function(){
       let invoke = TiUtil.parseInvoking(str);
       let callPath = invoke.name;
       let callArgs = invoke.args;
+      partial = invoke.partial || partial;
       if (_.isArray(args) && args.length > 0) {
         callArgs = args;
       }
@@ -13615,7 +13650,7 @@ const { Util } = (function(){
         return (it) => Ti.Util.translate(it, rawDataBy);
       }
       return (it) => it;
-    },
+    }
   };
   //-----------------------------------
   return {Util: TiUtil};
@@ -15859,58 +15894,59 @@ const { Bank } = (function(){
       token: "$",
       icon: "fas-dollar-sign",
       text: `i18n:currency-USD`
-    },
-  }
+    }
+  };
   ///////////////////////////////////////
   const TiBank = {
     //-----------------------------------
     exchange(val, { from = "RMB", to = "RMB", exrs = {}, dft = -1 } = {}) {
       if (from == to) {
-        return val
+        return val;
       }
-      let exr = exrs[`${from}_${to}`]
+      let exr = exrs[`${from}_${to}`];
       if (exr > 0) {
-        return val * exr
+        return val * exr;
       }
-      exr = exrs[`${to}_${from}`]
+      exr = exrs[`${to}_${from}`];
       if (exr > 0) {
-        return val / exr
+        return val / exr;
       }
-      return dft
+      return dft;
     },
     //-----------------------------------
     getCurrencyChar(cur = "RMB") {
-      return _.get(CURRENCIES[cur], "token")
+      return _.get(CURRENCIES[cur], "token");
     },
     //-----------------------------------
     getCurrencyToken(cur = "RMB") {
-      return _.get(CURRENCIES[cur], "token")
+      return _.get(CURRENCIES[cur], "token");
     },
     //-----------------------------------
     getCurrencyText(cur = "RMB") {
-      return _.get(CURRENCIES[cur], "text")
+      return _.get(CURRENCIES[cur], "text");
     },
     //-----------------------------------
     getCurrencyIcon(cur = "RMB") {
-      return _.get(CURRENCIES[cur], "icon")
+      return _.get(CURRENCIES[cur], "icon");
     },
     //-----------------------------------
     getCurrencyList() {
-      let list = []
+      let list = [];
       _.forEach(CURRENCIES, (cu, key) => {
         list.push({
-          key, value: key,
+          key,
+          value: key,
           token: cu.token,
           icon: cu.icon,
           text: Ti.I18n.text(cu.text)
-        })
-      })
-      return list
+        });
+      });
+      return list;
     },
     //-----------------------------------
     /**
      * Parse given input currency
-     * 
+     *
      * @param {String|Number|Object} input could be Number or "100RMB"
      * @param {Number} unit indicate the cent when input is number.
      *  - `100`  : yuan : 元
@@ -15922,149 +15958,175 @@ const { Bank } = (function(){
     parseCurrency(input, { unit = 100, currency = "RMB" } = {}) {
       let cent, yuan;
       if (input && input.currency) {
-        cent = input.cent
-        yuan = input.yuan
-        currency = input.currency
+        cent = input.cent;
+        yuan = input.yuan;
+        currency = input.currency;
         if (Ti.Util.isNil(cent)) {
           if (Ti.Util.isNil(yuan)) {
-            cent = input.value * unit
-            yuan = cent * 100
+            cent = input.value * unit;
+            yuan = cent * 100;
           } else {
-            cent = yuan * 100
+            cent = yuan * 100;
           }
         } else if (Ti.Util.isNil(yuan)) {
-          cent = yuan * 100
+          cent = yuan * 100;
         }
       }
       // As number
       else if (_.isNumber(input)) {
-        cent = Math.round(input * unit)
+        cent = Math.round(input * unit);
       }
       // Input String
       else {
-        let m = /^(\d*\.?\d+)([A-Z]{3})?$/.exec(input)
+        let m = /^(\d*\.?\d+)([A-Z]{3})?$/.exec(input);
         if (m) {
           // Indicate the current, then the number part should be yuan
           if (m[2]) {
-            currency = m[2]
-            cent = Math.round(m[1] * 100)
+            currency = m[2];
+            cent = Math.round(m[1] * 100);
           }
           // Take it as number
           else {
-            cent = Math.round(m[1] * unit)
+            cent = Math.round(m[1] * unit);
           }
         }
         // Not valid currency
         else {
-          cent = NaN
+          cent = NaN;
         }
       }
   
       // Eval the yuan
-      yuan = cent / 100
+      yuan = cent / 100;
   
       // Done
-      return { cent, yuan, currency }
+      return { cent, yuan, currency };
     },
     //-----------------------------------
     toYuanText(cent = 0.0, precise = 2) {
-      cent = Math.round(cent)
-      let n = Math.round(cent)
-      let y = Math.floor(n / 100)
-      let c = cent - y * 100
+      cent = Math.round(cent);
+      let n = Math.round(cent);
+      let y = Math.floor(n / 100);
+      let c = cent - y * 100;
       if (precise > 0 || c > 0) {
-        return `${y}.${_.padStart(c, precise, '0')}`
+        return `${y}.${_.padStart(c, precise, "0")}`;
       }
-      return `${y}`
+      return `${y}`;
     },
     //-----------------------------------
     toYuanTokenText(cent = 0.0, currency = "RMB", precise = 2) {
-      cent = Math.round(cent)
-      let t = TiBank.getCurrencyToken(currency) || ""
-      let n = Math.round(cent)
-      let y = Math.floor(n / 100)
-      let c = cent - y * 100
+      cent = Math.round(cent);
+      let t = TiBank.getCurrencyToken(currency) || "";
+      let n = Math.round(cent);
+      let y = Math.floor(n / 100);
+      let c = cent - y * 100;
   
       // amount text
       let s;
       if (precise > 0 || c > 0) {
-        s = `${y}.${_.padStart(c, precise, '0')}`
+        s = `${y}.${_.padStart(c, precise, "0")}`;
       } else {
-        s = `${y}`
+        s = `${y}`;
       }
   
       // Group amount
-      s = TiBank.toBankText(s)
+      s = TiBank.toBankText(s);
   
       // done
-      return `${t}${s}`
+      return `${t}${s}`;
     },
     //-----------------------------------
     toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
-      let s = TiBank.toYuanTokenText(cent, currency, precise)
-      return `${s}${currency}`
+      let s = TiBank.toYuanTokenText(cent, currency, precise);
+      return `${s}${currency}`;
+    },
+    //-----------------------------------
+    toChineseText(cent = 0.0, capitalized = false) {
+      // Get the cent
+      let yuan = parseInt(cent / 100);
+      let fen = Math.round((cent - yuan * 100) * 100);
+      console.log(fen);
+  
+      // Gen Text
+      let re = [Ti.S.intToChineseNumber(yuan, capitalized)];
+      if (fen > 0) {
+        let UN = "角分厘毫";
+        let fens = _.padStart(fen + "", 4, "0");
+        re.push("元");
+        for (let i = 0; i < fens.length; i++) {
+          let f = fens[i] * 1;
+          if (f > 0) {
+            let t = Ti.S.intToChineseNumber(f, capitalized);
+            re.push(t);
+            re.push(UN[i]);
+          } else if (re[re.length - 1] != "零") {
+            re.push("零");
+          }
+        }
+      } else {
+        re.push("元整");
+      }
+      return re.join("");
     },
     //-----------------------------------
     toBankText(v, { part = 3, sep = ",", to = "left" } = {}) {
       if (Ti.Util.isNil(v)) {
-        return v
+        return v;
       }
       let s = v + "";
-      let pos = s.indexOf('.')
+      let pos = s.indexOf(".");
       if (pos < 0) {
-        pos = s.length
+        pos = s.length;
       }
-      let ns = s.split("")
+      let ns = s.split("");
       if ("left" == to) {
         for (let i = pos; i > 0; i -= part) {
           if (i < pos) {
-            ns.splice(i, 0, sep)
+            ns.splice(i, 0, sep);
           }
         }
-      }
-      else if ("right" == to) {
-        let off = 0
+      } else if ("right" == to) {
+        let off = 0;
         for (let i = 0; i < pos; i += part) {
           if (i > 0) {
-            ns.splice(i + off, 0, sep)
-            off += sep.length
+            ns.splice(i + off, 0, sep);
+            off += sep.length;
           }
         }
       }
-      return ns.join("")
+      return ns.join("");
     },
     //-----------------------------------
     isValidPayType(payType) {
-      return ({
-        "wx.qrcode": true,
-        "zfb.qrcode": true,
-        "paypal": true,
-      })[payType] || false
+      return (
+        {
+          "wx.qrcode": true,
+          "zfb.qrcode": true,
+          "paypal": true
+        }[payType] || false
+      );
     },
     //-----------------------------------
     getPayTypeText(payType, autoI18n = false) {
-      let key = null
+      let key = null;
       if (_.isString(payType)) {
-        key = `pay-by-${payType.replace(".", "-")}`
+        key = `pay-by-${payType.replace(".", "-")}`;
       }
-      if (key)
-        return autoI18n
-          ? Ti.I18n.get(key)
-          : key
+      if (key) return autoI18n ? Ti.I18n.get(key) : key;
     },
     //-----------------------------------
-    getPayTypeChooseI18nText(payType, {
-      text = 'pay-step-choose-tip2',
-      nil = 'pay-step-choose-nil'
-    } = {}) {
-      let ptt = Ti.Bank.getPayTypeText(payType, true)
+    getPayTypeChooseI18nText(
+      payType,
+      { text = "pay-step-choose-tip2", nil = "pay-step-choose-nil" } = {}
+    ) {
+      let ptt = Ti.Bank.getPayTypeText(payType, true);
       if (ptt) {
-        return Ti.I18n.getf(text, { val: ptt })
+        return Ti.I18n.getf(text, { val: ptt });
       }
-      return Ti.I18n.get(nil)
+      return Ti.I18n.get(nil);
     }
     //-----------------------------------
-  }
+  };
   ///////////////////////////////////////
   return {Bank: TiBank};
 })();
@@ -20005,7 +20067,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230324.175539",
+  "version": "1.6-20230327.014842",
   "dev": false,
   "appName": null,
   "session": {},

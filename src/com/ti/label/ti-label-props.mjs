@@ -67,9 +67,6 @@ export default {
     type: [String, Number],
     default: "i18n:nil"
   },
-  "valueTip": {
-    type: [Boolean, String, Object]
-  },
   "autoI18n": {
     type: Boolean,
     default: true

@@ -381,6 +381,10 @@
           text-decoration: line-through;
         }
         //-----------------------------------------
+        &.is-italic {
+          font-style: italic;
+        }
+        //-----------------------------------------
         &.is-text {
           @include row-status-color($color-text);
         }
