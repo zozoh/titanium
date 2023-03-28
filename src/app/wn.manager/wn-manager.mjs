@@ -350,7 +350,7 @@ const _M = {
 
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
-      console.log("openView", bombed)
+      //console.log("openView", bombed)
       if (!bombed) {
         return
       }

@@ -1,6 +1,8 @@
 .ti-switcher {
   @include noselect;
   @include flex-align-center;
+  border-radius: $r-box;
+  overflow: hidden;
   //--------------------------------------------------
   > .switcher-con {
     @include flex-center;

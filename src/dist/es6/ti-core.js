@@ -1,4 +1,4 @@
-// Pack At: 2023-03-27 01:48:42
+// Pack At: 2023-03-29 01:54:32
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16045,7 +16045,6 @@ const { Bank } = (function(){
       // Get the cent
       let yuan = parseInt(cent / 100);
       let fen = Math.round((cent - yuan * 100) * 100);
-      console.log(fen);
   
       // Gen Text
       let re = [Ti.S.intToChineseNumber(yuan, capitalized)];
@@ -20067,7 +20066,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230327.014842",
+  "version": "1.6-20230329.015432",
   "dev": false,
   "appName": null,
   "session": {},

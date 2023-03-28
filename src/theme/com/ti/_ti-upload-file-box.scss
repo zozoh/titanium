@@ -1,9 +1,9 @@
 .ti-upload-file-box {
-  border-radius: SZ(4);
+  border-radius: $r-box;
   overflow: hidden;
   //-----------------------------------------
   &.show-border {
-    @include border(1px, solid, dark);
+    @include border(1px, solid, shallow);
   }
 
   //-----------------------------------------
@@ -24,8 +24,14 @@
 
   //---------------------------------------------
   &.no-text {
-    > .box-item > .box-item-text {
-      @include color($color-track, c);
+    > .box-item {
+      > .box-item-icon {
+        cursor: default;
+        opacity: 0.4;
+      }
+      > .box-item-text {
+        @include color($color-track, c);
+      }
     }
   }
 

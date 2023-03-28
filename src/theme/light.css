@@ -2093,10 +2093,11 @@ i.im {
     color: #444;
     background-color: #FAFAFA;
     box-shadow: 4px 6px 10px rgba(20, 20, 20, 0.3);
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 10001;
     position: fixed;
-    overflow: auto; }
+    overflow: auto;
+    border-radius: 0.04rem; }
 
 .ti-combo-filter {
   display: flex;
@@ -4547,12 +4548,14 @@ div.ti-input-tags {
   flex-wrap: nowrap;
   color: #444;
   background-color: #FFF;
+  border-radius: 0.04rem;
   min-height: 2.4em;
-  min-width: 0.5rem; }
+  min-width: 0.5rem;
+  overflow: hidden; }
   .ti-input.has-width {
     flex: 0 0 auto; }
   .ti-input.show-border {
-    border: 1px solid rgba(0, 0, 0, 0.2); }
+    border: 1px solid rgba(0, 0, 0, 0.1); }
   .ti-input.is-focused.no-readonly {
     border-color: #2196f3; }
   .ti-input .as-input-icon {
@@ -7391,7 +7394,9 @@ div.ti-input-tags {
   justify-content: flex-start;
   align-items: center;
   align-content: center;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+  border-radius: 0.04rem;
+  overflow: hidden; }
   .ti-switcher > .switcher-con {
     display: flex;
     justify-content: center;
@@ -8751,7 +8756,7 @@ div.ti-input-tags {
   border-radius: 0.04rem;
   overflow: hidden; }
   .ti-upload-file-box.show-border {
-    border: 1px solid rgba(0, 0, 0, 0.2); }
+    border: 1px solid rgba(0, 0, 0, 0.1); }
   .ti-upload-file-box.is-readonly {
     color: #888;
     background-color: #F0F0F0; }
@@ -8760,6 +8765,9 @@ div.ti-input-tags {
     background-color: #2196f3; }
     .ti-upload-file-box.hover-prefix > .box-item > .box-item-icon > .ti-icon {
       transform: rotate(360deg) scale(1.2); }
+  .ti-upload-file-box.no-text > .box-item > .box-item-icon {
+    cursor: default;
+    opacity: 0.4; }
   .ti-upload-file-box.no-text > .box-item > .box-item-text {
     color: #888; }
   .ti-upload-file-box > .box-item {

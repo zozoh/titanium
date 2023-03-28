@@ -44,10 +44,11 @@
     @include noselect;
     @include color($color-body, r, c);
     box-shadow: 4px 6px 10px map-get($color-shadow, c);
-    border: 1px solid map-get($color-line, dark);
+    border: 1px solid map-get($color-line, shallow);
     z-index: $z-menu + 1;
     position: fixed;
     overflow: auto;
+    border-radius: $r-box;
   }
   //---------------------------------
 }

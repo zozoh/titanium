@@ -203,27 +203,53 @@ const WnUtil = {
       }
       if (!BD) return;
 
-      // Quick badge
-      if (_.isArray(BD)) {
-        if (BD.length == 1) {
-          badges[name] = BD[0];
-        } else if (BD.length > 1 && meta[BD[0]]) {
+      // Quick badge：　// ["isOpen", "fas-xxxx"]
+      if (_.isArray(BD) && BD.length > 0) {
+        // Quick badge：　// ["isOpen", "fas-xxxx"]
+        if (BD.length == 2 && _.isString(BD[0])) {
           badges[name] = BD[1];
         }
+        // Branche Badge
+        // ["K1", AutoMatch, "fas-xxxx"]
+        // [["K1", "K2"], AutoMatch, "fas-xxxx"]
+        // ["K1", [{test:AutoMatch, badge:"fas-xxxx"}]]
+        // TODO ..
       }
       // Auto match badge
-      else if (_.isPlainObject(BD) && BD.value) {
-        //console.log("haha", BD)
-        if (BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
-          return;
+      else if (_.isPlainObject(BD)) {
+        // Test Badge
+        /* {test:{...}, value:"fas-xxx"} */
+        if (BD.value) {
+          //console.log("haha", BD)
+          if (BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
+            return;
+          }
+          let bag = Ti.Util.explainObj(meta, {
+            type: BD.type || "icon",
+            className: BD.className,
+            style: BD.style,
+            value: BD.value
+          });
+          if (bag) {
+            badges[name] = bag;
+          }
         }
-        let bag = Ti.Util.explainObj(meta, {
-          type: BD.type || "icon",
-          className: BD.className,
-          style: BD.style,
-          value: BD.value
-        });
-        if (bag) badges[name] = bag;
+        // Mapping Badge
+        /* {key:"tp", badges: {docx:"fas-xxx", pdf:"fas-xxx"}} */
+        else if ((BD.key, BD.badges)) {
+          let val = _.get(meta, BD.key);
+          let bag = BD.badges[val];
+          if (bag) {
+            if (_.isString(bag)) {
+              bag = { value: bag };
+            }
+            badges[name] = { 
+              type: "icon", 
+              className: "as-label-70 is-primary",
+              ...bag 
+            };
+          }
+        }
       }
       // Static badge
       else {

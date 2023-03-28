@@ -195,7 +195,6 @@ const TiBank = {
     // Get the cent
     let yuan = parseInt(cent / 100);
     let fen = Math.round((cent - yuan * 100) * 100);
-    console.log(fen);
 
     // Gen Text
     let re = [Ti.S.intToChineseNumber(yuan, capitalized)];

@@ -2,15 +2,17 @@
   @include noselect;
   @include flex-align-nowrap($ai: stretch, $ac: stretch);
   @include color($color-input, c, r);
+  border-radius: $r-box; 
   min-height: 2.4em;
   min-width: SZ(50);
+  overflow: hidden;
   //-----------------------------------------
   &.has-width {
     flex: 0 0 auto;
   }
   //-----------------------------------------
   &.show-border {
-    @include border(1px, solid, dark);
+    @include border(1px, solid, shallow);
   }
   //-----------------------------------------
   &.is-focused.no-readonly {

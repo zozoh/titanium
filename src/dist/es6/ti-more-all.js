@@ -1,4 +1,4 @@
-// Pack At: 2023-03-27 01:48:42
+// Pack At: 2023-03-29 01:54:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16225,7 +16225,7 @@ const _M = {
                 }
               }
             } else if (_.isObject(this.value)) {
-              if (_.keys(this.value).length > 3) {
+              if (_.keys(this.value).length >= 3) {
                 isComplexObj = true;
               }
             }
@@ -40905,13 +40905,13 @@ const _M = {
     persistMyStatus() {
       if (this.keepShownTo) {
         let shown = this.filterShown(this.myShown)
-        Ti.Storage.session.setObject(this.keepShownTo, shown)
+        Ti.Storage.local.setObject(this.keepShownTo, shown)
       }
     },
     //--------------------------------------
     loadMyStatus() {
       if (this.keepShownTo) {
-        let shown = Ti.Storage.session.getObject(this.keepShownTo)
+        let shown = Ti.Storage.local.getObject(this.keepShownTo)
         this.syncMyShown(this.shown, shown)
       }
     },
@@ -54900,7 +54900,7 @@ const _M = {
       
       // Guard for fure
       let bombed = await Ti.Fuse.fire();
-      console.log("OnItemActived", bombed)
+      //console.log("OnItemActived", bombed)
       if (!bombed) {
         return;
       }
@@ -70058,7 +70058,7 @@ const _M = {
 
       // Guard for fure
       let bombed = await Ti.Fuse.fire()
-      console.log("openView", bombed)
+      //console.log("openView", bombed)
       if (!bombed) {
         return
       }
@@ -71993,10 +71993,8 @@ const _M = {
       return this.FileLocal.path != this.FileTarget;
     },
     //--------------------------------------
-    UploadPrefixHoverIcon(){
-      return this.isShallowRemove
-       ? "zmdi-close"
-       : "far-trash-alt"
+    UploadPrefixHoverIcon() {
+      return this.isShallowRemove ? "zmdi-close" : "far-trash-alt";
     },
     //--------------------------------------
     TheActions() {
@@ -72076,7 +72074,9 @@ const _M = {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`);
       }
       // Notify the change
-      this.$notify("change", null);
+      if (!Ti.Util.isNil(this.value)) {
+        this.$notify("change", null);
+      }
     },
     //--------------------------------------
     async OnUpload(file) {

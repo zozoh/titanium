@@ -93,7 +93,7 @@ const _M = {
                 }
               }
             } else if (_.isObject(this.value)) {
-              if (_.keys(this.value).length > 3) {
+              if (_.keys(this.value).length >= 3) {
                 isComplexObj = true;
               }
             }

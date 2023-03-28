@@ -330,13 +330,13 @@ const _M = {
     persistMyStatus() {
       if (this.keepShownTo) {
         let shown = this.filterShown(this.myShown)
-        Ti.Storage.session.setObject(this.keepShownTo, shown)
+        Ti.Storage.local.setObject(this.keepShownTo, shown)
       }
     },
     //--------------------------------------
     loadMyStatus() {
       if (this.keepShownTo) {
-        let shown = Ti.Storage.session.getObject(this.keepShownTo)
+        let shown = Ti.Storage.local.getObject(this.keepShownTo)
         this.syncMyShown(this.shown, shown)
       }
     },

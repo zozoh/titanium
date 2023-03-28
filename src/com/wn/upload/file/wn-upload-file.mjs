@@ -236,10 +236,8 @@ const _M = {
       return this.FileLocal.path != this.FileTarget;
     },
     //--------------------------------------
-    UploadPrefixHoverIcon(){
-      return this.isShallowRemove
-       ? "zmdi-close"
-       : "far-trash-alt"
+    UploadPrefixHoverIcon() {
+      return this.isShallowRemove ? "zmdi-close" : "far-trash-alt";
     },
     //--------------------------------------
     TheActions() {
@@ -319,7 +317,9 @@ const _M = {
         await Wn.Sys.exec2(`rm id:${this.oFile.id}`);
       }
       // Notify the change
-      this.$notify("change", null);
+      if (!Ti.Util.isNil(this.value)) {
+        this.$notify("change", null);
+      }
     },
     //--------------------------------------
     async OnUpload(file) {

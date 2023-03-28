@@ -1,4 +1,4 @@
-// Pack At: 2023-03-27 01:48:42
+// Pack At: 2023-03-29 01:54:32
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -598,12 +598,12 @@ const Obj = (function(){
     //---------------------------------------------
     title: () => ({
       title: "i18n:wn-key-title",
-      display: [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"],
+      display: [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
     }),
     //---------------------------------------------
     nm: () => ({
       title: "i18n:wn-key-nm",
-      display: "nm",
+      display: "nm"
     }),
     //---------------------------------------------
     race: {
@@ -611,44 +611,44 @@ const Obj = (function(){
       display: {
         key: "race",
         comConf: {
-          format: "i18n:wn-race-${race}",
-        },
-      },
+          format: "i18n:wn-race-${race}"
+        }
+      }
     },
     //---------------------------------------------
     tp: {
       title: "i18n:wn-key-tp",
-      display: "rawData.tp::as-tip",
+      display: "rawData.tp::as-tip"
     },
     //---------------------------------------------
     mime: {
       title: "i18n:wn-key-mime",
-      display: "rawData.mime::as-tip",
+      display: "rawData.mime::as-tip"
     },
     //---------------------------------------------
     c: {
       title: "i18n:wn-key-c",
-      display: "rawData.c::as-tip",
+      display: "rawData.c::as-tip"
     },
     //---------------------------------------------
     m: {
       title: "i18n:wn-key-m",
-      display: "rawData.m::as-tip",
+      display: "rawData.m::as-tip"
     },
     //---------------------------------------------
     g: {
       title: "i18n:wn-key-g",
-      display: "rawData.g::as-tip",
+      display: "rawData.g::as-tip"
     },
     //---------------------------------------------
     d0: {
       title: "i18n:wn-key-d0",
-      display: "rawData.d0::as-tip",
+      display: "rawData.d0::as-tip"
     },
     //---------------------------------------------
     d1: {
       title: "i18n:wn-key-d1",
-      display: "rawData.d1::as-tip",
+      display: "rawData.d1::as-tip"
     },
     //---------------------------------------------
     md: {
@@ -657,29 +657,29 @@ const Obj = (function(){
         key: "rawData.md",
         transformer: "Wn.Obj.modeToStr",
         comConf: {
-          className: "as-tip",
-        },
-      },
+          className: "as-tip"
+        }
+      }
     },
     //---------------------------------------------
     sort: {
       title: "i18n:sort",
-      display: "rawData.sort",
+      display: "rawData.sort"
     },
     //---------------------------------------------
     width: {
       title: "i18n:wn-key-width",
-      display: "rawData.width",
+      display: "rawData.width"
     },
     //---------------------------------------------
     height: {
       title: "i18n:wn-key-height",
-      display: "rawData.height",
+      display: "rawData.height"
     },
     //---------------------------------------------
     duration: {
       title: "i18n:wn-key-duration",
-      display: "rawData.duration",
+      display: "rawData.duration"
     },
     //---------------------------------------------
     len: {
@@ -688,9 +688,9 @@ const Obj = (function(){
         key: "rawData.len",
         transformer: "Ti.S.sizeText",
         comConf: {
-          className: "as-tip-block align-right",
-        },
-      },
+          className: "as-tip-block align-right"
+        }
+      }
     },
     //---------------------------------------------
     ct: {
@@ -699,9 +699,9 @@ const Obj = (function(){
         key: "rawData.ct",
         transformer: "Ti.DateTime.timeText",
         comConf: {
-          className: "as-tip-block align-right is-nowrap",
-        },
-      },
+          className: "as-tip-block align-right is-nowrap"
+        }
+      }
     },
     //---------------------------------------------
     lm: {
@@ -710,10 +710,10 @@ const Obj = (function(){
         key: "rawData.lm",
         transformer: "Ti.DateTime.timeText",
         comConf: {
-          className: "as-tip-block align-right is-nowrap",
-        },
-      },
-    },
+          className: "as-tip-block align-right is-nowrap"
+        }
+      }
+    }
     //---------------------------------------------
   };
   ////////////////////////////////////////////////////
@@ -722,14 +722,14 @@ const Obj = (function(){
     id: {
       title: "i18n:wn-key-id",
       name: "id",
-      comType: "WnObjId",
+      comType: "WnObjId"
     },
     //---------------------------------------------
     nm: {
       title: "i18n:wn-key-nm",
       name: "nm",
       display: "<=ti-label>",
-      comType: "ti-input",
+      comType: "ti-input"
     },
     //---------------------------------------------
     title: {
@@ -737,7 +737,7 @@ const Obj = (function(){
       name: "title",
       emptyAs: null,
       display: "<=ti-label>.is-nowrap",
-      comType: "ti-input",
+      comType: "ti-input"
     },
     //---------------------------------------------
     sort: {
@@ -746,23 +746,23 @@ const Obj = (function(){
       type: "Integer",
       comType: "ti-input-num",
       comConf: {
-        width: 140,
-      },
+        width: 140
+      }
     },
     //---------------------------------------------
     icon: {
       title: "i18n:wn-key-icon",
       name: "icon",
       width: "auto",
-      comType: "ti-input-icon",
+      comType: "ti-input-icon"
     },
     //---------------------------------------------
     ph: {
       title: "i18n:wn-key-ph",
       name: "ph",
       comConf: {
-        className: "is-break-word",
-      },
+        className: "is-break-word"
+      }
     },
     //---------------------------------------------
     // "thumb" : {
@@ -792,16 +792,16 @@ const Obj = (function(){
         exlink: false,
         target: "~/.thumbnail/gen/${id}.jpg",
         filter: "cover(256,256)",
-        quality: 0.372,
-      },
+        quality: 0.372
+      }
     },
     //---------------------------------------------
     race: {
       title: "i18n:wn-key-race",
       name: "race",
       comConf: {
-        format: "i18n:wn-race-${race}",
-      },
+        format: "i18n:wn-race-${race}"
+      }
     },
     //---------------------------------------------
     mime: {
@@ -809,8 +809,8 @@ const Obj = (function(){
       name: "mime",
       comConf: {
         className: "is-nowrap",
-        editable:true
-      },
+        editable: true
+      }
     },
     //---------------------------------------------
     tp: {
@@ -818,62 +818,62 @@ const Obj = (function(){
       name: "tp",
       comConf: {
         className: "is-nowrap",
-        editable:true
-      },
+        editable: true
+      }
     },
     //---------------------------------------------
     ct: {
       title: "i18n:wn-key-ct",
       name: "ct",
-      type: "AMS",
+      type: "AMS"
     },
     //---------------------------------------------
     lm: {
       title: "i18n:wn-key-lm",
       name: "lm",
-      type: "AMS",
+      type: "AMS"
     },
     //---------------------------------------------
     expi: {
       title: "i18n:wn-key-expi",
       name: "expi",
-      type: "AMS",
+      type: "AMS"
     },
     //---------------------------------------------
     pid: {
       title: "i18n:wn-key-pid",
       name: "pid",
-      comType: "WnObjId",
+      comType: "WnObjId"
     },
     //---------------------------------------------
     d0: {
       title: "i18n:wn-key-d0",
-      name: "d0",
+      name: "d0"
     },
     //---------------------------------------------
     d1: {
       title: "i18n:wn-key-d1",
-      name: "d1",
+      name: "d1"
     },
     //---------------------------------------------
     c: {
       title: "i18n:wn-key-c",
-      name: "c",
+      name: "c"
     },
     //---------------------------------------------
     m: {
       title: "i18n:wn-key-m",
-      name: "m",
+      name: "m"
     },
     //---------------------------------------------
     g: {
       title: "i18n:wn-key-g",
-      name: "g",
+      name: "g"
     },
     //---------------------------------------------
     data: {
       title: "i18n:wn-key-data",
-      name: "data",
+      name: "data"
     },
     //---------------------------------------------
     sha1: {
@@ -881,8 +881,8 @@ const Obj = (function(){
       name: "sha1",
       comConf: {
         className: "is-nowrap",
-        fullField: false,
-      },
+        fullField: false
+      }
     },
     //---------------------------------------------
     md: {
@@ -892,13 +892,13 @@ const Obj = (function(){
       colSpan: 2,
       comType: "WnObjMode",
       comConf: {
-        valueType: "decimal",
-      },
+        valueType: "decimal"
+      }
     },
     //---------------------------------------------
     pvg: [
       {
-        title: "i18n:wn-key-pvg",
+        title: "i18n:wn-key-pvg"
       },
       {
         name: "pvg",
@@ -907,19 +907,19 @@ const Obj = (function(){
         comType: "TiInputText",
         comConf: {
           autoJsValue: true,
-          height: 200,
-        },
-      },
+          height: 200
+        }
+      }
     ],
     //---------------------------------------------
     width: {
       title: "i18n:wn-key-width",
-      name: "width",
+      name: "width"
     },
     //---------------------------------------------
     height: {
       title: "i18n:wn-key-height",
-      name: "height",
+      name: "height"
     },
     //---------------------------------------------
     duration: {
@@ -927,16 +927,16 @@ const Obj = (function(){
       name: "duration",
       width: "auto",
       comConf: {
-        suffixText: "i18n:tu-sec",
-      },
+        suffixText: "i18n:tu-sec"
+      }
     },
     //---------------------------------------------
     len: {
       title: "i18n:wn-key-len",
       name: "len",
       width: "auto",
-      transformer: (v) => Ti.S.sizeText(v, { bytes: true }),
-    },
+      transformer: (v) => Ti.S.sizeText(v, { bytes: true })
+    }
     //---------------------------------------------
   };
   ////////////////////////////////////////////
@@ -1022,7 +1022,7 @@ const Obj = (function(){
       let re = {
         mode: md,
         text: WnObj.modeToStr(md),
-        octal: md.toString(8),
+        octal: md.toString(8)
       };
       for (let i = 2; i >= 0; i--) {
         let m = (md >> (i * 3)) & RWX;
@@ -1030,7 +1030,7 @@ const Obj = (function(){
         re[key] = {
           readable: (m & R) > 0,
           writable: (m & W) > 0,
-          excutable: (m & X) > 0,
+          excutable: (m & X) > 0
         };
       }
       return re;
@@ -1064,7 +1064,7 @@ const Obj = (function(){
           return {
             owner: _.cloneDeep(input),
             member: _.cloneDeep(input),
-            other: _.cloneDeep(input),
+            other: _.cloneDeep(input)
           };
         }
         return input;
@@ -1144,16 +1144,16 @@ const Obj = (function(){
             type: "tp",
             mime: "mime",
             race: "race",
-            timestamp: "__updated_time",
-          },
+            timestamp: "__updated_time"
+          }
         },
         comType: "wn-obj-icon",
         comConf: {
           className,
           "...": "${=value}",
-          defaultIcon: dftIcon,
+          defaultIcon: dftIcon
           //"className"   : "thing-icon"
-        },
+        }
       };
     },
     //----------------------------------------
@@ -1169,8 +1169,8 @@ const Obj = (function(){
           key: `rawData.${key}`,
           transformer: "Ti.S.sizeText",
           comConf: {
-            className: "as-tip-block align-right",
-          },
+            className: "as-tip-block align-right"
+          }
         };
       }
       // Time
@@ -1179,14 +1179,14 @@ const Obj = (function(){
           key: `rawData.${key}`,
           transformer: "Ti.DateTime.timeText",
           comConf: {
-            className: "as-tip-block align-right is-nowrap",
-          },
+            className: "as-tip-block align-right is-nowrap"
+          }
         };
       }
       // Default
       else {
         fld.display = {
-          key: `rawData.${key}`,
+          key: `rawData.${key}`
         };
       }
       // Done
@@ -1200,7 +1200,7 @@ const Obj = (function(){
         if (!tf) {
           tf = {
             title: key,
-            display: key,
+            display: key
           };
         }
         // Dynamic
@@ -1234,8 +1234,8 @@ const Obj = (function(){
         name: key,
         type: "String",
         comConf: {
-          className: "is-break-word",
-        },
+          className: "is-break-word"
+        }
       };
     },
     //----------------------------------------
@@ -1259,9 +1259,10 @@ const Obj = (function(){
           // Group
           else if (_.isArray(fld.fields)) {
             f2 = {
+              ..._.omit(fld, "title", "type", "fields"),
               title: Wn.Obj.getGroupTitle(fld.title),
               type: "Group",
-              fields: [],
+              fields: []
             };
             __join_fields(fld.fields, f2.fields, keys);
             if (_.isEmpty(f2.fields)) {
@@ -1281,7 +1282,7 @@ const Obj = (function(){
               _.assign(fld, {
                 quickName,
                 uniqKey,
-                value,
+                value
               })
             );
           };
@@ -1330,48 +1331,44 @@ const Obj = (function(){
                 Integer: {
                   type: "Number",
                   display: k,
-                  comType: "ti-input",
+                  comType: "ti-input"
                 },
                 Number: {
                   type: "Number",
                   display: k,
-                  comType: "ti-input",
+                  comType: "ti-input"
                 },
                 Boolean: {
                   type: "Boolean",
-                  comType: "ti-toggle",
+                  comType: "ti-toggle"
                 },
                 Array: {
                   type: "Array",
                   display: {
-                    key: k,
+                    key: k
                   },
                   transformer: "JSON.stringify(null, '  ')",
                   comType: "ti-input-text",
                   comConf: {
-                    height: 240,
-                  },
-                },
+                    height: 240
+                  }
+                }
               }[jsType] || {
                 type: "String",
                 display: {
                   key: k,
                   comConf: {
-                    width: "100%",
-                    className:
-                      _.isString(v) && v.length > 20
-                        ? "is-break-word"
-                        : "is-nowrap",
-                  },
+                    className: "is-nowrap"
+                  }
                 },
-                comType: "ti-input",
+                comType: "ti-input"
               };
   
               // Join
               let f2 = iteratee({
                 title: k,
                 name: k,
-                ...fldConf,
+                ...fldConf
               });
               if (f2) {
                 outs.push(f2);
@@ -1401,7 +1398,7 @@ const Obj = (function(){
       meta,
       fields = [],
       currentTab = 0,
-      fixedKeys = ["icon", "thumb", "title"],
+      fixedKeys = ["icon", "thumb", "title"]
     } = {}) {
       //console.log("genObjFormFields", fixedKeys)
       //............................................
@@ -1412,7 +1409,7 @@ const Obj = (function(){
       // Auto load
       if ("auto" == fields) {
         let reo = await Wn.Sys.exec2(`ti metas id:${meta.id} -cqn`, {
-          as: "json",
+          as: "json"
         });
         if (reo) {
           fields = reo.fields;
@@ -1440,21 +1437,22 @@ const Obj = (function(){
               "mime",
               "len",
               "sha1",
-              "pid",
-            ],
+              "pid"
+            ]
           },
           {
             title: "privilege",
-            fields: ["c", "m", "g", "md", "pvg"],
+            fields: ["c", "m", "g", "md", "pvg"]
           },
           {
             title: "timestamp",
-            fields: ["ct", "lm", "expi"],
+            fields: ["ct", "lm", "expi"]
           },
           {
             title: "others",
-            fields: ["..."],
-          },
+            gridColumnHint: [[1, 400], 0],
+            fields: ["..."]
+          }
         ];
       }
       //............................................
@@ -1470,7 +1468,7 @@ const Obj = (function(){
       //............................................
       return {
         currentTab,
-        fields: myFormFields,
+        fields: myFormFields
       };
     },
     //----------------------------------------
@@ -1546,7 +1544,7 @@ const Obj = (function(){
       homePath = null,
       titleBy,
       iteratee = _.identity,
-      self = _.identity,
+      self = _.identity
     } = {}) {
       let list = [];
       if (meta) {
@@ -1574,7 +1572,7 @@ const Obj = (function(){
             icon: Wn.Util.getIconObj(an),
             text: Wn.Util.getObjDisplayName(an, titleBy),
             value: an.id,
-            href: Wn.Util.getAppLink(an) + "",
+            href: Wn.Util.getAppLink(an) + ""
           };
           item = iteratee(item, i, an);
           if (item) {
@@ -1588,7 +1586,7 @@ const Obj = (function(){
             text: Wn.Util.getObjDisplayName(meta, titleBy),
             value: meta.id,
             href: null,
-            asterisk: _.get(this.mainStatus, "changed"),
+            asterisk: _.get(this.mainStatus, "changed")
           };
           // Customized
           if (_.isFunction(self)) {
@@ -1601,7 +1599,7 @@ const Obj = (function(){
         }
       }
       return list;
-    },
+    }
     //----------------------------------------
   };
   ////////////////////////////////////////////
@@ -2306,27 +2304,53 @@ const Util = (function(){
         }
         if (!BD) return;
   
-        // Quick badge
-        if (_.isArray(BD)) {
-          if (BD.length == 1) {
-            badges[name] = BD[0];
-          } else if (BD.length > 1 && meta[BD[0]]) {
+        // Quick badge：　// ["isOpen", "fas-xxxx"]
+        if (_.isArray(BD) && BD.length > 0) {
+          // Quick badge：　// ["isOpen", "fas-xxxx"]
+          if (BD.length == 2 && _.isString(BD[0])) {
             badges[name] = BD[1];
           }
+          // Branche Badge
+          // ["K1", AutoMatch, "fas-xxxx"]
+          // [["K1", "K2"], AutoMatch, "fas-xxxx"]
+          // ["K1", [{test:AutoMatch, badge:"fas-xxxx"}]]
+          // TODO ..
         }
         // Auto match badge
-        else if (_.isPlainObject(BD) && BD.value) {
-          //console.log("haha", BD)
-          if (BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
-            return;
+        else if (_.isPlainObject(BD)) {
+          // Test Badge
+          /* {test:{...}, value:"fas-xxx"} */
+          if (BD.value) {
+            //console.log("haha", BD)
+            if (BD.test && !Ti.AutoMatch.test(BD.test, meta)) {
+              return;
+            }
+            let bag = Ti.Util.explainObj(meta, {
+              type: BD.type || "icon",
+              className: BD.className,
+              style: BD.style,
+              value: BD.value
+            });
+            if (bag) {
+              badges[name] = bag;
+            }
           }
-          let bag = Ti.Util.explainObj(meta, {
-            type: BD.type || "icon",
-            className: BD.className,
-            style: BD.style,
-            value: BD.value
-          });
-          if (bag) badges[name] = bag;
+          // Mapping Badge
+          /* {key:"tp", badges: {docx:"fas-xxx", pdf:"fas-xxx"}} */
+          else if ((BD.key, BD.badges)) {
+            let val = _.get(meta, BD.key);
+            let bag = BD.badges[val];
+            if (bag) {
+              if (_.isString(bag)) {
+                bag = { value: bag };
+              }
+              badges[name] = { 
+                type: "icon", 
+                className: "as-label-70 is-primary",
+                ...bag 
+              };
+            }
+          }
         }
         // Static badge
         else {
@@ -4547,7 +4571,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230327.014844"
+const WALNUT_VERSION = "1.2-20230329.015433"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

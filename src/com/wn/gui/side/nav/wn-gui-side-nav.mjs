@@ -124,7 +124,7 @@ const _M = {
       
       // Guard for fure
       let bombed = await Ti.Fuse.fire();
-      console.log("OnItemActived", bombed)
+      //console.log("OnItemActived", bombed)
       if (!bombed) {
         return;
       }
