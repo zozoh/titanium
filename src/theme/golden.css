@@ -4355,7 +4355,9 @@ i.im {
   align-items: stretch;
   align-content: center;
   flex-wrap: nowrap;
-  border: 1px solid rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(20, 20, 20, 0.1);
+  border-radius: 0.04rem;
+  overflow: hidden;
   border-left: 0;
   border-right: 0; }
   .ti-input-num > .as-btn {

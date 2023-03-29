@@ -1,4 +1,4 @@
-// Pack At: 2023-03-29 01:54:32
+// Pack At: 2023-03-30 00:04:18
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -2565,128 +2565,158 @@ const { S } = (function(){
 const { Tmpl } = (function(){
   ///////////////////////////////////////////////////
   function TmplStaticEle(s) {
-    return (sb = []) => sb.push(s)
+    return (sb = []) => sb.push(s);
   }
   ///////////////////////////////////////////////////
   function TmplStringEle(s_token, key, fmt, dft) {
     // TODO should support fmt as converter
+    let convertors = [];
+    let ss = Ti.S.splitIgnoreBlank(fmt, ";");
+    for (let s of ss) {
+      //截取空白
+      if ("@trim" == s) {
+        convertors.push((v) => _.trim(v));
+      }
+      // 字符串替换不支持！ TODO
+      // 字符串映射
+      else if (/^:/.test(s)) {
+        let input = s.substring(1).trim();
+        let map = {};
+        let list = Ti.S.splitIgnoreBlank(input, ",");
+        for (let li of list) {
+          let m = /^([^=]+)=(.+)$/.exec(li);
+          if (m) {
+            map[m[1]] = m[2];
+          } else {
+            console.warn("Tmpl StringEle Invalid Mapping:", s_token);
+          }
+        }
+        convertors.push((v) => map[v] || v);
+      }
+    }
+  
     //  - @trim,@replace, mapping
     return (sb = [], vars = {}, showKey = false) => {
-      let s = _.get(vars, key) || dft
+      let s = _.get(vars, key) || dft;
+      // Cover value
+      for (let convert of convertors) {
+        s = convert(s);
+      }
       // Join to output
       if (!Ti.Util.isNil(s)) {
-        sb.push(s)
+        sb.push(s);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   function TmplIntEle(s_token, key, fmt, dft) {
     // TODO should support fmt as converter
     //  - %d
     return (sb = [], vars = {}, showKey = false) => {
-      let s = _.get(vars, key) || dft
+      let s = _.get(vars, key) || dft;
       // Join to output
       if (!Ti.Util.isNil(s)) {
-        let n = parseInt(s)
-        sb.push(n)
+        let n = parseInt(s);
+        sb.push(n);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   function TmplBooleanEle(s_token, key, fmt = "false/true", dft) {
-    let texts = fmt.split("\/")
+    let texts = fmt.split("/");
     return (sb = [], vars = {}, showKey = false) => {
-      let b = _.get(vars, key) || dft
+      let b = _.get(vars, key) || dft;
       // Join to output
       if (!Ti.Util.isNil(b)) {
-        sb.push(b ? texts[1] : texts[0])
+        sb.push(b ? texts[1] : texts[0]);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   function TmplNumberEle(s_token, key, fmt, dft) {
     // TODO should support fmt as converter
     //  - %#.2f
     return (sb = [], vars = {}, showKey = false) => {
-      let s = _.get(vars, key) || dft
+      let s = _.get(vars, key) || dft;
       // Join to output
       if (!Ti.Util.isNil(s)) {
-        let n = s * 1
-        sb.push(n)
+        let n = s * 1;
+        sb.push(n);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   function TmplDateEle(s_token, key, fmt = "yyyy-MM-dd'T'HH:mm:ss", dft) {
     return (sb = [], vars = {}, showKey = false) => {
-      let d = _.get(vars, key) || dft
+      let d = _.get(vars, key) || dft;
       // Join to output
       if (!Ti.Util.isNil(d)) {
-        let ds = Ti.DateTime.format(d, fmt)
-        sb.push(ds)
+        let ds = Ti.DateTime.format(d, fmt);
+        sb.push(ds);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   function TmplJsonEle(s_token, key, fmt = "cn", dft) {
     // TODO support format "cn"
-    let isCompact = fmt.indexOf('c') >= 0
-    let ignoreNull = fmt.indexOf('n') < 0
+    let isCompact = fmt.indexOf("c") >= 0;
+    let ignoreNull = fmt.indexOf("n") < 0;
     return (sb = [], vars = {}, showKey = false) => {
-      let obj = _.get(vars, key) || dft
+      let obj = _.get(vars, key) || dft;
       // Join to output
       if (!Ti.Util.isNil(s)) {
         let json;
         // Default
         if ("-obj-" == obj) {
-          json = "{}"
+          json = "{}";
         }
         // Default Array
         else if ("-array-" == obj) {
-          json = "[]"
+          json = "[]";
         }
         // format json
         else {
           let replacer = function (k, v) {
             if (ignoreNull && Ti.Util.isNil(v)) {
-              return
+              return;
             }
-            return v
-          }
-          let space = isCompact ? null : "   "
-          json = JSON.stringify(obj, flt, space)
+            return v;
+          };
+          let space = isCompact ? null : "   ";
+          json = JSON.stringify(obj, flt, space);
         }
-        sb.push(json)
+        sb.push(json);
       }
       // Show Key
       else if (showKey) {
-        sb.push(s_token)
+        sb.push(s_token);
       }
-    }
+    };
   }
   ///////////////////////////////////////////////////
   ///////////////////////////////////////////////////
-  const _P2 = /^([^<>()?]+)([<(](int|long|boolean|float|double|date|string|json)?(\s*:\s*([^>]*))?[>)])?([?]\s*(.*)\s*)?$/
+  const _P2 =
+    /^([^<>()?]+)([<(](int|long|boolean|float|double|date|string|json)?(\s*:\s*([^>]*))?[>)])?([?]\s*(.*)\s*)?$/;
   ///////////////////////////////////////////////////
   class TiTmplPattern {
     constructor({
@@ -2695,38 +2725,37 @@ const { Tmpl } = (function(){
       escapeIndex = 3,
       getEscapeStr = () => "$"
     } = {}) {
-      this.list = []
-      this.keys = []
+      this.list = [];
+      this.keys = [];
   
       this.groupIndex = groupIndex;
       this.escapeIndex = escapeIndex;
-      this.getEscapeStr = getEscapeStr
+      this.getEscapeStr = getEscapeStr;
   
       // 默认的模板占位符
       if (!regex) {
         // The Apple don't support (?<!) WTF
-        this._P = /([$][{]([^}]+)[}])|([$][$])/g
+        this._P = /([$][{]([^}]+)[}])|([$][$])/g;
       }
       // 直接给的就是正则
       else if (_.isRegExp(regex)) {
-        this._P = regex
+        this._P = regex;
       }
       // 自定义的占位符
       else {
         this._P = new RegExp(regex, "g");
-  
       }
     }
     //-----------------------------------------------
     parse(str) {
       let lastIndex = 0;
       let m;
-      let regex = new RegExp(this._P, "g")
-      while (m = regex.exec(str)) {
-        let pos = m.index
+      let regex = new RegExp(this._P, "g");
+      while ((m = regex.exec(str))) {
+        let pos = m.index;
         // 看看是否要生成静态对象
         if (pos > lastIndex) {
-          let s = str.substring(lastIndex, pos)
+          let s = str.substring(lastIndex, pos);
           this.list.push(TmplStaticEle(s));
         }
         // 根据占位符语法解析一下
@@ -2740,12 +2769,12 @@ const { Tmpl } = (function(){
         }
         // 否则分析键
         else {
-          let s_token = m[0]
+          let s_token = m[0];
           let s_match = m[this.groupIndex];
           let m2 = _P2.exec(s_match);
   
           if (!m2) {
-            throw `Fail to parse tmpl key '${s_match}'`
+            throw `Fail to parse tmpl key '${s_match}'`;
           }
   
           let key = m2[1];
@@ -2759,7 +2788,7 @@ const { Tmpl } = (function(){
           // 增加元素
           ({
             "string": () => {
-              this.list.push(TmplStringEle(s_token, key, fmt, dft))
+              this.list.push(TmplStringEle(s_token, key, fmt, dft));
             },
             "int": () => {
               this.list.push(TmplIntEle(s_token, key, fmt, dft));
@@ -2788,7 +2817,7 @@ const { Tmpl } = (function(){
             "json": () => {
               this.list.push(TmplJsonEle(s_token, key, fmt, dft));
             }
-          })[type]()
+          }[type]());
         }
   
         // 记录
@@ -2797,20 +2826,20 @@ const { Tmpl } = (function(){
   
       // 最后结尾是否要加入一个对象
       if (!(lastIndex >= str.length)) {
-        let s = str.substring(lastIndex)
+        let s = str.substring(lastIndex);
         this.list.push(TmplStaticEle(s));
       }
   
       // 返回自身
-      return this
+      return this;
     }
     //-----------------------------------------------
     render(vars = {}, showKey = false) {
-      let sb = []
+      let sb = [];
       for (let eleJoin of this.list) {
-        eleJoin(sb, vars, showKey)
+        eleJoin(sb, vars, showKey);
       }
-      return sb.join("")
+      return sb.join("");
     }
     //-----------------------------------------------
   }
@@ -2819,33 +2848,29 @@ const { Tmpl } = (function(){
   const TiTmpl = {
     //-----------------------------------------------
     parse(input, setup) {
-      let tmpl = new TiTmplPattern(input, setup)
-      tmpl.parse(input)
-      return tmpl
+      let tmpl = new TiTmplPattern(input, setup);
+      tmpl.parse(input);
+      return tmpl;
     },
     //-----------------------------------------------
-    parseAs(input, {
-      startChar = "$",
-      leftBrace = "{",
-      rightBrace = "}"
-    } = {}) {
-      if (null == input)
-        return null;
+    parseAs(input, { startChar = "$", leftBrace = "{", rightBrace = "}" } = {}) {
+      if (null == input) return null;
   
       // The Apple don't support (?<!) WTF
-      let regex = "(["
-        + startChar
-        + "]["
-        + ("[" == leftBrace ? "\\[" : leftBrace)
-        + "]([^"
-        + ("]" == rightBrace ? "\\]" : rightBrace)
-        + "]+)["
-        + rightBrace
-        + "])|(["
-        + startChar
-        + "]["
-        + startChar
-        + "])";
+      let regex =
+        "([" +
+        startChar +
+        "][" +
+        ("[" == leftBrace ? "\\[" : leftBrace) +
+        "]([^" +
+        ("]" == rightBrace ? "\\]" : rightBrace) +
+        "]+)[" +
+        rightBrace +
+        "])|([" +
+        startChar +
+        "][" +
+        startChar +
+        "])";
       return TiTmpl.parse(input, {
         regex,
         groupIndex: 2,
@@ -2854,86 +2879,106 @@ const { Tmpl } = (function(){
       });
     },
     //-----------------------------------------------
-    exec(input, vars = {}, {
-      regex, groupIndex, escapeIndex, getEscapeStr,
-      startChar, leftBrace, rightBrace,
-      showKey
-    } = {}) {
-      if(!input){
-        return input
+    exec(
+      input,
+      vars = {},
+      {
+        regex,
+        groupIndex,
+        escapeIndex,
+        getEscapeStr,
+        startChar,
+        leftBrace,
+        rightBrace,
+        showKey
+      } = {}
+    ) {
+      if (!input) {
+        return input;
       }
       let tmpl = startChar
         ? TiTmpl.parseAs(input, { startChar, leftBrace, rightBrace })
-        : TiTmpl.parse(input, { regex, groupIndex, escapeIndex, getEscapeStr })
+        : TiTmpl.parse(input, { regex, groupIndex, escapeIndex, getEscapeStr });
   
-      return tmpl.render(vars, showKey)
+      return tmpl.render(vars, showKey);
     },
     //-----------------------------------------------
     _test_100000_exec() {
       let vars = {
-        name: "zozoh", age: 45, great: true, bir: new Date()
+        name: "zozoh",
+        age: 45,
+        great: true,
+        bir: new Date()
       };
-      let input = "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}"
-      let TN = 100000
-      let ms0 = Date.now()
-      let re = []
+      let input =
+        "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}";
+      let TN = 100000;
+      let ms0 = Date.now();
+      let re = [];
       for (var i = 0; i < TN; i++) {
-        let s = Ti.Tmpl.exec(input, vars)
-        re.push(s)
+        let s = Ti.Tmpl.exec(input, vars);
+        re.push(s);
       }
-      let ms1 = Date.now()
-      let duInMs = ms1 - ms0
+      let ms1 = Date.now();
+      let duInMs = ms1 - ms0;
       // for (var i = 0; i < TN; i++) {
       //   var s = re[i]
       //   console.log(`${i}. ${s}`)
       // }
-      console.log(`in ${duInMs}ms`)
+      console.log(`in ${duInMs}ms`);
     },
     //-----------------------------------------------
     _test_100000_render() {
       let vars = {
-        name: "zozoh", age: 45, great: true, bir: new Date()
+        name: "zozoh",
+        age: 45,
+        great: true,
+        bir: new Date()
       };
-      let input = "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}"
-      let tmpl = Ti.Tmpl.parse(input)
-      let TN = 100000
-      let ms0 = Date.now()
-      let re = []
+      let input =
+        "${name}[${age}] is ${great<boolean:no/yes>} since ${bir<date:yy年M月d日 HH点mm分ss秒.SSS毫秒>}";
+      let tmpl = Ti.Tmpl.parse(input);
+      let TN = 100000;
+      let ms0 = Date.now();
+      let re = [];
       for (var i = 0; i < TN; i++) {
-        let s = tmpl.render(vars)
-        re.push(s)
+        let s = tmpl.render(vars);
+        re.push(s);
       }
-      let ms1 = Date.now()
-      let duInMs = ms1 - ms0
+      let ms1 = Date.now();
+      let duInMs = ms1 - ms0;
       // for (var i = 0; i < TN; i++) {
       //   var s = re[i]
       //   console.log(`${i}. ${s}`)
       // }
-      console.log(`in ${duInMs}ms`)
+      console.log(`in ${duInMs}ms`);
     },
     //-----------------------------------------------
     _test_100000_str_render() {
       let vars = {
-        name: "zozoh", age: 45, great: true, bir: new Date()
+        name: "zozoh",
+        age: 45,
+        great: true,
+        bir: new Date()
       };
-      let input = "${name}[${age}] is ${great} since ${bir}"
-      let TN = 100000
-      let ms0 = Date.now()
-      let re = []
+      let input = "${name}[${age}] is ${great} since ${bir}";
+      let TN = 100000;
+      let ms0 = Date.now();
+      let re = [];
       for (var i = 0; i < TN; i++) {
-        let s = Ti.S.renderVars(vars, input)
-        re.push(s)
+        let s = Ti.S.renderVars(vars, input);
+        re.push(s);
       }
-      let ms1 = Date.now()
-      let duInMs = ms1 - ms0
+      let ms1 = Date.now();
+      let duInMs = ms1 - ms0;
       // for (var i = 0; i < TN; i++) {
       //   var s = re[i]
       //   console.log(`${i}. ${s}`)
       // }
-      console.log(`in ${duInMs}ms`)
+      console.log(`in ${duInMs}ms`);
     }
     //-----------------------------------------------
-  }
+  };
   ///////////////////////////////////////////////////
   return {Tmpl: TiTmpl};
 })();
@@ -20066,7 +20111,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230329.015432",
+  "version": "1.6-20230330.000418",
   "dev": false,
   "appName": null,
   "session": {},

@@ -1,4 +1,4 @@
-// Pack At: 2023-03-29 01:54:32
+// Pack At: 2023-03-30 00:04:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12661,7 +12661,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
     let fn = _.get(this.thingMethods, fnName);
     // Invoke the method
     if (_.isFunction(fn)) {
-      return await fn.apply(this, args);
+      try {
+        return await fn.apply(this, args);
+      } catch (E) {
+        console.error(
+          `Fail to Invoke "${fnName}"`,
+          "with args:",
+          args,
+          "Reason:",
+          E
+        );
+      }
     }
     // Throw the error
     else {
@@ -12705,7 +12715,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //--------------------------------------------
   async openCurrentPrivilege() {
     return await this.dispatch("openCurrentPrivilege");
-  },
+  }
   //--------------------------------------------
 };
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -54925,7 +54935,7 @@ const _M = {
   },
   //////////////////////////////////////////
   watch: {
-    "theHighlightItemId": "delayScrollCurrentIntoView"
+    //"theHighlightItemId": "delayScrollCurrentIntoView"
   },
   //////////////////////////////////////////
   mounted() {

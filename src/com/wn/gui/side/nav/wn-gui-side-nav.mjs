@@ -149,7 +149,7 @@ const _M = {
   },
   //////////////////////////////////////////
   watch: {
-    "theHighlightItemId": "delayScrollCurrentIntoView"
+    //"theHighlightItemId": "delayScrollCurrentIntoView"
   },
   //////////////////////////////////////////
   mounted() {

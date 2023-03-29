@@ -48,7 +48,17 @@ export default {
     let fn = _.get(this.thingMethods, fnName);
     // Invoke the method
     if (_.isFunction(fn)) {
-      return await fn.apply(this, args);
+      try {
+        return await fn.apply(this, args);
+      } catch (E) {
+        console.error(
+          `Fail to Invoke "${fnName}"`,
+          "with args:",
+          args,
+          "Reason:",
+          E
+        );
+      }
     }
     // Throw the error
     else {
@@ -92,6 +102,6 @@ export default {
   //--------------------------------------------
   async openCurrentPrivilege() {
     return await this.dispatch("openCurrentPrivilege");
-  },
+  }
   //--------------------------------------------
 };

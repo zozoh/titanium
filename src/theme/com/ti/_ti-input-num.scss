@@ -1,6 +1,8 @@
 .ti-input-num {
   @include flex-align-nowrap($ai:stretch); 
-  border:1px solid map-get($color-line, dark);
+  border:1px solid map-get($color-line, shallow);
+  border-radius: $r-box;
+  overflow: hidden; 
   border-left:0; border-right:0;
   //-----------------------------------
   > .as-btn {
