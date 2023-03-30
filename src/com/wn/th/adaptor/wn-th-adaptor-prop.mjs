@@ -5,6 +5,7 @@ export default {
   },
   "guiShown": Object,
   "rootState": Object,
+  "rootGetters": Object,
   //-----------------------------------
   // The Thingset
   //-----------------------------------

@@ -1,4 +1,4 @@
-// Pack At: 2023-03-30 00:04:18
+// Pack At: 2023-03-30 23:14:49
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12735,6 +12735,7 @@ const _M = {
       return {
         moduleName: this.moduleName,
         rootState: this.rootState,
+        rootGetters: this.rootGetters,
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,
@@ -26921,7 +26922,7 @@ const _M = {
   },
   //--------------------------------------------
   async openCurrentMetaEditor({ state, dispatch, getters }) {
-    console.log("openCurrentMetaEditor");
+    //console.log("openCurrentMetaEditor");
     // Guard
     if (!state.meta && !state.oTs) {
       return await Ti.Toast.Open("i18n:empty-data", "warn");
@@ -56329,6 +56330,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "guiShown": Object,
   "rootState": Object,
+  "rootGetters": Object,
   //-----------------------------------
   // The Thingset
   //-----------------------------------

@@ -9,6 +9,7 @@ const _M = {
       return {
         moduleName: this.moduleName,
         rootState: this.rootState,
+        rootGetters: this.rootGetters,
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,
