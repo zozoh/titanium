@@ -73,7 +73,11 @@ const _M = {
       if (Ti.Util.isNil(this.value)) {
         return true;
       }
-      if (_.isDate(this.value)) {
+      if (
+        _.isDate(this.value) ||
+        _.isNumber(this.value) ||
+        _.isBoolean(this.value)
+      ) {
         return false;
       }
       if (_.isEmpty(this.value)) {

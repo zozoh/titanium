@@ -1,4 +1,4 @@
-// Pack At: 2023-03-31 00:55:46
+// Pack At: 2023-03-31 01:18:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16220,7 +16220,11 @@ const _M = {
       if (Ti.Util.isNil(this.value)) {
         return true;
       }
-      if (_.isDate(this.value)) {
+      if (
+        _.isDate(this.value) ||
+        _.isNumber(this.value) ||
+        _.isBoolean(this.value)
+      ) {
         return false;
       }
       if (_.isEmpty(this.value)) {
