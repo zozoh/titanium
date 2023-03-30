@@ -56,7 +56,7 @@ const _M = {
       return this.getTopClass({
         "is-nil-display": this.isNilDisplay,
         "is-hover-copy": this.isHoverCopy,
-        "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
+        "is-blank": this.isBlank,
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
       });
@@ -67,6 +67,19 @@ const _M = {
         width: this.width,
         height: this.height
       });
+    },
+    //--------------------------------------
+    isBlank() {
+      if (Ti.Util.isNil(this.value)) {
+        return true;
+      }
+      if (_.isDate(this.value)) {
+        return false;
+      }
+      if (_.isEmpty(this.value)) {
+        return true;
+      }
+      return false;
     },
     //--------------------------------------
     LabelVarText() {
@@ -97,10 +110,18 @@ const _M = {
                 isComplexObj = true;
               }
             }
-
-            let val_str = isComplexObj
-              ? JSON.stringify(this.value, null, "   ")
-              : JSON.stringify(this.value);
+            let val_str;
+            if (_.isDate(this.value)) {
+              val_str = `Date(${this.value})=${this.value.getTime()}`;
+            }
+            // complex object
+            else if (isComplexObj) {
+              val_str = JSON.stringify(this.value, null, "   ");
+            }
+            // Other Object
+            else {
+              val_str = JSON.stringify(this.value);
+            }
 
             if (!_.isEmpty(this.vars)) {
               return `<pre>${val_str}

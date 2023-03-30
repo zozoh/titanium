@@ -1,4 +1,4 @@
-// Pack At: 2023-03-30 23:14:49
+// Pack At: 2023-03-31 00:55:46
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -14834,7 +14834,7 @@ const _M = {
       let fmap = {};
       //................................................
       if (_.isArray(this.fields)) {
-        //console.log("async evalFormFieldList() x ", this.fields.length)
+        //console.log("async evalFormFieldList() x ", this.fields.length);
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index];
           if (_.isEmpty(fld)) {
@@ -15108,7 +15108,7 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comType, comConf } = field;
+      let { name, display, transformer, comType, comConf } = field;
       // Guard
       if (!display) {
         // Auto gen display
@@ -15122,7 +15122,7 @@ const _M = {
           labelConf.className = field.labelClass || "is-nowrap";
           // If options
           if (comConf && comConf.options) {
-            let dictName = Ti.DictFactory.DictReferName(comConf.options);
+          let dictName = Ti.DictFactory.DictReferName(comConf.options);
             if (dictName) {
               labelConf.dict = dictName;
             }
@@ -15134,16 +15134,20 @@ const _M = {
               labelConf.dict = dict;
             }
           }
-          // If AMS
-          if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
-            labelConf.format = comConf.format || Ti.DateTime.format;
-          } else if (/^TiInputDate$/.test(comType)) {
+          // Date field
+          if (/^TiInputDate$/.test(comType)) {
             labelConf.format = comConf.format || Ti.Types.getDateFormatValue;
             labelConf.placeholder = comConf.placeholder || "i18n:nil";
           }
+          // If AMS
+          else if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
+            labelConf.format = comConf.format || Ti.Types.formatDateTime;
+          }
+
           // Just pure value
           return {
             key: name,
+            transformer,
             comType: "TiLabel",
             comConf: labelConf
           };
@@ -16199,7 +16203,7 @@ const _M = {
       return this.getTopClass({
         "is-nil-display": this.isNilDisplay,
         "is-hover-copy": this.isHoverCopy,
-        "is-blank": !_.isNumber(this.TheValue) && _.isEmpty(this.TheValue),
+        "is-blank": this.isBlank,
         "is-nowrap": this.valueMaxWidth > 0,
         "full-field": this.fullField
       });
@@ -16210,6 +16214,19 @@ const _M = {
         width: this.width,
         height: this.height
       });
+    },
+    //--------------------------------------
+    isBlank() {
+      if (Ti.Util.isNil(this.value)) {
+        return true;
+      }
+      if (_.isDate(this.value)) {
+        return false;
+      }
+      if (_.isEmpty(this.value)) {
+        return true;
+      }
+      return false;
     },
     //--------------------------------------
     LabelVarText() {
@@ -16240,10 +16257,18 @@ const _M = {
                 isComplexObj = true;
               }
             }
-
-            let val_str = isComplexObj
-              ? JSON.stringify(this.value, null, "   ")
-              : JSON.stringify(this.value);
+            let val_str;
+            if (_.isDate(this.value)) {
+              val_str = `Date(${this.value})=${this.value.getTime()}`;
+            }
+            // complex object
+            else if (isComplexObj) {
+              val_str = JSON.stringify(this.value, null, "   ");
+            }
+            // Other Object
+            else {
+              val_str = JSON.stringify(this.value);
+            }
 
             if (!_.isEmpty(this.vars)) {
               return `<pre>${val_str}

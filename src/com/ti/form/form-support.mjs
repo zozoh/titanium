@@ -466,7 +466,7 @@ const _M = {
       let fmap = {};
       //................................................
       if (_.isArray(this.fields)) {
-        //console.log("async evalFormFieldList() x ", this.fields.length)
+        //console.log("async evalFormFieldList() x ", this.fields.length);
         for (let index = 0; index < this.fields.length; index++) {
           let fld = this.fields[index];
           if (_.isEmpty(fld)) {
@@ -740,7 +740,7 @@ const _M = {
     },
     //--------------------------------------------------
     evalFieldDisplay(field = {}) {
-      let { name, display, comType, comConf } = field;
+      let { name, display, transformer, comType, comConf } = field;
       // Guard
       if (!display) {
         // Auto gen display
@@ -754,7 +754,7 @@ const _M = {
           labelConf.className = field.labelClass || "is-nowrap";
           // If options
           if (comConf && comConf.options) {
-            let dictName = Ti.DictFactory.DictReferName(comConf.options);
+          let dictName = Ti.DictFactory.DictReferName(comConf.options);
             if (dictName) {
               labelConf.dict = dictName;
             }
@@ -766,16 +766,20 @@ const _M = {
               labelConf.dict = dict;
             }
           }
-          // If AMS
-          if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
-            labelConf.format = comConf.format || Ti.DateTime.format;
-          } else if (/^TiInputDate$/.test(comType)) {
+          // Date field
+          if (/^TiInputDate$/.test(comType)) {
             labelConf.format = comConf.format || Ti.Types.getDateFormatValue;
             labelConf.placeholder = comConf.placeholder || "i18n:nil";
           }
+          // If AMS
+          else if ("AMS" == field.type || /^TiInputDatetime/.test(comType)) {
+            labelConf.format = comConf.format || Ti.Types.formatDateTime;
+          }
+
           // Just pure value
           return {
             key: name,
+            transformer,
             comType: "TiLabel",
             comConf: labelConf
           };
