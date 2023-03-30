@@ -297,6 +297,14 @@ const _M = {
     if (!state.thingSetId) {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
+    let {
+      defaultMappingName,
+      mappingPath,
+      uploadTarget,
+      uniqKey,
+      withHook,
+      process
+    } = state.importSettings || {};
 
     let reo = await Ti.App.Open({
       icon: "fas-file-import",
@@ -308,9 +316,9 @@ const _M = {
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
-        "mappingPath": `id:${state.thingSetId}/import/`,
-        "defaultMappingName": undefined,
-        "uploadTarget": `id:${state.thingSetId}/tmp/import/`
+        "mappingPath": mappingPath || `id:${state.thingSetId}/import/`,
+        "defaultMappingName": defaultMappingName,
+        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`
       },
       components: ["@com:wn/data/importer-form"]
     });
@@ -343,7 +351,6 @@ const _M = {
     let fnames = fldReg ? `-names '${fldReg}'` : "";
 
     // From settings
-    let { uniqKey, withHook, process } = state.importSettings || {};
     let unique = uniqKey ? `-unique ${uniqKey}` : "";
     let nohook = withHook ? "" : "-nohook";
 
@@ -356,7 +363,7 @@ const _M = {
       `-process '${process || "<auto>"}'`
     ];
     let cmdText = cmds.join(" ");
-    console.log(cmdText);
+    //console.log(cmdText);
 
     // Process in Command panel
     await Wn.OpenCmdPanel(cmdText, {
