@@ -3,87 +3,87 @@ export class TiAppModal {
   // Attributes
   //////////////////////////////////////////////
   constructor() {
-    this.className = undefined
-    this.icon = undefined
-    this.title = undefined
+    this.className = undefined;
+    this.icon = undefined;
+    this.title = undefined;
     // info|warn|error|success|track
-    this.type = "info"
+    this.type = "info";
     //--------------------------------------------
-    this.iconOk = undefined
-    this.textOk = "i18n:ok"
-    this.ok = ({ result }) => result
+    this.iconOk = undefined;
+    this.textOk = "i18n:ok";
+    this.ok = ({ result }) => result;
     //--------------------------------------------
-    this.iconCancel = undefined
-    this.textCancel = "i18n:cancel"
-    this.cancel = () => undefined
+    this.iconCancel = undefined;
+    this.textCancel = "i18n:cancel";
+    this.cancel = () => undefined;
     //--------------------------------------------
-    this.actions = null
+    this.actions = null;
     //--------------------------------------------
     // Modal open and close, transition duration
-    // I need know the duration, then delay to mount 
+    // I need know the duration, then delay to mount
     // the main component.
     // Some component will auto resize, it need a static
     // window measurement.
-    this.transDelay = 350
+    this.transDelay = 350;
     //--------------------------------------------
-    this.comType = "ti-label"
-    this.comConf = {}
-    this.explainComConf = true
-    this.components = []
+    this.comType = "ti-label";
+    this.comConf = {};
+    this.explainComConf = true;
+    this.components = [];
     //--------------------------------------------
     // Aspect
-    this.closer = "default"  // true|false | (default|bottom|top|left|right)
-    this.escape = true
-    this.mask = true       // !TODO maybe blur or something else
-    this.clickMaskToClose = false
-    this.changeToClose = false
+    this.closer = "default"; // true|false | (default|bottom|top|left|right)
+    this.escape = true;
+    this.mask = true; // !TODO maybe blur or something else
+    this.clickMaskToClose = false;
+    this.changeToClose = false;
     /*
     validator : (v)=>{
       return /^(left|right|top|bottom|center)$/.test(v)
         || /^((left|right)-top|bottom-(left|right))$/.test(v)
     }
     */
-    this.position = "center"
+    this.position = "center";
     //--------------------------------------------
     // Measure
-    this.width = "6.4rem"
-    this.height = undefined
-    this.maxWidth = undefined
-    this.maxHeight = undefined
-    this.minWidth = undefined
-    this.minHeight = undefined
-    this.mainStyle = undefined
-    this.spacing = undefined
-    this.overflow = undefined
-    this.adjustable = false  // true|false|"x"|"y"
+    this.width = "6.4rem";
+    this.height = undefined;
+    this.maxWidth = undefined;
+    this.maxHeight = undefined;
+    this.minWidth = undefined;
+    this.minHeight = undefined;
+    this.mainStyle = undefined;
+    this.spacing = undefined;
+    this.overflow = undefined;
+    this.adjustable = false; // true|false|"x"|"y"
     //--------------------------------------------
     // data model
-    this.result = undefined
-    this.model = { prop: "value", event: "change" }
+    this.result = undefined;
+    this.model = { prop: "value", event: "change" };
     //--------------------------------------------
     // modules
-    this.modules = {}
-    this.modState = {}
+    this.modules = {};
+    this.modState = {};
     //--------------------------------------------
     // Events
-    this.events = {}
+    this.events = {};
     //--------------------------------------------
-    this.topActions = []
+    this.topActions = [];
     //--------------------------------------------
     // callback
-    this.ready = async function (app) { }
-    this.preload = async function (app) { }
-    this.beforeClosed = async function (app) { }
+    this.ready = async function (app) {};
+    this.preload = async function (app) {};
+    this.beforeClosed = async function (app) {};
   }
   //////////////////////////////////////////////
   // Methods
   //////////////////////////////////////////////
   async open(resolve = _.identity) {
     //console.log("dialog", this.className)
-    let TheActions = []
+    let TheActions = [];
     // Customized actions
     if (this.actions) {
-      TheActions = this.actions
+      TheActions = this.actions;
     }
     // Use OK/Canel
     else {
@@ -92,58 +92,61 @@ export class TiAppModal {
           icon: this.iconOk,
           text: this.textOk,
           handler: this.ok
-        })
+        });
       }
       if (_.isFunction(this.cancel) && this.textCancel) {
         TheActions.push({
           icon: this.iconCancel,
           text: this.textCancel,
           handler: this.cancel
-        })
+        });
       }
     }
     //..........................................
     let model = "";
     if (this.model) {
-      let { event, prop } = this.model
+      let { event, prop } = this.model;
       if (event) {
-        model += ` @${event}="OnChange"`
+        model += ` @${event}="OnChange"`;
       }
       if (prop) {
         // 简单映射
         if (_.isString(prop)) {
-          model += ` :${prop}="result"`
+          model += ` :${prop}="result"`;
         }
         // 数组的话，可以映射多个属性
         else if (_.isArray(prop)) {
           for (let k of prop) {
-            model += ` :${k}="result.${k}"`
+            model += ` :${k}="result.${k}"`;
           }
         }
         // 复杂映射： prop:{comProp: resultKey}
         else if (_.isObject(prop)) {
           _.forEach(prop, (v, k) => {
-            model += ` :${k}="result.${v}"`
-          })
+            model += ` :${k}="result.${v}"`;
+          });
         }
       }
     }
     //..........................................
-    let storeModules = _.defaults({
-      "viewport": "@mod:ti/viewport"
-    }, this.modules)
+    let storeModules = _.defaults(
+      {
+        "viewport": "@mod:ti/viewport"
+      },
+      this.modules
+    );
     //console.log(storeModules)
     //..........................................
-    let AppModalEvents = _.cloneDeep(this.events)
-    let eventStub = []
+    let AppModalEvents = _.cloneDeep(this.events);
+    let eventStub = [];
     _.forEach(AppModalEvents, (fn, key) => {
-      eventStub.push(`@${key}="OnEvent('${key}', $event)"`)
-    })
+      eventStub.push(`@${key}="OnEvent('${key}', $event)"`);
+    });
 
     //..........................................
     // Setup content
     let html = `<transition :name="TransName" @after-leave="OnAfterLeave">
-      <div class="ti-app-modal ${this.className || ''}"
+      <div class="ti-app-modal ${this.className || ""}"
         v-if="!hidden"
           :class="TopClass"
           :style="TopStyle"
@@ -201,7 +204,7 @@ export class TiAppModal {
                   <ti-icon value="zmdi-close" @click.native="OnClose"/>
             </div>
         </div>
-    </div></transition>`
+    </div></transition>`;
     //..........................................
     // Prepare the app info
     let appInfo = {
@@ -259,65 +262,70 @@ export class TiAppModal {
       computed: {
         //--------------------------------------
         TopClass() {
-          let nilHeight = Ti.Util.isNil(this.height)
-          return this.getTopClass({
-            "show-mask": this.isShowMask,
-            "no-mask": !this.isShowMask,
-            "has-height": !nilHeight,
-            "nil-height": nilHeight
-          }, `at-${this.position}`)
+          let nilHeight = Ti.Util.isNil(this.height);
+          return this.getTopClass(
+            {
+              "show-mask": this.isShowMask,
+              "no-mask": !this.isShowMask,
+              "has-height": !nilHeight,
+              "nil-height": nilHeight
+            },
+            `at-${this.position}`
+          );
         },
         //--------------------------------------
         TopStyle() {
-          if ('center' != this.position) {
+          if ("center" != this.position) {
             return {
               "padding": Ti.Css.toSize(this.spacing)
-            }
+            };
           }
         },
         //--------------------------------------
         MainStyle() {
-          return Ti.Css.toStyle(this.mainStyle)
+          return Ti.Css.toStyle(this.mainStyle);
         },
         //--------------------------------------
         TransName() {
-          return `app-modal-trans-at-${this.position}`
+          return `app-modal-trans-at-${this.position}`;
         },
         //--------------------------------------
         isShowHead() {
-          return this.icon || this.title
-            || this.hasTopActionBar
+          return this.icon || this.title || this.hasTopActionBar;
         },
         //--------------------------------------
         hasTopActionBar() {
-          return !_.isEmpty(this.topActions)
+          return !_.isEmpty(this.topActions);
         },
         //--------------------------------------
         isShowMask() {
-          return this.mask ? true : false
+          return this.mask ? true : false;
         },
         //--------------------------------------
         hasActions() {
-          return !_.isEmpty(this.actions)
+          return !_.isEmpty(this.actions);
         },
         //--------------------------------------
         hasCloser() {
-          return this.closer ? true : false
+          return this.closer ? true : false;
         },
         //--------------------------------------
         isCloserDefault() {
-          return true === this.closer || "default" == this.closer
+          return true === this.closer || "default" == this.closer;
         },
         //--------------------------------------
         ConClass() {
-          return Ti.Css.mergeClassName({
-            "is-show-header": this.isShowHead,
-            "is-hide-header": !this.isShowHead,
-            "is-show-actions": this.hasActions,
-            "is-hide-actions": !this.hasActions,
-            "is-closer-default": this.isCloserDefault,
-            "has-top-action-bar": this.hasTopActionBar
-          }, `is-${this.type}`)
+          return Ti.Css.mergeClassName(
+            {
+              "is-show-header": this.isShowHead,
+              "is-hide-header": !this.isShowHead,
+              "is-show-actions": this.hasActions,
+              "is-hide-actions": !this.hasActions,
+              "is-closer-default": this.isCloserDefault,
+              "has-top-action-bar": this.hasTopActionBar
+            },
+            `is-${this.type}`
+          );
         },
         //--------------------------------------
         ConStyle() {
@@ -328,38 +336,46 @@ export class TiAppModal {
             maxHeight: this.maxHeight,
             minWidth: this.minWidth,
             minHeight: this.minHeight
-          })
+          });
         },
         //--------------------------------------
         MainClass() {
-          return Ti.Css.mergeClassName(`modal-type-is-${this.type}`)
+          return Ti.Css.mergeClassName(`modal-type-is-${this.type}`);
         },
         //--------------------------------------
         Main() {
-          return this.$store.state.main
+          return this.$store.state.main;
         },
         //--------------------------------------
         State() {
-          return this.$store.state
+          return this.$store.state;
+        },
+        //--------------------------------------
+        RootState() {
+          return this.$store.state;
+        },
+        //--------------------------------------
+        RootGetter() {
+          return this.$store.getters;
         },
         //--------------------------------------
         TopActionBarStatus() {
-          return _.get(this.Main, "status")
+          return _.get(this.Main, "status");
         },
         //--------------------------------------
         CloserClass() {
           return Ti.Css.mergeClassName({
-            'as-lamp-cord': !this.isCloserDefault,
-            'as-default': this.isCloserDefault,
+            "as-lamp-cord": !this.isCloserDefault,
+            "as-default": this.isCloserDefault,
             [`at-${this.closer}`]: !this.isCloserDefault
-          })
+          });
         },
         //--------------------------------------
         TheComConf() {
           if (this.explainComConf) {
-            return Ti.Util.explainObj(this, this.comConf)
+            return Ti.Util.explainObj(this, this.comConf);
           }
-          return this.comConf
+          return this.comConf;
         }
         //--------------------------------------
       },
@@ -370,47 +386,47 @@ export class TiAppModal {
         //--------------------------------------
         OnClickTop() {
           if (this.clickMaskToClose) {
-            this.hidden = true
+            this.hidden = true;
           }
         },
         //--------------------------------------
         OnClose() {
-          this.close()
+          this.close();
         },
         //--------------------------------------
         OnOk(re) {
           if (_.isUndefined(re)) {
-            re = this.result
+            re = this.result;
           }
-          this.close(re)
+          this.close(re);
         },
         //--------------------------------------
         OnChange(newVal) {
-          this.result = newVal
+          this.result = newVal;
           if (this.changeToClose) {
-            this.close(this.result)
+            this.close(this.result);
           }
         },
         //--------------------------------------
         OnActionsUpdated(actions = []) {
-          this.topActions = actions
-          Ti.App(this).reWatchShortcut(actions)
+          this.topActions = actions;
+          Ti.App(this).reWatchShortcut(actions);
         },
         //--------------------------------------
         OnEvent(key, payload) {
           //console.log(key, payload)
-          let fn = _.get(AppModalEvents, key)
-          fn.apply(this, [payload])
+          let fn = _.get(AppModalEvents, key);
+          fn.apply(this, [payload]);
         },
         //--------------------------------------
         async OnClickActon(a) {
           // Guard
           if (!a) {
-            return
+            return;
           }
-          let app = Ti.App(this)
-          let status = { close: true }
-          let $body = app.$vm()
+          let app = Ti.App(this);
+          let status = { close: true };
+          let $body = app.$vm();
           let re;
           if (_.isFunction(a.handler)) {
             re = await a.handler({
@@ -419,45 +435,47 @@ export class TiAppModal {
               $main: $body.$main,
               result: _.cloneDeep($body.result),
               status
-            })
+            });
           }
           // Close and set result
           if (status.close) {
-            this.close(re)
+            this.close(re);
           }
           // Just set result
           else if (!_.isUndefined(re)) {
-            this.setResult(re)
+            this.setResult(re);
           }
         },
         //--------------------------------------
         OnAfterLeave() {
           Ti.App(this).destroy(true);
-          resolve(this.returnValue)
+          resolve(this.returnValue);
         },
         //--------------------------------------
         OnMainInit($main) {
-          let app = Ti.App(this)
+          let app = Ti.App(this);
           this.$main = $main;
           app.$vmMain($main);
           // Watch escape
           if (this.escape) {
-            app.watchShortcut([{
-              action: "root:close",
-              shortcut: "ESCAPE"
-            }])
+            app.watchShortcut([
+              {
+                action: "root:close",
+                shortcut: "ESCAPE"
+              }
+            ]);
           }
           // Active current
-          this.setActived()
+          this.setActived();
           // Report ready
-          this.ready(app)
+          this.ready(app);
         },
         //--------------------------------------
         // Dispatch Events
         //--------------------------------------
         __ti_shortcut(uniqKey) {
           if (this.$main && _.isFunction(this.$main.__ti_shortcut)) {
-            return this.$main.__ti_shortcut(uniqKey)
+            return this.$main.__ti_shortcut(uniqKey);
           }
         },
         //--------------------------------------
@@ -465,31 +483,31 @@ export class TiAppModal {
         //--------------------------------------
         close(re) {
           if (!_.isUndefined(re)) {
-            this.returnValue = re
+            this.returnValue = re;
           }
-          this.hidden = true // -> trans -> beforeDestroy
+          this.hidden = true; // -> trans -> beforeDestroy
         },
         //--------------------------------------
         setResult(result) {
-          this.returnValue = result
+          this.returnValue = result;
         }
         //--------------------------------------
       },
       //////////////////////////////////////////
       mounted: function () {
-        let app = Ti.App(this)
-        Ti.App.pushInstance(app)
+        let app = Ti.App(this);
+        Ti.App.pushInstance(app);
         this.$nextTick(() => {
-          this.hidden = false
-        })
+          this.hidden = false;
+        });
       },
       //////////////////////////////////////////
       beforeDestroy: async function () {
-        let app = Ti.App(this)
+        let app = Ti.App(this);
         if (_.isFunction(this.beforeClosed)) {
-          await this.beforeClosed(app)
+          await this.beforeClosed(app);
         }
-        Ti.App.pullInstance(app)
+        Ti.App.pullInstance(app);
       }
       //////////////////////////////////////////
     }; // let appInfo = {
@@ -498,32 +516,32 @@ export class TiAppModal {
     let app = Ti.App(appInfo, (conf) => {
       _.forEach(this.modState, ({ state, merge } = {}, modName) => {
         //console.log(modName)
-        let mod = _.get(conf, `store.modules.${modName}`)
+        let mod = _.get(conf, `store.modules.${modName}`);
         if (mod && mod.state) {
           if (merge) {
-            _.merge(mod.state, state)
+            _.merge(mod.state, state);
           } else {
-            _.assign(mod.state, state)
+            _.assign(mod.state, state);
           }
         }
-      })
-    })
+      });
+    });
     //..........................................
-    await app.init()
+    await app.init();
     //..........................................
     // Mount to stub
     let $stub = Ti.Dom.createElement({
       $p: document.body,
       className: "the-stub"
-    })
+    });
     //..........................................
-    await this.preload(app)
+    await this.preload(app);
     //..........................................
-    app.mountTo($stub)
+    app.mountTo($stub);
     // The set the main com
     _.delay(() => {
-      app.$vm().comType = this.comType
-    }, this.transDelay || 0)
+      app.$vm().comType = this.comType;
+    }, this.transDelay || 0);
     //..........................................
 
     // Then it was waiting the `close()` be invoked

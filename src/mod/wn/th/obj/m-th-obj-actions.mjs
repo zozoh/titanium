@@ -467,6 +467,7 @@ const _M = {
    * Reload All
    */
   async reload({ state, commit, dispatch, getters }, meta) {
+    //console.log("!!!reload", state.moduleName)
     // Guard
     if (
       state.status.reloading ||
@@ -476,8 +477,9 @@ const _M = {
       return;
     }
     state.LOG = () => {};
-    // if ("main" == state.moduleName) {
-    // state.LOG = console.log;
+
+    // if ("casedocs" == state.moduleName) {
+    //  state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard
@@ -528,6 +530,7 @@ const _M = {
     }
 
     if (!state.thingSetId) {
+      console.warn(`!state.thingSetId meta Outof ThingSet`, meta);
       return await Ti.Toast.Open("Meta OutOfThingSet: " + meta.id, "warn");
     }
 

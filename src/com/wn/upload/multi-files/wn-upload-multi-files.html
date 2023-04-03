@@ -1,7 +1,7 @@
 <TiUploadMultiFiles
   :readonly="readonly"
   :items="FileItems"
-  :sortable="sortable"
+  :sortable="!isQueryMode &&sortable"
   :removable="removable"
   :progress="myUploadProgress"
   :showItemText="showItemText"
@@ -13,4 +13,5 @@
   @upload="OnUploadFiles"
   @remove="OnRemove"
   @open="OnOpen"
-  @clean="OnClean"/>
+  @clean="OnClean"
+/>

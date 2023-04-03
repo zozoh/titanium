@@ -386,9 +386,9 @@ const _M = {
       let newId = _.get(newVal, "id")
       let oldId = _.get(oldVal, "id")
       let isSameId = _.isEqual(newId, oldId)
-      if (newVal) {
+      if (newVal && !isSameId) {
         this.updateDocumentTitle(newVal)
-        //console.log("metaChanged", newVal, oldVal)
+        //console.log("Wn.Manager.metaChanged", newVal, oldVal)
         // Update the ancestors path
         _.delay(async () => {
           if (!isSameId) {

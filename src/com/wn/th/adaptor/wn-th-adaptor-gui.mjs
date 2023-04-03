@@ -10,6 +10,7 @@ const _M = {
         moduleName: this.moduleName,
         rootState: this.rootState,
         rootGetters: this.rootGetters,
+        guiShown: this.guiShown,
         //------------------------------
         thingSetId: this.thingSetId,
         oTs: this.oTs,
