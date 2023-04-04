@@ -245,7 +245,7 @@ const _M = {
     }
     // Load local setting
     let be = Ti.Storage.local.getObject(state.lbkAt);
-    if (!_.isEmpty(be)) {
+  if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be);
     }
   },

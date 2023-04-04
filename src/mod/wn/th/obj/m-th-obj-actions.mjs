@@ -26,6 +26,7 @@ async function loadConfigJson(state, key, dft) {
 const _M = {
   //--------------------------------------------
   applyViewBeforeLoad({ state, commit }, view) {
+    state.LOG("applyViewBeforeLoad", view);
     // Guard
     if (!state.view) {
       return;
@@ -35,6 +36,7 @@ const _M = {
       // Only set the paths
       if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
         let by = _.camelCase("set-" + k);
+        state.LOG("  > ", by, v);
         commit(by, v);
       }
     });
@@ -52,7 +54,7 @@ const _M = {
         return;
       }
       if (
-        /^(view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
+        /^(events|view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
       ) {
         return;
       }
@@ -188,7 +190,7 @@ const _M = {
     //console.log("schema", schema)
 
     if (schema.methods) {
-      commit("setMethodPaths", schema.methods);
+      commit("joinMethodPaths", schema.methods);
     }
 
     if (schema.localBehaviorKeepAt) {
@@ -478,8 +480,8 @@ const _M = {
     }
     state.LOG = () => {};
 
-    // if ("casedocs" == state.moduleName) {
-    //  state.LOG = console.log;
+    // if ("casetasks" == state.moduleName) {
+    //   state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard

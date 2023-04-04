@@ -192,6 +192,13 @@ const _M = {
     saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
+  assignFilter(state, filter) {
+    let flt = _.assign({}, state.filter, filter);
+    flt = _.omitBy(flt, (v) => Ti.Util.isNil(v));
+    state.filter = flt;
+    saveLocalBehavior(state, "filter", filter);
+  },
+  //----------------------------------------
   setSorter(state, sorter) {
     state.sorter = sorter;
     saveLocalBehavior(state, "sorter", sorter);
@@ -413,6 +420,13 @@ const _M = {
   },
   setMethodPaths(state, methodPaths) {
     state.methodPaths = methodPaths;
+  },
+  joinMethodPaths(state, methodPaths) {
+    if (_.isArray(state.methodPaths)) {
+      state.methodPaths = _.uniq(_.concat(state.methodPaths, methodPaths));
+    } else {
+      state.methodPaths = methodPaths;
+    }
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {

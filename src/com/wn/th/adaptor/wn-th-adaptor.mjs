@@ -24,7 +24,8 @@ const _M = {
           "filter::sorter:change": "OnSearchSorterChange",
           "pager::change": "OnSearchPagerChange"
         },
-        routing
+        routing,
+        _.get(this.view, "events")
       );
     }
     //--------------------------------------

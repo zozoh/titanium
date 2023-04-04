@@ -223,7 +223,7 @@ export default {
     //-------------------------------------
     evalKeywords(input) {
       //console.log("evalKeywords", input);
-      let flt = _.cloneDeep(this.filter);
+      let flt = _.cloneDeep(this.filter) || {};
       for (let mk of this.matchKeywords) {
         let { test, key, val = "${0}", type, mode = "==", toCase } = mk;
         let m = [input];

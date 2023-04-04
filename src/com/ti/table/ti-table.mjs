@@ -370,6 +370,30 @@ const _M = {
         this.scrollCurrentIntoView();
       }, 0);
     },
+    // Sometimes the puppet mode, currentId will be changed outside
+    "currentId": async function (newVal, oldVal) {
+      //console.log("update currentId", newVal, oldVal);
+      if (this.puppetMode && !_.isEqual(newVal, oldVal)) {
+        let ids = {};
+        if (!Ti.Util.isNil(newVal)) {
+          ids[newVal] = true;
+        }
+        if (!Ti.Util.isNil(oldVal)) {
+          ids[oldVal] = true;
+        }
+        this.reEvalRows(ids);
+      }
+    },
+    "checkedIds": async function (newVal, oldVal) {
+      //console.log("update checkedIds", newVal, oldVal);
+      if (this.puppetMode && !_.isEqual(newVal, oldVal)) {
+        let ids = {
+          ...Ti.Util.getTruthyKeyInMap(newVal),
+          ...Ti.Util.getTruthyKeyInMap(oldVal)
+        };
+        this.reEvalRows(ids);
+      }
+    },
     //"TableFields": "evalListDataWhenMarkChanged", //<= it will cause evalListData always
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
@@ -381,7 +405,7 @@ const _M = {
   ///////////////////////////////////////////////////
   created: function () {
     this.LOG = () => {};
-    //this.LOG = console.log
+    //this.LOG = console.log;
   },
   ///////////////////////////////////////////////////
   mounted: async function () {

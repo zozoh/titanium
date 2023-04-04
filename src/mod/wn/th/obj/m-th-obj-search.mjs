@@ -491,6 +491,10 @@ const _M = {
   // Query
   //
   //----------------------------------------
+  async loadAggResult({dispatch}){
+    return await dispatch("queryAggResult")
+  },
+  //----------------------------------------
   async queryAggResult(
     { state, commit },
     { aggName, flt = {}, dft = [] } = {}
@@ -525,7 +529,11 @@ const _M = {
     commit("setStatus", { reloading: false });
   },
   //----------------------------------------
-  async queryList({ state, commit, dispatch, getters }, flt = {}) {
+  async reloadList({dispatch}){
+    return await dispatch("queryList")
+  },
+  //----------------------------------------
+  async queryList({ state, commit, getters }, flt = {}) {
     state.LOG("async queryList");
     let { thingSetId, filter, fixedMatch, sorter, thingObjKeys } = state;
     // Query
