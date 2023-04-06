@@ -95,7 +95,7 @@ export default {
   },
   "suffixIcon": {
     type: String,
-    default: "fas-cog"
+    default: "fas-bars"
   },
   //-----------------------------------
   // Measure

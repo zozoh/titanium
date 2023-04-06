@@ -30,7 +30,7 @@
     <!--
       时间选择
     -->
-    <div class="as-date-range">
+    <div class="as-date-range" v-if="hasSpanOptions">
       <span>{{DateRangeText}}</span>
       <a @click.left="OnPickDateRange">{{'modify'|i18n}}</a>
     </div>

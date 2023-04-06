@@ -187,6 +187,10 @@ const _M = {
     state.aggQuery = aggQuery;
   },
   //----------------------------------------
+  setAggAutoReload(state, aggAutoReload) {
+    state.aggAutoReload = aggAutoReload;
+  },
+  //----------------------------------------
   setFilter(state, filter) {
     state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
     saveLocalBehavior(state, "filter", filter);

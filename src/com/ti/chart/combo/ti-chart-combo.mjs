@@ -56,6 +56,10 @@ export default {
       return !_.isEmpty(this.nameList) && this.nameList.length > 1
     },
     //------------------------------------------------
+    hasSpanOptions(){
+      return !_.isEmpty(this.spanOptions)
+    },
+    //------------------------------------------------
     ChartNameListWidth() {
       return Ti.Css.toSize(this.nameListWidth)
     },

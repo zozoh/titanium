@@ -1,4 +1,4 @@
-// Pack At: 2023-04-04 02:02:23
+// Pack At: 2023-04-07 00:48:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3851,7 +3851,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "suffixIcon": {
     type: String,
-    default: "fas-cog"
+    default: "fas-bars"
   },
   //-----------------------------------
   // Measure
@@ -5942,8 +5942,19 @@ const _M = {
     state.aggQuery = aggQuery;
   },
   //----------------------------------------
+  setAggAutoReload(state, aggAutoReload) {
+    state.aggAutoReload = aggAutoReload;
+  },
+  //----------------------------------------
   setFilter(state, filter) {
     state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
+    saveLocalBehavior(state, "filter", filter);
+  },
+  //----------------------------------------
+  assignFilter(state, filter) {
+    let flt = _.assign({}, state.filter, filter);
+    flt = _.omitBy(flt, (v) => Ti.Util.isNil(v));
+    state.filter = flt;
     saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
@@ -6168,6 +6179,13 @@ const _M = {
   },
   setMethodPaths(state, methodPaths) {
     state.methodPaths = methodPaths;
+  },
+  joinMethodPaths(state, methodPaths) {
+    if (_.isArray(state.methodPaths)) {
+      state.methodPaths = _.uniq(_.concat(state.methodPaths, methodPaths));
+    } else {
+      state.methodPaths = methodPaths;
+    }
   },
   //----------------------------------------
   setThingActions(state, thingActions = {}) {
@@ -8858,7 +8876,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-------------------------------------
     evalKeywords(input) {
       //console.log("evalKeywords", input);
-      let flt = _.cloneDeep(this.filter);
+      let flt = _.cloneDeep(this.filter) || {};
       for (let mk of this.matchKeywords) {
         let { test, key, val = "${0}", type, mode = "==", toCase } = mk;
         let m = [input];
@@ -13383,7 +13401,7 @@ const _M = {
   // Filter / Sorter / Pager
   //
   //----------------------------------------
-  async applyFilter({ commit, getters, dispatch }, filter) {
+  async applyFilter({ state, commit, getters, dispatch }, filter) {
     //console.log("applyFilter", filter)
     commit("setFilter", filter);
     // If pager enabled, should auto jump to first page
@@ -13391,6 +13409,9 @@ const _M = {
       commit("assignPager", { pn: 1 });
     }
     await dispatch("queryList");
+    if (state.aggAutoReload) {
+      await dispatch("queryAggResult");
+    }
   },
   //----------------------------------------
   async applySorter({ commit, dispatch }, sorter) {
@@ -13409,6 +13430,10 @@ const _M = {
   // Query
   //
   //----------------------------------------
+  async loadAggResult({ dispatch }) {
+    return await dispatch("queryAggResult");
+  },
+  //----------------------------------------
   async queryAggResult(
     { state, commit },
     { aggName, flt = {}, dft = [] } = {}
@@ -13423,6 +13448,8 @@ const _M = {
       state.LOG("!! Bad Agg Setting", agg);
       return;
     }
+
+    // Ignore the specil keys in filter to agg more data
     let ignore = Ti.AutoMatch.parse(agg.ignore);
     let { thingSetId, filter, fixedMatch } = state;
     // Query
@@ -13430,6 +13457,7 @@ const _M = {
     qmeta = _.omitBy(qmeta, (v, k) => {
       return ignore(k);
     });
+    _.assign(qmeta, agg.match);
     let input = JSON.stringify(qmeta);
 
     // Prepare the command
@@ -13443,7 +13471,11 @@ const _M = {
     commit("setStatus", { reloading: false });
   },
   //----------------------------------------
-  async queryList({ state, commit, dispatch, getters }, flt = {}) {
+  async reloadList({ dispatch }) {
+    return await dispatch("queryList");
+  },
+  //----------------------------------------
+  async queryList({ state, commit, getters }, flt = {}) {
     state.LOG("async queryList");
     let { thingSetId, filter, fixedMatch, sorter, thingObjKeys } = state;
     // Query
@@ -42515,7 +42547,8 @@ const _M = {
           "filter::sorter:change": "OnSearchSorterChange",
           "pager::change": "OnSearchPagerChange"
         },
-        routing
+        routing,
+        _.get(this.view, "events")
       );
     }
     //--------------------------------------
@@ -44486,6 +44519,30 @@ const _M = {
         this.scrollCurrentIntoView();
       }, 0);
     },
+    // Sometimes the puppet mode, currentId will be changed outside
+    "currentId": async function (newVal, oldVal) {
+      //console.log("update currentId", newVal, oldVal);
+      if (this.puppetMode && !_.isEqual(newVal, oldVal)) {
+        let ids = {};
+        if (!Ti.Util.isNil(newVal)) {
+          ids[newVal] = true;
+        }
+        if (!Ti.Util.isNil(oldVal)) {
+          ids[oldVal] = true;
+        }
+        this.reEvalRows(ids);
+      }
+    },
+    "checkedIds": async function (newVal, oldVal) {
+      //console.log("update checkedIds", newVal, oldVal);
+      if (this.puppetMode && !_.isEqual(newVal, oldVal)) {
+        let ids = {
+          ...Ti.Util.getTruthyKeyInMap(newVal),
+          ...Ti.Util.getTruthyKeyInMap(oldVal)
+        };
+        this.reEvalRows(ids);
+      }
+    },
     //"TableFields": "evalListDataWhenMarkChanged", //<= it will cause evalListData always
     "selectable": "evalListDataWhenMarkChanged",
     "checkable": "evalListDataWhenMarkChanged",
@@ -44497,7 +44554,7 @@ const _M = {
   ///////////////////////////////////////////////////
   created: function () {
     this.LOG = () => {};
-    //this.LOG = console.log
+    //this.LOG = console.log;
   },
   ///////////////////////////////////////////////////
   mounted: async function () {
@@ -52489,9 +52546,7 @@ return _M;;
 window.TI_PACK_EXPORTS['ti/com/ti/input/currency/ti-input-currency.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  data: () => ({
-
-  }),
+  data: () => ({}),
   ////////////////////////////////////////////////////
   props: {
     //-----------------------------------
@@ -52504,12 +52559,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "valueType": {
       type: String,
       default: "str",
-      validator: v => /^(str|obj|num)$/.test(v)
+      validator: (v) => /^(str|obj|num)$/.test(v)
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     /*
+     * The unit of input value:
+     *
      *  - `100`  : yuan : 元
      *  - `10`   : jiao : 角
      *  - `1`    : cent : 分
@@ -52572,53 +52629,51 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     isCanChangeCurrency() {
-      return "num" != this.valueType
+      return "num" != this.valueType;
     },
     //------------------------------------------------
     InputHover() {
-      let hover = ['prefixIcon']
+      let hover = ["prefixIcon"];
       if (this.isCanChangeCurrency) {
-        hover.push("suffixText")
+        hover.push("suffixText");
       }
-      return hover
+      return hover;
     },
     //------------------------------------------------
     InputPrefixHoverIcon() {
-      return this.readonly
-        ? null
-        : "zmdi-close-circle"
+      return this.readonly ? null : "zmdi-close-circle";
     },
     //------------------------------------------------
     ValObj() {
       return Ti.Bank.parseCurrency(this.value, {
         unit: this.unit,
         currency: this.currency
-      })
+      });
     },
     //------------------------------------------------
     ValInput() {
-      let v = this.ValObj.yuan
+      let v = this.ValObj.yuan;
       if (isNaN(v)) {
-        return
+        return;
       }
-      return v
+      return v;
     },
     //------------------------------------------------
     DisInput() {
-      return Ti.Bank.toBankText(this.ValInput)
+      return Ti.Bank.toBankText(this.ValInput);
     },
     //------------------------------------------------
     ValCurrency() {
-      return this.ValObj.currency
+      return this.ValObj.currency;
     },
     //------------------------------------------------
     ValIcon() {
       let cu = this.ValCurrency;
-      return Ti.Bank.getCurrencyIcon(cu)
+      return Ti.Bank.getCurrencyIcon(cu);
     }
     //------------------------------------------------
   },
@@ -52626,28 +52681,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //------------------------------------------------
     OnInputChange(val) {
-      let v = this.tidyValue(val)
-      this.$notify("change", v)
+      let v = this.tidyValue(val);
+      this.$notify("change", v);
     },
     //------------------------------------------------
     tidyValue(val) {
-      let v1 = _.toUpper(_.trim(val))
+      let v1 = _.toUpper(_.trim(val));
       let v2 = Ti.Bank.parseCurrency(v1, {
         unit: 100,
         currency: this.ValCurrency
-      })
-      return this.formatValue(v2)
+      });
+      return this.formatValue(v2);
     },
     //------------------------------------------------
     OnInputing(val) {
-      let v = this.tidyValue(val)
-      this.$notify("inputing", v)
+      let v = this.tidyValue(val);
+      this.$notify("inputing", v);
     },
     //------------------------------------------------
     async OnClickSuffix() {
       // Guard
       if (!this.isCanChangeCurrency) {
-        return
+        return;
       }
       // Open the dialog
       let reo = await Ti.App.Open({
@@ -52658,7 +52713,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         model: { event: "select" },
         events: {
           open: function () {
-            this.close(this.result)
+            this.close(this.result);
           }
         },
         comType: "TiFilterlist",
@@ -52680,24 +52735,22 @@ const __TI_MOD_EXPORT_VAR_NM = {
             ]
           }
         },
-        components: [
-          "@com:ti/filterlist"
-        ]
-      })
+        components: ["@com:ti/filterlist"]
+      });
 
       // User Cancel
       if (!reo || !reo.currentId) {
-        return
+        return;
       }
 
       // Change the currency
-      let currency = reo.currentId
+      let currency = reo.currentId;
       if (currency != this.ValCurrency) {
         let cuo = _.assign({}, this.ValObj, {
           currency
-        })
-        let v3 = this.formatValue(cuo)
-        this.$notify("change", v3)
+        });
+        let v3 = this.formatValue(cuo);
+        this.$notify("change", v3);
       }
     },
     //------------------------------------------------
@@ -52708,36 +52761,36 @@ const __TI_MOD_EXPORT_VAR_NM = {
     formatValue(cu) {
       // Get format function
       let vt = this.valueType;
-      const fn = ({
+      const fn = {
         str: ({ cent, currency }) => {
           if (isNaN(cent)) {
-            return null
+            return null;
           }
-          return `${cent / this.unit}${currency}`
+          return `${cent / this.unit}${currency}`;
         },
         obj: ({ cent, currency }) => {
           if (isNaN(cent)) {
-            return null
+            return null;
           }
           return {
             value: cent / this.unit,
             currency
-          }
+          };
         },
         num: ({ cent }) => {
           if (isNaN(cent)) {
-            return
+            return;
           }
-          return cent / this.unit
+          return cent / this.unit;
         }
-      })[vt]
+      }[vt];
       // Get value
-      return fn(cu)
-    },
+      return fn(cu);
+    }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -56457,16 +56510,17 @@ window.TI_PACK_EXPORTS['ti/com/wn/th/adaptor/wn-th-adaptor-prop.mjs'] = (functio
 const __TI_MOD_EXPORT_VAR_NM = {
   "moduleName": {
     type: String,
-    default: "main",
+    default: "main"
   },
   "guiShown": Object,
   "rootState": Object,
   "rootGetters": Object,
+  "view": Object,
   //-----------------------------------
   // The Thingset
   //-----------------------------------
   "thingSetId": {
-    type: String,
+    type: String
   },
   "oTs": Object,
   "load": Object,
@@ -56507,16 +56561,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "pgc": 0,
         "sum": 0,
         "skip": 0,
-        "count": 0,
-      },
-    }),
+        "count": 0
+      }
+    })
   },
   "dataDirCurrentId": {
-    type: [String],
+    type: [String]
   },
   "dataDirCheckedIds": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   //-----------------------------------
   // Gloable Status
@@ -56530,44 +56584,44 @@ const __TI_MOD_EXPORT_VAR_NM = {
       "deleting": false,
       "changed": false,
       "restoring": false,
-      "inRecycleBin": false,
-    }),
+      "inRecycleBin": false
+    })
   },
   "fieldStatus": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   //-----------------------------------
   // Customized GUI
   //-----------------------------------
   "thingActions": {
     type: Array,
-    default: () => [],
+    default: () => []
   },
   "layout": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   "schema": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   "thingMethods": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   //-----------------------------------
   // Getters
   //-----------------------------------
   "getters": {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   //-----------------------------------
   // Global View Setting
   //-----------------------------------
   "viewType": String,
-  "exposeHidden": Boolean,
+  "exposeHidden": Boolean
 };
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -59944,7 +59998,7 @@ const _M = {
     }
     // Load local setting
     let be = Ti.Storage.local.getObject(state.lbkAt);
-    if (!_.isEmpty(be)) {
+  if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be);
     }
   },
@@ -64144,6 +64198,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     hasMultiChartNames() {
       return !_.isEmpty(this.nameList) && this.nameList.length > 1
+    },
+    //------------------------------------------------
+    hasSpanOptions(){
+      return !_.isEmpty(this.spanOptions)
     },
     //------------------------------------------------
     ChartNameListWidth() {
@@ -76989,6 +77047,7 @@ async function loadConfigJson(state, key, dft) {
 const _M = {
   //--------------------------------------------
   applyViewBeforeLoad({ state, commit }, view) {
+    state.LOG("applyViewBeforeLoad", view);
     // Guard
     if (!state.view) {
       return;
@@ -76998,6 +77057,7 @@ const _M = {
       // Only set the paths
       if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
         let by = _.camelCase("set-" + k);
+        state.LOG("  > ", by, v);
         commit(by, v);
       }
     });
@@ -77015,7 +77075,7 @@ const _M = {
         return;
       }
       if (
-        /^(view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
+        /^(events|view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
       ) {
         return;
       }
@@ -77151,7 +77211,7 @@ const _M = {
     //console.log("schema", schema)
 
     if (schema.methods) {
-      commit("setMethodPaths", schema.methods);
+      commit("joinMethodPaths", schema.methods);
     }
 
     if (schema.localBehaviorKeepAt) {
@@ -77419,6 +77479,9 @@ const _M = {
     if (state.oTs) {
       state.LOG("reloadData: queryList");
       await dispatch("queryList");
+      if(state.aggAutoReload){
+        await dispatch("queryAggResult");
+      }
     }
     if (getters.contentLoadPath) {
       state.LOG("reloadData: loadContent");
@@ -77441,8 +77504,8 @@ const _M = {
     }
     state.LOG = () => {};
 
-    // if ("casedocs" == state.moduleName) {
-    //  state.LOG = console.log;
+    // if ("casetasks" == state.moduleName) {
+    //   state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard
@@ -86658,10 +86721,6 @@ window.TI_PACK_EXPORTS['ti/com/wn/table/wn-table.mjs'] = (function(){
 const _M = {
   ///////////////////////////////////////////////////
   data: () => ({
-    isAllChecked: false,
-    hasChecked: false,
-    theCurrentId: false,
-    theCheckedIds: false,
   }),
   ///////////////////////////////////////////////////
   computed: {
@@ -86684,77 +86743,11 @@ const _M = {
   ///////////////////////////////////////////////////
   methods: {
     //----------------------------------------------
-    OnSubListInit($list) {
-      this.$list = $list;
-    },
-    //----------------------------------------------
-    OnSelected(payload = {}) {
-      this.theCheckedIds = payload.checkedIds;
-      this.theCurrentId = payload.currentId;
-      this.syncCheckStatus();
-      this.$notify("select", payload);
-    },
-    //----------------------------------------------
-    syncCheckStatus() {
-      this.isAllChecked = this.$list.isAllChecked;
-      this.hasChecked = this.$list.hasChecked;
-    },
-    //----------------------------------------------
-    // Delegate methods
-    selectPrevRow(options) {
-      return this.$list.selectPrevRow(options);
-    },
-    selectNextRow(options) {
-      return this.$list.selectNextRow(options);
-    },
-
-    getCurrentRow(options) {
-      return this.$list.getCurrentRow(options);
-    },
-    getCheckedRow(options) {
-      return this.$list.getCheckedRow(options);
-    },
-
-    getCurrent(options) {
-      return this.$list.getCurrent(options);
-    },
-    getChecked(options) {
-      return this.$list.getChecked(options);
-    },
-
-    selectRow(options) {
-      return this.$list.selectRow(options);
-    },
-    checkRow(options) {
-      return this.$list.checkRow(options);
-    },
-    cancelRow(options) {
-      return this.$list.cancelRow(options);
-    },
-
-    removeCheckedRow(idMap) {
-      return this.$list.removeCheckedRow(idMap);
-    },
-    removeChecked(idMap) {
-      return this.$list.removeChecked(idMap);
-    },
-
-    moveCheckedRow(offset, idMap) {
-      return this.$list.moveCheckedRow(offset, idMap);
-    },
-    moveChecked(offset, idMap) {
-      return this.$list.moveChecked(offset, idMap);
-    },
+    
     //----------------------------------------------
   },
   ///////////////////////////////////////////////////
   watch: {
-    data: function () {
-      this.syncCheckStatus();
-    },
-    checkedIds: function () {
-      this.syncCheckStatus();
-    },
   },
   ///////////////////////////////////////////////////
 };
@@ -88088,7 +88081,7 @@ Ti.Preload("ti/com/ti/chart/combo/ti-chart-combo.html", `<div class="ti-chart-co
     <!--
       时间选择
     -->
-    <div class="as-date-range">
+    <div class="as-date-range" v-if="hasSpanOptions">
       <span>{{DateRangeText}}</span>
       <a @click.left="OnPickDateRange">{{'modify'|i18n}}</a>
     </div>
@@ -100489,9 +100482,7 @@ Ti.Preload("ti/com/wn/table/wn-table.html", `<ti-table
   :data="myData"
   :fields="TheFields"
   :headDisplay="TheHeadDisplay"
-  :on-init="OnSubListInit"
-  @select="OnSelected"
-  @open="$notify('open', $event)"/>`);
+  />`);
 //========================================
 // JOIN <wn-table.mjs> ti/com/wn/table/wn-table.mjs
 //========================================
@@ -101864,6 +101855,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "agg": {},
   "aggResult": {},
   "aggQuery": null,
+  "aggAutoReload": false,
   "filter": {},
   "sorter": {
     "ct": -1

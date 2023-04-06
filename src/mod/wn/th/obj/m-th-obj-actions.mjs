@@ -458,6 +458,9 @@ const _M = {
     if (state.oTs) {
       state.LOG("reloadData: queryList");
       await dispatch("queryList");
+      if(state.aggAutoReload){
+        await dispatch("queryAggResult");
+      }
     }
     if (getters.contentLoadPath) {
       state.LOG("reloadData: loadContent");

@@ -23,6 +23,7 @@
   "agg": {},
   "aggResult": {},
   "aggQuery": null,
+  "aggAutoReload": false,
   "filter": {},
   "sorter": {
     "ct": -1

@@ -1,8 +1,6 @@
 export default {
   ////////////////////////////////////////////////////
-  data: () => ({
-
-  }),
+  data: () => ({}),
   ////////////////////////////////////////////////////
   props: {
     //-----------------------------------
@@ -15,12 +13,14 @@ export default {
     "valueType": {
       type: String,
       default: "str",
-      validator: v => /^(str|obj|num)$/.test(v)
+      validator: (v) => /^(str|obj|num)$/.test(v)
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     /*
+     * The unit of input value:
+     *
      *  - `100`  : yuan : 元
      *  - `10`   : jiao : 角
      *  - `1`    : cent : 分
@@ -83,53 +83,51 @@ export default {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     isCanChangeCurrency() {
-      return "num" != this.valueType
+      return "num" != this.valueType;
     },
     //------------------------------------------------
     InputHover() {
-      let hover = ['prefixIcon']
+      let hover = ["prefixIcon"];
       if (this.isCanChangeCurrency) {
-        hover.push("suffixText")
+        hover.push("suffixText");
       }
-      return hover
+      return hover;
     },
     //------------------------------------------------
     InputPrefixHoverIcon() {
-      return this.readonly
-        ? null
-        : "zmdi-close-circle"
+      return this.readonly ? null : "zmdi-close-circle";
     },
     //------------------------------------------------
     ValObj() {
       return Ti.Bank.parseCurrency(this.value, {
         unit: this.unit,
         currency: this.currency
-      })
+      });
     },
     //------------------------------------------------
     ValInput() {
-      let v = this.ValObj.yuan
+      let v = this.ValObj.yuan;
       if (isNaN(v)) {
-        return
+        return;
       }
-      return v
+      return v;
     },
     //------------------------------------------------
     DisInput() {
-      return Ti.Bank.toBankText(this.ValInput)
+      return Ti.Bank.toBankText(this.ValInput);
     },
     //------------------------------------------------
     ValCurrency() {
-      return this.ValObj.currency
+      return this.ValObj.currency;
     },
     //------------------------------------------------
     ValIcon() {
       let cu = this.ValCurrency;
-      return Ti.Bank.getCurrencyIcon(cu)
+      return Ti.Bank.getCurrencyIcon(cu);
     }
     //------------------------------------------------
   },
@@ -137,28 +135,28 @@ export default {
   methods: {
     //------------------------------------------------
     OnInputChange(val) {
-      let v = this.tidyValue(val)
-      this.$notify("change", v)
+      let v = this.tidyValue(val);
+      this.$notify("change", v);
     },
     //------------------------------------------------
     tidyValue(val) {
-      let v1 = _.toUpper(_.trim(val))
+      let v1 = _.toUpper(_.trim(val));
       let v2 = Ti.Bank.parseCurrency(v1, {
         unit: 100,
         currency: this.ValCurrency
-      })
-      return this.formatValue(v2)
+      });
+      return this.formatValue(v2);
     },
     //------------------------------------------------
     OnInputing(val) {
-      let v = this.tidyValue(val)
-      this.$notify("inputing", v)
+      let v = this.tidyValue(val);
+      this.$notify("inputing", v);
     },
     //------------------------------------------------
     async OnClickSuffix() {
       // Guard
       if (!this.isCanChangeCurrency) {
-        return
+        return;
       }
       // Open the dialog
       let reo = await Ti.App.Open({
@@ -169,7 +167,7 @@ export default {
         model: { event: "select" },
         events: {
           open: function () {
-            this.close(this.result)
+            this.close(this.result);
           }
         },
         comType: "TiFilterlist",
@@ -191,24 +189,22 @@ export default {
             ]
           }
         },
-        components: [
-          "@com:ti/filterlist"
-        ]
-      })
+        components: ["@com:ti/filterlist"]
+      });
 
       // User Cancel
       if (!reo || !reo.currentId) {
-        return
+        return;
       }
 
       // Change the currency
-      let currency = reo.currentId
+      let currency = reo.currentId;
       if (currency != this.ValCurrency) {
         let cuo = _.assign({}, this.ValObj, {
           currency
-        })
-        let v3 = this.formatValue(cuo)
-        this.$notify("change", v3)
+        });
+        let v3 = this.formatValue(cuo);
+        this.$notify("change", v3);
       }
     },
     //------------------------------------------------
@@ -219,33 +215,33 @@ export default {
     formatValue(cu) {
       // Get format function
       let vt = this.valueType;
-      const fn = ({
+      const fn = {
         str: ({ cent, currency }) => {
           if (isNaN(cent)) {
-            return null
+            return null;
           }
-          return `${cent / this.unit}${currency}`
+          return `${cent / this.unit}${currency}`;
         },
         obj: ({ cent, currency }) => {
           if (isNaN(cent)) {
-            return null
+            return null;
           }
           return {
             value: cent / this.unit,
             currency
-          }
+          };
         },
         num: ({ cent }) => {
           if (isNaN(cent)) {
-            return
+            return;
           }
-          return cent / this.unit
+          return cent / this.unit;
         }
-      })[vt]
+      }[vt];
       // Get value
-      return fn(cu)
-    },
+      return fn(cu);
+    }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};

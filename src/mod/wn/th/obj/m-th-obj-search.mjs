@@ -465,7 +465,7 @@ const _M = {
   // Filter / Sorter / Pager
   //
   //----------------------------------------
-  async applyFilter({ commit, getters, dispatch }, filter) {
+  async applyFilter({ state, commit, getters, dispatch }, filter) {
     //console.log("applyFilter", filter)
     commit("setFilter", filter);
     // If pager enabled, should auto jump to first page
@@ -473,6 +473,9 @@ const _M = {
       commit("assignPager", { pn: 1 });
     }
     await dispatch("queryList");
+    if (state.aggAutoReload) {
+      await dispatch("queryAggResult");
+    }
   },
   //----------------------------------------
   async applySorter({ commit, dispatch }, sorter) {
@@ -491,8 +494,8 @@ const _M = {
   // Query
   //
   //----------------------------------------
-  async loadAggResult({dispatch}){
-    return await dispatch("queryAggResult")
+  async loadAggResult({ dispatch }) {
+    return await dispatch("queryAggResult");
   },
   //----------------------------------------
   async queryAggResult(
@@ -509,6 +512,8 @@ const _M = {
       state.LOG("!! Bad Agg Setting", agg);
       return;
     }
+
+    // Ignore the specil keys in filter to agg more data
     let ignore = Ti.AutoMatch.parse(agg.ignore);
     let { thingSetId, filter, fixedMatch } = state;
     // Query
@@ -516,6 +521,7 @@ const _M = {
     qmeta = _.omitBy(qmeta, (v, k) => {
       return ignore(k);
     });
+    _.assign(qmeta, agg.match);
     let input = JSON.stringify(qmeta);
 
     // Prepare the command
@@ -529,8 +535,8 @@ const _M = {
     commit("setStatus", { reloading: false });
   },
   //----------------------------------------
-  async reloadList({dispatch}){
-    return await dispatch("queryList")
+  async reloadList({ dispatch }) {
+    return await dispatch("queryList");
   },
   //----------------------------------------
   async queryList({ state, commit, getters }, flt = {}) {
