@@ -176,8 +176,8 @@ const WnSys = {
   /**
    * return the gap between server and local.
    * <p> So if you want to get server time,you can
-   * local + offset 
-   * 
+   * local + offset
+   *
    * @returns serverTime - localTime
    */
   async timeOffsetInMs() {

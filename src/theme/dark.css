@@ -1097,6 +1097,33 @@ i.im {
   z-index: 999999; }
   .ti-app-modal.in-top-z-index {
     z-index: 1999998; }
+  .ti-app-modal.at-center > .modal-con {
+    border-radius: 0.08rem;
+    box-shadow: 0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-left > .modal-con {
+    border-radius: 0 0.08rem 0.08rem 0;
+    box-shadow: 0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-right > .modal-con {
+    border-radius: 0.08rem 0 0 0.08rem;
+    box-shadow: -0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-top > .modal-con {
+    border-radius: 0 0 0.08rem 0.08rem;
+    box-shadow: 0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-bottom > .modal-con {
+    border-radius: 0.08rem 0.08rem 0 0;
+    box-shadow: 0.06rem -0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-left-top > .modal-con {
+    border-radius: 0 0 0.08rem 0;
+    box-shadow: 0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-right-top > .modal-con {
+    border-radius: 0 0 0 0.08rem;
+    box-shadow: 0.06rem 0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-bottom-left > .modal-con {
+    border-radius: 0 0.08rem 0 0;
+    box-shadow: 0.06rem -0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
+  .ti-app-modal.at-bottom-right > .modal-con {
+    border-radius: 0.08rem 0 0 0;
+    box-shadow: 0.06rem -0.06rem 0.2rem rgba(0, 0, 0, 0.4); }
   .ti-app-modal.show-mask {
     background-color: rgba(50, 50, 50, 0.4);
     position: fixed;
@@ -1200,7 +1227,8 @@ i.im {
   .ti-app-modal .modal-con {
     color: #E0E0E0;
     background-color: #444;
-    position: relative; }
+    position: relative;
+    overflow: hidden; }
     .ti-app-modal .modal-con.is-show-header {
       padding-top: 0.42rem; }
     .ti-app-modal .modal-con.is-show-actions {
@@ -1276,7 +1304,7 @@ i.im {
           width: 0.32rem; }
       .ti-app-modal .modal-con > .modal-head > .as-title {
         flex: 1 0 auto;
-        padding: 0 .6em; }
+        padding: 0 0.6em; }
       .ti-app-modal .modal-con > .modal-head > .as-bar {
         display: flex;
         justify-content: flex-start;
@@ -1327,13 +1355,14 @@ i.im {
         color: #222;
         background-color: #FC4;
         border: 1px solid rgba(210, 210, 210, 0.3);
-        margin: 0 .25em;
-        padding: 0 .5em;
+        border-radius: 0.04rem;
+        margin: 0 0.25em;
+        padding: 0 0.5em;
         line-height: 2.3em;
-        font-size: .9em;
+        font-size: 0.9em;
         min-width: 1rem;
         text-align: center;
-        letter-spacing: .1em; }
+        letter-spacing: 0.1em; }
         .ti-app-modal .modal-con > .modal-actions > .as-action:hover {
           color: #FFF;
           background-color: #F48; }
@@ -1342,7 +1371,7 @@ i.im {
         .ti-app-modal .modal-con > .modal-actions > .as-action:last-child {
           margin-right: 0; }
         .ti-app-modal .modal-con > .modal-actions > .as-action > .as-icon {
-          margin-right: .5em; }
+          margin-right: 0.5em; }
   .ti-app-modal.is-closer-default > .panel-con > .ti-gui-block > .block-head > .as-actions {
     padding-right: 0.46rem; }
   .ti-app-modal .modal-closer {
