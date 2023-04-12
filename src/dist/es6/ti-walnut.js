@@ -1,4 +1,4 @@
-// Pack At: 2023-04-07 00:48:01
+// Pack At: 2023-04-12 13:38:32
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -2082,8 +2082,8 @@ const Sys = (function(){
     /**
      * return the gap between server and local.
      * <p> So if you want to get server time,you can
-     * local + offset 
-     * 
+     * local + offset
+     *
      * @returns serverTime - localTime
      */
     async timeOffsetInMs() {
@@ -4571,7 +4571,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230407.004802"
+const WALNUT_VERSION = "1.2-20230412.133833"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

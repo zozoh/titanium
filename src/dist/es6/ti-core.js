@@ -1,4 +1,4 @@
-// Pack At: 2023-04-07 00:48:01
+// Pack At: 2023-04-12 13:38:32
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -15962,10 +15962,35 @@ const { Bank } = (function(){
   ///////////////////////////////////////
   const TiBank = {
     //-----------------------------------
-    exchange(val, { from = "RMB", to = "RMB", exrs = {}, dft = -1 } = {}) {
+    /**
+     *
+     * @param {Number|String} val Amount to exchange, could be cent or String
+     * @param {String} from Currency if val is cent
+     * @param {String} to Target Currency exchange to
+     * @param {String} bridge bridge currency, if fail to found
+     * the exchange in param `exrs`, try to use the bridge currency to calculage
+     * @param {Object} exrs The exchanges map, key like `USD_RMB`, the value the
+     * exchange rate of 1USD exchange to RMB
+     * @param {Numger} dft if the fail to do exchange(Fail to found exchange rage)
+     * which value should be return
+     *
+     * @returns the cent of target currency
+     */
+    exchange(
+      val,
+      { from = "RMB", to = "RMB", bridge = "RMB", exrs = {}, dft = -1 } = {}
+    ) {
+      let { cent, currency } = TiBank.parseCurrency(val, {
+        currency: from,
+        unit: _.isNumber(val) ? 1 : 100 // "20RMB" or 2000
+      });
+      from = currency || from;
+      val = cent;
       if (from == to) {
         return val;
       }
+      //
+      // Try exchange directly
       let exr = exrs[`${from}_${to}`];
       if (exr > 0) {
         return val * exr;
@@ -15974,6 +15999,17 @@ const { Bank } = (function(){
       if (exr > 0) {
         return val / exr;
       }
+      //
+      // Try use bridge
+      let br0 = exrs[`${from}_${bridge}`] || exrs[`${bridge}_${from}`];
+      let br1 = exrs[`${to}_${bridge}`] || exrs[`${bridge}_${to}`];
+      if (br0 > 0 && br1 > 0) {
+        let v0 = TiBank.exchange(val, { from, to: bridge, exrs });
+        let v1 = TiBank.exchange(v0, { from: bridge, to, exrs });
+        return v1;
+      }
+  
+      // Fail to exchange return the default
       return dft;
     },
     //-----------------------------------
@@ -16079,6 +16115,8 @@ const { Bank } = (function(){
     //-----------------------------------
     toYuanTokenText(cent = 0.0, currency = "RMB", precise = 2) {
       cent = Math.round(cent);
+      let neg = cent < 0 ? "-" : "";
+      cent = Math.abs(cent);
       let t = TiBank.getCurrencyToken(currency) || "";
       let n = Math.round(cent);
       let y = Math.floor(n / 100);
@@ -16096,12 +16134,39 @@ const { Bank } = (function(){
       s = TiBank.toBankText(s);
   
       // done
-      return `${t}${s}`;
+      return `${neg}${t}${s}`;
     },
     //-----------------------------------
     toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
       let s = TiBank.toYuanTokenText(cent, currency, precise);
       return `${s}${currency}`;
+    },
+    //-----------------------------------
+    toZeroText(cent = 0.0, { precise = 2, placeholder = "---" } = {}) {
+      if (!cent) {
+        return placeholder;
+      }
+      return TiBank.toYuanText(cent, precise);
+    },
+    //-----------------------------------
+    toZeroTokenText(
+      cent = 0.0,
+      { currency = "RMB", precise = 2, placeholder = "---" } = {}
+    ) {
+      if (!cent) {
+        return placeholder;
+      }
+      return TiBank.toYuanTokenText(cent, currency, precise);
+    },
+    //-----------------------------------
+    toZeroTokenText2(
+      cent = 0.0,
+      { currency = "RMB", precise = 2, placeholder = "---" } = {}
+    ) {
+      if (!cent) {
+        return placeholder;
+      }
+      return TiBank.toYuanTokenText2(cent, currency, precise);
     },
     //-----------------------------------
     toChineseText(cent = 0.0, capitalized = false) {
@@ -20129,7 +20194,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230407.004801",
+  "version": "1.6-20230412.133832",
   "dev": false,
   "appName": null,
   "session": {},
