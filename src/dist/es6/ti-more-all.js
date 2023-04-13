@@ -1,4 +1,4 @@
-// Pack At: 2023-04-12 13:38:32
+// Pack At: 2023-04-13 21:14:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -82921,7 +82921,7 @@ const _M = {
     "valueBy": {
       type: [String, Function],
       default: () => (it) => {
-        return Ti.Util.getFallback(it, "value", "nm", "id")
+        return Ti.Util.getFallback(it, "value", "nm", "id");
       }
     },
     "textBy": {
@@ -82947,6 +82947,7 @@ const _M = {
       type: Boolean,
       default: false
     },
+    // the TiInput advance settings when multi==false
     "input": {
       type: Object
     },
@@ -82987,7 +82988,7 @@ const _M = {
     "boxMode": {
       type: String,
       default: "auto",
-      validator: v => /^(auto|value-text|text-value|text|value)$/.test(v)
+      validator: (v) => /^(auto|value-text|text-value|text|value)$/.test(v)
     },
     "canInput": {
       type: Boolean,
@@ -83009,83 +83010,83 @@ const _M = {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
         width: this.width,
         height: this.height
-      })
+      });
     },
     //------------------------------------------------
     InputBoxMode() {
       if ("auto" == this.boxMode) {
-        return this.canInput ? "value-text" : "text-value"
+        return this.canInput ? "value-text" : "text-value";
       }
-      return this.boxMode || "value-text"
+      return this.boxMode || "value-text";
     },
     //------------------------------------------------
     ComType() {
-      return this.multi ? "TiInputTags" : "TiInput"
+      return this.multi ? "TiInputTags" : "TiInput";
     },
     //------------------------------------------------
     ComConf() {
-      let conf = _.assign({
-        readonly: this.readonly || this.isPicking || !this.canInput,
-        focused: this.focused,
-        placeholder: this.placeholder
-      }, this.input)
+      let conf = _.assign(
+        {
+          readonly: this.readonly || this.isPicking || !this.canInput,
+          focused: this.focused,
+          placeholder: this.placeholder
+        },
+        this.input
+      );
 
       if (!this.readonly) {
-        conf.suffixIcon = this.suffixIcon
+        conf.suffixIcon = this.suffixIcon;
       }
 
-      // Multi 
+      // Multi
       if (this.multi) {
-        conf.dict = this.Dict
-        conf.value = this.value
+        conf.dict = this.Dict;
+        conf.value = this.value;
       }
       // Single
       else {
-        conf.prefixIcon = this.myValueIcon || this.prefixIcon
-        conf.prefixIconNotifyName = null
+        conf.prefixIcon = this.myValueIcon || this.prefixIcon;
+        conf.prefixIconNotifyName = null;
 
         if (!conf.readonly) {
-          conf.focusValue = this.value
+          conf.focusValue = this.value;
         }
 
         if ("value-text" == this.InputBoxMode) {
-          conf.value = this.value
-          conf.suffixText = this.myValueText
-        }
-        else if ("text-value" == this.InputBoxMode) {
-          conf.value = this.myValueText
-          conf.suffixText = this.value
-        }
-        else if ("text" == this.InputBoxMode) {
-          conf.value = this.myValueText
-        }
-        else if ("value" == this.InputBoxMode) {
-          conf.value = this.value
+          conf.value = this.value;
+          conf.suffixText = this.myValueText;
+        } else if ("text-value" == this.InputBoxMode) {
+          conf.value = this.myValueText;
+          conf.suffixText = this.value;
+        } else if ("text" == this.InputBoxMode) {
+          conf.value = this.myValueText;
+        } else if ("value" == this.InputBoxMode) {
+          conf.value = this.value;
         }
       }
 
       if (this.isPicking) {
-        conf.suffixIcon = this.pickingIcon
-        if (!this.multi && this.pickingText) {
-          conf.suffixText = this.pickingText
+        conf.suffixIcon = this.pickingIcon;
+        if (this.pickingText) {
+          conf.suffixText = this.pickingText;
         }
       }
 
-      return conf
+      return conf;
     },
     //------------------------------------------------
     Dict() {
       if (!this.myDict) {
-        this.myDict = this.createDict()
+        this.myDict = this.createDict();
       }
-      return this.myDict
+      return this.myDict;
     }
     //------------------------------------------------
   },
@@ -83096,50 +83097,50 @@ const _M = {
       //console.log("OnInputChange")
       // Guard: only check with dict
       if (!this.Dict) {
-        this.tryNotifyChange(value)
-        return
+        this.tryNotifyChange(value);
+        return;
       }
       // null
       if (Ti.Util.isNil(value)) {
-        this.tryNotifyChange(value)
-        return
+        this.tryNotifyChange(value);
+        return;
       }
       // Multi check
       if (_.isArray(value)) {
-        let vals = []
+        let vals = [];
         for (let val of value) {
           if (this.mustInList) {
             if (await this.Dict.hasItem(val)) {
-              vals.push(val)
+              vals.push(val);
             }
           } else {
-            vals.push(val)
+            vals.push(val);
           }
         }
-        this.tryNotifyChange(vals)
+        this.tryNotifyChange(vals);
       }
       // Single check
       else if (this.mustInList) {
         if (await this.Dict.hasItem(value)) {
-          this.tryNotifyChange(value)
+          this.tryNotifyChange(value);
         } else {
-          this.tryNotifyChange(null)
+          this.tryNotifyChange(null);
         }
       } else {
-        this.tryNotifyChange(value)
+        this.tryNotifyChange(value);
       }
     },
     //------------------------------------------------
     async OnClickSuffixIcon() {
       // Guard: Picking
       if (this.isPicking) {
-        return
+        return;
       }
       // Mark: Picking
-      this.isPicking = true
+      this.isPicking = true;
 
       // 获取数据
-      let dataList = await this.Dict.getData()
+      let dataList = await this.Dict.getData();
 
       // Prepare list conf
       let listConf = {
@@ -83153,84 +83154,88 @@ const _M = {
           this.textBy || "nickname|title|text|name",
           `${this.valueBy || "value|nm|id"}::align-right as-tip-block`
         ]
-      }
+      };
       if (this.multi) {
-        listConf.checkedIds = this.value
+        listConf.checkedIds = this.value;
       } else {
-        listConf.currentId = this.value
+        listConf.currentId = this.value;
       }
 
       // Prepare the filter list config
-      let fltListConf = _.merge({
-        className: "ti-fill-parent",
-        list: listConf
-      }, this.filterlist)
+      let fltListConf = _.merge(
+        {
+          className: "ti-fill-parent",
+          list: listConf
+        },
+        this.filterlist
+      );
 
       // Open the dialog
-      let reo = await Ti.App.Open(_.assign(
-        {
-          title: "i18n:select",
-          position: "top",
-          width: "4.8rem",
-          height: "62%",
-        },
-        this.dialog,
-        {
-          result: {
-            currentId: listConf.currentId,
-            checkedIds: listConf.checkedIds
+      let reo = await Ti.App.Open(
+        _.assign(
+          {
+            title: "i18n:select",
+            position: "top",
+            width: "4.8rem",
+            height: "62%"
           },
-          model: {
-            event: "select",
-            prop: ['currentId', 'checkedIds']
-          },
-          events: {
-            open: function () {
-              this.close(this.result)
+          this.dialog,
+          {
+            result: {
+              currentId: listConf.currentId,
+              checkedIds: listConf.checkedIds
+            },
+            model: {
+              event: "select",
+              prop: ["currentId", "checkedIds"]
+            },
+            events: {
+              open: function () {
+                this.close(this.result);
+              }
+            },
+            comType: "TiFilterlist",
+            comConf: fltListConf,
+            components: ["@com:ti/filterlist"],
+            beforeClosed: () => {
+              this.isPicking = false;
             }
-          },
-          comType: "TiFilterlist",
-          comConf: fltListConf,
-          components: [
-            "@com:ti/filterlist"
-          ],
-          beforeClosed: () => {
-            this.isPicking = false
           }
-        }))
+        )
+      );
 
       // User Cancel
       if (!reo) {
-        return
+        return;
       }
 
       // Multi
       if (this.multi) {
-        let vals = Ti.Util.truthyKeys(reo.checkedIds)
-        this.tryNotifyChange(vals)
+        let vals = Ti.Util.truthyKeys(reo.checkedIds);
+        this.tryNotifyChange(vals);
       }
       // Change the currency
       else {
-        let val = reo.currentId || null
-        this.tryNotifyChange(val)
+        let val = reo.currentId || null;
+        this.tryNotifyChange(val);
       }
     },
     //------------------------------------------------
     tryNotifyChange(val) {
       if (!_.isEqual(val, this.vlaue)) {
-        this.$notify("change", val)
+        this.$notify("change", val);
       }
     },
     //------------------------------------------------
     async evalValue() {
       //console.log("evalValue", this.value)
-      let it = await this.Dict.getItem(this.value)
+      let it = await this.Dict.getItem(this.value);
       if (it) {
-        this.myValueIcon = this.Dict.getIcon(it)
-        this.myValueText = this.Dict.getText(it)
+        this.myValueIcon = this.Dict.getIcon(it);
+        this.myValueText = this.Dict.getText(it);
       } else {
-        this.myValueIcon = undefined
-        this.myValueText = undefined
+        this.myValueIcon = undefined;
+        this.myValueText = undefined;
       }
     },
     //------------------------------------------------
@@ -83243,7 +83248,7 @@ const _M = {
         iconBy: this.iconBy,
         vars: this.dictVars,
         whenLoading: ({ loading }) => {
-          this.loading = loading
+          this.loading = loading;
         }
       });
     }
@@ -83257,12 +83262,12 @@ const _M = {
     },
     "options": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
-        this.myDict = this.createDict()
+        this.myDict = this.createDict();
       }
     }
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -91334,11 +91339,15 @@ Ti.Preload("ti/com/ti/input/pair/_com.json", {
 //========================================
 // JOIN <ti-input-picker.html> ti/com/ti/input/picker/ti-input-picker.html
 //========================================
-Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<component :is="ComType"
-  class="ti-input-picker" :class="TopClass" :style="TopStyle"
+Ti.Preload("ti/com/ti/input/picker/ti-input-picker.html", `<component
+  :is="ComType"
+  class="ti-input-picker"
+  :class="TopClass"
+  :style="TopStyle"
   v-bind="ComConf"
   @change="OnInputChange"
-  @suffix:icon="OnClickSuffixIcon"/>`);
+  @suffix:icon="OnClickSuffixIcon"
+/>`);
 //========================================
 // JOIN <ti-input-picker.mjs> ti/com/ti/input/picker/ti-input-picker.mjs
 //========================================
@@ -91373,17 +91382,23 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
   :readonly="!canInput || readonly"
   :focused="focused"
   :hover="hover"
-  :auto-select="autoSelect"
+  :autoSelect="autoSelect"
 
   :placeholder="thePlaceholder"
-  :auto-i18n="autoI18n"
-  :hide-border="hideBorder"
-  :prefix-icon="InputPrefixIcon"
-  :prefix-hover-icon="prefixHoverIcon"
-  :prefix-icon-for-clean="prefixIconForClean"
-  :prefix-text="prefixText"
-  :suffix-icon="suffixIcon"
-  :suffix-text="suffixText"
+  :autoI18n="autoI18n"
+  :hideBorder="hideBorder"
+  :prefixIcon="InputPrefixIcon"
+  :prefixHoverIcon="prefixHoverIcon"
+  :prefixIconForClean="prefixIconForClean"
+  :prefixText="prefixText"
+  :suffixIcon="suffixIcon"
+  :suffixText="suffixText"
+
+  :prefixIconNotifyName="prefixIconNotifyName"
+  :prefixTextNotifyName="prefixTextNotifyName"
+  :suffixIconNotifyName="suffixIconNotifyName"
+  :suffixTextNotifyName="suffixTextNotifyName"
+  :enterKeyNotifyName="enterKeyNotifyName"
   
   :width="width"
   :height="height"

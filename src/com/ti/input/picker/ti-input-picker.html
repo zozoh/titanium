@@ -1,5 +1,9 @@
-<component :is="ComType"
-  class="ti-input-picker" :class="TopClass" :style="TopStyle"
+<component
+  :is="ComType"
+  class="ti-input-picker"
+  :class="TopClass"
+  :style="TopStyle"
   v-bind="ComConf"
   @change="OnInputChange"
-  @suffix:icon="OnClickSuffixIcon"/>
+  @suffix:icon="OnClickSuffixIcon"
+/>
