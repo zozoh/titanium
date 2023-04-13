@@ -11747,9 +11747,9 @@ div.ti-input-tags {
 article.ti-article i {
   font-style: normal; }
 article.ti-article a.wn-attachment .as-icon {
-  margin: 0 .1em; }
+  margin: 0 0.1em; }
 article.ti-article a.wn-attachment .as-title {
-  margin: 0 .1em; }
+  margin: 0 0.1em; }
 article.ti-article p.as-table-caption {
   text-align: center;
   font-weight: bold; }
@@ -11765,7 +11765,7 @@ article.ti-article .wn-media.as-image-con {
     height: 100%; }
   article.ti-article .wn-media.as-image-con .as-img-alt {
     display: block;
-    padding: .5em;
+    padding: 0.5em;
     text-align: center;
     opacity: 0.8; }
   article.ti-article .wn-media.as-image-con.as-phone-block {
@@ -11777,7 +11777,7 @@ article.ti-article .wn-media.as-image-con {
       height: auto; }
 article.ti-article .wn-media.as-video video {
   outline: none;
-  color: #CCC;
+  color: #ccc;
   background-color: #222; }
 article.ti-article .wn-media.as-audio {
   height: 52px; }
@@ -11807,7 +11807,7 @@ article.ti-article.is-theme-nice {
   article.ti-article.is-theme-nice code {
     font-family: Monaco, Consolas, Courier New;
     color: #ff4081;
-    margin: 0 .5em; }
+    margin: 0 0.5em; }
   article.ti-article.is-theme-nice b {
     font-weight: bolder; }
   article.ti-article.is-theme-nice strong {
@@ -11823,7 +11823,7 @@ article.ti-article.is-theme-nice {
     text-decoration: line-through; }
   article.ti-article.is-theme-nice h1 {
     font-weight: 100;
-    font-size: 2.0em;
+    font-size: 2em;
     line-height: 1.6em; }
   article.ti-article.is-theme-nice h2 {
     font-weight: 100;
@@ -11845,7 +11845,12 @@ article.ti-article.is-theme-nice {
     font-weight: 100;
     font-size: 1.1em;
     line-height: 2em; }
-  article.ti-article.is-theme-nice h1, article.ti-article.is-theme-nice h2, article.ti-article.is-theme-nice h3, article.ti-article.is-theme-nice h4, article.ti-article.is-theme-nice h5, article.ti-article.is-theme-nice h6 {
+  article.ti-article.is-theme-nice h1,
+  article.ti-article.is-theme-nice h2,
+  article.ti-article.is-theme-nice h3,
+  article.ti-article.is-theme-nice h4,
+  article.ti-article.is-theme-nice h5,
+  article.ti-article.is-theme-nice h6 {
     margin: 1em 0;
     padding: 0;
     color: #272e48; }
@@ -11855,9 +11860,10 @@ article.ti-article.is-theme-nice {
     border-collapse: collapse;
     border-spacing: 0;
     margin: 2em 0; }
-  article.ti-article.is-theme-nice td, article.ti-article.is-theme-nice th {
-    padding: .4em;
-    font-size: .9em; }
+  article.ti-article.is-theme-nice td,
+  article.ti-article.is-theme-nice th {
+    padding: 0.4em;
+    font-size: 0.9em; }
   article.ti-article.is-theme-nice thead td {
     color: #e6e6e8;
     background-color: #272e48;
@@ -11870,9 +11876,9 @@ article.ti-article.is-theme-nice {
     article.ti-article.is-theme-nice thead td:last-child {
       border-right-color: #272e48; }
   article.ti-article.is-theme-nice blockquote {
-    margin: 1em .5em;
-    padding: .3em 1em;
-    font-size: .8em;
+    margin: 1em 0.5em;
+    padding: 0.3em 1em;
+    font-size: 0.8em;
     border-left: 4px solid #272e48;
     color: #888888; }
   article.ti-article.is-theme-nice p {
@@ -11889,39 +11895,47 @@ article.ti-article.is-theme-nice {
     overflow-x: auto;
     padding: 0.2rem;
     margin: 0; }
-  article.ti-article.is-theme-nice ul, article.ti-article.is-theme-nice ol {
+  article.ti-article.is-theme-nice ul,
+  article.ti-article.is-theme-nice ol {
     color: #888888;
     padding-left: 1.5em; }
-    article.ti-article.is-theme-nice ul li, article.ti-article.is-theme-nice ol li {
+    article.ti-article.is-theme-nice ul li,
+    article.ti-article.is-theme-nice ol li {
       list-style-type: none; }
-    article.ti-article.is-theme-nice ul .li-indent-1, article.ti-article.is-theme-nice ol .li-indent-1 {
+    article.ti-article.is-theme-nice ul .li-indent-1,
+    article.ti-article.is-theme-nice ol .li-indent-1 {
       padding-left: 1.5em; }
-    article.ti-article.is-theme-nice ul .li-indent-2, article.ti-article.is-theme-nice ol .li-indent-2 {
+    article.ti-article.is-theme-nice ul .li-indent-2,
+    article.ti-article.is-theme-nice ol .li-indent-2 {
       padding-left: 3em; }
-    article.ti-article.is-theme-nice ul .li-indent-3, article.ti-article.is-theme-nice ol .li-indent-3 {
+    article.ti-article.is-theme-nice ul .li-indent-3,
+    article.ti-article.is-theme-nice ol .li-indent-3 {
       padding-left: 4.5em; }
-    article.ti-article.is-theme-nice ul .li-indent-4, article.ti-article.is-theme-nice ol .li-indent-4 {
+    article.ti-article.is-theme-nice ul .li-indent-4,
+    article.ti-article.is-theme-nice ol .li-indent-4 {
       padding-left: 6em; }
-    article.ti-article.is-theme-nice ul .li-indent-5, article.ti-article.is-theme-nice ol .li-indent-5 {
+    article.ti-article.is-theme-nice ul .li-indent-5,
+    article.ti-article.is-theme-nice ol .li-indent-5 {
       padding-left: 7.5em; }
-    article.ti-article.is-theme-nice ul .li-indent-6, article.ti-article.is-theme-nice ol .li-indent-6 {
+    article.ti-article.is-theme-nice ul .li-indent-6,
+    article.ti-article.is-theme-nice ol .li-indent-6 {
       padding-left: 9em; }
   article.ti-article.is-theme-nice ul li:before {
-    content: '\2022';
-    margin-right: .5em;
+    content: "\2022";
+    margin-right: 0.5em;
     color: #ff4081; }
   article.ti-article.is-theme-nice ul .li-indent-1:before {
-    content: '\25C8'; }
+    content: "\25C8"; }
   article.ti-article.is-theme-nice ul .li-indent-2:before {
-    content: '\25C6'; }
+    content: "\25C6"; }
   article.ti-article.is-theme-nice ul .li-indent-3:before {
-    content: '\2605'; }
+    content: "\2605"; }
   article.ti-article.is-theme-nice ul .li-indent-4:before {
-    content: '\2013'; }
+    content: "\2013"; }
   article.ti-article.is-theme-nice ul .li-indent-5:before {
-    content: '\271A'; }
+    content: "\271A"; }
   article.ti-article.is-theme-nice ul .li-indent-6:before {
-    content: '\2746'; }
+    content: "\2746"; }
   article.ti-article.is-theme-nice ol li {
     counter-reset: list-1 list-2 list-3 list-4 list-5 list-6;
     counter-increment: list-0; }
@@ -11959,111 +11973,112 @@ article.ti-article.is-theme-nice {
     content: counter(list-0,decimal) "." counter(list-1,lower-alpha) "." counter(list-2,decimal) "." counter(list-3,decimal) "." counter(list-4,decimal) "." counter(list-5,decimal) ". "; }
   article.ti-article.is-theme-nice ol .li-indent-6:before {
     content: counter(list-6,lower-greek) ". "; }
-  article.ti-article.is-theme-nice img, article.ti-article.is-theme-nice video {
+  article.ti-article.is-theme-nice img,
+  article.ti-article.is-theme-nice video {
     max-width: 100%; }
 
-article.ti-article-theme-wiki {
+article.ti-article.is-theme-wiki {
   padding: 0 0.2rem;
   font-size: 16px;
   line-height: 1.5em;
   letter-spacing: 1px;
   max-width: 10rem;
   margin: 0.1rem auto; }
-  article.ti-article-theme-wiki hr {
+  article.ti-article.is-theme-wiki hr {
     height: 0px;
     border: 0;
     border-top: 1px dotted rgba(20, 20, 20, 0.1);
     margin: 0.1rem 0; }
-  article.ti-article-theme-wiki code {
+  article.ti-article.is-theme-wiki code {
     font-family: Monaco, Consolas, Courier New;
     color: #272e48;
-    background-color: #8a9cdd;
-    font-size: .9em;
-    margin: 0 .2em; }
-  article.ti-article-theme-wiki b {
-    color: #ff4081;
-    font-weight: bolder; }
-  article.ti-article-theme-wiki strong {
+    font-size: 0.9em;
+    margin: 0 0.2em; }
+  article.ti-article.is-theme-wiki b {
     color: #2035a7;
     font-weight: bolder; }
-  article.ti-article-theme-wiki i {
+  article.ti-article.is-theme-wiki strong {
+    color: #2035a7;
+    font-weight: bolder; }
+  article.ti-article.is-theme-wiki i {
     color: #ff4081;
     font-style: italic;
     opacity: 0.8; }
-  article.ti-article-theme-wiki em {
-    color: #2035a7;
+  article.ti-article.is-theme-wiki em {
+    color: #720c86;
     font-style: italic;
     opacity: 0.8; }
-  article.ti-article-theme-wiki del {
+  article.ti-article.is-theme-wiki del {
     color: #ff0000;
     text-decoration: line-through; }
-  article.ti-article-theme-wiki h1 {
+  article.ti-article.is-theme-wiki h1 {
     font-weight: 400;
-    font-size: 2.0em;
+    font-size: 2em;
     line-height: 1.6em;
     margin: 1em 0;
     padding: 0;
     border-bottom: 1px solid rgba(20, 20, 20, 0.1); }
-  article.ti-article-theme-wiki h2 {
+  article.ti-article.is-theme-wiki h2 {
     font-weight: 600;
     font-size: 1.6em;
     line-height: 2em;
     margin: 1em 0;
-    padding: 0 .5em;
+    padding: 0 0.5em;
     color: #666;
     background-color: rgba(230, 230, 230, 0.8); }
-  article.ti-article-theme-wiki h3 {
+  article.ti-article.is-theme-wiki h3 {
     font-weight: 900;
     font-size: 1.4em;
     line-height: 2em;
     margin: 1em 0;
     padding: 0; }
-  article.ti-article-theme-wiki h4 {
+  article.ti-article.is-theme-wiki h4 {
     font-weight: 900;
     font-size: 1.3em;
     line-height: 2em;
     margin: 1em 0;
     padding: 0; }
-  article.ti-article-theme-wiki h5 {
+  article.ti-article.is-theme-wiki h5 {
     font-weight: 900;
     font-size: 1.2em;
     line-height: 2em;
     margin: 1em 0;
     padding: 0; }
-  article.ti-article-theme-wiki h6 {
+  article.ti-article.is-theme-wiki h6 {
     font-weight: 900;
     font-size: 1.1em;
     line-height: 2em;
     margin: 1em 0;
     padding: 0; }
-  article.ti-article-theme-wiki table {
+  article.ti-article.is-theme-wiki table {
     border: 0;
     border-collapse: collapse;
     border-spacing: 0;
     margin: 2em 0; }
-  article.ti-article-theme-wiki td, article.ti-article-theme-wiki th {
-    padding: .4em 1em;
-    font-size: .9em;
+  article.ti-article.is-theme-wiki td,
+  article.ti-article.is-theme-wiki th {
+    padding: 0.4em 1em;
+    font-size: 0.9em;
     border-bottom: 1px solid rgba(20, 20, 20, 0.1); }
-  article.ti-article-theme-wiki thead td {
+  article.ti-article.is-theme-wiki thead td {
     border-bottom: 2px solid rgba(0, 0, 0, 0.2);
     color: #888888;
     font-weight: 900;
     text-align: center; }
-  article.ti-article-theme-wiki blockquote {
-    margin: 1em .5em;
-    padding: .3em 1em;
-    font-size: .8em;
+  article.ti-article.is-theme-wiki blockquote {
+    margin: 1em 0.5em;
+    padding: 0.3em 1em;
+    font-size: 0.8em;
     border-left: 4px solid #272e48;
     color: #888888; }
-  article.ti-article-theme-wiki p {
+  article.ti-article.is-theme-wiki p {
     margin: 1.2em 0; }
-  article.ti-article-theme-wiki p img {
+  article.ti-article.is-theme-wiki p img {
     margin: 2em auto;
     display: block; }
-  article.ti-article-theme-wiki .ql-editor.ql-blank::before {
+  article.ti-article.is-theme-wiki .ql-editor.ql-blank::before {
     top: 1.2em; }
-  article.ti-article-theme-wiki pre {
+  article.ti-article.is-theme-wiki pre {
     font-family: Monaco, Consolas, Courier New;
     font-size: 12px;
     color: #FFF;
@@ -12073,76 +12088,85 @@ article.ti-article-theme-wiki {
     padding: 0.2rem;
     margin: 0;
     border-radius: 0.06rem; }
-  article.ti-article-theme-wiki ul, article.ti-article-theme-wiki ol {
+  article.ti-article.is-theme-wiki ul,
+  article.ti-article.is-theme-wiki ol {
     padding-left: 1.5em; }
-    article.ti-article-theme-wiki ul li, article.ti-article-theme-wiki ol li {
+    article.ti-article.is-theme-wiki ul li,
+    article.ti-article.is-theme-wiki ol li {
       list-style-type: none; }
-    article.ti-article-theme-wiki ul .li-indent-1, article.ti-article-theme-wiki ol .li-indent-1 {
+    article.ti-article.is-theme-wiki ul .li-indent-1,
+    article.ti-article.is-theme-wiki ol .li-indent-1 {
       padding-left: 1.5em; }
-    article.ti-article-theme-wiki ul .li-indent-2, article.ti-article-theme-wiki ol .li-indent-2 {
+    article.ti-article.is-theme-wiki ul .li-indent-2,
+    article.ti-article.is-theme-wiki ol .li-indent-2 {
       padding-left: 3em; }
-    article.ti-article-theme-wiki ul .li-indent-3, article.ti-article-theme-wiki ol .li-indent-3 {
+    article.ti-article.is-theme-wiki ul .li-indent-3,
+    article.ti-article.is-theme-wiki ol .li-indent-3 {
       padding-left: 4.5em; }
-    article.ti-article-theme-wiki ul .li-indent-4, article.ti-article-theme-wiki ol .li-indent-4 {
+    article.ti-article.is-theme-wiki ul .li-indent-4,
+    article.ti-article.is-theme-wiki ol .li-indent-4 {
       padding-left: 6em; }
-    article.ti-article-theme-wiki ul .li-indent-5, article.ti-article-theme-wiki ol .li-indent-5 {
+    article.ti-article.is-theme-wiki ul .li-indent-5,
+    article.ti-article.is-theme-wiki ol .li-indent-5 {
       padding-left: 7.5em; }
-    article.ti-article-theme-wiki ul .li-indent-6, article.ti-article-theme-wiki ol .li-indent-6 {
+    article.ti-article.is-theme-wiki ul .li-indent-6,
+    article.ti-article.is-theme-wiki ol .li-indent-6 {
       padding-left: 9em; }
-  article.ti-article-theme-wiki ul li:before {
-    content: '\2022';
-    margin-right: .5em;
+  article.ti-article.is-theme-wiki ul li:before {
+    content: "\2022";
+    margin-right: 0.5em;
     color: #272e48; }
-  article.ti-article-theme-wiki ul .li-indent-1:before {
-    content: '\25C8'; }
-  article.ti-article-theme-wiki ul .li-indent-2:before {
-    content: '\25C6'; }
-  article.ti-article-theme-wiki ul .li-indent-3:before {
-    content: '\2605'; }
-  article.ti-article-theme-wiki ul .li-indent-4:before {
-    content: '\2013'; }
-  article.ti-article-theme-wiki ul .li-indent-5:before {
-    content: '\271A'; }
-  article.ti-article-theme-wiki ul .li-indent-6:before {
-    content: '\2746'; }
-  article.ti-article-theme-wiki ol li {
+  article.ti-article.is-theme-wiki ul .li-indent-1:before {
+    content: "\25C8"; }
+  article.ti-article.is-theme-wiki ul .li-indent-2:before {
+    content: "\25C6"; }
+  article.ti-article.is-theme-wiki ul .li-indent-3:before {
+    content: "\2605"; }
+  article.ti-article.is-theme-wiki ul .li-indent-4:before {
+    content: "\2013"; }
+  article.ti-article.is-theme-wiki ul .li-indent-5:before {
+    content: "\271A"; }
+  article.ti-article.is-theme-wiki ul .li-indent-6:before {
+    content: "\2746"; }
+  article.ti-article.is-theme-wiki ol li {
     counter-reset: list-1 list-2 list-3 list-4 list-5 list-6;
     counter-increment: list-0; }
-  article.ti-article-theme-wiki ol .li-indent-1 {
+  article.ti-article.is-theme-wiki ol .li-indent-1 {
     counter-increment: list-1;
     counter-reset: list-2 list-3 list-4 list-5 list-6; }
-  article.ti-article-theme-wiki ol .li-indent-2 {
+  article.ti-article.is-theme-wiki ol .li-indent-2 {
     counter-increment: list-2;
     counter-reset: list-3 list-4 list-5 list-6; }
-  article.ti-article-theme-wiki ol .li-indent-3 {
+  article.ti-article.is-theme-wiki ol .li-indent-3 {
     counter-increment: list-3;
     counter-reset: list-4 list-5 list-6; }
-  article.ti-article-theme-wiki ol .li-indent-4 {
+  article.ti-article.is-theme-wiki ol .li-indent-4 {
     counter-increment: list-4;
     counter-reset: list-5 list-6; }
-  article.ti-article-theme-wiki ol .li-indent-5 {
+  article.ti-article.is-theme-wiki ol .li-indent-5 {
     counter-increment: list-5;
     counter-reset: list-6; }
-  article.ti-article-theme-wiki ol .li-indent-6 {
+  article.ti-article.is-theme-wiki ol .li-indent-6 {
     counter-increment: list-6;
     counter-reset: none; }
-  article.ti-article-theme-wiki ol li:before {
+  article.ti-article.is-theme-wiki ol li:before {
     font-family: Monaco, Consolas, Courier New;
     color: #2035a7;
     content: counter(list-0,decimal) ". "; }
-  article.ti-article-theme-wiki ol .li-indent-1:before {
+  article.ti-article.is-theme-wiki ol .li-indent-1:before {
     content: counter(list-1,lower-alpha) ". "; }
-  article.ti-article-theme-wiki ol .li-indent-2:before {
+  article.ti-article.is-theme-wiki ol .li-indent-2:before {
     content: counter(list-2,decimal) ") "; }
-  article.ti-article-theme-wiki ol .li-indent-3:before {
+  article.ti-article.is-theme-wiki ol .li-indent-3:before {
     content: counter(list-0,decimal) ". " counter(list-1,lower-alpha) "." counter(list-2,decimal) "." counter(list-3,decimal) ". "; }
-  article.ti-article-theme-wiki ol .li-indent-4:before {
+  article.ti-article.is-theme-wiki ol .li-indent-4:before {
     content: counter(list-0,decimal) "." counter(list-1,lower-alpha) "." counter(list-2,decimal) "." counter(list-3,decimal) "." counter(list-4,decimal) ". "; }
-  article.ti-article-theme-wiki ol .li-indent-5:before {
+  article.ti-article.is-theme-wiki ol .li-indent-5:before {
     content: counter(list-0,decimal) "." counter(list-1,lower-alpha) "." counter(list-2,decimal) "." counter(list-3,decimal) "." counter(list-4,decimal) "." counter(list-5,decimal) ". "; }
-  article.ti-article-theme-wiki ol .li-indent-6:before {
+  article.ti-article.is-theme-wiki ol .li-indent-6:before {
     content: counter(list-6,lower-greek) ". "; }
-  article.ti-article-theme-wiki img, article.ti-article-theme-wiki video {
+  article.ti-article.is-theme-wiki img,
+  article.ti-article.is-theme-wiki video {
     max-width: 100%; }
 
 .web-text-heading {

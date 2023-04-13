@@ -65,9 +65,9 @@ const _M = {
           "js": "javascript",
           "htm": "html",
           "json": "json",
-          "html":"html",
-          "xml":"xml",
-          "css":"css",
+          "html": "html",
+          "xml": "xml",
+          "css": "css",
           "text/json": "json",
           "text/html": "html",
           "text/css": "css",
@@ -115,13 +115,19 @@ const _M = {
       editor.session.setMode(`ace/mode/${this.ContentMode}`);
       editor.session.setValue(this.value || "");
 
+      // Readonly Mode
+      if (this.readonly) {
+        editor.setReadOnly(true);
+      }
       // Events
-      editor.session.on("change", (delta) => {
-        if (this.isContentBlank || this.isContentLoading) return;
-        let str = editor.getValue() || "";
-        this.myValue = str;
-        this.$notify("change", str);
-      });
+      else {
+        editor.session.on("change", (delta) => {
+          if (this.isContentBlank || this.isContentLoading) return;
+          let str = editor.getValue() || "";
+          this.myValue = str;
+          this.$notify("change", str);
+        });
+      }
 
       // Save instance
       this.$editor = editor;

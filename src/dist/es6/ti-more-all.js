@@ -1,4 +1,4 @@
-// Pack At: 2023-04-13 21:14:20
+// Pack At: 2023-04-14 00:32:54
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -26692,9 +26692,9 @@ const _M = {
           "js": "javascript",
           "htm": "html",
           "json": "json",
-          "html":"html",
-          "xml":"xml",
-          "css":"css",
+          "html": "html",
+          "xml": "xml",
+          "css": "css",
           "text/json": "json",
           "text/html": "html",
           "text/css": "css",
@@ -26742,13 +26742,19 @@ const _M = {
       editor.session.setMode(`ace/mode/${this.ContentMode}`);
       editor.session.setValue(this.value || "");
 
+      // Readonly Mode
+      if (this.readonly) {
+        editor.setReadOnly(true);
+      }
       // Events
-      editor.session.on("change", (delta) => {
-        if (this.isContentBlank || this.isContentLoading) return;
-        let str = editor.getValue() || "";
-        this.myValue = str;
-        this.$notify("change", str);
-      });
+      else {
+        editor.session.on("change", (delta) => {
+          if (this.isContentBlank || this.isContentLoading) return;
+          let str = editor.getValue() || "";
+          this.myValue = str;
+          this.$notify("change", str);
+        });
+      }
 
       // Save instance
       this.$editor = editor;
@@ -28011,6 +28017,10 @@ const _M = {
   },
   "mime": {
     type: String
+  },
+  "readonly": {
+    type: Boolean,
+    defaula: false
   },
   //...............................................
   // Aspact
