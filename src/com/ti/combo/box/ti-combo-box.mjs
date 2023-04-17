@@ -41,23 +41,23 @@ const _M = {
       default: "auto",
       validator: (v) => {
         if (Ti.Util.isNil(v)) {
-          return true
+          return true;
         }
         if (_.isString(v)) {
-          v = v.split(" ")
+          v = v.split(" ");
         }
         if (_.isArray(v)) {
           if (v.length > 2 || v.length == 0) {
-            return false
+            return false;
           }
           for (let s of v) {
             if (!/^(auto|hidden|visible|scroll)$/.test(s)) {
-              return false
+              return false;
             }
           }
-          return true
+          return true;
         }
-        return false
+        return false;
       }
     },
     "status": {
@@ -70,25 +70,26 @@ const _M = {
   computed: {
     //------------------------------------------------
     topClass() {
-      return this.getTopClass(`is-${this.status}`)
+      return this.getTopClass(`is-${this.status}`);
     },
     //------------------------------------------------
     topStyle() {
       let width;
       if (this.keepWidthWhenDrop)
-        width = Ti.Util.fallback(this.box.width, this.width)
-      let height = this.box.height
+        width = Ti.Util.fallback(this.box.width, this.width);
+      let height = this.box.height;
       if (width || height) {
         return Ti.Css.toStyle({
-          width, height,
+          width,
+          height,
           flex: "0 0 auto"
-        })
+        });
       }
     },
     //------------------------------------------------
     theBoxStyle() {
       if (this.dropFloat) {
-        return Ti.Css.toStyle(this.box)
+        return Ti.Css.toStyle(this.box);
       }
     },
     //------------------------------------------------
@@ -96,7 +97,7 @@ const _M = {
       return Ti.Css.toStyle({
         "overflow": this.dropOverflow,
         "visibility": this.myDropDockReady ? "visible" : "hidden"
-      })
+      });
     }
     //------------------------------------------------
   },
@@ -104,15 +105,17 @@ const _M = {
   methods: {
     //------------------------------------------------
     notifyCollapse(escaped = false) {
-      this.$notify("collapse", { escaped })
+      if ("collapse" != this.status) {
+        this.$notify("collapse", { escaped });
+      }
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop = this.$refs.drop
-      let $box = this.$refs.box
+      let $drop = this.$refs.drop;
+      let $box = this.$refs.box;
       // Guard the elements
       if (!_.isElement($drop) || !_.isElement($box)) {
-        return
+        return;
       }
       //............................................
       // If drop opened, make the box position fixed
@@ -120,64 +123,62 @@ const _M = {
       if ("extended" == this.status) {
         // Wait 1ms for drop content done for drawing
         _.delay(() => {
-          let r_box = Ti.Rects.createBy($box)
-          let r_drop = Ti.Rects.createBy($drop)
+          let r_box = Ti.Rects.createBy($box);
+          let r_drop = Ti.Rects.createBy($drop);
           //..........................................
           // Mark box to fixed position
-          this.box = _.assign({ position: "fixed" }, r_box.raw())
+          this.box = _.assign({ position: "fixed" }, r_box.raw());
           //..........................................
           // Make drop same width with box
-          let dropStyle = {}
+          let dropStyle = {};
           if ("box" == this.dropWidth) {
-            dropStyle.width = Math.max(r_box.width, r_drop.width)
-          }
-          else if (!Ti.Util.isNil(this.dropWidth)) {
+            dropStyle.width = Math.max(r_box.width, r_drop.width);
+          } else if (!Ti.Util.isNil(this.dropWidth)) {
             // The min drop width
             if (this.dropWidth < 0) {
-              dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+              dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth));
             }
             // Fix drop width
             else {
-              dropStyle.width = this.dropWidth
+              dropStyle.width = this.dropWidth;
             }
           }
           if (!Ti.Util.isNil(this.dropHeight)) {
-            dropStyle.height = this.dropHeight
+            dropStyle.height = this.dropHeight;
           }
           //..........................................S
-          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle))
+          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle));
           //..........................................
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
             space: { y: 2 }
-          })
+          });
           // Make drop visible
           _.delay(() => {
-            this.myDropDockReady = true
-          }, 1)
-
-        }, 1)
+            this.myDropDockReady = true;
+          }, 1);
+        }, 1);
         //..........................................
       }
       //............................................
     },
     //------------------------------------------------
     reDockDrop() {
-      this.resetBoxStyle()
+      this.resetBoxStyle();
       this.$nextTick(() => {
-        this.dockDrop()
-      })
+        this.dockDrop();
+      });
     },
     //------------------------------------------------
     resetBoxStyle() {
       // Recover the $box width/height
-      this.box = {}
-      this.myDropDockReady = false
+      this.box = {};
+      this.myDropDockReady = false;
     },
     //------------------------------------------------
     __ti_shortcut(uniqKey) {
       if ("ESCAPE" == uniqKey) {
-        this.notifyCollapse(true)
+        this.notifyCollapse(true);
       }
     }
     //------------------------------------------------
@@ -188,32 +189,32 @@ const _M = {
       this.$nextTick(() => {
         // If collapse, it should clean the box styles
         if ("collapse" == sta) {
-          this.resetBoxStyle()
+          this.resetBoxStyle();
         }
         // try docking
         else {
-          this.dockDrop()
+          this.dockDrop();
         }
-      })
+      });
     }
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.dropOpened = this.autoOpenDrop
-    this.box.width = this.width
-    this.box.height = this.height
+    this.dropOpened = this.autoOpenDrop;
+    this.box.width = this.width;
+    this.box.height = this.height;
 
-    this.dockDrop()
+    this.dockDrop();
 
     Ti.Viewport.watch(this, {
       scroll: () => this.notifyCollapse(),
       resize: () => this.notifyCollapse()
-    })
+    });
   },
   ////////////////////////////////////////////////////
   beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
+    Ti.Viewport.unwatch(this);
   }
   ////////////////////////////////////////////////////
-}
+};
 export default _M;

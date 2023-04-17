@@ -1,4 +1,4 @@
-// Pack At: 2023-04-14 00:32:54
+// Pack At: 2023-04-18 01:49:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -14979,6 +14979,7 @@ const _M = {
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
+          checkEquals: Ti.Util.fallback(fld.checkEquals, true),
           comType,
           comConf: {},
           disabled
@@ -15162,7 +15163,7 @@ const _M = {
           labelConf.className = field.labelClass || "is-nowrap";
           // If options
           if (comConf && comConf.options) {
-          let dictName = Ti.DictFactory.DictReferName(comConf.options);
+            let dictName = Ti.DictFactory.DictReferName(comConf.options);
             if (dictName) {
               labelConf.dict = dictName;
             }
@@ -18040,28 +18041,28 @@ const _M = {
     // Measure
     //-----------------------------------
     "fieldNameMaxWidth": [Number, String],
-    "gridColumnCount": Number,
+    "gridColumnCount": Number
   },
   //////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------------
     TopClass() {
-      return this.getTopClass(`is-field-border-${this.fieldBorder}`)
+      return this.getTopClass(`is-field-border-${this.fieldBorder}`);
     },
     //--------------------------------------------------
     TopStyle() {
       if (this.gridColumnCount > 0) {
         return {
           "grid-template-columns": _.repeat("auto 1fr ", this.gridColumnCount)
-        }
+        };
       }
       return {
         "grid-template-columns": "1fr"
-      }
+      };
     },
     //--------------------------------------------------
     canShowBatchEditableSwitcher() {
-      return !this.readonly
+      return !this.readonly;
     }
     //--------------------------------------------------
   },
@@ -18069,7 +18070,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     OnClickComValue(fld) {
-      this.$parent.myActivedFieldKey = fld.uniqKey
+      this.$parent.myActivedFieldKey = fld.uniqKey;
     },
     //--------------------------------------------------
     OnFldChange(fld, value) {
@@ -18079,37 +18080,22 @@ const _M = {
         //console.log("evalInputValue", val)
         // apply default
         if (_.isUndefined(val)) {
-          re = _.cloneDeep(
-            Ti.Util.fallback(fld.undefinedAs, fld.defaultAs)
-          )
-        }
-        else if (_.isNull(val)) {
-          re = _.cloneDeep(
-            Ti.Util.fallback(fld.nullAs, fld.defaultAs, null)
-          )
-        }
-        else if (isNaN(val) && /^(Number|Integer|Float)$/.test(fld.type)) {
-          re = _.cloneDeep(
-            Ti.Util.fallback(fld.nanAs, fld.defaultAs, NaN)
-          )
-        }
-        else if (
-          !(_.isBoolean(val) || _.isNumber(val))
-          && _.isEmpty(val)
-        ) {
+          re = _.cloneDeep(Ti.Util.fallback(fld.undefinedAs, fld.defaultAs));
+        } else if (_.isNull(val)) {
+          re = _.cloneDeep(Ti.Util.fallback(fld.nullAs, fld.defaultAs, null));
+        } else if (isNaN(val) && /^(Number|Integer|Float)$/.test(fld.type)) {
+          re = _.cloneDeep(Ti.Util.fallback(fld.nanAs, fld.defaultAs, NaN));
+        } else if (!(_.isBoolean(val) || _.isNumber(val)) && _.isEmpty(val)) {
           if (_.isString(val)) {
-            re = _.cloneDeep(
-              Ti.Util.fallback(fld.emptyAs, fld.defaultAs, "")
-            )
+            re = _.cloneDeep(Ti.Util.fallback(fld.emptyAs, fld.defaultAs, ""));
           } else {
-            re = Ti.Util.fallback(fld.emptyAs, val)
+            re = Ti.Util.fallback(fld.emptyAs, val);
           }
         }
 
-        if ("~~undefined~~" == re)
-          return
-        return re
-      }
+        if ("~~undefined~~" == re) return;
+        return re;
+      };
 
       // Firstly apply the default
       let v1 = __apply_fld_default(value);
@@ -18117,44 +18103,43 @@ const _M = {
       // Serilizing
       try {
         //console.log("this.serializer(val):", fld.name, v1)
-        v1 = fld.serializer(v1)
+        v1 = fld.serializer(v1);
         //console.log("field changed", fld.name, v1)
-      }
-      // Invalid 
-      catch (error) {
+      } catch (error) {
+        // Invalid
         console.warn(error);
         this.$notify("invalid", {
           errMessage: "" + error,
           name: fld.name,
           value: value
-        })
-        return
+        });
+        return;
       }
 
       // Apply again
-      let v2 = __apply_fld_default(v1)
+      let v2 = __apply_fld_default(v1);
 
       // Compare the value
-      let oldValue = _.get(fld.comConf, fld.autoValue)
+      let oldValue = _.get(fld.comConf, fld.autoValue || "value");
 
       // Try to notify
       if (!fld.checkEquals || !_.isEqual(oldValue, v2)) {
         this.$emit("field:change", {
           name: fld.name,
           value: v2
-        })
+        });
       }
     },
     //--------------------------------------------------
     cloneAssignFieldGrid(fields = this.fields) {
-      let list = _.cloneDeep(fields) || []
+      let list = _.cloneDeep(fields) || [];
 
       // Grid layout
       let realGridColCount = this.gridColumnCount * 2 || 1;
 
-      let gridI = 0;         // Current grid cell col index
-      let gridRowUsed = 0;   // Current grid cell row span
-      let gridColUsed = 0;   // Current grid cell col span
+      let gridI = 0; // Current grid cell col index
+      let gridRowUsed = 0; // Current grid cell row span
+      let gridColUsed = 0; // Current grid cell col span
       for (let i = 0; i < list.length; i++) {
         let fld = list[i];
         // if (realGridColCount > 1) {
@@ -18162,32 +18147,32 @@ const _M = {
         // }
 
         // Show name
-        fld.showName = (fld.icon || fld.title) ? true : false;
-        fld.rowSpan = fld.rowSpan || 1
+        fld.showName = fld.icon || fld.title ? true : false;
+        fld.rowSpan = fld.rowSpan || 1;
 
-        let colSpan = fld.colSpan || 1
-        let fldGridColSpan = Math.min(colSpan * 2, realGridColCount)
+        let colSpan = fld.colSpan || 1;
+        let fldGridColSpan = Math.min(colSpan * 2, realGridColCount);
 
         // Remain grid
-        let remainGrid = realGridColCount - gridI
+        let remainGrid = realGridColCount - gridI;
 
         // Grid overflow
         if (fldGridColSpan > remainGrid) {
           // Wrap line
-          gridI = 0
+          gridI = 0;
           // Assign remain grid to prev fldValue
           if (i > 0) {
-            let prevFld = list[i - 1]
-            prevFld.valueGridSpan += remainGrid
+            let prevFld = list[i - 1];
+            prevFld.valueGridSpan += remainGrid;
           }
         }
 
         // Label
         if ("Label" == fld.race) {
-          fld.gridStart = 0
-          fld.gridSpan = realGridColCount
-          gridI = 0
-          continue
+          fld.gridStart = 0;
+          fld.gridSpan = realGridColCount;
+          gridI = 0;
+          continue;
         }
 
         // Grid with field name
@@ -18195,25 +18180,24 @@ const _M = {
           fld.nameGridStart = gridI;
           fld.nameGridSpan = 1;
           fld.valueGridStart = gridI + 1;
-          fld.valueGridSpan = fldGridColSpan - 1
+          fld.valueGridSpan = fldGridColSpan - 1;
         }
         // None name field
         else {
           fld.nameGridStart = 0;
           fld.nameGridSpan = 0;
           fld.valueGridStart = gridI;
-          fld.valueGridSpan = fldGridColSpan
+          fld.valueGridSpan = fldGridColSpan;
         }
 
         // Move grid and test wrap
         gridI = fld.valueGridStart + fld.valueGridSpan;
         if (gridI >= realGridColCount) {
-          gridI = 0
+          gridI = 0;
         }
-
       }
 
-      return list
+      return list;
     },
     //--------------------------------------------------
     evalFields(fields = this.fields) {
@@ -18221,16 +18205,14 @@ const _M = {
       // if (fields.length == 3) {
       //   console.log("evalFields", fields)
       // }
-      let list = this.cloneAssignFieldGrid(fields)
+      let list = this.cloneAssignFieldGrid(fields);
 
       // each fields
       for (let fld of list) {
-
-
         // Maybe race="Label"
         if (fld.com) {
-          fld.comType = fld.com.comType
-          fld.comConf = fld.com.comConf
+          fld.comType = fld.com.comType;
+          fld.comConf = fld.com.comConf;
         }
 
         let nmStyle, valStyle;
@@ -18240,35 +18222,33 @@ const _M = {
           nmStyle = {
             "grid-column-start": fld.gridStart + 1,
             "grid-column-end": `span ${fld.gridSpan}`
-          }
+          };
         }
         // Normal field
         else {
-
-          fld.tipAsPopIcon = Ti.Util.fallback(fld.tipAsPopIcon, this.tipAsPopIcon)
+          fld.tipAsPopIcon = Ti.Util.fallback(
+            fld.tipAsPopIcon,
+            this.tipAsPopIcon
+          );
           // Grid with field name
           if (fld.showName) {
-
-            fld.title = Ti.I18n.text(fld.title)
-            this.setFieldTip(fld, "tipObj", fld.tip)
-            this.setFieldNameTip(fld)
-
+            fld.title = Ti.I18n.text(fld.title);
+            this.setFieldTip(fld, "tipObj", fld.tip);
+            this.setFieldNameTip(fld);
 
             nmStyle = {
               //"grid-column-start": fld.nameGridStart + 1,
               "grid-column-end": `span ${fld.nameGridSpan}`,
               "grid-row-end": `span ${fld.rowSpan}`
-            }
+            };
             if ("auto" == fld.nameAlign) {
-              fld.nameAlign = this.gridColumnCount > 0
-                ? "right"
-                : "left";
+              fld.nameAlign = this.gridColumnCount > 0 ? "right" : "left";
             }
 
             if (this.gridColumnCount > 0 && this.fieldNameMaxWidth) {
               fld.nameTextStyle = {
                 maxWidth: Ti.Css.toSize(this.fieldNameMaxWidth)
-              }
+              };
             }
           }
 
@@ -18276,125 +18256,135 @@ const _M = {
             //"grid-column-start": fld.valueGridStart + 1,
             "grid-column-end": `span ${fld.valueGridSpan}`,
             "grid-row-end": `span ${fld.rowSpan}`
-          }
+          };
 
           if (!Ti.Util.isNil(fld.width)) {
-            let fldWidth = "full" == fld.width
-              ? "100%"
-              : Ti.Css.toSize(fld.width);
-            fld.comStyle = _.assign({
-              "width": fldWidth,
-              "flex": "0 0 auto"
-            }, fld.comStyle)
+            let fldWidth =
+              "full" == fld.width ? "100%" : Ti.Css.toSize(fld.width);
+            fld.comStyle = _.assign(
+              {
+                "width": fldWidth,
+                "flex": "0 0 auto"
+              },
+              fld.comStyle
+            );
           }
         }
 
         // Update field name
-        fld.nameStyle = _.assign({}, fld.nameStyle, nmStyle)
-        fld.valueStyle = _.assign({}, fld.valueStyle, valStyle)
+        fld.nameStyle = _.assign({}, fld.nameStyle, nmStyle);
+        fld.valueStyle = _.assign({}, fld.valueStyle, valStyle);
 
         // Name class
         if (fld.nameClass) {
-          fld.nameClass = Ti.Css.mergeClassName(fld.nameClass)
+          fld.nameClass = Ti.Css.mergeClassName(fld.nameClass);
         }
 
         // Value class
         fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, {
           "is-disabled": fld.disabled,
           "is-batch-disabled": fld.batchDisabled
-        })
+        });
 
         // Status
-        this.setFieldStatus(fld)
+        this.setFieldStatus(fld);
       } // for (let fld of fields) {
 
-      this.myFields = list
+      this.myFields = list;
     },
     //--------------------------------------------------
-    setFieldTip(fld, taKey, tip, {
-      mode = "H",
-      size = "auto",
-      type = "paper",
-      contentType = "text",
-      text
-    } = {}) {
+    setFieldTip(
+      fld,
+      taKey,
+      tip,
+      {
+        mode = "H",
+        size = "auto",
+        type = "paper",
+        contentType = "text",
+        text
+      } = {}
+    ) {
       // Guard
       if (!taKey || !tip) {
-        return
+        return;
       }
 
       //console.log("setFieldNameTip", fld)
-      let tipObj = { vars: {} }
+      let tipObj = { vars: {} };
       // String as template
       if (_.isString(tip)) {
-        tipObj.text = tip
+        tipObj.text = tip;
       }
       // Full Dedefined
       else if (_.isObject(tip)) {
-        _.assign(tipObj, tip)
+        _.assign(tipObj, tip);
       }
       _.defaults(tipObj, {
         vars: {},
-        mode, size, type, contentType, text
-      })
+        mode,
+        size,
+        type,
+        contentType,
+        text
+      });
       // Guard again
       if (!tipObj.text) {
-        return
+        return;
       }
 
       _.defaults(tipObj.vars, {
         title: fld.title,
-        name: _.concat(fld.name).join(', ')
-      })
-      let tipAttrs = {}
+        name: _.concat(fld.name).join(", ")
+      });
+      let tipAttrs = {};
       _.forEach(tipObj, (v, k) => {
         // 设置变量
         if ("vars" == k) {
           _.forEach(v, (varVal, key) => {
-            let varName = _.kebabCase(key)
-            tipAttrs[`data-ti-tip-vars-${varName}`] = varVal
-          })
+            let varName = _.kebabCase(key);
+            tipAttrs[`data-ti-tip-vars-${varName}`] = varVal;
+          });
         }
         // 设置数据
         else if ("text" == k) {
-          tipAttrs[`data-ti-tip`] = v
+          tipAttrs[`data-ti-tip`] = v;
         }
         // 普通设置
         else {
-          tipAttrs[`data-ti-tip-${k}`] = v
+          tipAttrs[`data-ti-tip-${k}`] = v;
         }
-      })
-      fld[taKey] = tipAttrs
-
+      });
+      fld[taKey] = tipAttrs;
     },
     //--------------------------------------------------
     setFieldNameTip(fld) {
       let autoNameTip = Ti.Util.fallback(
-        fld.autoNameTip, this.autoFieldNameTip
-      )
+        fld.autoNameTip,
+        this.autoFieldNameTip
+      );
       this.setFieldTip(fld, "nameTip", autoNameTip, {
         mode: "V",
         size: "auto",
         type: "success",
         contentType: "text",
         text: "${title}: ${name}"
-      })
-      
+      });
     },
     //--------------------------------------------------
     setFieldStatus(fld = {}) {
-      let { type, text } = _.get(this.status, fld.uniqKey) || {}
+      let { type, text } = _.get(this.status, fld.uniqKey) || {};
       if (type) {
-        fld.statusIcon = _.get(this.statusIcons, type)
-        fld.statusText = Ti.I18n.text(text)
-        fld.nameClass = Ti.Css.mergeClassName(fld.nameClass, `is-${type}`)
-        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, `is-${type}`)
+        fld.statusIcon = _.get(this.statusIcons, type);
+        fld.statusText = Ti.I18n.text(text);
+        fld.nameClass = Ti.Css.mergeClassName(fld.nameClass, `is-${type}`);
+        fld.valueClass = Ti.Css.mergeClassName(fld.valueClass, `is-${type}`);
       }
     },
     //--------------------------------------------------
     tryEvalFields(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-        this.evalFields()
+        this.evalFields();
       }
     }
     //--------------------------------------------------
@@ -18408,10 +18398,10 @@ const _M = {
   },
   //////////////////////////////////////////////////////
   mounted() {
-    this.evalFields()
+    this.evalFields();
   }
   //////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -42885,23 +42875,23 @@ const _M = {
       default: "auto",
       validator: (v) => {
         if (Ti.Util.isNil(v)) {
-          return true
+          return true;
         }
         if (_.isString(v)) {
-          v = v.split(" ")
+          v = v.split(" ");
         }
         if (_.isArray(v)) {
           if (v.length > 2 || v.length == 0) {
-            return false
+            return false;
           }
           for (let s of v) {
             if (!/^(auto|hidden|visible|scroll)$/.test(s)) {
-              return false
+              return false;
             }
           }
-          return true
+          return true;
         }
-        return false
+        return false;
       }
     },
     "status": {
@@ -42914,25 +42904,26 @@ const _M = {
   computed: {
     //------------------------------------------------
     topClass() {
-      return this.getTopClass(`is-${this.status}`)
+      return this.getTopClass(`is-${this.status}`);
     },
     //------------------------------------------------
     topStyle() {
       let width;
       if (this.keepWidthWhenDrop)
-        width = Ti.Util.fallback(this.box.width, this.width)
-      let height = this.box.height
+        width = Ti.Util.fallback(this.box.width, this.width);
+      let height = this.box.height;
       if (width || height) {
         return Ti.Css.toStyle({
-          width, height,
+          width,
+          height,
           flex: "0 0 auto"
-        })
+        });
       }
     },
     //------------------------------------------------
     theBoxStyle() {
       if (this.dropFloat) {
-        return Ti.Css.toStyle(this.box)
+        return Ti.Css.toStyle(this.box);
       }
     },
     //------------------------------------------------
@@ -42940,7 +42931,7 @@ const _M = {
       return Ti.Css.toStyle({
         "overflow": this.dropOverflow,
         "visibility": this.myDropDockReady ? "visible" : "hidden"
-      })
+      });
     }
     //------------------------------------------------
   },
@@ -42948,15 +42939,17 @@ const _M = {
   methods: {
     //------------------------------------------------
     notifyCollapse(escaped = false) {
-      this.$notify("collapse", { escaped })
+      if ("collapse" != this.status) {
+        this.$notify("collapse", { escaped });
+      }
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop = this.$refs.drop
-      let $box = this.$refs.box
+      let $drop = this.$refs.drop;
+      let $box = this.$refs.box;
       // Guard the elements
       if (!_.isElement($drop) || !_.isElement($box)) {
-        return
+        return;
       }
       //............................................
       // If drop opened, make the box position fixed
@@ -42964,64 +42957,62 @@ const _M = {
       if ("extended" == this.status) {
         // Wait 1ms for drop content done for drawing
         _.delay(() => {
-          let r_box = Ti.Rects.createBy($box)
-          let r_drop = Ti.Rects.createBy($drop)
+          let r_box = Ti.Rects.createBy($box);
+          let r_drop = Ti.Rects.createBy($drop);
           //..........................................
           // Mark box to fixed position
-          this.box = _.assign({ position: "fixed" }, r_box.raw())
+          this.box = _.assign({ position: "fixed" }, r_box.raw());
           //..........................................
           // Make drop same width with box
-          let dropStyle = {}
+          let dropStyle = {};
           if ("box" == this.dropWidth) {
-            dropStyle.width = Math.max(r_box.width, r_drop.width)
-          }
-          else if (!Ti.Util.isNil(this.dropWidth)) {
+            dropStyle.width = Math.max(r_box.width, r_drop.width);
+          } else if (!Ti.Util.isNil(this.dropWidth)) {
             // The min drop width
             if (this.dropWidth < 0) {
-              dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth))
+              dropStyle.width = Math.max(r_box.width, Math.abs(this.dropWidth));
             }
             // Fix drop width
             else {
-              dropStyle.width = this.dropWidth
+              dropStyle.width = this.dropWidth;
             }
           }
           if (!Ti.Util.isNil(this.dropHeight)) {
-            dropStyle.height = this.dropHeight
+            dropStyle.height = this.dropHeight;
           }
           //..........................................S
-          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle))
+          Ti.Dom.updateStyle($drop, Ti.Css.toStyle(dropStyle));
           //..........................................
           // Dock drop to box
           Ti.Dom.dockTo($drop, $box, {
             space: { y: 2 }
-          })
+          });
           // Make drop visible
           _.delay(() => {
-            this.myDropDockReady = true
-          }, 1)
-
-        }, 1)
+            this.myDropDockReady = true;
+          }, 1);
+        }, 1);
         //..........................................
       }
       //............................................
     },
     //------------------------------------------------
     reDockDrop() {
-      this.resetBoxStyle()
+      this.resetBoxStyle();
       this.$nextTick(() => {
-        this.dockDrop()
-      })
+        this.dockDrop();
+      });
     },
     //------------------------------------------------
     resetBoxStyle() {
       // Recover the $box width/height
-      this.box = {}
-      this.myDropDockReady = false
+      this.box = {};
+      this.myDropDockReady = false;
     },
     //------------------------------------------------
     __ti_shortcut(uniqKey) {
       if ("ESCAPE" == uniqKey) {
-        this.notifyCollapse(true)
+        this.notifyCollapse(true);
       }
     }
     //------------------------------------------------
@@ -43032,34 +43023,34 @@ const _M = {
       this.$nextTick(() => {
         // If collapse, it should clean the box styles
         if ("collapse" == sta) {
-          this.resetBoxStyle()
+          this.resetBoxStyle();
         }
         // try docking
         else {
-          this.dockDrop()
+          this.dockDrop();
         }
-      })
+      });
     }
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.dropOpened = this.autoOpenDrop
-    this.box.width = this.width
-    this.box.height = this.height
+    this.dropOpened = this.autoOpenDrop;
+    this.box.width = this.width;
+    this.box.height = this.height;
 
-    this.dockDrop()
+    this.dockDrop();
 
     Ti.Viewport.watch(this, {
       scroll: () => this.notifyCollapse(),
       resize: () => this.notifyCollapse()
-    })
+    });
   },
   ////////////////////////////////////////////////////
   beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
+    Ti.Viewport.unwatch(this);
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -43242,105 +43233,112 @@ const _M = {
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
-    isCollapse() { return "collapse" == this.myDropStatus },
-    isExtended() { return "extended" == this.myDropStatus },
+    isCollapse() {
+      return "collapse" == this.myDropStatus;
+    },
+    isExtended() {
+      return "extended" == this.myDropStatus;
+    },
     //-----------------------------------------------
     FnOptionFilter() {
       if (_.isFunction(this.optionFilter)) {
-        return this.optionFilter
+        return this.optionFilter;
       }
       if (this.optionFilter) {
-        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter)
-        return Ti.AutoMatch.parse(flt)
+        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter);
+        return Ti.AutoMatch.parse(flt);
       }
     },
     //------------------------------------------------
     TopClass() {
       let hasWidth = !Ti.Util.isNil(this.width);
       return this.getTopClass({
-        "full-field": !hasWidth,
-      })
+        "full-field": !hasWidth
+      });
     },
     //------------------------------------------------
     ValueTip() {
-      if(this.autoValueTip){
-        let tip = this.value
+      if (this.autoValueTip) {
+        let tip = this.value;
         if (this.myItem && this.Dict) {
-          let text = this.Dict.getText(this.myItem)
-          let value = this.Dict.getValue(this.myItem)
-          tip = `<strong>${text}</strong>: <codd>${value}</code>`
+          let text = this.Dict.getText(this.myItem);
+          let value = this.Dict.getValue(this.myItem);
+          tip = `<strong>${text}</strong>: <codd>${value}</code>`;
         }
         return {
           "data-ti-tip": tip,
-            "data-ti-tip-mode": "H",
-            "data-ti-tip-size": "auto",
-            "data-ti-tip-type": "paper",
-            "data-ti-tip-content-type": "html",
-            "data-ti-keyboard":"ctrl"
-        }
+          "data-ti-tip-mode": "H",
+          "data-ti-tip-size": "auto",
+          "data-ti-tip-type": "paper",
+          "data-ti-tip-content-type": "html",
+          "data-ti-keyboard": "ctrl"
+        };
       }
     },
     //------------------------------------------------
     TheInputProps() {
-      return _.assign({}, {
-        // Data
-        "format": undefined,
-        "valueCase": this.valueCase,
-        "trimed": this.trimed,
-        "autoJsValue": this.autoJsValue,
-        "validator": this.validator,
-        // Behavior
-        "readonly": !this.canInput || this.readonly,
-        "hover": this.hover,
-        "prefixIconForClean": this.prefixIconForClean,
-        "autoSelect": this.autoSelect,
-        "prefixIconNotifyName": this.prefixIconNotifyName,
-        "prefixTextNotifyName": this.prefixTextNotifyName,
-        "suffixIconNotifyName": this.suffixIconNotifyName,
-        "suffixTextNotifyName": this.suffixTextNotifyName,
-        "enterKeyNotifyName": this.enterKeyNotifyName,
-        // Aspect
-        "placeholder": this.placeholder,
-        "autoI18n": this.autoI18n,
-        "hideBorder": this.hideBorder,
-        "prefixIcon": this.prefixIcon,
-        "prefixHoverIcon": this.prefixHoverIcon,
-        "prefixText": this.prefixText,
-        "suffixIcon": this.suffixIcon,
-        "suffixText": this.suffixText,
-        // Measure
-        "width": this.width,
-        "height": this.height
-      })
+      return _.assign(
+        {},
+        {
+          // Data
+          "format": undefined,
+          "valueCase": this.valueCase,
+          "trimed": this.trimed,
+          "autoJsValue": this.autoJsValue,
+          "validator": this.validator,
+          // Behavior
+          "readonly": !this.canInput || this.readonly,
+          "hover": this.hover,
+          "prefixIconForClean": this.prefixIconForClean,
+          "autoSelect": this.autoSelect,
+          "prefixIconNotifyName": this.prefixIconNotifyName,
+          "prefixTextNotifyName": this.prefixTextNotifyName,
+          "suffixIconNotifyName": this.suffixIconNotifyName,
+          "suffixTextNotifyName": this.suffixTextNotifyName,
+          "enterKeyNotifyName": this.enterKeyNotifyName,
+          // Aspect
+          "placeholder": this.placeholder,
+          "autoI18n": this.autoI18n,
+          "hideBorder": this.hideBorder,
+          "prefixIcon": this.prefixIcon,
+          "prefixHoverIcon": this.prefixHoverIcon,
+          "prefixText": this.prefixText,
+          "suffixIcon": this.suffixIcon,
+          "suffixText": this.suffixText,
+          // Measure
+          "width": this.width,
+          "height": this.height
+        }
+      );
     },
     //------------------------------------------------
     InputValue() {
       if (!Ti.Util.isNil(this.myFilterValue)) {
-        return this.myFilterValue
+        return this.myFilterValue;
       }
       if (this.myItem && this.Dict) {
-        let text = this.Dict.getText(this.myItem)
-        let value = this.Dict.getValue(this.myItem)
+        let text = this.Dict.getText(this.myItem);
+        let value = this.Dict.getValue(this.myItem);
         if (this.inputValueDisplay) {
           return Ti.Util.explainObj(this.myItem, this.inputValueDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return text || value
+        return text || value;
       }
-      return this.myFreeValue
+      return this.myFreeValue;
     },
     //------------------------------------------------
     InputFocusValue() {
       if (this.showInputFocusValue) {
         if (!Ti.Util.isNil(this.myFilterValue)) {
-          return this.myFilterValue
+          return this.myFilterValue;
         }
         if (this.myItem && this.Dict) {
-          let value = this.Dict.getValue(this.myItem)
-          return value
+          let value = this.Dict.getValue(this.myItem);
+          return value;
         }
-        return this.myFreeValue
+        return this.myFreeValue;
       }
     },
     //------------------------------------------------
@@ -43349,12 +43347,12 @@ const _M = {
         if (!_.isUndefined(this.inputPrefixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputPrefixTextDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return Ti.Util.explainObj(this.myItem, this.prefixText)
+        return Ti.Util.explainObj(this.myItem, this.prefixText);
         //return this.Dict.getValue(this.myItem)
       }
-      return Ti.Util.explainObj(this, this.prefixText)
+      return Ti.Util.explainObj(this, this.prefixText);
     },
     //------------------------------------------------
     InputSuffixText() {
@@ -43362,98 +43360,110 @@ const _M = {
         if (!_.isUndefined(this.inputSuffixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputSuffixTextDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return Ti.Util.explainObj(this.myItem, this.suffixText)
+        return Ti.Util.explainObj(this.myItem, this.suffixText);
         //return this.Dict.getValue(this.myItem)
       }
-      return Ti.Util.explainObj(this, this.suffixText)
+      return Ti.Util.explainObj(this, this.suffixText);
     },
     //------------------------------------------------
     GetValueBy() {
-      return it => this.Dict.getValue(it)
+      return (it) => this.Dict.getValue(it);
     },
     //------------------------------------------------
     ThePrefixIcon() {
       if (this.loading) {
-        return "zmdi-settings zmdi-hc-spin"
+        return "zmdi-settings zmdi-hc-spin";
       }
       let icon = this.prefixIcon;
       if (this.myItem && this.Dict) {
-        icon = this.Dict.getIcon(this.myItem) || icon
+        icon = this.Dict.getIcon(this.myItem) || icon;
       }
       if (this.readonly) {
-        return
+        return;
       }
-      return Ti.Util.fallback(icon, "zmdi-minus")
+      return Ti.Util.fallback(icon, "zmdi-minus");
     },
     //------------------------------------------------
     TheSuffixIcon() {
       if (this.readonly) {
-        return
+        return;
       }
-      return this.statusIcons[this.myDropStatus]
+      return this.statusIcons[this.myDropStatus];
     },
     //------------------------------------------------
-    DropComType() { return this.dropComType || "ti-list" },
+    DropComType() {
+      return this.dropComType || "ti-list";
+    },
     DropComConf() {
-      let display = this.dropDisplay
-      if(!display){
+      let display = this.dropDisplay;
+      if (!display) {
         display = Ti.Config.getComProp(COM_TYPE, "dropDisplay", [
           "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
-        ])
+        ]);
       }
-      return _.assign({
-        display,
-        blankAs: {
-          className: "as-mid-tip"
+      return _.assign(
+        {
+          display,
+          blankAs: {
+            className: "as-mid-tip"
+          },
+          border: this.dropItemBorder
         },
-        border: this.dropItemBorder
-      }, this.dropComConf, {
-        data: this.myOptionsData,
-        currentId: this.myCurrentId,
-        checkedIds: this.myCheckedIds,
-        idBy: this.GetValueBy,
-        multi: false,
-        hoverable: true,
-        checkable: false,
-        autoCheckCurrent: true,
-        dftLabelHoverCopy: false
-      })
+        this.dropComConf,
+        {
+          data: this.myOptionsData,
+          currentId: this.myCurrentId,
+          checkedIds: this.myCheckedIds,
+          idBy: this.GetValueBy,
+          multi: false,
+          hoverable: true,
+          checkable: false,
+          autoCheckCurrent: true,
+          dftLabelHoverCopy: false
+        }
+      );
     },
     //------------------------------------------------
     Dict() {
       if (!this.myDict) {
-        this.myDict = this.createDict()
+        this.myDict = this.createDict();
       }
-      return this.myDict
+      return this.myDict;
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods: {
     //-----------------------------------------------
-    OnDropListInit($dropList) { this.$dropList = $dropList },
+    OnDropListInit($dropList) {
+      this.$dropList = $dropList;
+    },
     //------------------------------------------------
-    OnCollapse() { this.doCollapse() },
+    OnCollapse() {
+      if ("collapse" != this.myDropStatus) {
+        this.doCollapse();
+      }
+    },
     //-----------------------------------------------
     OnInputInputing(val) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.filter) {
-        this.myFilterValue = val
+        this.myFilterValue = val;
         // Auto extends
         if (this.autoFocusExtended) {
           if (!this.isExtended) {
-            this.doExtend(false)
+            this.doExtend(false);
           }
         }
         // Reload options data
         if (this.isExtended) {
-          this.debReload()
+          this.debReload();
         }
       }
     },
@@ -43461,108 +43471,107 @@ const _M = {
     async OnInputChanged(val, byKeyboardArrow) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       //console.log("haha", {val, byKeyboardArrow})
       // Clean filter
-      this.myFilterValue = null
+      this.myFilterValue = null;
       // Clean
       if (!val) {
-        this.myItem = null
-        this.myFreeValue = null
-        this.myCheckedIds = {}
-        this.myCurrentId = null
+        this.myItem = null;
+        this.myFreeValue = null;
+        this.myCheckedIds = {};
+        this.myCurrentId = null;
       }
       // Find ...
       else {
-        let it = await this.Dict.getItem(val)
+        let it = await this.Dict.getItem(val);
         // Matched tag
         if (it) {
-          this.myItem = it
-          this.myFreeValue = null
-        }
-        else if (!this.mustInList) {
-          this.myItem = null
-          this.myFreeValue = val
+          this.myItem = it;
+          this.myFreeValue = null;
+        } else if (!this.mustInList) {
+          this.myItem = null;
+          this.myFreeValue = val;
         }
       }
-      if (!byKeyboardArrow)
-        this.tryNotifyChanged()
+      if (!byKeyboardArrow) this.tryNotifyChanged();
     },
     //-----------------------------------------------
     async OnInputFocused() {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.autoFocusExtended && !this.isExtended) {
-        await this.doExtend()
+        await this.doExtend();
       }
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.isExtended) {
-        await this.doCollapse()
+        await this.doCollapse();
       } else {
-        await this.doExtend()
+        await this.doExtend();
       }
     },
     //-----------------------------------------------
     async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       //console.log({currentId, byKeyboardArrow})
-      this.myCurrentId = currentId
-      await this.OnInputChanged(currentId, byKeyboardArrow)
+      this.myCurrentId = currentId;
+      await this.OnInputChanged(currentId, byKeyboardArrow);
       if (this.autoCollapse && !byKeyboardArrow) {
-        await this.doCollapse({ escaped: true })
+        await this.doCollapse({ escaped: true });
       }
     },
     //-----------------------------------------------
     // Core Methods
     //-----------------------------------------------
     async doExtend(tryReload = true) {
-      this.myOldValue = this.evalMyValue()
+      this.myOldValue = this.evalMyValue();
       // Try reload options again
       if (tryReload && _.isEmpty(this.myOptionsData)) {
-        await this.reloadMyOptionData(true)
+        await this.reloadMyOptionData(true);
       }
       this.$nextTick(() => {
-        this.myDropStatus = "extended"
-      })
+        this.myDropStatus = "extended";
+      });
     },
     //-----------------------------------------------
     async doCollapse({ escaped = false } = {}) {
       if (escaped) {
-        await this.evalMyItem(this.myOldValue)
-      }
-      else if (this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
-        await this.evalMyItem(this.myFilterValue)
-        this.tryNotifyChanged()
+        await this.evalMyItem(this.myOldValue);
+      } else if (
+        this.myFilterValue &&
+        !_.isEqual(this.myFilterValue, this.myOldValue)
+      ) {
+        await this.evalMyItem(this.myFilterValue);
+        this.tryNotifyChanged();
       }
       // Try notify
       else {
-        this.tryNotifyChanged()
+        this.tryNotifyChanged();
       }
-      this.myDropStatus = "collapse"
-      this.myOldValue = undefined
-      this.myFilterValue = null
-      this.myOptionsData = null
+      this.myDropStatus = "collapse";
+      this.myOldValue = undefined;
+      this.myFilterValue = null;
+      this.myOptionsData = null;
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      let val = this.evalMyValue()
+      let val = this.evalMyValue();
       //console.log("tryNotifyChanged", val)
-      if (Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
-        return
+      if (Ti.Util.isNil(val) && Ti.Util.isNil(this.value)) return;
       if (!_.isEqual(val, this.value)) {
-        this.$notify("change", val)
+        this.$notify("change", val);
       }
     },
     //-----------------------------------------------
@@ -43572,39 +43581,37 @@ const _M = {
       //console.log("evalMyValue", item, freeValue)
       // Item
       if (item) {
-        return this.Dict.getValue(item)
+        return this.Dict.getValue(item);
       }
       // Ignore free values
-      return this.mustInList
-        ? null
-        : freeValue
+      return this.mustInList ? null : freeValue;
     },
     //-----------------------------------------------
     async evalMyItem(val = this.value) {
       //console.log("before evalMyItem", val)
       let it;
       if (this.Dict) {
-        it = await this.Dict.getItem(val)
+        it = await this.Dict.getItem(val);
       }
       //console.log("after evalMyItem: it", it)
       if (_.isArray(it)) {
-        console.error("!!!!!!! kao ~~~~~~~")
-        it = null
+        console.error("!!!!!!! kao ~~~~~~~");
+        it = null;
       }
       // Update state
       if (it) {
-        let itV = this.Dict.getValue(it)
-        this.myItem = it
-        this.myFreeValue = null
-        this.myCurrentId = itV
-        this.myCheckedIds = { [itV]: true }
+        let itV = this.Dict.getValue(it);
+        this.myItem = it;
+        this.myFreeValue = null;
+        this.myCurrentId = itV;
+        this.myCheckedIds = { [itV]: true };
       }
       // Clean
       else {
-        this.myItem = null
-        this.myFreeValue = this.mustInList ? null : val
-        this.myCurrentId = null
-        this.myCheckedIds = {}
+        this.myItem = null;
+        this.myFreeValue = this.mustInList ? null : val;
+        this.myCurrentId = null;
+        this.myCheckedIds = {};
       }
     },
     //------------------------------------------------
@@ -43619,7 +43626,7 @@ const _M = {
         iconBy: this.iconBy,
         vars: this.dictVars,
         whenLoading: ({ loading }) => {
-          this.loading = loading
+          this.loading = loading;
         }
       });
     },
@@ -43627,28 +43634,28 @@ const _M = {
     async reloadMyOptionData(force = false) {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
-        let list = await this.Dict.queryData(this.myFilterValue)
+        let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
-          let list2 = []
+          let list2 = [];
           for (let i = 0; i < list.length; i++) {
-            let li = list[i]
-            let li2 = this.FnOptionFilter(li, i, list)
+            let li = list[i];
+            let li2 = this.FnOptionFilter(li, i, list);
             if (!li2) {
               continue;
             }
             if (_.isBoolean(li2)) {
-              list2.push(li)
+              list2.push(li);
             } else {
-              list2.push(li2)
+              list2.push(li2);
             }
           }
-          list = list2
+          list = list2;
         }
-        this.myOptionsData = list
+        this.myOptionsData = list;
       } else {
-        this.myOptionsData = []
+        this.myOptionsData = [];
       }
-      return this.myOptionsData
+      return this.myOptionsData;
     },
     //-----------------------------------------------
     // Callback
@@ -43657,15 +43664,15 @@ const _M = {
       //console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if ("ESCAPE" == uniqKey) {
-        this.doCollapse({ escaped: true })
-        return { prevent: true, stop: true, quit: true }
+        this.doCollapse({ escaped: true });
+        return { prevent: true, stop: true, quit: true };
       }
       //....................................
       // If droplist is actived, should collapse it
       if ("ENTER" == uniqKey) {
         //if(this.$dropList && this.$dropList.isActived) {
-        this.doCollapse()
-        return { stop: true, quit: false }
+        this.doCollapse();
+        return { stop: true, quit: false };
         //}
       }
       //....................................
@@ -43673,20 +43680,20 @@ const _M = {
         if (this.$dropList) {
           this.$dropList.selectPrevRow({
             payload: { byKeyboardArrow: true }
-          })
+          });
         }
-        return { prevent: true, stop: true, quit: true }
+        return { prevent: true, stop: true, quit: true };
       }
       //....................................
       if ("ARROWDOWN" == uniqKey) {
         if (this.$dropList && this.isExtended) {
           this.$dropList.selectNextRow({
             payload: { byKeyboardArrow: true }
-          })
+          });
         } else {
-          this.doExtend()
+          this.doExtend();
         }
-        return { prevent: true, stop: true, quit: true }
+        return { prevent: true, stop: true, quit: true };
       }
     }
     //-----------------------------------------------
@@ -43697,38 +43704,38 @@ const _M = {
     "value": {
       handler: function () {
         this.$nextTick(() => {
-          this.evalMyItem()
-        })
+          this.evalMyItem();
+        });
       },
       immediate: true
     },
     //-----------------------------------------------
     "myOptionsData": function () {
       this.$nextTick(() => {
-        this.evalMyItem()
-      })
+        this.evalMyItem();
+      });
     },
     //-----------------------------------------------
     "options": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
-        this.myDict = this.createDict()
-        this.myOptionsData = []
+        this.myDict = this.createDict();
+        this.myOptionsData = [];
         if (this.isExtended) {
           this.$nextTick(() => {
-            this.reloadMyOptionData(true)
-          })
+            this.reloadMyOptionData(true);
+          });
         }
       }
     },
     //-----------------------------------------------
     "dictVars": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
-        this.myDict = this.createDict()
-        this.myOptionsData = []
+        this.myDict = this.createDict();
+        this.myOptionsData = [];
         if (this.isExtended) {
           this.$nextTick(() => {
-            this.reloadMyOptionData(true)
-          })
+            this.reloadMyOptionData(true);
+          });
         }
       }
     }
@@ -43736,12 +43743,12 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   created: function () {
-    this.debReload = _.debounce(val => {
-      this.reloadMyOptionData()
-    }, this.delay)
+    this.debReload = _.debounce((val) => {
+      this.reloadMyOptionData();
+    }, this.delay);
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================

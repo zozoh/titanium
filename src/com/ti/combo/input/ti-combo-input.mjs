@@ -32,105 +32,112 @@ const _M = {
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
-    isCollapse() { return "collapse" == this.myDropStatus },
-    isExtended() { return "extended" == this.myDropStatus },
+    isCollapse() {
+      return "collapse" == this.myDropStatus;
+    },
+    isExtended() {
+      return "extended" == this.myDropStatus;
+    },
     //-----------------------------------------------
     FnOptionFilter() {
       if (_.isFunction(this.optionFilter)) {
-        return this.optionFilter
+        return this.optionFilter;
       }
       if (this.optionFilter) {
-        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter)
-        return Ti.AutoMatch.parse(flt)
+        let flt = Ti.Util.explainObj(this.optionVars, this.optionFilter);
+        return Ti.AutoMatch.parse(flt);
       }
     },
     //------------------------------------------------
     TopClass() {
       let hasWidth = !Ti.Util.isNil(this.width);
       return this.getTopClass({
-        "full-field": !hasWidth,
-      })
+        "full-field": !hasWidth
+      });
     },
     //------------------------------------------------
     ValueTip() {
-      if(this.autoValueTip){
-        let tip = this.value
+      if (this.autoValueTip) {
+        let tip = this.value;
         if (this.myItem && this.Dict) {
-          let text = this.Dict.getText(this.myItem)
-          let value = this.Dict.getValue(this.myItem)
-          tip = `<strong>${text}</strong>: <codd>${value}</code>`
+          let text = this.Dict.getText(this.myItem);
+          let value = this.Dict.getValue(this.myItem);
+          tip = `<strong>${text}</strong>: <codd>${value}</code>`;
         }
         return {
           "data-ti-tip": tip,
-            "data-ti-tip-mode": "H",
-            "data-ti-tip-size": "auto",
-            "data-ti-tip-type": "paper",
-            "data-ti-tip-content-type": "html",
-            "data-ti-keyboard":"ctrl"
-        }
+          "data-ti-tip-mode": "H",
+          "data-ti-tip-size": "auto",
+          "data-ti-tip-type": "paper",
+          "data-ti-tip-content-type": "html",
+          "data-ti-keyboard": "ctrl"
+        };
       }
     },
     //------------------------------------------------
     TheInputProps() {
-      return _.assign({}, {
-        // Data
-        "format": undefined,
-        "valueCase": this.valueCase,
-        "trimed": this.trimed,
-        "autoJsValue": this.autoJsValue,
-        "validator": this.validator,
-        // Behavior
-        "readonly": !this.canInput || this.readonly,
-        "hover": this.hover,
-        "prefixIconForClean": this.prefixIconForClean,
-        "autoSelect": this.autoSelect,
-        "prefixIconNotifyName": this.prefixIconNotifyName,
-        "prefixTextNotifyName": this.prefixTextNotifyName,
-        "suffixIconNotifyName": this.suffixIconNotifyName,
-        "suffixTextNotifyName": this.suffixTextNotifyName,
-        "enterKeyNotifyName": this.enterKeyNotifyName,
-        // Aspect
-        "placeholder": this.placeholder,
-        "autoI18n": this.autoI18n,
-        "hideBorder": this.hideBorder,
-        "prefixIcon": this.prefixIcon,
-        "prefixHoverIcon": this.prefixHoverIcon,
-        "prefixText": this.prefixText,
-        "suffixIcon": this.suffixIcon,
-        "suffixText": this.suffixText,
-        // Measure
-        "width": this.width,
-        "height": this.height
-      })
+      return _.assign(
+        {},
+        {
+          // Data
+          "format": undefined,
+          "valueCase": this.valueCase,
+          "trimed": this.trimed,
+          "autoJsValue": this.autoJsValue,
+          "validator": this.validator,
+          // Behavior
+          "readonly": !this.canInput || this.readonly,
+          "hover": this.hover,
+          "prefixIconForClean": this.prefixIconForClean,
+          "autoSelect": this.autoSelect,
+          "prefixIconNotifyName": this.prefixIconNotifyName,
+          "prefixTextNotifyName": this.prefixTextNotifyName,
+          "suffixIconNotifyName": this.suffixIconNotifyName,
+          "suffixTextNotifyName": this.suffixTextNotifyName,
+          "enterKeyNotifyName": this.enterKeyNotifyName,
+          // Aspect
+          "placeholder": this.placeholder,
+          "autoI18n": this.autoI18n,
+          "hideBorder": this.hideBorder,
+          "prefixIcon": this.prefixIcon,
+          "prefixHoverIcon": this.prefixHoverIcon,
+          "prefixText": this.prefixText,
+          "suffixIcon": this.suffixIcon,
+          "suffixText": this.suffixText,
+          // Measure
+          "width": this.width,
+          "height": this.height
+        }
+      );
     },
     //------------------------------------------------
     InputValue() {
       if (!Ti.Util.isNil(this.myFilterValue)) {
-        return this.myFilterValue
+        return this.myFilterValue;
       }
       if (this.myItem && this.Dict) {
-        let text = this.Dict.getText(this.myItem)
-        let value = this.Dict.getValue(this.myItem)
+        let text = this.Dict.getText(this.myItem);
+        let value = this.Dict.getValue(this.myItem);
         if (this.inputValueDisplay) {
           return Ti.Util.explainObj(this.myItem, this.inputValueDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return text || value
+        return text || value;
       }
-      return this.myFreeValue
+      return this.myFreeValue;
     },
     //------------------------------------------------
     InputFocusValue() {
       if (this.showInputFocusValue) {
         if (!Ti.Util.isNil(this.myFilterValue)) {
-          return this.myFilterValue
+          return this.myFilterValue;
         }
         if (this.myItem && this.Dict) {
-          let value = this.Dict.getValue(this.myItem)
-          return value
+          let value = this.Dict.getValue(this.myItem);
+          return value;
         }
-        return this.myFreeValue
+        return this.myFreeValue;
       }
     },
     //------------------------------------------------
@@ -139,12 +146,12 @@ const _M = {
         if (!_.isUndefined(this.inputPrefixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputPrefixTextDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return Ti.Util.explainObj(this.myItem, this.prefixText)
+        return Ti.Util.explainObj(this.myItem, this.prefixText);
         //return this.Dict.getValue(this.myItem)
       }
-      return Ti.Util.explainObj(this, this.prefixText)
+      return Ti.Util.explainObj(this, this.prefixText);
     },
     //------------------------------------------------
     InputSuffixText() {
@@ -152,98 +159,110 @@ const _M = {
         if (!_.isUndefined(this.inputSuffixTextDisplay)) {
           return Ti.Util.explainObj(this.myItem, this.inputSuffixTextDisplay, {
             evalFunc: true
-          })
+          });
         }
-        return Ti.Util.explainObj(this.myItem, this.suffixText)
+        return Ti.Util.explainObj(this.myItem, this.suffixText);
         //return this.Dict.getValue(this.myItem)
       }
-      return Ti.Util.explainObj(this, this.suffixText)
+      return Ti.Util.explainObj(this, this.suffixText);
     },
     //------------------------------------------------
     GetValueBy() {
-      return it => this.Dict.getValue(it)
+      return (it) => this.Dict.getValue(it);
     },
     //------------------------------------------------
     ThePrefixIcon() {
       if (this.loading) {
-        return "zmdi-settings zmdi-hc-spin"
+        return "zmdi-settings zmdi-hc-spin";
       }
       let icon = this.prefixIcon;
       if (this.myItem && this.Dict) {
-        icon = this.Dict.getIcon(this.myItem) || icon
+        icon = this.Dict.getIcon(this.myItem) || icon;
       }
       if (this.readonly) {
-        return
+        return;
       }
-      return Ti.Util.fallback(icon, "zmdi-minus")
+      return Ti.Util.fallback(icon, "zmdi-minus");
     },
     //------------------------------------------------
     TheSuffixIcon() {
       if (this.readonly) {
-        return
+        return;
       }
-      return this.statusIcons[this.myDropStatus]
+      return this.statusIcons[this.myDropStatus];
     },
     //------------------------------------------------
-    DropComType() { return this.dropComType || "ti-list" },
+    DropComType() {
+      return this.dropComType || "ti-list";
+    },
     DropComConf() {
-      let display = this.dropDisplay
-      if(!display){
+      let display = this.dropDisplay;
+      if (!display) {
         display = Ti.Config.getComProp(COM_TYPE, "dropDisplay", [
           "text|title|nm::flex-auto is-nowrap",
           "id|value::as-tip-block align-right"
-        ])
+        ]);
       }
-      return _.assign({
-        display,
-        blankAs: {
-          className: "as-mid-tip"
+      return _.assign(
+        {
+          display,
+          blankAs: {
+            className: "as-mid-tip"
+          },
+          border: this.dropItemBorder
         },
-        border: this.dropItemBorder
-      }, this.dropComConf, {
-        data: this.myOptionsData,
-        currentId: this.myCurrentId,
-        checkedIds: this.myCheckedIds,
-        idBy: this.GetValueBy,
-        multi: false,
-        hoverable: true,
-        checkable: false,
-        autoCheckCurrent: true,
-        dftLabelHoverCopy: false
-      })
+        this.dropComConf,
+        {
+          data: this.myOptionsData,
+          currentId: this.myCurrentId,
+          checkedIds: this.myCheckedIds,
+          idBy: this.GetValueBy,
+          multi: false,
+          hoverable: true,
+          checkable: false,
+          autoCheckCurrent: true,
+          dftLabelHoverCopy: false
+        }
+      );
     },
     //------------------------------------------------
     Dict() {
       if (!this.myDict) {
-        this.myDict = this.createDict()
+        this.myDict = this.createDict();
       }
-      return this.myDict
+      return this.myDict;
     }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods: {
     //-----------------------------------------------
-    OnDropListInit($dropList) { this.$dropList = $dropList },
+    OnDropListInit($dropList) {
+      this.$dropList = $dropList;
+    },
     //------------------------------------------------
-    OnCollapse() { this.doCollapse() },
+    OnCollapse() {
+      if ("collapse" != this.myDropStatus) {
+        this.doCollapse();
+      }
+    },
     //-----------------------------------------------
     OnInputInputing(val) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.filter) {
-        this.myFilterValue = val
+        this.myFilterValue = val;
         // Auto extends
         if (this.autoFocusExtended) {
           if (!this.isExtended) {
-            this.doExtend(false)
+            this.doExtend(false);
           }
         }
         // Reload options data
         if (this.isExtended) {
-          this.debReload()
+          this.debReload();
         }
       }
     },
@@ -251,108 +270,107 @@ const _M = {
     async OnInputChanged(val, byKeyboardArrow) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       //console.log("haha", {val, byKeyboardArrow})
       // Clean filter
-      this.myFilterValue = null
+      this.myFilterValue = null;
       // Clean
       if (!val) {
-        this.myItem = null
-        this.myFreeValue = null
-        this.myCheckedIds = {}
-        this.myCurrentId = null
+        this.myItem = null;
+        this.myFreeValue = null;
+        this.myCheckedIds = {};
+        this.myCurrentId = null;
       }
       // Find ...
       else {
-        let it = await this.Dict.getItem(val)
+        let it = await this.Dict.getItem(val);
         // Matched tag
         if (it) {
-          this.myItem = it
-          this.myFreeValue = null
-        }
-        else if (!this.mustInList) {
-          this.myItem = null
-          this.myFreeValue = val
+          this.myItem = it;
+          this.myFreeValue = null;
+        } else if (!this.mustInList) {
+          this.myItem = null;
+          this.myFreeValue = val;
         }
       }
-      if (!byKeyboardArrow)
-        this.tryNotifyChanged()
+      if (!byKeyboardArrow) this.tryNotifyChanged();
     },
     //-----------------------------------------------
     async OnInputFocused() {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.autoFocusExtended && !this.isExtended) {
-        await this.doExtend()
+        await this.doExtend();
       }
     },
     //-----------------------------------------------
     async OnClickStatusIcon() {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       if (this.isExtended) {
-        await this.doCollapse()
+        await this.doCollapse();
       } else {
-        await this.doExtend()
+        await this.doExtend();
       }
     },
     //-----------------------------------------------
     async OnDropListSelected({ currentId, byKeyboardArrow } = {}) {
       // Guard
       if (this.readonly) {
-        return
+        return;
       }
       //console.log({currentId, byKeyboardArrow})
-      this.myCurrentId = currentId
-      await this.OnInputChanged(currentId, byKeyboardArrow)
+      this.myCurrentId = currentId;
+      await this.OnInputChanged(currentId, byKeyboardArrow);
       if (this.autoCollapse && !byKeyboardArrow) {
-        await this.doCollapse({ escaped: true })
+        await this.doCollapse({ escaped: true });
       }
     },
     //-----------------------------------------------
     // Core Methods
     //-----------------------------------------------
     async doExtend(tryReload = true) {
-      this.myOldValue = this.evalMyValue()
+      this.myOldValue = this.evalMyValue();
       // Try reload options again
       if (tryReload && _.isEmpty(this.myOptionsData)) {
-        await this.reloadMyOptionData(true)
+        await this.reloadMyOptionData(true);
       }
       this.$nextTick(() => {
-        this.myDropStatus = "extended"
-      })
+        this.myDropStatus = "extended";
+      });
     },
     //-----------------------------------------------
     async doCollapse({ escaped = false } = {}) {
       if (escaped) {
-        await this.evalMyItem(this.myOldValue)
-      }
-      else if (this.myFilterValue && !_.isEqual(this.myFilterValue, this.myOldValue)) {
-        await this.evalMyItem(this.myFilterValue)
-        this.tryNotifyChanged()
+        await this.evalMyItem(this.myOldValue);
+      } else if (
+        this.myFilterValue &&
+        !_.isEqual(this.myFilterValue, this.myOldValue)
+      ) {
+        await this.evalMyItem(this.myFilterValue);
+        this.tryNotifyChanged();
       }
       // Try notify
       else {
-        this.tryNotifyChanged()
+        this.tryNotifyChanged();
       }
-      this.myDropStatus = "collapse"
-      this.myOldValue = undefined
-      this.myFilterValue = null
-      this.myOptionsData = null
+      this.myDropStatus = "collapse";
+      this.myOldValue = undefined;
+      this.myFilterValue = null;
+      this.myOptionsData = null;
     },
     //-----------------------------------------------
     tryNotifyChanged() {
-      let val = this.evalMyValue()
+      let val = this.evalMyValue();
       //console.log("tryNotifyChanged", val)
-      if (Ti.Util.isNil(val) && Ti.Util.isNil(this.value))
-        return
+      if (Ti.Util.isNil(val) && Ti.Util.isNil(this.value)) return;
       if (!_.isEqual(val, this.value)) {
-        this.$notify("change", val)
+        this.$notify("change", val);
       }
     },
     //-----------------------------------------------
@@ -362,39 +380,37 @@ const _M = {
       //console.log("evalMyValue", item, freeValue)
       // Item
       if (item) {
-        return this.Dict.getValue(item)
+        return this.Dict.getValue(item);
       }
       // Ignore free values
-      return this.mustInList
-        ? null
-        : freeValue
+      return this.mustInList ? null : freeValue;
     },
     //-----------------------------------------------
     async evalMyItem(val = this.value) {
       //console.log("before evalMyItem", val)
       let it;
       if (this.Dict) {
-        it = await this.Dict.getItem(val)
+        it = await this.Dict.getItem(val);
       }
       //console.log("after evalMyItem: it", it)
       if (_.isArray(it)) {
-        console.error("!!!!!!! kao ~~~~~~~")
-        it = null
+        console.error("!!!!!!! kao ~~~~~~~");
+        it = null;
       }
       // Update state
       if (it) {
-        let itV = this.Dict.getValue(it)
-        this.myItem = it
-        this.myFreeValue = null
-        this.myCurrentId = itV
-        this.myCheckedIds = { [itV]: true }
+        let itV = this.Dict.getValue(it);
+        this.myItem = it;
+        this.myFreeValue = null;
+        this.myCurrentId = itV;
+        this.myCheckedIds = { [itV]: true };
       }
       // Clean
       else {
-        this.myItem = null
-        this.myFreeValue = this.mustInList ? null : val
-        this.myCurrentId = null
-        this.myCheckedIds = {}
+        this.myItem = null;
+        this.myFreeValue = this.mustInList ? null : val;
+        this.myCurrentId = null;
+        this.myCheckedIds = {};
       }
     },
     //------------------------------------------------
@@ -409,7 +425,7 @@ const _M = {
         iconBy: this.iconBy,
         vars: this.dictVars,
         whenLoading: ({ loading }) => {
-          this.loading = loading
+          this.loading = loading;
         }
       });
     },
@@ -417,28 +433,28 @@ const _M = {
     async reloadMyOptionData(force = false) {
       //console.log("reloadMyOptionData")
       if (force || this.isExtended) {
-        let list = await this.Dict.queryData(this.myFilterValue)
+        let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
-          let list2 = []
+          let list2 = [];
           for (let i = 0; i < list.length; i++) {
-            let li = list[i]
-            let li2 = this.FnOptionFilter(li, i, list)
+            let li = list[i];
+            let li2 = this.FnOptionFilter(li, i, list);
             if (!li2) {
               continue;
             }
             if (_.isBoolean(li2)) {
-              list2.push(li)
+              list2.push(li);
             } else {
-              list2.push(li2)
+              list2.push(li2);
             }
           }
-          list = list2
+          list = list2;
         }
-        this.myOptionsData = list
+        this.myOptionsData = list;
       } else {
-        this.myOptionsData = []
+        this.myOptionsData = [];
       }
-      return this.myOptionsData
+      return this.myOptionsData;
     },
     //-----------------------------------------------
     // Callback
@@ -447,15 +463,15 @@ const _M = {
       //console.log("ti-combo-multi-input", uniqKey)
       //....................................
       if ("ESCAPE" == uniqKey) {
-        this.doCollapse({ escaped: true })
-        return { prevent: true, stop: true, quit: true }
+        this.doCollapse({ escaped: true });
+        return { prevent: true, stop: true, quit: true };
       }
       //....................................
       // If droplist is actived, should collapse it
       if ("ENTER" == uniqKey) {
         //if(this.$dropList && this.$dropList.isActived) {
-        this.doCollapse()
-        return { stop: true, quit: false }
+        this.doCollapse();
+        return { stop: true, quit: false };
         //}
       }
       //....................................
@@ -463,20 +479,20 @@ const _M = {
         if (this.$dropList) {
           this.$dropList.selectPrevRow({
             payload: { byKeyboardArrow: true }
-          })
+          });
         }
-        return { prevent: true, stop: true, quit: true }
+        return { prevent: true, stop: true, quit: true };
       }
       //....................................
       if ("ARROWDOWN" == uniqKey) {
         if (this.$dropList && this.isExtended) {
           this.$dropList.selectNextRow({
             payload: { byKeyboardArrow: true }
-          })
+          });
         } else {
-          this.doExtend()
+          this.doExtend();
         }
-        return { prevent: true, stop: true, quit: true }
+        return { prevent: true, stop: true, quit: true };
       }
     }
     //-----------------------------------------------
@@ -487,38 +503,38 @@ const _M = {
     "value": {
       handler: function () {
         this.$nextTick(() => {
-          this.evalMyItem()
-        })
+          this.evalMyItem();
+        });
       },
       immediate: true
     },
     //-----------------------------------------------
     "myOptionsData": function () {
       this.$nextTick(() => {
-        this.evalMyItem()
-      })
+        this.evalMyItem();
+      });
     },
     //-----------------------------------------------
     "options": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
-        this.myDict = this.createDict()
-        this.myOptionsData = []
+        this.myDict = this.createDict();
+        this.myOptionsData = [];
         if (this.isExtended) {
           this.$nextTick(() => {
-            this.reloadMyOptionData(true)
-          })
+            this.reloadMyOptionData(true);
+          });
         }
       }
     },
     //-----------------------------------------------
     "dictVars": function (newval, oldval) {
       if (!_.isEqual(newval, oldval)) {
-        this.myDict = this.createDict()
-        this.myOptionsData = []
+        this.myDict = this.createDict();
+        this.myOptionsData = [];
         if (this.isExtended) {
           this.$nextTick(() => {
-            this.reloadMyOptionData(true)
-          })
+            this.reloadMyOptionData(true);
+          });
         }
       }
     }
@@ -526,10 +542,10 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   created: function () {
-    this.debReload = _.debounce(val => {
-      this.reloadMyOptionData()
-    }, this.delay)
+    this.debReload = _.debounce((val) => {
+      this.reloadMyOptionData();
+    }, this.delay);
   }
   ////////////////////////////////////////////////////
-}
+};
 export default _M;

@@ -571,6 +571,7 @@ const _M = {
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,
           type: this.defaultFieldType || "String",
+          checkEquals: Ti.Util.fallback(fld.checkEquals, true),
           comType,
           comConf: {},
           disabled
@@ -754,7 +755,7 @@ const _M = {
           labelConf.className = field.labelClass || "is-nowrap";
           // If options
           if (comConf && comConf.options) {
-          let dictName = Ti.DictFactory.DictReferName(comConf.options);
+            let dictName = Ti.DictFactory.DictReferName(comConf.options);
             if (dictName) {
               labelConf.dict = dictName;
             }
