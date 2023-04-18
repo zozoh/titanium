@@ -79,6 +79,7 @@ const _M = {
       //...........................................
       // Prepare the list
       let list = _.filter(_.concat(values), (v) => !Ti.Util.isNil(v))
+      
       // Join the last one
       if (!Ti.Util.isNil(newTagVal)) {
         list.push(newTagVal)

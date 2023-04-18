@@ -1,4 +1,4 @@
-// Pack At: 2023-04-18 01:49:01
+// Pack At: 2023-04-19 00:58:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -35079,28 +35079,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "dict" : {
-    type : [String, Ti.Dict],
-    default : null
+  "dict": {
+    type: [String, Ti.Dict],
+    default: null
   },
-  "inputValue" : null,
+  "inputValue": null,
   // +1 from the begin
   // -1 from the last
-  "maxValueLen" : {
-    type : Number,
-    default : 0
+  "maxValueLen": {
+    type: Number,
+    default: 0
   },
-  "valueUnique" : {
-    type : Boolean,
-    default : true
+  "valueUnique": {
+    type: Boolean,
+    default: true
   },
-  "tagOptions" : {
-    type : [Array, Function],
-    default : ()=>[]
+  "tagOptions": {
+    type: [Array, Function],
+    default: () => []
   },
-  "tagMapping" : {
-    type : Object,
-    default : undefined
+  "tagMapping": {
+    type: Object,
+    default: undefined
   },
   "tagExplainMapping": {
     type: Boolean,
@@ -35109,30 +35109,34 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "canInput" : {
-    type : Boolean,
-    default : true
+  "canInput": {
+    type: Boolean,
+    default: true
   },
-  "cancelTagBubble" : {
-    type : Boolean,
-    default : false
+  "cancelTagBubble": {
+    type: Boolean,
+    default: false
+  },
+  "tagKeyBy": {
+    type: [String, Function],
+    default: "value"
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "tagItemIconBy" : {
-    type : [String, Function],
-    default : undefined
+  "tagItemIconBy": {
+    type: [String, Function],
+    default: undefined
   },
-  "tagItemDefaultIcon" : {
-    type : String,
-    default : null
+  "tagItemDefaultIcon": {
+    type: String,
+    default: null
   },
-  "tagOptionDefaultIcon" : {
-    type : String,
-    default : undefined
+  "tagOptionDefaultIcon": {
+    type: String,
+    default: undefined
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -86519,6 +86523,7 @@ const _M = {
       //...........................................
       // Prepare the list
       let list = _.filter(_.concat(values), (v) => !Ti.Util.isNil(v))
+      
       // Join the last one
       if (!Ti.Util.isNil(newTagVal)) {
         list.push(newTagVal)
@@ -91440,6 +91445,7 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
       :readonly="readonly"
       :item-options="tagOptions"
       :item-icon-by="tagItemIconBy"
+      :keyBy="tagKeyBy"
       :item-default-icon="tagItemDefaultIcon"
       :option-default-icon="tagOptionDefaultIcon"
       :mapping="tagMapping"
