@@ -14242,14 +14242,14 @@ article.ti-article.is-theme-wiki {
         .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev {
           left: 0; }
         .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev:hover {
-          color: #FFF;
+          color: #fff;
           background-color: rgba(50, 50, 50, 0.2); }
           .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-prev:hover span {
             transform: translateX(-2px) scale(1.1); }
         .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next {
           right: 0; }
         .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next:hover {
-          color: #FFF;
+          color: #fff;
           background-color: rgba(120, 120, 120, 0.4); }
           .ti-widget-photo-gallery .photo-gallery-con > .as-indicator div.as-indi-btn.to-next:hover span {
             transform: translateX(2px) scale(1.1); }
@@ -14292,7 +14292,7 @@ article.ti-article.is-theme-wiki {
             display: inline-block;
             width: 100%;
             height: 100%;
-            border: 1px dashed #CCC;
+            border: 1px dashed #ccc;
             border-radius: 4px; }
           .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a:hover {
             text-decoration: none;
@@ -14303,7 +14303,7 @@ article.ti-article.is-theme-wiki {
           .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a.is-current {
             opacity: 1; }
             .ti-widget-photo-gallery .photo-gallery-con > .as-indicator ul a.is-current img {
-              border-color: #FFF; }
+              border-color: #fff; }
       .ti-widget-photo-gallery .photo-gallery-con > .as-indicator[item-overflow] {
         padding: 0 0.5rem; }
         .ti-widget-photo-gallery .photo-gallery-con > .as-indicator[item-overflow] div.as-indi-con {
@@ -14340,7 +14340,7 @@ article.ti-article.is-theme-wiki {
         padding: 0.24rem 0.6rem;
         font-size: 0.2rem;
         text-align: justify;
-        color: #FFF;
+        color: #fff;
         background: rgba(0, 0, 0, 0.3);
         z-index: 1;
         transition: 0.5s; }
@@ -14367,7 +14367,7 @@ article.ti-article.is-theme-wiki {
         background-repeat: no-repeat;
         background-position: center;
         font-size: 0.64rem;
-        color: #EEE; }
+        color: #eee; }
       .ti-widget-photo-gallery div.as-scroller .as-tile[img-nil] > img {
         position: absolute;
         visibility: hidden; }
@@ -14391,7 +14391,8 @@ article.ti-article.is-theme-wiki {
       flex-wrap: wrap;
       width: 0.64rem;
       height: 0.64rem;
-      color: #FFF;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
       opacity: 0.6;
       font-size: 0.24rem;
       font-weight: bold;
@@ -14409,7 +14410,7 @@ article.ti-article.is-theme-wiki {
     align-items: center;
     align-content: center;
     flex-wrap: nowrap;
-    padding: 0.1rem;
+    padding: 0.2rem;
     z-index: 3; }
     .ti-widget-photo-gallery div.as-toolbar a {
       display: flex;
@@ -14419,17 +14420,27 @@ article.ti-article.is-theme-wiki {
       flex-wrap: wrap;
       width: 0.42rem;
       height: 0.42rem;
-      color: #FFF;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
       opacity: 0.6;
-      font-size: 0.24rem;
       font-weight: bold;
       cursor: pointer;
-      transition: 0.3s;
       text-decoration: none; }
+      .ti-widget-photo-gallery div.as-toolbar a:first-child {
+        border-top-left-radius: 0.08rem;
+        border-bottom-left-radius: 0.08rem; }
+      .ti-widget-photo-gallery div.as-toolbar a:last-child {
+        border-top-right-radius: 0.08rem;
+        border-bottom-right-radius: 0.08rem;
+        margin-left: 1px; }
+      .ti-widget-photo-gallery div.as-toolbar a > i {
+        transition: font-size 0.3s;
+        font-size: 0.24rem; }
       .ti-widget-photo-gallery div.as-toolbar a:hover {
         opacity: 1;
-        transform: scale(1.2);
         text-decoration: none; }
+        .ti-widget-photo-gallery div.as-toolbar a:hover > i {
+          font-size: 0.32rem; }
   .ti-widget-photo-gallery div.as-switcher-btn {
     position: absolute;
     top: 0;
@@ -14457,7 +14468,8 @@ article.ti-article.is-theme-wiki {
       text-align: center;
       font-size: 0.64rem;
       cursor: pointer;
-      color: #FFF;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
       opacity: 0.6; }
       .ti-widget-photo-gallery div.as-switcher-btn span i:hover {
         background-color: rgba(240, 240, 240, 0.2);
@@ -14473,17 +14485,22 @@ article.ti-article.is-theme-wiki {
       align-items: center;
       align-content: center;
       flex-wrap: wrap;
+      border-radius: 0 0 0 0.08rem;
       text-decoration: none;
-      width: 0.64rem;
-      height: 0.64rem;
-      color: #CCC;
-      font-size: 0.4rem;
+      width: 0.5rem;
+      height: 0.5rem;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #ccc;
+      font-size: 0.32rem;
       font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s; }
+      cursor: pointer; }
+      .ti-widget-photo-gallery div.as-closer a > i {
+        display: block;
+        transition: transform 0.3s; }
       .ti-widget-photo-gallery div.as-closer a:hover {
-        transform: rotate(180deg) scale(1.2);
-        color: #FFF;
+        color: #fff;
         text-decoration: none; }
+        .ti-widget-photo-gallery div.as-closer a:hover > i {
+          transform: rotate(180deg) scale(1.2); }
 
 /*# sourceMappingURL=light.css.map */

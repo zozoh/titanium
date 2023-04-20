@@ -1,6 +1,6 @@
 .ti-widget-photo-gallery {
   @include pos-fixed-full;
-  z-index : $z-top;
+  z-index: $z-top;
   background: #000;
   opacity: 0;
   transition: opacity 0.5s;
@@ -12,7 +12,8 @@
   //---------------------------------------
   &.no-ready {
     div.as-closer span {
-      transform: rotate(180deg) scale(0.6); opacity: 0.3;
+      transform: rotate(180deg) scale(0.6);
+      opacity: 0.3;
     }
   }
   //---------------------------------------
@@ -20,87 +21,123 @@
     opacity: 1;
   }
   //---------------------------------------
-  &.no-prev div.as-switcher-btn.is-prev {display:none;}
-  &.no-next div.as-switcher-btn.is-next {display:none;}
+  &.no-prev div.as-switcher-btn.is-prev {
+    display: none;
+  }
+  &.no-next div.as-switcher-btn.is-next {
+    display: none;
+  }
   //---------------------------------------
   .photo-gallery-con {
     @include flex-align-v-nowrap;
-    width:100%; height:100%; position: relative;
+    width: 100%;
+    height: 100%;
+    position: relative;
     //-------------------------------------
     > .as-viewport {
-      width:100%; height:100%; overflow: hidden;
-      flex:1 1 auto;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      flex: 1 1 auto;
       position: relative;
     }
     //-------------------------------------
     > .as-indicator {
       @include flex-align-nowrap;
-      padding: 0; position: relative;
-      flex:0 0 auto;
+      padding: 0;
+      position: relative;
+      flex: 0 0 auto;
       z-index: 1;
       //-----------------------------------
       div.as-indi-btn {
-        @include pos-abs($t:0,$b:0,$w:SZ(50));
+        @include pos-abs($t: 0, $b: 0, $w: SZ(50));
         display: none;
         cursor: pointer;
         //---------------------------------
-        span {transition: 0.2s;}
-        //---------------------------------
-        &.to-prev {left:0;}
-        &.to-prev:hover {
-          color: #FFF;
-          background-color: rgba(50,50,50,0.2);
-          span{transform: translateX(-2px) scale(1.1);}
+        span {
+          transition: 0.2s;
         }
         //---------------------------------
-        &.to-next {right:0;}
+        &.to-prev {
+          left: 0;
+        }
+        &.to-prev:hover {
+          color: #fff;
+          background-color: rgba(50, 50, 50, 0.2);
+          span {
+            transform: translateX(-2px) scale(1.1);
+          }
+        }
+        //---------------------------------
+        &.to-next {
+          right: 0;
+        }
         &.to-next:hover {
-          color: #FFF;
-          background-color: rgba(120,120,120,0.4);
-          span{transform: translateX(2px) scale(1.1);}
+          color: #fff;
+          background-color: rgba(120, 120, 120, 0.4);
+          span {
+            transform: translateX(2px) scale(1.1);
+          }
         }
         //---------------------------------
       }
       //-----------------------------------
       div.as-indi-con {
-        @include flex-align-nowrap($jc:center);
-        width:100%; overflow: hidden;
+        @include flex-align-nowrap($jc: center);
+        width: 100%;
+        overflow: hidden;
       }
       //-----------------------------------
       ul {
         @include flex-align-nowrap;
-        padding: SZ(10); flex:0 1 auto;
-        position: relative; transition: 0.3s;
+        padding: SZ(10);
+        flex: 0 1 auto;
+        position: relative;
+        transition: 0.3s;
         //---------------------------------
         img {
-          width:100%; height:100%; object-fit: cover;
-          border:2px solid transparent; border-radius: 4px;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border: 2px solid transparent;
+          border-radius: 4px;
         }
         //---------------------------------
         a {
-          display: block; flex:0 0 auto;
-          width: SZ(50); height: SZ(50); opacity: 0.6;
-          cursor: pointer; transition: 0.3s; 
+          display: block;
+          flex: 0 0 auto;
+          width: SZ(50);
+          height: SZ(50);
+          opacity: 0.6;
+          cursor: pointer;
+          transition: 0.3s;
           text-decoration: none;
           //-------------------------------
-          &[img-nil] {padding: SZ(4);}
+          &[img-nil] {
+            padding: SZ(4);
+          }
           span.nil-img {
-            display: inline-block; width:100%; height:100%;
-            border:1px dashed #CCC;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            border: 1px dashed #ccc;
             border-radius: 4px;
           }
           //-------------------------------
           &:hover {
             text-decoration: none;
-            opacity: 1; transform: translateY(-3px) scale(1.2); 
+            opacity: 1;
+            transform: translateY(-3px) scale(1.2);
             img {
-              border-color: rgba(255,255,255, 0.6);
+              border-color: rgba(255, 255, 255, 0.6);
             }
           }
           //-------------------------------
           &.is-current {
             opacity: 1;
-            img {border-color: #FFF;}
+            img {
+              border-color: #fff;
+            }
           }
           //-------------------------------
         }
@@ -122,21 +159,24 @@
   }
   //---------------------------------------
   div.as-scroller {
-    @include flex-align-nowrap($ai:stretch);
-    position: relative; transition: 0.3s;
-    height:100%;
+    @include flex-align-nowrap($ai: stretch);
+    position: relative;
+    transition: 0.3s;
+    height: 100%;
     //-------------------------------------
     .as-tile {
       @include flex-center;
       position: relative;
-      flex:0 0 auto;
+      flex: 0 0 auto;
       padding: SZ(50);
       //-----------------------------------
       header {
-        @include pos-abs($t:0,$l:0,$r:0);
-        padding: SZ(24) SZ(60); font-size: SZ(20);
+        @include pos-abs($t: 0, $l: 0, $r: 0);
+        padding: SZ(24) SZ(60);
+        font-size: SZ(20);
         text-align: justify;
-        color: #FFF; background: rgba(0,0,0,0.3);
+        color: #fff;
+        background: rgba(0, 0, 0, 0.3);
         z-index: 1;
         transition: 0.5s;
       }
@@ -146,7 +186,9 @@
       }
       //-----------------------------------
       img {
-        border:0; width:100%; height:100%;
+        border: 0;
+        width: 100%;
+        height: 100%;
         object-fit: contain;
         transition: 0.3s;
         cursor: move;
@@ -155,17 +197,19 @@
       //-----------------------------------
       span.nil-img {
         @include flex-center;
-        width:100%; height:100%;
-        background: rgba(100,100,100,0.2);
+        width: 100%;
+        height: 100%;
+        background: rgba(100, 100, 100, 0.2);
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
         font-size: SZ(64);
-        color: #EEE;
+        color: #eee;
       }
       //-----------------------------------
       &[img-nil] > img {
-        position: absolute; visibility: hidden;
+        position: absolute;
+        visibility: hidden;
       }
       //-----------------------------------
       &[img-loaded] > span.nil-img {
@@ -181,15 +225,22 @@
   }
   //---------------------------------------
   a.as-opener {
-    @include pos-abs($t:0,$l:0);
-    padding: SZ(10); z-index: 2;
-    display: none; text-decoration: none;
+    @include pos-abs($t: 0, $l: 0);
+    padding: SZ(10);
+    z-index: 2;
+    display: none;
+    text-decoration: none;
     &[href] {
       @include flex-center;
-      width: SZ(64); height: SZ(64);
-      color: #FFF; opacity: 0.6;
-      font-size: SZ(24); font-weight: bold;
-      cursor: pointer; transition: 0.3s;
+      width: SZ(64);
+      height: SZ(64);
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      opacity: 0.6;
+      font-size: SZ(24);
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
       &:hover {
         opacity: 1;
         text-decoration: none;
@@ -198,59 +249,97 @@
   }
   //---------------------------------------
   div.as-toolbar {
-    @include pos-abs($r:0,$b:0);
+    @include pos-abs($r: 0, $b: 0);
     @include flex-align-nowrap;
-    padding: SZ(10); z-index: 3;
+    padding: SZ(20);
+    z-index: 3;
     a {
       @include flex-center;
-      width: SZ(42); height: SZ(42);
-      color: #FFF; opacity: 0.6;
-      font-size: SZ(24); font-weight: bold;
-      cursor: pointer; transition: 0.3s;
+      width: SZ(42);
+      height: SZ(42);
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
+      opacity: 0.6;
+      font-weight: bold;
+      cursor: pointer;
       text-decoration: none;
+      &:first-child {
+        border-top-left-radius: SZ(8);
+        border-bottom-left-radius: SZ(8);
+      }
+      &:last-child {
+        border-top-right-radius: SZ(8);
+        border-bottom-right-radius: SZ(8);
+        margin-left: 1px;
+      }
+      > i {
+        transition: font-size 0.3s;
+        font-size: SZ(24);
+      }
       &:hover {
-        opacity: 1; transform:scale(1.2);
+        opacity: 1;
         text-decoration: none;
+        > i {
+          font-size: SZ(32);
+        }
       }
     }
   }
   //---------------------------------------
   div.as-switcher-btn {
-    @include pos-abs($t:0,$b:0);
+    @include pos-abs($t: 0, $b: 0);
     @include flex-center;
-    &.is-prev {left:0;}
-    &.is-next {right:0;}
+    &.is-prev {
+      left: 0;
+    }
+    &.is-next {
+      right: 0;
+    }
     padding: SZ(10);
     span i {
       @include flex-center;
-      display: block; width:SZ(64); height: SZ(64);
-      border-radius: 50%; text-align: center;
+      display: block;
+      width: SZ(64);
+      height: SZ(64);
+      border-radius: 50%;
+      text-align: center;
       font-size: SZ(64);
-      cursor: pointer; 
-      color: #FFF;
+      cursor: pointer;
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #fff;
       opacity: 0.6;
       &:hover {
-        background-color: rgba(240,240,240,0.2);
-        opacity: 1;        
+        background-color: rgba(240, 240, 240, 0.2);
+        opacity: 1;
       }
     }
   }
   //---------------------------------------
   div.as-closer {
-    @include pos-abs($t:0,$r:0);
+    @include pos-abs($t: 0, $r: 0);
     z-index: 2;
     //-------------------------------------
     a {
       @include flex-center;
+      border-radius: 0 0 0 SZ(8);
       text-decoration: none;
-      width: SZ(64); height: SZ(64);
-      color: #CCC;
-      font-size: SZ(40); font-weight: bold;
-      cursor: pointer; transition: 0.3s;
+      width: SZ(50);
+      height: SZ(50);
+      background-color: rgba(0, 0, 0, 0.4);
+      color: #ccc;
+      font-size: SZ(32);
+      font-weight: bold;
+      cursor: pointer;
+      > i {
+        display: block;
+        transition: transform 0.3s;
+      }
       &:hover {
-        transform: rotate(180deg) scale(1.2);
-        color: #FFF;
+        color: #fff;
         text-decoration: none;
+        > i {
+          transform: rotate(180deg) scale(1.2);
+        }
       }
     }
     //-------------------------------------
