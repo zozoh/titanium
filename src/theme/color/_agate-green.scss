@@ -1,10 +1,10 @@
 //-----------------------------------------------------
 // Define color variables
-$color-primary   : (c:#009688, r:#FFF);
+$color-primary   : (c:#009688, r:#e6f5f3);
 $color-secondary : (c:#ff4081, r:#FFF);
 $color-success: (c:#4caf50, r:#CFC);
 $color-warn   : (c:#FF8800, r:#FFC);
-$color-info   : (c:#2196f3, r:#FFF);
+$color-info   : (c:#303133, r:#FFF);
 $color-error  : (c:#f44336, r:#FCC);
 $color-track  : (c:#888, r:#FFF);
 $color-disable: (c:#999, r:#CCC, t:#BBD);
@@ -13,13 +13,14 @@ $color-number : (c:#08F, r:#FFF);
 //...........................................
 $color-sky : (c:#2196f3, r:#FFF);
 //...........................................
-$color-paper : (c:#F0F0F0,    r:#444);
-$color-chip  : (c:#e8e8e8,    r:#666);
+$color-card : (c:#FFF,    r:#f1f2f4);
+$color-paper : (c:#FFF,    r:#000);
+$color-chip  : (c:#e8e8e8,    r:#222);
 $color-cloak : (c:rgba(230,230,230,0.8), r:#666);
-$color-body  : (c:#FAFAFA, r:#444);
-$color-page  : (c:#FFFFFF, r:#DDD);
-$color-bar   : (c:#F0F0F0, r:#888);
-$color-func  : (c:#E0E0E0, r:#666);
+$color-body  : (c:#FFF, r:#000);
+$color-page  : (c:#FFF, r:#000);
+$color-bar   : (c:#F5F7FA, r:#222);
+$color-func  : (c:#E0E0E0, r:#000);
 $color-shadow : (
   c:rgba(20,20,20,0.3), r:#AAA,
   heavy : rgba(20,20,20,0.5),
@@ -39,12 +40,12 @@ $color-mask: (
   bushy : rgba(50,50,50,0.618),
   thin  : rgba(50,50,50,0.372),
   weak  : rgba(220,220,220,0.3),
-  r : #cce8ff
+  r : #aee0db
 );
 //...........................................
 $color-line: (
   dark      : rgba(0,0,0,0.2),
-  shallow   : rgba(0,0,0,0.1),
+  shallow   : #e4e7ed,
   weak      : rgba(0,0,0,0.06),
   highlight : map-get($color-primary, c)
 );

@@ -1,50 +1,51 @@
-<div class="ti-gui-block" 
-  :class="TopClass"
-  :style="TopStyle">
-  <!--
+<div class="ti-gui-block" :class="TopClass" :style="TopStyle">
+  <div class="block-con">
+    <!--
     Header
   -->
-  <div class="block-head" v-if="isShowHeader">
-    <!--Icon-->
-    <div class="as-icon" v-if="icon">
-      <ti-icon :value="icon"/>
+    <div class="block-head" v-if="isShowHeader">
+      <!--Icon-->
+      <div class="as-icon" v-if="icon">
+        <ti-icon :value="icon" />
+      </div>
+      <!--Title-->
+      <div class="as-title">
+        <span v-if="title">{{title|i18n}}</span>
+      </div>
+      <!--Actions-->
+      <div class="as-actions" v-if="hasActions">
+        <ti-actionbar
+          :items="actions"
+          :vars="TheActionVars"
+          :status="actionStatus"
+        />
+      </div>
     </div>
-    <!--Title-->
-    <div class="as-title">
-      <span v-if="title">{{title|i18n}}</span>
-    </div>
-    <!--Actions-->
-    <div class="as-actions" v-if="hasActions">
-      <ti-actionbar 
-        :items="actions"
-        :vars="TheActionVars"
-        :status="actionStatus"/>
-    </div>
-  </div>
-  <!--
+    <!--
     Content
   -->
-  <div class="block-main" v-if="TheCom" :style="MainStyle">
-    <!------------------------------------------->
-    <div class="block-main-con"
-      :class="MainConClass"
-      :style="MainConStyle">
-      <component 
-        :class="MainComponentClass"
-        :is="TheCom.comType"
-        v-bind="TheCom.comConf"/>
-    </div>    
-    <!------------------------------------------->
+    <div class="block-main" v-if="TheCom" :style="MainStyle">
+      <!------------------------------------------->
+      <div class="block-main-con" :class="MainConClass" :style="MainConStyle">
+        <component
+          :class="MainComponentClass"
+          :is="TheCom.comType"
+          v-bind="TheCom.comConf"
+        />
+      </div>
+      <!------------------------------------------->
+    </div>
   </div>
   <!--
     Bar
   -->
   <TiGuiAdjustbar
     v-if="hasAdjustBar"
-      :prevMinimum="isPrevMinimumSize"
-      :selfMinimum="isMinimumSize"
-      :resizeMode="resizeMode"
-      :adjacentMode="adjacentMode"
-      :adjustBarAt="adjustBarAt"
-      :adjustIndex="adjustIndex"/>
- </div>
+    :prevMinimum="isPrevMinimumSize"
+    :selfMinimum="isMinimumSize"
+    :resizeMode="resizeMode"
+    :adjacentMode="adjacentMode"
+    :adjustBarAt="adjustBarAt"
+    :adjustIndex="adjustIndex"
+  />
+</div>

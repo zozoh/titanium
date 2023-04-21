@@ -1,26 +1,70 @@
 //////////////////////////////////////////////
 // Sidebar: nav
 .wn-gui-side-nav {
-  width:100%; height:100%;
-  overflow-x:hidden; overflow-y:auto; 
-  padding: 1px 0; line-height: 2.4em;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 1px 0;
+  line-height: 2.4em;
+  &.as-spacing-comfy .side-nav-item .it-info {
+    padding: 0.5em 1em 0.5em 2em;
+  }
+  > header {
+    padding: 0.5em;
+    .ti-icon {
+      color: map-get($color-primary, c);
+      font-size: SZ(48);
+      margin: 0 auto;
+      height: SZ(60);
+    }
+    h2 {
+      color: map-get($color-info, c);
+      text-align: center;
+      font-size: SZ(22);
+      font-weight: 700;
+      margin: SZ(8) 0;
+    }
+  }
+  &.header-nowrap > header {
+    @include flex-align-nowrap;
+    .ti-icon {
+      font-size: SZ(32);
+      margin: 0 0.5em;
+      height: unset;
+    }
+  }
   .side-nav-item {
     .it-info {
       @include noselect;
-      @include flex-align($ai:center, $wp:nowrap);
-      width:100%; padding:0 .5em; cursor: pointer;
+      @include flex-align($ai: center, $wp: nowrap);
+      width: 100%;
+      padding: 0 0.5em 0 .5em;
+      border-left: 0.3em solid transparent;
+      cursor: pointer;
+      &:hover {
+        @include color($color-cloak, r, c);
+      }
+      > a {
+        color: inherit;
+        &:hover {
+          text-decoration: none;
+        }
+      }
       > .it-info-icon {
         @include flex-center;
-        width:SZ(28); font-size: SZ(18);
-        margin-right:SZ(6);
+        width: SZ(28);
+        font-size: SZ(18);
+        margin-right: SZ(6);
       }
       > .it-info-text {
-        flex:1 1 auto; 
+        flex: 1 1 auto;
         @include text-overflow;
       }
       > .it-grp-status {
         @include flex-center;
-        width: 1.4em; height:2em;
+        width: 1.4em;
+        height: 2em;
         font-size: 0.9em;
         &:hover {
           @include color($color-weaktip, r, c);
@@ -28,18 +72,24 @@
       }
     }
     .it-con {
-      padding:.2em 0 .6em 1em;  
+      padding: 0.2em 0 0.6em 0.1em;
     }
     &.is-sub.nil-icon {
       .it-info {
-        padding-left: SZ(20);
+        padding-left: 1.6em;
       }
     }
     &.is-highlight {
       > .it-info {
-        @include color($color-primary, r, c);
-        a{color:unset;}
-        a:hover {text-decoration: none; color:unset;}
+        @include color($color-primary, c, r);
+        border-left-color: map-get($color-primary, c);
+        a {
+          color: unset;
+        }
+        a:hover {
+          text-decoration: none;
+          color: unset;
+        }
       }
     }
     &.is-group {
@@ -47,9 +97,10 @@
       > .it-info {
         @include border(1px, solid, shallow, top);
         @include border(1px, dotted, shallow, bottom);
-        font-size:.9em;
+        font-size: 0.9em;
         > .it-info-icon {
-          width:SZ(20); font-size:SZ(16); 
+          width: SZ(20);
+          font-size: SZ(16);
         }
       }
     }
@@ -57,9 +108,9 @@
       &.is-group > .it-info {
         background: map-get($color-chip, c);
         color: map-get($color-primary, c);
-        border-bottom:1px solid transparent;
+        border-bottom: 1px solid transparent;
       }
-      &.is-group.is-highlight  > .it-info {
+      &.is-group.is-highlight > .it-info {
         @include color($color-primary, r, c);
       }
       > .it-con {
@@ -71,22 +122,28 @@
 //////////////////////////////////////////////
 // Sidebar: tree
 .wn-gui-side-tree {
-  padding-right:0; padding-left:0;
+  padding-right: 0;
+  padding-left: 0;
   //------------------------------------------
   .table-row.row-indent-0 {
     @include color($color-chip, r, c);
     @include border(1px, solid, shallow, bottom);
-    padding:SZ(2) 0 SZ(2) SZ(2);
+    padding: SZ(2) 0 SZ(2) SZ(2);
   }
   //------------------------------------------
-    .table-row.row-indent-0 .ti-icon {font-size:1em;}
-  .table-row.row-indent-1 .ti-icon {font-size:1.2em;}
+  .table-row.row-indent-0 .ti-icon {
+    font-size: 1em;
+  }
+  .table-row.row-indent-1 .ti-icon {
+    font-size: 1.2em;
+  }
   //------------------------------------------
 }
 //////////////////////////////////////////////
 // Arena
 .wn-gui-arena {
-  width:100%; height:100%;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   position: relative;
 }
@@ -95,11 +152,14 @@
 .wn-gui-footer {
   @include flex-align-nowrap;
   @include color($color-track, c);
-  font-size: .8em; padding: 0 1em;
+  font-size: 0.8em;
+  padding: 0 1em;
   > .as-info {
     @include flex-center;
     flex: 0 0 auto;
-    > .ti-icon {margin-right:SZ(6);}
+    > .ti-icon {
+      margin-right: SZ(6);
+    }
   }
   > .as-msg {
     @include flex-center;

@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // Define color variables
-@import "color/_deep.scss";
+@import "color/agate-green.scss";
 //-----------------------------------------------------
 // Utility mixins
 @import "_vars.scss";
@@ -11,17 +11,6 @@
 // Default Setup
 @import "_default.scss";
 @import "_utility.scss";
-//-----------------------------------------------------
-.wn-gui-side-nav {
-  @include color($color-body, c, r);
-  a {
-    color: map-get($color-func, c);
-  }
-  div.side-nav-item.is-highlight > div.it-info {
-    background-color: #000;
-    border-left: 0.04rem solid map-get($color-primary, c);
-  }
-}
 //-----------------------------------------------------
 // AUTO-INCLUDE-COM-STUB
 @import "app/_wn-manager.scss";

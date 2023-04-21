@@ -1,41 +1,53 @@
 export default {
   ////////////////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "data": {
+      type: Array,
+      default: () => []
     },
-    "itemIcon" : {
-      type : String,
-      default : null
+    "itemIcon": {
+      type: String,
+      default: null
     },
-    "pathIcon" : {
-      type : String,
-      default : "zmdi-chevron-right"
+    "pathIcon": {
+      type: String,
+      default: "zmdi-chevron-right"
     },
-    "cancelItemBubble" : {
-      type : Boolean,
-      default : true
+    "cancelItemBubble": {
+      type: Boolean,
+      default: true
+    },
+    "startIndex": {
+      type: Number,
+      default: 0
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     ItemList() {
-      let list = []
-      if(_.isArray(this.data)) {
-        _.forEach(this.data, (val, index)=>{
-          list.push(_.assign({
-            icon    : this.itemIcon
-          }, val, {index, atLast:index==this.data.length - 1}))
-        })
+      let list = [];
+      if (_.isArray(this.data)) {
+        _.forEach(this.data, (val, index) => {
+          if (index >= this.startIndex) {
+            list.push(
+              _.assign(
+                {
+                  icon: this.itemIcon
+                },
+                val,
+                { index, atLast: index == this.data.length - 1 }
+              )
+            );
+          }
+        });
       }
-      return list
-    },
+      return list;
+    }
     //------------------------------------------------
     // theDataValues() {
     //   let list = []
@@ -45,7 +57,7 @@ export default {
     //   return list
     // }
     //------------------------------------------------
-  },
+  }
   ////////////////////////////////////////////////////
   // methods : {
   //   //------------------------------------------------
@@ -60,4 +72,4 @@ export default {
   //   //------------------------------------------------
   // }
   ////////////////////////////////////////////////////
-}
+};

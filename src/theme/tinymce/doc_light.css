@@ -252,7 +252,7 @@
     padding: 0.2rem 0 0 0; }
 
 html {
-  color: #444;
+  color: #000;
   background-color: #F0F0F0;
   height: 100%; }
 
@@ -318,7 +318,7 @@ body {
     width: 0.12rem;
     height: 0.12rem;
     background: #2196f3;
-    border: 1px solid #FFF;
+    border: 1px solid #d0e7fc;
     border-radius: 50%; }
     body div.ti-tinymce-obj-resize-handler.at-nw {
       cursor: nwse-resize;
@@ -430,7 +430,7 @@ body {
       align-content: center;
       flex-wrap: nowrap;
       color: #F0F0F0;
-      background-color: #444;
+      background-color: #000;
       width: 5.4rem;
       height: 3rem; }
     body div.wn-media.as-photos {

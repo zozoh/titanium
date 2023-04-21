@@ -3,16 +3,34 @@
   @include noselect;
   @include flex-align-nowrap;
   @include font-nice;
-  &.align-left   {justify-content: flex-start;}
-  &.align-center {justify-content: center;}
-  &.align-right  {justify-content: flex-end;}
+  &.align-left {
+    justify-content: flex-start;
+  }
+  &.align-center {
+    justify-content: center;
+  }
+  &.align-right {
+    justify-content: flex-end;
+  }
   //////////////////////////////////////////////////
-  &.pad-hs {padding:0 SZ(4);}
-  &.pad-hm {padding:0 SZ(6);}
-  &.pad-hb {padding:0 SZ(8);}
-  &.pad-s {padding:SZ(4);}
-  &.pad-m {padding:SZ(6);}
-  &.pad-b {padding:SZ(8);}
+  &.pad-hs {
+    padding: 0 SZ(4);
+  }
+  &.pad-hm {
+    padding: 0 SZ(6);
+  }
+  &.pad-hb {
+    padding: 0 SZ(8);
+  }
+  &.pad-s {
+    padding: SZ(4);
+  }
+  &.pad-m {
+    padding: SZ(6);
+  }
+  &.pad-b {
+    padding: SZ(8);
+  }
   //////////////////////////////////////////////////
   .bar-item-group {
     //----------------------------------------------
@@ -30,17 +48,19 @@
       //--------------------------------------------
       > .as-mask {
         @include pos-fixed-full;
-        display:block; content:"";
-        background-color:rgba(0,0,0,0);
+        display: block;
+        content: "";
+        background-color: rgba(0, 0, 0, 0);
         z-index: $z-menu;
       }
       //--------------------------------------------
       > .as-children {
         @include color($color-chip, r, c);
-        border:1px solid map-get($color-primary, c);
+        border: 1px solid map-get($color-primary, c);
         box-shadow: SZ(4) SZ(6) SZ(10) map-get($color-shadow, c);
         z-index: $z-menu + 1;
-        padding:1px; min-width: SZ(150);
+        padding: 1px;
+        min-width: SZ(150);
       }
       //--------------------------------------------
     }
@@ -54,10 +74,11 @@
       &.is-depth-x {
         > .as-children {
           @include color($color-chip, r, c);
-          border:1px solid map-get($color-primary, c);
+          border: 1px solid map-get($color-primary, c);
           box-shadow: 1px 1px 2px map-get($color-shadow, c);
           z-index: $z-menu;
-          padding:1px; min-width: SZ(150);
+          padding: 1px;
+          min-width: SZ(150);
         }
       }
       //--------------------------------------------
@@ -68,21 +89,30 @@
   .bar-item-line {
     @include color($color-line, null, shallow);
     &.is-top {
-      width:1px; height:SZ(20); overflow:hidden;
-      margin:0 SZ(2);
+      width: 1px;
+      height: SZ(20);
+      overflow: hidden;
+      margin: 0 SZ(2);
     }
     &.is-sub {
-      height:1px; overflow:hidden;
-      margin:SZ(4) 0;
+      height: 1px;
+      overflow: hidden;
+      margin: SZ(4) 0;
     }
   }
   //////////////////////////////////////////////////
   .bar-item-info {
     @include flex-align-nowrap;
     //----------------------------------------------
-    &.is-disabled {@include disabled;}
-    &.is-enabled  {@include fireable(null, $color-primary);}
-    &.is-highlight {@include color($color-weaktip, r, c);}
+    &.is-disabled {
+      @include disabled;
+    }
+    &.is-enabled {
+      @include fireable(null, $color-primary);
+    }
+    &.is-highlight {
+      @include color($color-weaktip, r, c);
+    }
     //----------------------------------------------
     .as-icon {
       @include flex-center;
@@ -93,32 +123,40 @@
     }
     //----------------------------------------------
     .as-shortcut {
-      flex:1 1 auto;
-      padding-left:2em;
-      text-align:right;
-      font-size:.8em; opacity: 0.6;
+      flex: 1 1 auto;
+      padding-left: 2em;
+      text-align: right;
+      font-size: 0.8em;
+      opacity: 0.6;
     }
     //----------------------------------------------
     .as-suffix-icon {
-      @include flex-align-nowrap($jc:flex-end);
-      flex:1 1 auto;
+      @include flex-align-nowrap($jc: flex-end);
+      flex: 1 1 auto;
     }
     //----------------------------------------------
     &.is-top {
-      padding:0 .6em;
-      height:2.4em; line-height:2.4em;
-      &.has-icon > .as-text {margin-left:.4em;}
+      padding: 0 0.6em;
+      height: 2.4em;
+      line-height: 2.4em;
+      border-radius: $r-box;
+      &.has-icon > .as-text {
+        margin-left: 0.4em;
+      }
     }
     //----------------------------------------------
     &.is-sub {
-      padding:0 1em 0 .5em;
-      height:2.4em; line-height:2.4em;
+      padding: 0 1em 0 0.5em;
+      height: 2.4em;
+      line-height: 2.4em;
       //--------------------------------------------
       &.no-icon.hide-icon {
-        padding-left:1em;
+        padding-left: 1em;
       }
       //--------------------------------------------
-      .as-icon {width:2.4em;}
+      .as-icon {
+        width: 2.4em;
+      }
       //--------------------------------------------
     }
     //----------------------------------------------
@@ -127,38 +165,113 @@
   .bar-item-switcher {
     @include flex-align-nowrap;
     //----------------------------------------------
-    &.is-disabled {opacity: 0.4;}
+    &.is-disabled {
+      opacity: 0.4;
+    }
     //----------------------------------------------
     .as-icon {
       @include flex-center;
     }
     //----------------------------------------------
     .as-text {
-      white-space: nowrap; margin:0 SZ(4);
+      white-space: nowrap;
+      margin: 0 SZ(4);
     }
     //----------------------------------------------
     .ti-switcher {
       .switcher-con li {
-        padding:.4em; min-width: unset;
+        padding: 0.4em;
+        min-width: unset;
       }
     }
     //----------------------------------------------
     &.is-top {
-      padding:0 .2em;
-      height:2.4em; line-height:2.4em;
-      &.has-icon > .as-text {margin-left:.4em;}
+      padding: 0 0.2em;
+      height: 2.4em;
+      line-height: 2.4em;
+      &.has-icon > .as-text {
+        margin-left: 0.4em;
+      }
     }
     //----------------------------------------------
     &.is-sub {
-      padding:0 1em 0 .5em;
-      height:2.4em; line-height:2.4em;
+      padding: 0 1em 0 0.5em;
+      height: 2.4em;
+      line-height: 2.4em;
       //--------------------------------------------
       &.no-icon.hide-icon {
-        padding-left:1em;
+        padding-left: 1em;
       }
       //--------------------------------------------
-      .as-icon {width:2.4em;}
+      .as-icon {
+        width: 2.4em;
+      }
       //--------------------------------------------
+    }
+    //----------------------------------------------
+  }
+  //////////////////////////////////////////////////
+  &.as-buttons {
+    //----------------------------------------------
+    .bar-item-info.is-top {
+      //--------------------------------------------
+      @include color($color-primary, r, c);
+      border: 1px solid map-get($color-primary, c);
+      margin: 0 0.5em;
+      &:hover {
+        @include color($color-secondary, r, c);
+        border-color: map-get($color-secondary, c);
+      }
+      //--------------------------------------------
+      @mixin __btn_color($C) {
+        @include color($C, r, c);
+        border-color: map-get($C, c);
+        &:hover {
+          @include color($C, c, r);
+        }
+      }
+      //--------------------------------------------
+      &.is-success {
+        @include __btn_color($color-success);
+      }
+      &.is-warn {
+        @include __btn_color($color-warn);
+      }
+      &.is-info {
+        @include __btn_color($color-info);
+      }
+      &.is-error {
+        @include __btn_color($color-error);
+      }
+      &.is-track {
+        @include __btn_color($color-track);
+      }
+      &.is-disable {
+        @include __btn_color($color-disable);
+      }
+      //--------------------------------------------
+      @mixin __btn_color_rev($C) {
+        @include color($C, c, r);
+        border-color: map-get($C, r);
+        &:hover {
+          @include color($C, r, c);
+        }
+      }
+      //--------------------------------------------
+      &.is-chip {
+        @include __btn_color_rev($color-chip);
+      }
+      &.is-func {
+        @include __btn_color_rev($color-func);
+      }
+      &.is-bar {
+        @include __btn_color_rev($color-bar);
+      }
+      //--------------------------------------------
+    }
+    //----------------------------------------------
+    .bar-item-line.is-top {
+      margin: 0 0.5em;
     }
     //----------------------------------------------
   }

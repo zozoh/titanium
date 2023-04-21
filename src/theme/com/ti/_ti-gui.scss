@@ -406,167 +406,85 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   &.is-flex-none {
     flex: 0 0 auto;
   }
-  //-------------------------------------
-  &.gap-box {
-    &.gap-S {
-      padding: SZ(6);
-    }
-    &.gap-M {
-      padding: SZ(12);
-    }
-    &.gap-B {
-      padding: SZ(18);
-    }
-    &.gap-no-top {
-      padding-top: 0;
-    }
-    &.gap-no-bottom {
-      padding-bottom: 0;
-    }
-    &.gap-no-left {
-      padding-left: 0;
-    }
-    &.gap-no-right {
-      padding-right: 0;
-    }
-    background-color: map-get($color-page, r);
-    > .block-main {
-      background-color: map-get($color-page, c);
-    }
-  }
-  //-------------------------------------
-  &.radius-S {
-    &.rTL > .block-main {
-      border-top-left-radius: SZ(6);
-    }
-    &.rTR > .block-main {
-      border-top-right-radius: SZ(6);
-    }
-    &.rBL > .block-main {
-      border-bottom-left-radius: SZ(6);
-    }
-    &.rBR > .block-main {
-      border-bottom-right-radius: SZ(6);
-    }
-    &.rALL > .block-main {
-      border-radius: SZ(6);
-    }
-  }
-  //-------------------------------------
-  &.radius-M {
-    &.rTL > .block-main {
-      border-top-left-radius: SZ(12);
-    }
-    &.rTR > .block-main {
-      border-top-right-radius: SZ(12);
-    }
-    &.rBL > .block-main {
-      border-bottom-left-radius: SZ(12);
-    }
-    &.rBR > .block-main {
-      border-bottom-right-radius: SZ(12);
-    }
-    &.rALL > .block-main {
-      border-radius: SZ(12);
-    }
-  }
-  //-------------------------------------
-  &.radius-B > .block-main {
-    &.rTL > .block-main {
-      border-top-left-radius: SZ(18);
-    }
-    &.rTR > .block-main {
-      border-top-right-radius: SZ(18);
-    }
-    &.rBL > .block-main {
-      border-bottom-left-radius: SZ(18);
-    }
-    &.rBR > .block-main {
-      border-bottom-right-radius: SZ(18);
-    }
-    &.rALL > .block-main {
-      border-radius: SZ(18);
-    }
-  }
+
   //-------------------------------------
   &.is-show-header {
-    padding-top: $GUI-BLOCK-HEADER-HEIGHT;
-    &.gap-box {
-      &.gap-S {
-        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(6);
+    > .block-con {
+      padding-top: $GUI-BLOCK-HEADER-HEIGHT;
+      //-------------------------------------
+      > .block-head {
+        //---------------------------------
+        @include noselect;
+        @include pos-abs($l: 0, $r: 0, $t: 0, $h: $GUI-BLOCK-HEADER-HEIGHT);
+        @include flex-align-nowrap($ai: stretch);
+        @include color($color-bar, r, c);
+        @include border(1px, solid, shallow, bottom);
+        //---------------------------------
+        line-height: $GUI-BLOCK-HEADER-HEIGHT;
+        padding: 0 0 0 SZ(6);
+        //---------------------------------
+        > .as-icon {
+          @include flex-center;
+          flex: 0 0 auto;
+          padding-left: SZ(6);
+        }
+        //---------------------------------
+        > .as-title {
+          flex: 1 1 auto;
+          padding: 0 SZ(6);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          span {
+            font-weight: bold;
+          }
+        }
+        //---------------------------------
+        > .as-actions {
+          @include flex-align-nowrap;
+          flex: 0 0 auto;
+          padding: 0 SZ(4) 0 0;
+          font-size: 0.9em;
+        }
+        //---------------------------------
       }
-      &.gap-M {
-        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(12);
+      //-------------------------------------
+      &.head-highlight-1 > .block-head {
+        @include color($color-primary, r, c);
       }
-      &.gap-B {
-        padding-top: $GUI-BLOCK-HEADER-HEIGHT + SZ(18);
+      &.head-highlight-2 > .block-head {
+        @include color($color-secondary, r, c);
       }
+      //-------------------------------------
     }
-    //-------------------------------------
-    > .block-head {
-      //---------------------------------
-      @include noselect;
-      @include pos-abs($l: 0, $r: 0, $t: 0, $h: $GUI-BLOCK-HEADER-HEIGHT);
-      @include flex-align-nowrap($ai: stretch);
-      @include color($color-bar, r, c);
-      @include border(1px, solid, shallow, bottom);
-      //---------------------------------
-      line-height: $GUI-BLOCK-HEADER-HEIGHT;
-      padding: 0 0 0 SZ(6);
-      //---------------------------------
-      > .as-icon {
-        @include flex-center;
-        flex: 0 0 auto;
-        padding-left: SZ(6);
-      }
-      //---------------------------------
-      > .as-title {
-        flex: 1 1 auto;
-        padding: 0 SZ(6);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      //---------------------------------
-      > .as-actions {
-        @include flex-align-nowrap;
-        flex: 0 0 auto;
-        padding: 0 SZ(4) 0 0;
-        font-size: 0.9em;
-      }
-      //---------------------------------
-    }
-    //-------------------------------------
-    &.head-highlight-1 > .block-head {
-      @include color($color-primary, r, c);
-    }
-    &.head-highlight-2 > .block-head {
-      @include color($color-secondary, r, c);
-    }
-    //-------------------------------------
   }
   //-------------------------------------
-  > .block-main {
-    @include flex-align-nowrap($ai: stretch);
+  > .block-con {
     width: 100%;
     height: 100%;
     position: relative;
-    //-----------------------------------
-    > .block-main-con {
-      flex: 1 1 auto;
+    > .block-main {
+      @include flex-align-nowrap($ai: stretch);
       width: 100%;
       height: 100%;
-      &.fill-parent {
+      position: relative;
+      //-----------------------------------
+      > .block-main-con {
+        flex: 1 1 auto;
         width: 100%;
         height: 100%;
+        &.fill-parent {
+          width: 100%;
+          height: 100%;
+        }
+        &.cover-parent {
+          @include pos-abs-full;
+          //overflow: hidden;
+        }
       }
-      &.cover-parent {
-        @include pos-abs-full;
-        //overflow: hidden;
-      }
-    }
-    //-----------------------------------
-  } // > .block-main
+      //-----------------------------------
+    } // > .block-main
+  }
   //-------------------------------------
   > .block-adjust-bar {
     position: absolute;
@@ -713,7 +631,9 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   } // > .block-adjust-bar
 } // .ti-gui-block
 //---------------------------------------
-// Animation
+//
+//              Animation
+//
 //---------------------------------------
 @mixin gui-trans($name, $trans, $tor: null, $du: 0.3s) {
   .ti-gui-panel-#{$name}-enter-active,
@@ -743,3 +663,47 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
 @include gui-trans(right-top, scale(0), right top);
 @include gui-trans(bottom-left, scale(0), bottom left);
 @include gui-trans(bottom-right, scale(0), bottom right);
+//---------------------------------------
+//
+//          Col Block As Card
+//
+//---------------------------------------
+@mixin __card_space($GAP) {
+  &.no-outside-card-layout {
+    padding: $GAP;
+  }
+  > .ti-gui-block.inside-nocard {
+    padding: $GAP;
+    > .block-con {
+      border-radius: $r-box;
+      overflow: hidden;
+    }
+  }
+}
+//-------------------------------------
+.ti-gui-cols,
+.ti-gui-rows {
+  //-------------------------------------
+  &[card] {
+    background-color: map-get($color-card, r);
+    > .ti-gui-block.inside-nocard {
+      > .block-con {
+        background-color: map-get($color-card, c);
+        box-shadow: SZ(1) SZ(1) SZ(4) map-get($color-shadow, thin);
+      }
+    }
+  }
+  //-------------------------------------
+  &[card="comfy"] {
+    @include __card_space(SZ(8));
+  }
+  //-------------------------------------
+  &[card="normal"] {
+    @include __card_space(SZ(6));
+  }
+  //-------------------------------------
+  &[card="tiny"] {
+    @include __card_space(SZ(4));
+  }
+  //-------------------------------------
+}

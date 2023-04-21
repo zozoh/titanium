@@ -1,6 +1,14 @@
 const _M = {
   /////////////////////////////////////////
   props: {
+    "icon": {
+      type: String,
+      default: undefined
+    },
+    "title": {
+      type: String,
+      default: undefined
+    },
     "statusStoreKey": {
       type: String,
       default: undefined
@@ -121,7 +129,6 @@ const _M = {
     },
     //-------------------------------------
     async OnItemActived(payload = {}) {
-      
       // Guard for fure
       let bombed = await Ti.Fuse.fire();
       //console.log("OnItemActived", bombed)

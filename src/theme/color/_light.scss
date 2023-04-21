@@ -1,6 +1,6 @@
 //-----------------------------------------------------
 // Define color variables
-$color-primary   : (c:#2196f3, r:#FFF);
+$color-primary   : (c:#2196f3, r:#d0e7fc);
 $color-secondary : (c:#ff4081, r:#FFF);
 $color-success: (c:#4caf50, r:#CFC);
 $color-warn   : (c:#FF8800, r:#FFC);
@@ -13,13 +13,14 @@ $color-number : (c:#08F, r:#FFF);
 //...........................................
 $color-sky : (c:#2196f3, r:#FFF);
 //...........................................
-$color-paper : (c:#F0F0F0,    r:#444);
-$color-chip  : (c:#e8e8e8,    r:#666);
+$color-card : (c:#FFF,    r:#f1f2f4);
+$color-paper : (c:#F0F0F0,    r:#000);
+$color-chip  : (c:#e8e8e8,    r:#222);
 $color-cloak : (c:rgba(230,230,230,0.8), r:#666);
-$color-body  : (c:#FAFAFA, r:#444);
-$color-page  : (c:#FFFFFF, r:#DDD);
-$color-bar   : (c:#F0F0F0, r:#888);
-$color-func  : (c:#E0E0E0, r:#666);
+$color-body  : (c:#FFF, r:#000);
+$color-page  : (c:#FFF, r:#000);
+$color-bar   : (c:#F5F7FA, r:#222);
+$color-func  : (c:#E0E0E0, r:#000);
 $color-shadow : (
   c:rgba(20,20,20,0.3), r:#AAA,
   heavy : rgba(20,20,20,0.5),

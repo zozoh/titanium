@@ -1,4 +1,4 @@
-// Pack At: 2023-04-20 22:01:53
+// Pack At: 2023-04-22 01:19:11
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1478,14 +1478,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "adjustMode": {
       type: String,
       default: "auto",
-      validator: v => /^(auto|px|%)$/.test(v)
+      validator: (v) => /^(auto|px|%)$/.test(v)
     },
     "keepCustomizedTo": {
       type: String,
       default: undefined
     },
-    "gap": {
-      type: Object
+    "card": {
+      type: String,
+      validator: (v) => /^(none|comfy|normal|tiny)$/.test(v)
+    },
+    "outsideCardLayout": {
+      type: Boolean,
+      default: false
     },
     "border": {
       type: Boolean,
@@ -1507,15 +1512,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "is-adjustable": this.adjustable,
-        "show-border": this.border
-      }, this.className)
+    TopClass() {
+      return Ti.Css.mergeClassName(
+        {
+          "is-adjustable": this.adjustable,
+          "show-border": this.border,
+          "is-outside-card-layout": this.outsideCardLayout,
+          "no-outside-card-layout": !this.outsideCardLayout
+        },
+        this.className
+      );
     },
     //--------------------------------------
     hasBlocks() {
-      return !_.isEmpty(this.blocks)
+      return !_.isEmpty(this.blocks);
     },
     //--------------------------------------
     BlockAdjustMode() {
@@ -1523,109 +1533,109 @@ const __TI_MOD_EXPORT_VAR_NM = {
         for (let block of this.blocks) {
           if (!Ti.Util.isNil(block.size)) {
             if (/%$/.test(block.size)) {
-              return "%"
+              return "%";
             }
-            return "px"
+            return "px";
           }
         }
-        return "px"
+        return "px";
       }
-      return this.adjustMode
+      return this.adjustMode;
     },
     //--------------------------------------
     GuiBlocks() {
-      let list = []
+      let list = [];
       _.forEach(this.blocks, (block, index) => {
-        let li = _.omit(block, "size")
-        li.index = index
-        li.key = block.name || `B${index}`
-        if (Ti.Util.isNil(li.minSize)) {
-          li.minSize = 50
+        let li = _.omit(block, "size");
+        li.index = index;
+        li.key = block.name || `B${index}`;
+        if (this.card) {
+          li.outsideCardLayout = true;
         }
-        if (this.gap) {
-          li.gap = _.assign({}, this.gap, li.gap)
+        if (Ti.Util.isNil(li.minSize)) {
+          li.minSize = 50;
         }
         if (this.adjustable) {
-          li.resizeMode = this.resize_mode
+          li.resizeMode = this.resize_mode;
           if (li.index > 0) {
-            let prevI = li.index - 1
-            let selfI = li.index
-            li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI)
+            let prevI = li.index - 1;
+            let selfI = li.index;
+            li.adjacentMode = this.getBlockAdjacentMode(prevI, selfI);
             li.adjustBarAt = this.adjust_bar_at;
-            li.resizeMode = this.resize_mode
+            li.resizeMode = this.resize_mode;
             li.adjustIndex = [prevI, selfI];
           }
         }
-        list.push(li)
-      })
-      return list
+        list.push(li);
+      });
+      return list;
     },
     //--------------------------------------
     Draggable() {
       //....................................
       const do_dragging = (ctx) => {
-        let { orgBlockSizes, prevI, selfI } = ctx
-        let offset = ctx[this.offset_key]
+        let { orgBlockSizes, prevI, selfI } = ctx;
+        let offset = ctx[this.offset_key];
         //console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
-        let sizes = _.cloneDeep(orgBlockSizes)
+        let sizes = _.cloneDeep(orgBlockSizes);
 
         // Block minimum size
-        let prevSize = sizes[prevI]
-        let selfSize = sizes[selfI]
-        let sum = prevSize + selfSize
+        let prevSize = sizes[prevI];
+        let selfSize = sizes[selfI];
+        let sum = prevSize + selfSize;
 
         // Use prev minSize
         if (offset < 0) {
-          let minSize = this.GuiBlocks[prevI].minSize
-          prevSize = Math.max(minSize, prevSize + offset)
-          selfSize = sum - prevSize
+          let minSize = this.GuiBlocks[prevI].minSize;
+          prevSize = Math.max(minSize, prevSize + offset);
+          selfSize = sum - prevSize;
         }
         // Use self minSize
         else {
-          let minSize = this.GuiBlocks[selfI].minSize
-          selfSize = Math.max(minSize, selfSize - offset)
-          prevSize = sum - selfSize
+          let minSize = this.GuiBlocks[selfI].minSize;
+          selfSize = Math.max(minSize, selfSize - offset);
+          prevSize = sum - selfSize;
         }
 
         // Offset block size
-        sizes[prevI] = prevSize
-        sizes[selfI] = selfSize
+        sizes[prevI] = prevSize;
+        sizes[selfI] = selfSize;
 
         // Depends on bar adjacent-mode
         //console.log(sizes)
-        this.blockSizes = this.normlizedBlockSize(sizes, ctx)
-      }
+        this.blockSizes = this.normlizedBlockSize(sizes, ctx);
+      };
       //....................................
       return {
         trigger: ".block-adjust-bar",
         prepare: (_, evt) => {
-          evt.stopPropagation()
-          this.isDragging = true
+          evt.stopPropagation();
+          this.isDragging = true;
         },
         actived: (ctx) => {
           //console.log("actived", ctx)
           // Get all my blocks and init them rect
           // Set mark
           // Prepare sizing
-          let sizes = this.genBlockRealSizes()
-          ctx.orgBlockSizes = sizes
-          ctx.viewportSize = _.sum(sizes)
+          let sizes = this.genBlockRealSizes();
+          ctx.orgBlockSizes = sizes;
+          ctx.viewportSize = _.sum(sizes);
           ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
           ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
-          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode")
+          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode");
         },
         dragging: do_dragging,
         done: (ctx) => {
           // Save customized
-          this.trySaveLocalCustomized()
+          this.trySaveLocalCustomized();
           // Notify whole window resizing
-          Ti.Viewport.resize()
+          Ti.Viewport.resize();
         },
         finished: (ctx) => {
           // Reset mark
-          this.isDragging = false
+          this.isDragging = false;
         }
-      }
+      };
       //....................................
     }
     //--------------------------------------
@@ -1635,89 +1645,85 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //--------------------------------------
     OnBarReset() {
       //console.log("OnBarReset")
-      this.blockSizes = null
-      this.trySaveLocalCustomized()
+      this.blockSizes = null;
+      this.trySaveLocalCustomized();
     },
     //--------------------------------------
     OnBarToggleSize(payload) {
       //console.log("OnBarToggleSize")
       //..............................
-      let {
-        prevMinimum, selfMinimum, adjacentMode, adjustIndex
-      } = payload
+      let { prevMinimum, selfMinimum, adjacentMode, adjustIndex } = payload;
       //..............................
-      let sizes = this.genBlockRealSizes()
-      let viewportSize = _.sum(sizes)
-      let prevI = adjustIndex[0]
-      let selfI = adjustIndex[1]
+      let sizes = this.genBlockRealSizes();
+      let viewportSize = _.sum(sizes);
+      let prevI = adjustIndex[0];
+      let selfI = adjustIndex[1];
       //..............................
       const __toggle_sizes = (sizes = []) => {
-        let prevSize = sizes[prevI]
-        let selfSize = sizes[selfI]
-        let sum = prevSize + selfSize
+        let prevSize = sizes[prevI];
+        let selfSize = sizes[selfI];
+        let sum = prevSize + selfSize;
 
-        let prevMinSize = this.GuiBlocks[prevI].minSize
-        let prevOrgSize = this.blocks[prevI].size
+        let prevMinSize = this.GuiBlocks[prevI].minSize;
+        let prevOrgSize = this.blocks[prevI].size;
 
-        let selfMinSize = this.GuiBlocks[selfI].minSize
-        let selfOrgSize = this.blocks[selfI].size
+        let selfMinSize = this.GuiBlocks[selfI].minSize;
+        let selfOrgSize = this.blocks[selfI].size;
 
         // Prev
         if ("prev" == adjacentMode || ("both" == adjacentMode && 0 == prevI)) {
           // => min
           if (!prevMinimum) {
-            sizes[prevI] = prevMinSize
-            sizes[selfI] = sum - prevMinSize
+            sizes[prevI] = prevMinSize;
+            sizes[selfI] = sum - prevMinSize;
           }
           // => org
           else {
             prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
               base: viewportSize
-            })
-            sizes[prevI] = prevSize
-            sizes[selfI] = sum - prevSize
+            });
+            sizes[prevI] = prevSize;
+            sizes[selfI] = sum - prevSize;
           }
         }
         // Self
         else {
           // => min
           if (!selfMinimum) {
-            sizes[selfI] = selfMinSize
-            sizes[prevI] = sum - selfMinSize
+            sizes[selfI] = selfMinSize;
+            sizes[prevI] = sum - selfMinSize;
           }
           // => org
           else {
             selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
               base: viewportSize
-            })
-            sizes[selfI] = selfSize
-            sizes[prevI] = sum - selfSize
+            });
+            sizes[selfI] = selfSize;
+            sizes[prevI] = sum - selfSize;
           }
         }
-      }
+      };
       //..............................
-      __toggle_sizes(sizes)
+      __toggle_sizes(sizes);
       //..............................
       this.blockSizes = this.normlizedBlockSize(sizes, {
         adjacentMode,
         viewportSize,
         prevI,
         selfI
-      })
+      });
       //..............................
-      this.trySaveLocalCustomized()
+      this.trySaveLocalCustomized();
       //..............................
       this.$nextTick(() => {
-        Ti.Viewport.resize()
-      })
+        Ti.Viewport.resize();
+      });
     },
     //--------------------------------------
-    normlizedBlockSize(sizes = [], {
-      adjacentMode,
-      viewportSize,
-      prevI,
-      selfI
-    } = {}) {
+    normlizedBlockSize(
+      sizes = [],
+      { adjacentMode, viewportSize, prevI, selfI } = {}
+    ) {
       //console.log("normlizedBlockSize", adjacentMode)
       // Depends on bar adjacent-mode
       switch (adjacentMode) {
@@ -1729,23 +1735,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
           break;
         case "none":
           if (0 == prevI) {
-            sizes[selfI] = null
+            sizes[selfI] = null;
           } else {
-            sizes[prevI] = null
+            sizes[prevI] = null;
           }
       }
 
       // Cover to percent
       if ("%" == this.BlockAdjustMode) {
-        return _.map(sizes, sz => {
+        return _.map(sizes, (sz) => {
           if (null === sz) {
-            return null
+            return null;
           }
-          return Ti.S.toPercent(sz / viewportSize)
-        })
+          return Ti.S.toPercent(sz / viewportSize);
+        });
       }
 
-      return sizes
+      return sizes;
     },
     //--------------------------------------
     // When click the `min` button, it will shrink which block
@@ -1760,63 +1766,63 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //  - none: do nothing
     //
     getBlockAdjacentMode(prevI, selfI) {
-      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch")
-      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch")
-      let prevIsStrech = "stretch" == prevSize
-      let selfIsStrech = "stretch" == selfSize
+      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch");
+      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch");
+      let prevIsStrech = "stretch" == prevSize;
+      let selfIsStrech = "stretch" == selfSize;
 
       // .. 40        | <stretch> ..
       if (!prevIsStrech && selfIsStrech) {
-        return "prev"
+        return "prev";
       }
       // .. <stretch> | 40   ..
       else if (prevIsStrech && !selfIsStrech) {
-        return "self"
+        return "self";
       }
       // .. 40        | 80   ..
       else if (!prevIsStrech && !selfIsStrech) {
-        return "both"
+        return "both";
       }
       // .. <stretch> | <stretch> ..
-      return "none"
+      return "none";
     },
     //--------------------------------------
     genBlockRealSizes() {
-      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el)
-      let sizes = []
+      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el);
+      let sizes = [];
       _.forEach($blocks, ($block) => {
-        let rect = $block.getBoundingClientRect()
-        let sz = rect[this.block_size_by]
-        sizes.push(sz)
-      })
-      return sizes
+        let rect = $block.getBoundingClientRect();
+        let sz = rect[this.block_size_by];
+        sizes.push(sz);
+      });
+      return sizes;
     },
     //--------------------------------------
     getBlockSize(index) {
       if (this.blockSizes) {
-        return _.nth(this.blockSizes, index) || null
+        return _.nth(this.blockSizes, index) || null;
       }
-      return (_.nth(this.blocks, index) || {}).size
+      return (_.nth(this.blocks, index) || {}).size;
     },
     //--------------------------------------
     isBlockSizeMinimum(index) {
       if (index >= 0 && index < this.$children.length) {
-        return this.$children[index].isMinimumSize
+        return this.$children[index].isMinimumSize;
       }
     },
     //--------------------------------------
     trySaveLocalCustomized() {
       if (this.keepCustomizedTo) {
-        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes
-        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes)
+        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes;
+        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes);
       }
     },
     //--------------------------------------
     tryRestoreLocalCustomized() {
       if (this.keepCustomizedTo) {
-        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo)
+        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo);
         if (_.isArray(sizes)) {
-          this.blockSizes = sizes
+          this.blockSizes = sizes;
         }
       }
     }
@@ -1824,10 +1830,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   //////////////////////////////////////////
   mounted() {
-    this.tryRestoreLocalCustomized()
+    this.tryRestoreLocalCustomized();
   }
   //////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -5370,8 +5376,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: String,
       default: null,
       validator: (v) => {
-        return Ti.Util.isNil(v)
-          || /^(cols|rows|tabs)$/.test(v)
+        return Ti.Util.isNil(v) || /^(cols|rows|tabs)$/.test(v);
       }
     },
     "name": {
@@ -5420,12 +5425,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "overflow": {
       type: String,
       default: undefined,
-      validator: v => (_.isUndefined(v) || (/^(auto|none|fill|cover)$/.test(v)))
+      validator: (v) => _.isUndefined(v) || /^(auto|none|fill|cover)$/.test(v)
     },
     "flex": {
       type: String,
       default: undefined,
-      validator: (v) => (_.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v))
+      validator: (v) =>
+        _.isUndefined(v) || /^(nil|auto|grow|shrink|both|none)$/.test(v)
     },
     "order": {
       type: Number
@@ -5489,22 +5495,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "tabAt": undefined,
     "adjustable": undefined,
     "border": undefined,
-    "keepCustomizedTo": undefined
+    "keepCustomizedTo": undefined,
+    "card": undefined,
+    "outsideCardLayout": undefined
   },
   //////////////////////////////////////////
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass({
-        [`gui-block-${this.name}`]: this.name ? true : false,
-        "is-show-header": this.isShowHeader,
-        "is-hide-header": !this.isShowHeader,
-        "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn)
-      }, `is-flex-${this.FlexName}`)
+      return this.getTopClass(
+        {
+          [`gui-block-${this.name}`]: this.name ? true : false,
+          "is-show-header": this.isShowHeader,
+          "is-hide-header": !this.isShowHeader,
+          "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn),
+          "inside-nocard": this.card ? false : true
+        },
+        `is-flex-${this.FlexName}`
+      );
     },
     //--------------------------------------
     TopStyle() {
-      let css = ({
+      let css = {
         //..................................
         rows: () => ({
           height: this.BlockSize
@@ -5518,94 +5530,89 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //..................................
         panel: () => ({})
         //..................................
-      })[this.embedIn]()
+      }[this.embedIn]();
       if (!Ti.Util.isNil(this.order)) {
-        css.order = this.order
+        css.order = this.order;
       }
-      return Ti.Css.toStyle(css)
+      return Ti.Css.toStyle(css);
     },
     //--------------------------------------
     hasAdjustBar() {
-      return this.adjustBarAt && "none" != this.adjustBarAt
+      return this.adjustBarAt && "none" != this.adjustBarAt;
     },
     //--------------------------------------
     MainStyle() {
-      return Ti.Css.toStyle(this.mainStyle)
+      return Ti.Css.toStyle(this.mainStyle);
     },
     //--------------------------------------
     MainConClass() {
-      let klass = {}
+      let klass = {};
       if (!this.isFlexNil) {
         _.assign(klass, {
           "fill-parent": "fill" == this.TheOverflow,
           "cover-parent": "cover" == this.TheOverflow
-        })
+        });
       }
-      return Ti.Css.mergeClassName(klass, this.mainConClass)
+      return Ti.Css.mergeClassName(klass, this.mainConClass);
     },
     //--------------------------------------
     MainConStyle() {
-      return Ti.Css.toStyle(this.mainConStyle)
+      return Ti.Css.toStyle(this.mainConStyle);
     },
     //--------------------------------------
     MainComponentClass() {
-      return Ti.Css.mergeClassName(
-        this.$gui.defaultComClass,
-        this.comClass
-      )
+      return Ti.Css.mergeClassName(this.$gui.defaultComClass, this.comClass);
     },
     //--------------------------------------
     TheOverflow() {
-      let ov = this.overflow || this.$gui.defaultOverflow || "auto"
+      let ov = this.overflow || this.$gui.defaultOverflow || "auto";
       if ("auto" == ov) {
         if (this.isFlexNone) {
-          return "fill"
+          return "fill";
         }
         if (/^(both|shrink)$/.test(this.FlexName)) {
-          return "cover"
+          return "cover";
         }
       }
-      return ov
+      return ov;
     },
     //--------------------------------------
     BlockSize() {
-      let size = this.size
-      return /^(auto|stretch)$/.test(size)
-        ? null
-        : size
+      let size = this.size;
+      return /^(auto|stretch)$/.test(size) ? null : size;
     },
     //--------------------------------------
     FlexName() {
-      let flex = this.flex || this.$gui.defaultFlex || "auto"
+      let flex = this.flex || this.$gui.defaultFlex || "auto";
       if ("auto" == flex) {
         if ("stretch" == this.size || Ti.Util.isNil(this.size)) {
-          return "both"
+          return "both";
         }
-        return "none"
+        return "none";
       }
-      return flex || "both"
+      return flex || "both";
     },
     //--------------------------------------
     isFlexNil() {
-      return "nil" == this.FlexName
+      return "nil" == this.FlexName;
     },
     //--------------------------------------
     isFlexNone() {
-      return "none" == this.FlexName
+      return "none" == this.FlexName;
     },
     //--------------------------------------
     isShowHeader() {
-      if (this.hideTitle || 'tabs' == this.embedIn) {
-        return false
+      if (this.hideTitle || "tabs" == this.embedIn) {
+        return false;
       }
       if (this.title || this.hasActions) {
-        return true
+        return true;
       }
-      return false
+      return false;
     },
     //--------------------------------------
     hasActions() {
-      return !_.isEmpty(this.actions)
+      return !_.isEmpty(this.actions);
     },
     //--------------------------------------
     TheActionVars() {
@@ -5614,11 +5621,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let ctx = {
             $main: this.$main(),
             state: Ti.App(this).$state()
-          }
+          };
           return Ti.Util.explainObj(ctx, this.actionVars, {
             evalFunc: true
-          })
-        }
+          });
+        };
       }
     },
     //--------------------------------------
@@ -5627,21 +5634,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
       //....................................
       // Body -> Component
       if (this.body) {
-        let com = _.isString(this.body) ? this.schema[this.body] : this.body
+        let com = _.isString(this.body) ? this.schema[this.body] : this.body;
         if (com) {
-          let parent = this.schema[com.extends]
-          let self = _.omit(com, "extends")
-          com = _.merge({}, parent, self)
+          let parent = this.schema[com.extends];
+          let self = _.omit(com, "extends");
+          com = _.merge({}, parent, self);
           return _.defaults(com, {
             comType: "ti-label",
             comConf: {}
-          })
+          });
         }
       }
       //....................................
       // Sub GUI
       if (!_.isEmpty(this.blocks)) {
-        let comType = `ti-gui-${this.type || "cols"}`
+        let comType = `ti-gui-${this.type || "cols"}`;
         let comConf = {
           tabAt: this.tabAt,
           border: this.border,
@@ -5651,11 +5658,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
           schema: this.schema,
           actionStatus: this.actionStatus,
           shown: this.shown,
-          defaultFlex: this.defaultFlex
-        }
+          defaultFlex: this.defaultFlex,
+          card: this.card,
+          outsideCardLayout: this.outsideCardLayout
+        };
         return {
-          comType, comConf
-        }
+          comType,
+          comConf
+        };
       }
       //....................................
     },
@@ -5663,18 +5673,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
     isMinimumSize() {
       if (this.myRect) {
         if ("col-resize" == this.resizeMode) {
-          return Math.floor(this.myRect.width) <= this.minSize
+          return Math.floor(this.myRect.width) <= this.minSize;
         }
         if ("row-resize" == this.resizeMode) {
-          return Math.floor(this.myRect.height) <= this.minSize
+          return Math.floor(this.myRect.height) <= this.minSize;
         }
       }
     },
     //--------------------------------------
     isPrevMinimumSize() {
       if (this.adjustIndex && this.adjustIndex.length == 2) {
-        let prevI = this.adjustIndex[0]
-        return this.$parent.isBlockSizeMinimum(prevI)
+        let prevI = this.adjustIndex[0];
+        return this.$parent.isBlockSizeMinimum(prevI);
       }
     }
     //--------------------------------------
@@ -5687,17 +5697,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
         return {
           name: `${this.name}::${name}`,
           args
-        }
+        };
       }
     },
     //--------------------------------------
     $main() {
-      return _.last(this.$children)
+      return _.last(this.$children);
     },
     //--------------------------------------
     OnResize() {
       if (_.isElement(this.$el)) {
-        this.myRect = Ti.Rects.createBy(this.$el)
+        this.myRect = Ti.Rects.createBy(this.$el);
       }
     }
     //--------------------------------------
@@ -5707,15 +5717,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "name": {
       handler: function (newVal, oldVal) {
         // Guard
-        if (!this.$gui)
-          return
+        if (!this.$gui) return;
         // Unregister old
         if (oldVal) {
-          this.$gui.unregisterBlock(oldVal)
+          this.$gui.unregisterBlock(oldVal);
         }
         // Register self
         if (newVal) {
-          this.$gui.registerBlock(newVal, this)
+          this.$gui.registerBlock(newVal, this);
         }
       },
       immediate: true
@@ -5723,7 +5732,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "size": {
       handler: function (newVal, oldVal) {
         if (newVal != oldVal) {
-          this.OnResize()
+          this.OnResize();
         }
       },
       immediate: true
@@ -5733,20 +5742,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
   mounted() {
     Ti.Viewport.watch(this, {
       resize: () => {
-        this.OnResize()
+        this.OnResize();
       }
-    })
-    this.OnResize()
+    });
+    this.OnResize();
   },
   //////////////////////////////////////////
   beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
+    Ti.Viewport.unwatch(this);
     if (this.name) {
-      this.$gui.unregisterBlock(this.name)
+      this.$gui.unregisterBlock(this.name);
     }
   }
   //////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -54898,6 +54907,14 @@ window.TI_PACK_EXPORTS['ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs'] = (function
 const _M = {
   /////////////////////////////////////////
   props: {
+    "icon": {
+      type: String,
+      default: undefined
+    },
+    "title": {
+      type: String,
+      default: undefined
+    },
     "statusStoreKey": {
       type: String,
       default: undefined
@@ -55018,7 +55035,6 @@ const _M = {
     },
     //-------------------------------------
     async OnItemActived(payload = {}) {
-      
       // Guard for fure
       let bombed = await Ti.Fuse.fire();
       //console.log("OnItemActived", bombed)
@@ -81032,42 +81048,54 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/ti/crumb/ti-crumb.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
-  props : {
-    "data" : {
-      type : Array,
-      default : ()=>[]
+  props: {
+    "data": {
+      type: Array,
+      default: () => []
     },
-    "itemIcon" : {
-      type : String,
-      default : null
+    "itemIcon": {
+      type: String,
+      default: null
     },
-    "pathIcon" : {
-      type : String,
-      default : "zmdi-chevron-right"
+    "pathIcon": {
+      type: String,
+      default: "zmdi-chevron-right"
     },
-    "cancelItemBubble" : {
-      type : Boolean,
-      default : true
+    "cancelItemBubble": {
+      type: Boolean,
+      default: true
+    },
+    "startIndex": {
+      type: Number,
+      default: 0
     }
   },
   ////////////////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------------------
     ItemList() {
-      let list = []
-      if(_.isArray(this.data)) {
-        _.forEach(this.data, (val, index)=>{
-          list.push(_.assign({
-            icon    : this.itemIcon
-          }, val, {index, atLast:index==this.data.length - 1}))
-        })
+      let list = [];
+      if (_.isArray(this.data)) {
+        _.forEach(this.data, (val, index) => {
+          if (index >= this.startIndex) {
+            list.push(
+              _.assign(
+                {
+                  icon: this.itemIcon
+                },
+                val,
+                { index, atLast: index == this.data.length - 1 }
+              )
+            );
+          }
+        });
       }
-      return list
-    },
+      return list;
+    }
     //------------------------------------------------
     // theDataValues() {
     //   let list = []
@@ -81077,7 +81105,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //   return list
     // }
     //------------------------------------------------
-  },
+  }
   ////////////////////////////////////////////////////
   // methods : {
   //   //------------------------------------------------
@@ -81092,7 +81120,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //   //------------------------------------------------
   // }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -90203,56 +90231,57 @@ Ti.Preload("ti/com/ti/gui/adjustbar/_com.json", {
 //========================================
 // JOIN <ti-gui-block.html> ti/com/ti/gui/block/ti-gui-block.html
 //========================================
-Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block" 
-  :class="TopClass"
-  :style="TopStyle">
-  <!--
+Ti.Preload("ti/com/ti/gui/block/ti-gui-block.html", `<div class="ti-gui-block" :class="TopClass" :style="TopStyle">
+  <div class="block-con">
+    <!--
     Header
   -->
-  <div class="block-head" v-if="isShowHeader">
-    <!--Icon-->
-    <div class="as-icon" v-if="icon">
-      <ti-icon :value="icon"/>
+    <div class="block-head" v-if="isShowHeader">
+      <!--Icon-->
+      <div class="as-icon" v-if="icon">
+        <ti-icon :value="icon" />
+      </div>
+      <!--Title-->
+      <div class="as-title">
+        <span v-if="title">{{title|i18n}}</span>
+      </div>
+      <!--Actions-->
+      <div class="as-actions" v-if="hasActions">
+        <ti-actionbar
+          :items="actions"
+          :vars="TheActionVars"
+          :status="actionStatus"
+        />
+      </div>
     </div>
-    <!--Title-->
-    <div class="as-title">
-      <span v-if="title">{{title|i18n}}</span>
-    </div>
-    <!--Actions-->
-    <div class="as-actions" v-if="hasActions">
-      <ti-actionbar 
-        :items="actions"
-        :vars="TheActionVars"
-        :status="actionStatus"/>
-    </div>
-  </div>
-  <!--
+    <!--
     Content
   -->
-  <div class="block-main" v-if="TheCom" :style="MainStyle">
-    <!------------------------------------------->
-    <div class="block-main-con"
-      :class="MainConClass"
-      :style="MainConStyle">
-      <component 
-        :class="MainComponentClass"
-        :is="TheCom.comType"
-        v-bind="TheCom.comConf"/>
-    </div>    
-    <!------------------------------------------->
+    <div class="block-main" v-if="TheCom" :style="MainStyle">
+      <!------------------------------------------->
+      <div class="block-main-con" :class="MainConClass" :style="MainConStyle">
+        <component
+          :class="MainComponentClass"
+          :is="TheCom.comType"
+          v-bind="TheCom.comConf"
+        />
+      </div>
+      <!------------------------------------------->
+    </div>
   </div>
   <!--
     Bar
   -->
   <TiGuiAdjustbar
     v-if="hasAdjustBar"
-      :prevMinimum="isPrevMinimumSize"
-      :selfMinimum="isMinimumSize"
-      :resizeMode="resizeMode"
-      :adjacentMode="adjacentMode"
-      :adjustBarAt="adjustBarAt"
-      :adjustIndex="adjustIndex"/>
- </div>`);
+    :prevMinimum="isPrevMinimumSize"
+    :selfMinimum="isMinimumSize"
+    :resizeMode="resizeMode"
+    :adjacentMode="adjacentMode"
+    :adjustBarAt="adjustBarAt"
+    :adjustIndex="adjustIndex"
+  />
+</div>`);
 //========================================
 // JOIN <ti-gui-block.mjs> ti/com/ti/gui/block/ti-gui-block.mjs
 //========================================
@@ -90271,7 +90300,8 @@ Ti.Preload("ti/com/ti/gui/block/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/gui/cols/ti-gui-cols.html", `<div
   class="ti-gui-cols"
-  :class="topClass"
+  :class="TopClass"
+  :card="card"
   v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in GuiBlocks">
@@ -90376,7 +90406,8 @@ Ti.Preload("ti/com/ti/gui/panel/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/gui/rows/ti-gui-rows.html", `<div 
   class="ti-gui-rows" 
-  :class="topClass"
+  :class="TopClass"
+  :card="card"
   v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in GuiBlocks">
@@ -99214,13 +99245,17 @@ Ti.Preload("ti/com/wn/gui/side/nav/com/side-nav-item/_com.json", {
 //========================================
 // JOIN <wn-gui-side-nav.html> ti/com/wn/gui/side/nav/wn-gui-side-nav.html
 //========================================
-Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-side-nav"
-  :class="TopClass"
-  v-ti-activable>
-  <side-nav-item v-for="it in TheItems"
+Ti.Preload("ti/com/wn/gui/side/nav/wn-gui-side-nav.html", `<div class="wn-gui-side-nav" :class="TopClass" v-ti-activable>
+  <header v-if="icon || title">
+    <TiIcon v-if="icon" :value="icon" />
+    <h2 v-if="title">{{title}}</h2>
+  </header>
+  <side-nav-item
+    v-for="it in TheItems"
     :key="it.key"
     v-bind="it"
-    @item:actived="OnItemActived"/>
+    @item:actived="OnItemActived"
+  />
 </div>`);
 //========================================
 // JOIN <wn-gui-side-nav.mjs> ti/com/wn/gui/side/nav/wn-gui-side-nav.mjs

@@ -1,8 +1,12 @@
-<div class="wn-gui-side-nav"
-  :class="TopClass"
-  v-ti-activable>
-  <side-nav-item v-for="it in TheItems"
+<div class="wn-gui-side-nav" :class="TopClass" v-ti-activable>
+  <header v-if="icon || title">
+    <TiIcon v-if="icon" :value="icon" />
+    <h2 v-if="title">{{title}}</h2>
+  </header>
+  <side-nav-item
+    v-for="it in TheItems"
     :key="it.key"
     v-bind="it"
-    @item:actived="OnItemActived"/>
+    @item:actived="OnItemActived"
+  />
 </div>

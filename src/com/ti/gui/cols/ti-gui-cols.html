@@ -1,6 +1,7 @@
 <div
   class="ti-gui-cols"
-  :class="topClass"
+  :class="TopClass"
+  :card="card"
   v-ti-draggable="Draggable">
   <template v-if="hasBlocks">
     <template v-for="(block, index) in GuiBlocks">
