@@ -1,5 +1,5 @@
 .wn-session-badge {
-  @include flex-center; 
+  @include flex-center;
   padding: 0 0.3em;
   //----------------------------------------
   a:hover {
@@ -14,10 +14,12 @@
   > .as-drop {
     @include color($color-paper, r, c);
     @include flex-align-v-nowrap;
-    position: fixed; padding: 0; top: SZ(50);
-    width: SZ(320); 
+    position: fixed;
+    padding: 0;
+    top: SZ(50);
+    width: SZ(320);
     box-shadow: SZ(4) SZ(6) SZ(10) map-get($color-shadow, c);
-    border:1px solid map-get($color-line, highlight);
+    border: 1px solid map-get($color-line, highlight);
     z-index: $z-menu;
     visibility: hidden;
     text-align: center;
@@ -25,27 +27,47 @@
     .as-avatar {
       @include border(1px, solid, shallow, bottom);
       padding: SZ(30) SZ(20) SZ(20) SZ(20);
-      .ti-icon {font-size: SZ(72);}
+      .ti-icon {
+        font-size: SZ(72);
+        &.as-thumb img {
+          display: block;
+          width: SZ(128);
+          height: SZ(128);
+          box-shadow: SZ(2) SZ(2) SZ(8) map-get($color-shadow, thin);
+          border-radius: 50%;
+        }
+      }
+      > .as-name {
+        padding: SZ(10) SZ(4);
+        margin: SZ(10) 0;
+        text-align: center;
+      }
     }
     //--------------------------------------
     .as-lang {
       @include noselect;
-      @include flex-align($jc:center);
+      @include flex-align($jc: center);
       padding: SZ(10);
       //------------------------------------
       > .lang-item {
-        border:1px solid transparent;
-        margin: SZ(10); padding: SZ(10);
-        font-size: SZ(12); min-width: SZ(70);
-        cursor: pointer; opacity: 0.4;
+        border: 1px solid transparent;
+        margin: SZ(10);
+        padding: SZ(10);
+        font-size: SZ(12);
+        min-width: SZ(70);
+        cursor: pointer;
+        opacity: 0.4;
         //----------------------------------
         img {
           @include border(1px, solid, shallow);
-          width: SZ(32); height: SZ(32);
+          width: SZ(32);
+          height: SZ(32);
           border-radius: 59%;
           box-shadow: 0 0 SZ(4) map-get($color-shadow, c);
         }
-        div {padding: SZ(2);}
+        div {
+          padding: SZ(2);
+        }
         //----------------------------------
         &:hover {
           border-color: map-get($color-primary, c);
@@ -55,7 +77,8 @@
         &.is-current {
           @include color($color-weaktip, r, c);
           border-color: map-get($color-primary, c);
-          opacity: 1; cursor: default;
+          opacity: 1;
+          cursor: default;
         }
         //----------------------------------
       }
@@ -65,7 +88,7 @@
     .as-foot {
       @include color($color-func, r, c);
       @include border(1px, solid, highlight, top);
-      @include flex-align-nowrap($jc:space-around);
+      @include flex-align-nowrap($jc: space-around);
       padding: SZ(10);
     }
     //--------------------------------------

@@ -18,7 +18,7 @@ const _M = {
       default : null
     },
     "loginIcon" : {
-      type : String,
+      type : [String, Object],
       default : "zmdi-account-circle"
     },
     "nameKeys" : {

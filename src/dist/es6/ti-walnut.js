@@ -1,4 +1,4 @@
-// Pack At: 2023-04-22 01:19:11
+// Pack At: 2023-04-24 02:14:53
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1698,6 +1698,11 @@ const Session = (function(){
     //----------------------------------------
     getMe() {
       return SESSION.me;
+    },
+    //----------------------------------------
+    I_am_SysAccount() {
+      let rid = _.get(SESSION.me, "roleInDomain");
+      return rid ? false : true;
     },
     //----------------------------------------
     I_am_domain_ADMIN() {
@@ -4571,7 +4576,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230422.011911"
+const WALNUT_VERSION = "1.2-20230424.021454"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

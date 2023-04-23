@@ -13904,6 +13904,16 @@ article.ti-article.is-theme-wiki {
       padding: 0.3rem 0.2rem 0.2rem 0.2rem; }
       .wn-session-badge > .as-drop .as-avatar .ti-icon {
         font-size: 0.72rem; }
+        .wn-session-badge > .as-drop .as-avatar .ti-icon.as-thumb img {
+          display: block;
+          width: 1.28rem;
+          height: 1.28rem;
+          box-shadow: 0.02rem 0.02rem 0.08rem rgba(20, 20, 20, 0.2);
+          border-radius: 50%; }
+      .wn-session-badge > .as-drop .as-avatar > .as-name {
+        padding: 0.1rem 0.04rem;
+        margin: 0.1rem 0;
+        text-align: center; }
     .wn-session-badge > .as-drop .as-lang {
       user-select: none;
       display: flex;

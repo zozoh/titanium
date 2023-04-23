@@ -1,4 +1,4 @@
-// Pack At: 2023-04-22 01:19:11
+// Pack At: 2023-04-24 02:14:53
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16915,7 +16915,7 @@ const _M = {
       default : null
     },
     "loginIcon" : {
-      type : String,
+      type : [String, Object],
       default : "zmdi-account-circle"
     },
     "nameKeys" : {
@@ -81129,129 +81129,180 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/wn/session/badge/wn-session-badge.mjs'] = (function(){
 const _M = {
   /////////////////////////////////////////
-  data : ()=>({
-    collapse : true,
-    dropReady : false
+  data: () => ({
+    collapse: true,
+    dropReady: false
   }),
   /////////////////////////////////////////
-  props : {
-    "me" : {
-      type : Object,
-      default : null
+  props: {
+    "me": {
+      type: Object,
+      default: null
     }
   },
   //////////////////////////////////////////
-  computed : {
+  computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
+    },
+    //--------------------------------------
+    MyThumb() {
+      return _.get(this.me, "thumb");
     },
     //--------------------------------------
     MySex() {
-      return _.get(this.me, "sex") || 0
+      return _.get(this.me, "sex") || 0;
     },
     //--------------------------------------
     MyLang() {
-      return _.get(this.me, "LANG") || "zh-cn"
+      return _.get(this.me, "LANG") || "zh-cn";
     },
     //--------------------------------------
     hasSession() {
-      return this.me ? true : false
+      return this.me ? true : false;
+    },
+    //--------------------------------------
+    canLoginDomainSubAccount() {
+      return Wn.Session.I_am_SysAccount();
     },
     //--------------------------------------
     LangList() {
-      return [{
-        lang : "en-us",
-        text : "English",
-        className: {"is-current" : "en-us" == this.MyLang},
-        src  : "/gu/rs/ti/icons/png/lang-en-us.png"
-      }, {
-        lang : "zh-cn",
-        text : "简体",
-        className: {"is-current" : "zh-cn" == this.MyLang},
-        src  : "/gu/rs/ti/icons/png/lang-zh-cn.png"
-      }, {
-        lang : "zh-hk",
-        text : "繁體",
-        className: {"is-current" : "zh-hk" == this.MyLang},
-        src  : "/gu/rs/ti/icons/png/lang-zh-hk.png"
-      }]
+      return [
+        {
+          lang: "en-us",
+          text: "English",
+          className: { "is-current": "en-us" == this.MyLang },
+          src: "/gu/rs/ti/icons/png/lang-en-us.png"
+        },
+        {
+          lang: "zh-cn",
+          text: "简体",
+          className: { "is-current": "zh-cn" == this.MyLang },
+          src: "/gu/rs/ti/icons/png/lang-zh-cn.png"
+        },
+        {
+          lang: "zh-hk",
+          text: "繁體",
+          className: { "is-current": "zh-hk" == this.MyLang },
+          src: "/gu/rs/ti/icons/png/lang-zh-hk.png"
+        }
+      ];
     },
     //--------------------------------------
     TheLoginIcon() {
-      if(2 == this.MySex)
-        return "im-user-female"
-      
-      if(1 == this.MySex)
-        return "im-user-male"
+      if (this.MyThumb) {
+        return {
+          type: "image",
+          iconClass: "as-thumb",
+          value: `/o/content?str=${this.MyThumb}`
+        };
+      }
 
-      return "im-user-circle"
+      if (2 == this.MySex) {
+        return "im-user-female";
+      }
+
+      if (1 == this.MySex) {
+        return "im-user-male";
+      }
+
+      return "im-user-circle";
     },
     //--------------------------------------
     DropStyle() {
-      if(this.dropReady){
+      if (this.dropReady) {
         return {
           "visibility": "visible"
-        }
+        };
       }
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  methods : {
+  methods: {
+    //--------------------------------------
+    async OnLoginDomainAccount() {
+      let uname = await Ti.Prompt("Domain Account Login Name", {
+        type: "info",
+        icon: "fas-user"
+      });
+      // User Cancel
+      uname = _.trim(uname);
+      if (!uname) {
+        return;
+      }
+      uname = uname.replaceAll(/^(['"$ \t;<>()])$/g, "");
+
+      // Process Login
+      let se = await Wn.Sys.exec2(`login -cqn -site true '${uname}'`, {
+        as: "json"
+      });
+      if (se instanceof Error) {
+        return;
+      }
+
+      // Change session
+      let { ticket } = se;
+      let re = await Ti.Http.get("/u/ajax/chse", { params: { seid: ticket } });
+      console.log(re)
+
+      // Login Ok : Redirect
+      Ti.Be.Open("/", { target: "_self" });
+    },
     //--------------------------------------
     OnResetPassword() {
-      this.collapse = true
-      Ti.App(this).dispatch("session/openResetPasswd")
+      this.collapse = true;
+      Ti.App(this).dispatch("session/openResetPasswd");
     },
     //--------------------------------------
     OnShowMore() {
-      this.collapse = false
+      this.collapse = false;
     },
     //--------------------------------------
     async OnChangeLang(lang) {
-      if(this.MyLang != lang) {
-        await Wn.Sys.exec(`me -set LANG=${lang}`)
-        window.location.reload()
+      if (this.MyLang != lang) {
+        await Wn.Sys.exec(`me -set LANG=${lang}`);
+        window.location.reload();
       }
     },
     //--------------------------------------
     dockDrop() {
-      let $drop = this.$refs.drop
-      let $info = this.$refs.info
+      let $drop = this.$refs.drop;
+      let $info = this.$refs.info;
       // Guard the elements
-      if(!_.isElement($drop) || !_.isElement($info) || this.collapse){
-        return
+      if (!_.isElement($drop) || !_.isElement($info) || this.collapse) {
+        return;
       }
       // Dock
       Ti.Dom.dockTo($drop, $info, {
-        space: {y:2}
-      })
-      _.delay(()=>{
-        this.dropReady = true
-      }, 10)
+        space: { y: 2 }
+      });
+      _.delay(() => {
+        this.dropReady = true;
+      }, 10);
     }
     //--------------------------------------
   },
   //////////////////////////////////////////
-  watch : {
-    "collapse" : {
-      handler : function(newVal, oldVal) {
-        if(!newVal && newVal!=oldVal) {
-          _.delay(()=>{
-            this.dockDrop()
-          }, 0)
+  watch: {
+    "collapse": {
+      handler: function (newVal, oldVal) {
+        if (!newVal && newVal != oldVal) {
+          _.delay(() => {
+            this.dockDrop();
+          }, 0);
         }
         // Collapse
-        else if(newVal) {
-          this.dropReady = false
+        else if (newVal) {
+          this.dropReady = false;
         }
       },
       immediate: true
     }
   }
   //////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -100466,20 +100517,21 @@ Ti.Preload("ti/com/wn/obj/tree/_com.json", {
 //========================================
 // JOIN <wn-session-badge.html> ti/com/wn/session/badge/wn-session-badge.html
 //========================================
-Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-session-badge"
-  :class="TopClass">
+Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-session-badge" :class="TopClass">
   <!--
     Ti Session Badge
   -->
   <div class="as-info" ref="info">
     <TiSessionBadge
       :me="me"
-      :login-icon="TheLoginIcon"
-      avatar-key="thumb"
-      name-keys="nickname|nm"
-      name-event="show:more"
-      :auto-sign-link="false"
-      @show:more="OnShowMore"/>
+      :loginIcon="TheLoginIcon"
+      avatarKey="thumb"
+      avatarSrc="/o/content?str=${thumb}"
+      nameKeys="nickname|nm"
+      nameEvent="show:more"
+      :autoSignLink="false"
+      @show:more="OnShowMore"
+    />
   </div>
   <!--
     More Information
@@ -100493,7 +100545,7 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
         Avatar
       -->
       <div class="as-avatar">
-        <ti-icon :value="TheLoginIcon"/>
+        <TiIcon :value="TheLoginIcon" />
         <div class="as-name">
           <span>{{me.nickname}}</span>
           <span>{{me.nm}}</span>
@@ -100505,11 +100557,12 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
       <div class="as-lang">
         <div
           v-for="la in LangList"
-            class="lang-item"
-            :class="la.className"
-            @click.left="OnChangeLang(la.lang)">
-            <img :src="la.src"/>
-            <div>{{la.text}}</div>
+          class="lang-item"
+          :class="la.className"
+          @click.left="OnChangeLang(la.lang)"
+        >
+          <img :src="la.src" />
+          <div>{{la.text}}</div>
         </div>
       </div>
       <!--
@@ -100517,6 +100570,9 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
       -->
       <div class="as-foot">
         <a @click.left="OnResetPassword">{{'passwd-reset' | i18n}}</a>
+        <a v-if="canLoginDomainSubAccount" @click.left="OnLoginDomainAccount"
+          >{{'login' | i18n}}</a
+        >
         <a @click.left="$notify('do:logout')">{{'logout' | i18n}}</a>
       </div>
     </div>

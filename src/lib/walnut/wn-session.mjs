@@ -90,6 +90,11 @@ const WnSession = {
     return SESSION.me;
   },
   //----------------------------------------
+  I_am_SysAccount() {
+    let rid = _.get(SESSION.me, "roleInDomain");
+    return rid ? false : true;
+  },
+  //----------------------------------------
   I_am_domain_ADMIN() {
     let rid = _.get(SESSION.me, "roleInDomain");
     return "ADMIN" == rid;
