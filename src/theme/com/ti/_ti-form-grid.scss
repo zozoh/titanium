@@ -1,6 +1,7 @@
 .ti-form-grid {
   @include flex-align-v-nowrap($ai: stretch);
   position: relative;
+
   //--------------------------------------
   //
   //               ASIDE
@@ -24,6 +25,12 @@
           padding: SZ(12) SZ(4);
         }
       }
+    }
+  }
+  //--------------------------------------
+  &.has-footer.actionbar-at-top {
+    > footer.form-actions {
+      order: -1;
     }
   }
   //--------------------------------------

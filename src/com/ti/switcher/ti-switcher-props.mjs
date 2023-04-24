@@ -7,6 +7,10 @@ export default {
     type: [Array, Function, String, Ti.Dict],
     default: () => []
   },
+  "fixedOptions": {
+    type: [Array, Function, String, Ti.Dict],
+    default: () => []
+  },
   "valueBy": {
     type: [String, Function],
     default: undefined

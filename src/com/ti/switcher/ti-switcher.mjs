@@ -2,6 +2,7 @@ export default {
   /////////////////////////////////////////////////////
   data: () => ({
     loading: false,
+    myFixedOptionsData: [],
     myOptionsData: [],
     myValueMap: {},
     myLastIndex: 0,
@@ -14,53 +15,38 @@ export default {
       return this.getTopClass();
     },
     //-------------------------------------------------
+    FixedDict() {
+      return this.genDict(this.fixedOptions);
+    },
+    //-------------------------------------------------
     Dict() {
-      // Customized
-      if (this.options instanceof Ti.Dict) {
-        return this.options;
-      }
-      // Refer dict
-      if (_.isString(this.options)) {
-        let dictName = Ti.DictFactory.DictReferName(this.options);
-        if (dictName) {
-          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
-            this.loading = loading;
-          });
-        }
-      }
-      return Ti.DictFactory.GetOrCreate(
-        {
-          data: this.options,
-          getValue: Ti.Util.genGetter(this.valueBy || "value"),
-          getText: Ti.Util.genGetter(this.textBy || "text|name"),
-          getIcon: Ti.Util.genGetter(this.iconBy || "icon")
-        },
-        {
-          hooks: ({ loading }) => (this.loading = loading)
-        }
-      );
+      return this.genDict(this.options);
     },
     //-------------------------------------------------
     TheItems() {
-      return _.map(this.myOptionsData, (it, index) => {
+      let list = [];
+      const __gen_items = (it, index) => {
         let itV = this.Dict.getValue(it);
         let text = this.Dict.getText(it);
         text = Ti.I18n.text(text);
         let tip;
-        if(this.autoValueTip){
+        if (this.autoValueTip) {
           tip = {
             "data-ti-tip": `<strong>${text}</strong>: <codd>${itV}</code>`,
             "data-ti-tip-mode": "H",
             "data-ti-tip-size": "auto",
             "data-ti-tip-type": "paper",
             "data-ti-tip-content-type": "html",
-            "data-ti-keyboard":"ctrl"
-          }
+            "data-ti-keyboard": "ctrl"
+          };
         }
+        let selected =
+          this.myValueMap[itV] ||
+          (Ti.Util.isNil(itV) && Ti.Util.isNil(this.value) && !this.multi);
         return {
           index,
           className: {
-            "is-selected": this.myValueMap[itV],
+            "is-selected": selected,
             "is-focused": index == this.myFocusIndex
           },
           text,
@@ -68,7 +54,23 @@ export default {
           value: itV,
           icon: this.Dict.getIcon(it) || this.defaultIcon
         };
+      };
+
+      _.forEach(this.myFixedOptionsData, (it, index) => {
+        let item = __gen_items(it, index);
+        if (item) {
+          list.push(item);
+        }
       });
+
+      _.forEach(this.myOptionsData, (it, index) => {
+        let item = __gen_items(it, index);
+        if (item) {
+          list.push(item);
+        }
+      });
+
+      return list;
     }
     //-------------------------------------------------
   },
@@ -158,10 +160,13 @@ export default {
         } else {
           v = vals.join(this.joinBy || ",");
         }
-        //console.log("tryNotifyChanged", v)
+        //console.log("tryNotifyChanged", v);
         if (!_.isEqual(v, this.value)) {
           if (_.isEmpty(v)) {
             v = this.emptyAs;
+          }
+          if ("null" === v) {
+            v = null;
           }
           this.$notify("change", v);
         }
@@ -169,6 +174,7 @@ export default {
     },
     //......................................
     async reloadMyOptionsData() {
+      this.myFixedOptionsData = await this.FixedDict.getData();
       this.myOptionsData = await this.Dict.getData();
     },
     //......................................
@@ -186,6 +192,33 @@ export default {
       let vmap = {};
       _.forEach(vals, (v) => (vmap[v] = true));
       this.myValueMap = vmap;
+    },
+    //......................................
+    genDict(options) {
+      // Customized
+      if (options instanceof Ti.Dict) {
+        return options;
+      }
+      // Refer dict
+      if (_.isString(options)) {
+        let dictName = Ti.DictFactory.DictReferName(options);
+        if (dictName) {
+          return Ti.DictFactory.CheckDict(dictName, ({ loading }) => {
+            this.loading = loading;
+          });
+        }
+      }
+      return Ti.DictFactory.GetOrCreate(
+        {
+          data: options,
+          getValue: Ti.Util.genGetter(this.valueBy || "value"),
+          getText: Ti.Util.genGetter(this.textBy || "text|name"),
+          getIcon: Ti.Util.genGetter(this.iconBy || "icon")
+        },
+        {
+          hooks: ({ loading }) => (this.loading = loading)
+        }
+      );
     }
     //......................................
   },

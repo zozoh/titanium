@@ -1,33 +1,38 @@
 .ti-toggle {
   @include noselect;
   @include flex-align-nowrap;
-  padding:0 SZ(6);
+  padding: 0 SZ(6);
   aside {
     position: relative;
-    width:SZ(40); padding:1px;
-    cursor:pointer;
+    width: SZ(40);
+    padding: 1px;
+    cursor: pointer;
     border-radius: SZ(20);
-    transition: background-color .2s;
+    transition: background-color 0.2s;
     b {
-      @include color($color-primary, null, r);
-      display:block;
+      display: block;
       border-radius: 50%;
-      width:SZ(18); height:SZ(18);
-      transition: margin-left .2s;
+      width: SZ(18);
+      height: SZ(18);
+      transition: margin-left 0.2s;
     }
   }
   //-----------------------------------------
   &.is-off aside {
     @include color($color-chip, r, c);
-    border:1px solid map-get($color-line, dark);
-    b {border:1px solid map-get($color-line, dark);}
+    border: 1px solid map-get($color-line, dark);
+    b {
+      background-color: map-get($color-bar, c);
+      border: 1px solid map-get($color-line, dark);
+    }
   }
   //-----------------------------------------
   &.is-on aside {
     @include color($color-primary, r, c);
-    border:1px solid map-get($color-primary, r); 
+    border: 1px solid map-get($color-primary, r);
     b {
-      border:1px solid transparent;
+      background-color: map-get($color-primary, r);
+      border: 1px solid transparent;
       margin-left: SZ(18);
     }
   }

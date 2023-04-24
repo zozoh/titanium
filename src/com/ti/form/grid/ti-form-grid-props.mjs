@@ -281,6 +281,11 @@ export default {
   "setupFieldsCleanAction": {
     type: Object
   },
+  "actionBarAt": {
+    type: String,
+    default: "bottom",
+    validator: (v) => /^(top|bottom)$/.test(v)
+  },
   "setupMenuAt": {
     type: String,
     default: "bottom-right",

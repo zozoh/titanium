@@ -2784,6 +2784,8 @@ i.im {
     padding-bottom: 0.36rem; }
   .ti-form-grid.has-aside.has-footer.setup-menu-at-bottom-left > aside.form-setup[spacing="comfy"], .ti-form-grid.has-aside.has-footer.setup-menu-at-bottom-right > aside.form-setup[spacing="comfy"] {
     padding: 0.12rem 0.04rem; }
+  .ti-form-grid.has-footer.actionbar-at-top > footer.form-actions {
+    order: -1; }
   .ti-form-grid > aside.form-setup {
     position: absolute; }
     .ti-form-grid > aside.form-setup[at="top-left"] {
@@ -8537,25 +8539,26 @@ div.ti-input-tags {
     padding: 1px;
     cursor: pointer;
     border-radius: 0.2rem;
-    transition: background-color .2s; }
+    transition: background-color 0.2s; }
     .ti-toggle aside b {
-      background-color: #e9e3d7;
       display: block;
       border-radius: 50%;
       width: 0.18rem;
       height: 0.18rem;
-      transition: margin-left .2s; }
+      transition: margin-left 0.2s; }
   .ti-toggle.is-off aside {
     color: #666;
     background-color: #e8e8e8;
     border: 1px solid rgba(0, 0, 0, 0.2); }
     .ti-toggle.is-off aside b {
+      background-color: #F0F0F0;
       border: 1px solid rgba(0, 0, 0, 0.2); }
   .ti-toggle.is-on aside {
     color: #e9e3d7;
     background-color: #ca9f54;
     border: 1px solid #e9e3d7; }
     .ti-toggle.is-on aside b {
+      background-color: #e9e3d7;
       border: 1px solid transparent;
       margin-left: 0.18rem; }
 
