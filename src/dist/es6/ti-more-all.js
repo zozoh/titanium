@@ -1,4 +1,4 @@
-// Pack At: 2023-04-25 00:17:23
+// Pack At: 2023-04-27 00:38:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -33737,7 +33737,7 @@ const _M = {
       let tinyConfig = _.omit(this.tinyConfig, "plugins")
       let tinyPlugins = _.get(this.tinyConfig, "plugins")
       //.........................................
-      let plugins = _.concat('paste lists table searchreplace', plugNames, tinyPlugins)
+      let plugins = _.concat('paste lists advlist table searchreplace', plugNames, tinyPlugins)
       //.........................................
       return _.assign({
         plugins: plugins.join(" "),

@@ -129,7 +129,7 @@ const _M = {
       let tinyConfig = _.omit(this.tinyConfig, "plugins")
       let tinyPlugins = _.get(this.tinyConfig, "plugins")
       //.........................................
-      let plugins = _.concat('paste lists table searchreplace', plugNames, tinyPlugins)
+      let plugins = _.concat('paste lists advlist table searchreplace', plugNames, tinyPlugins)
       //.........................................
       return _.assign({
         plugins: plugins.join(" "),
