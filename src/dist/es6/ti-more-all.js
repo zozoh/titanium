@@ -1,4 +1,4 @@
-// Pack At: 2023-04-27 00:38:02
+// Pack At: 2023-04-27 01:06:40
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -81249,6 +81249,10 @@ const _M = {
       return _.get(this.me, "LANG") || "zh-cn";
     },
     //--------------------------------------
+    MyAvatarSrc() {
+      return "/o/content?str=${thumb}"
+    },
+    //--------------------------------------
     hasSession() {
       return this.me ? true : false;
     },
@@ -100620,7 +100624,7 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
       :me="me"
       :loginIcon="TheLoginIcon"
       avatarKey="thumb"
-      avatarSrc="/o/content?str=${thumb}"
+      :avatarSrc="MyAvatarSrc"
       nameKeys="nickname|nm"
       nameEvent="show:more"
       :autoSignLink="false"

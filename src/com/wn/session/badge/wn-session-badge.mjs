@@ -30,6 +30,10 @@ const _M = {
       return _.get(this.me, "LANG") || "zh-cn";
     },
     //--------------------------------------
+    MyAvatarSrc() {
+      return "/o/content?str=${thumb}"
+    },
+    //--------------------------------------
     hasSession() {
       return this.me ? true : false;
     },
