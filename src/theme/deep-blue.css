@@ -7761,6 +7761,13 @@ div.ti-input-tags {
           background-color: #272e48; }
           .ti-table > table > tbody > tr.is-primary.is-checked > td {
             border-color: #e6e6e8; }
+      .ti-table > table > tbody > tr.is-primary-r {
+        color: #e6e6e8;
+        background-color: #272e48; }
+        .ti-table > table > tbody > tr.is-primary-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-secondary {
         color: #ff4081; }
         .ti-table > table > tbody > tr.is-secondary.is-checked {
@@ -7768,6 +7775,13 @@ div.ti-input-tags {
           background-color: #ff4081; }
           .ti-table > table > tbody > tr.is-secondary.is-checked > td {
             border-color: #FFF; }
+      .ti-table > table > tbody > tr.is-secondary-r {
+        color: #FFF;
+        background-color: #ff4081; }
+        .ti-table > table > tbody > tr.is-secondary-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-success {
         color: #3fad00; }
         .ti-table > table > tbody > tr.is-success.is-checked {
@@ -7775,6 +7789,13 @@ div.ti-input-tags {
           background-color: #3fad00; }
           .ti-table > table > tbody > tr.is-success.is-checked > td {
             border-color: #aedbb0; }
+      .ti-table > table > tbody > tr.is-success-r {
+        color: #aedbb0;
+        background-color: #3fad00; }
+        .ti-table > table > tbody > tr.is-success-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-warn {
         color: #e69703; }
         .ti-table > table > tbody > tr.is-warn.is-checked {
@@ -7782,6 +7803,13 @@ div.ti-input-tags {
           background-color: #e69703; }
           .ti-table > table > tbody > tr.is-warn.is-checked > td {
             border-color: #ffff8a; }
+      .ti-table > table > tbody > tr.is-warn-r {
+        color: #ffff8a;
+        background-color: #e69703; }
+        .ti-table > table > tbody > tr.is-warn-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-info {
         color: #000000; }
         .ti-table > table > tbody > tr.is-info.is-checked {
@@ -7789,6 +7817,13 @@ div.ti-input-tags {
           background-color: #000000; }
           .ti-table > table > tbody > tr.is-info.is-checked > td {
             border-color: #f8e2bd; }
+      .ti-table > table > tbody > tr.is-info-r {
+        color: #f8e2bd;
+        background-color: #000000; }
+        .ti-table > table > tbody > tr.is-info-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-error {
         color: #ff0000; }
         .ti-table > table > tbody > tr.is-error.is-checked {
@@ -7796,6 +7831,13 @@ div.ti-input-tags {
           background-color: #ff0000; }
           .ti-table > table > tbody > tr.is-error.is-checked > td {
             border-color: #ffff00; }
+      .ti-table > table > tbody > tr.is-error-r {
+        color: #ffff00;
+        background-color: #ff0000; }
+        .ti-table > table > tbody > tr.is-error-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-track {
         color: #888888; }
         .ti-table > table > tbody > tr.is-track.is-checked {
@@ -7803,6 +7845,13 @@ div.ti-input-tags {
           background-color: #888888; }
           .ti-table > table > tbody > tr.is-track.is-checked > td {
             border-color: #dfdbdb; }
+      .ti-table > table > tbody > tr.is-track-r {
+        color: #dfdbdb;
+        background-color: #888888; }
+        .ti-table > table > tbody > tr.is-track-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-disable {
         color: #747171; }
         .ti-table > table > tbody > tr.is-disable.is-checked {
@@ -7810,6 +7859,13 @@ div.ti-input-tags {
           background-color: #747171; }
           .ti-table > table > tbody > tr.is-disable.is-checked > td {
             border-color: #dfdbdb; }
+      .ti-table > table > tbody > tr.is-disable-r {
+        color: #dfdbdb;
+        background-color: #747171; }
+        .ti-table > table > tbody > tr.is-disable-r.is-checked {
+          font-weight: bold;
+          color: black;
+          background-color: #d3c366; }
       .ti-table > table > tbody > tr.is-delete {
         text-decoration: line-through; }
       .ti-table > table > tbody > tr.is-italic {
