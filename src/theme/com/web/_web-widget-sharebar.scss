@@ -5,9 +5,41 @@
   }
   //------------------------------------
   .as-items {
-    @include flex-align-nowrap($jc:center);
+    @include flex-align-nowrap($jc: center);
     a.bar-item {
-      margin:1em; 
+      margin: 1em;
+    }
+  }
+  //------------------------------------
+  &.mode-btn {
+    padding: SZ(10);
+    a.bar-item {
+      @include flex-center;
+      @include color($color-chip, c, r);
+      width: SZ(50);
+      height: SZ(50);
+      font-size: SZ(24);
+      border-radius: SZ(6);
+      margin: 0 SZ(4);
+    }
+    &.is-colorlized {
+      a.bar-item {
+        &.as-facebook {
+          background-color: #3b5998;
+        }
+        &.as-twitter {
+          background-color: #1DA1F2;
+        }
+        &.as-whatsapp {
+          background-color: #128c7e;
+        }
+        &.as-wechat {
+          background-color: rgb(28,214,108);
+        }
+        &.as-print {
+          background-color: #000;
+        }
+      }
     }
   }
   //------------------------------------
@@ -17,7 +49,11 @@
     @include color($color-mask, r, bushy);
     z-index: $z-top;
     .as-qrcode-img {
+      padding: SZ(20);
       text-align: center;
+      display: block;
+      color: #aaa;
+      background-color: #fff;
     }
   }
   //------------------------------------

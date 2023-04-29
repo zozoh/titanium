@@ -1,4 +1,4 @@
-// Pack At: 2023-04-27 01:06:40
+// Pack At: 2023-04-29 23:56:45
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -78360,37 +78360,37 @@ return __TI_MOD_EXPORT_VAR_NM;;
 window.TI_PACK_EXPORTS['ti/com/web/widget/sharebar/widget-sharebar.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
-  data: ()=>({
+  data: () => ({
     qrcodeImgSrc: undefined
   }),
   /////////////////////////////////////////
-  props : {
+  props: {
     "title": {
       type: String,
       default: null
     },
-    "items" : {
-      type : Array,
-      default : ()=>[]
+    "items": {
+      type: Array,
+      default: () => []
     },
-    "apiBase" : {
-      type : String,
-      default : "/"
+    "apiBase": {
+      type: String,
+      default: "/"
     },
     "params": {
-      type : Object,
-      default : ()=>({})
+      type: Object,
+      default: () => ({})
     }
   },
   /////////////////////////////////////////
-  computed : {
+  computed: {
     //------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //------------------------------------
     TheItems() {
-      return this.evalItems(this.items)
+      return this.evalItems(this.items);
     },
     //------------------------------------
     ShareTargets() {
@@ -78398,99 +78398,126 @@ const __TI_MOD_EXPORT_VAR_NM = {
         //..............................
         "facebook": {
           iconClass: "fab fa-facebook-f",
-          link : "https://www.facebook.com/sharer.php",
-          params : {
-            u     : "=url",
-            title : "=title"
+          link: "https://www.facebook.com/sharer/sharer.php",
+          params: {
+            u: "=url",
+            title: "=title"
           }
         },
         //..............................
         "twitter": {
           iconClass: "fab fa-twitter",
-          link : "https://twitter.com/share",
-          params : {
-            url  : "=url",
-            text : "=title"
+          link: "https://twitter.com/share",
+          params: {
+            url: "=url",
+            text: "=title"
+          }
+        },
+        //..............................
+        "whatsapp": {
+          iconClass: "fab fa-whatsapp",
+          link: "https://api.whatsapp.com/send",
+          params: {
+            text: "=url"
           }
         },
         //..............................
         "mix": {
           iconClass: "fab fa-mix",
-          link : "https://mix.com/mixit",
-          params : {
-            url  : "=url"
+          link: "https://mix.com/mixit",
+          params: {
+            url: "=url"
           }
         },
         //..............................
         "linkedin": {
           iconClass: "fab fa-linkedin-in",
-          link : "https://www.linkedin.com/cws/share",
-          params : {
-            url  : "=url"
+          link: "https://www.linkedin.com/cws/share",
+          params: {
+            url: "=url"
           }
         },
         //..............................
         "wechat": {
           iconClass: "fab fa-weixin",
-          link : ({url})=>{
-            let src = `${this.apiBase}qrcode?s=${url}`
-            this.qrcodeImgSrc = src
+          link: ({ url }) => {
+            let src = `${this.apiBase}qrcode?s=${url}`;
+            this.qrcodeImgSrc = src;
           },
-          params : {
-            url  : "=url"
+          params: {
+            url: "=url"
+          }
+        },
+        //..............................
+        "print": {
+          iconClass: "fas fa-print",
+          link: ()=>{
+            window.print();
+          }
+        },
+        //..............................
+        "sharelink": {
+          iconClass: "fas fa-link",
+          link: ({ url })=>{
+            console.log(url)
+            Ti.Be.writeToClipboard(url)
+          },
+          params: {
+            url: "=url"
           }
         }
         //..............................
-      }
+      };
     }
     //------------------------------------
   },
   /////////////////////////////////////////
-  methods : {
+  methods: {
     //------------------------------------
-    OnClickItem({link, params}) {
-      if(!link)
-        return
+    OnClickItem({ link, params }) {
+      if (!link) return;
 
-      let url = window.location.href
-      let title = window.document.title
-      params = Ti.Util.explainObj({url, title}, params)
+      let url = window.location.href;
+      let title = window.document.title;
+      params = Ti.Util.explainObj({ url, title }, params);
       //console.log("haha", params)
-      if(_.isString(link)) {
-        Ti.Be.Open(link, {params})
-      } else if(_.isFunction(link)) {
-        link.apply(this, [params])
+      if (_.isString(link)) {
+        Ti.Be.Open(link, { params });
+      } else if (_.isFunction(link)) {
+        link.apply(this, [params]);
       }
     },
     //------------------------------------
     evalItems(items) {
-      let list = []
-      _.forEach(items, (it, index)=>{
+      let list = [];
+      _.forEach(items, (it, index) => {
         // Customized item
-        if(_.isPlainObject(it)) {
-          list.push(it)
+        if (_.isPlainObject(it)) {
+          list.push(it);
         }
         // built-in
-        else if(_.isString(it)) {
-          let li = _.get(this.ShareTargets, it)
-          let params = _.get(this.params, it)
+        else if (_.isString(it)) {
+          let key = it;
+          let li = _.get(this.ShareTargets, key);
+          let params = _.get(this.params, key);
           //................................
-          if(li) {
+          if (li) {
             let it = _.cloneDeep(li);
-            if(params) {
-              _.assign(it, {params})
+            it.className = `as-${key}`
+            if (params) {
+              _.assign(it, { params });
             }
-            list.push(it)
+            list.push(it);
           }
         }
         //................................
-      })
-      return list
+      });
+      return list;
     }
     //------------------------------------
   }
   /////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -98503,36 +98530,38 @@ Ti.Preload("ti/com/web/widget/rawhtml/_com.json", {
 //========================================
 // JOIN <widget-sharebar.html> ti/com/web/widget/sharebar/widget-sharebar.html
 //========================================
-Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-widget-sharebar"
-  :class="TopClass">
+Ti.Preload("ti/com/web/widget/sharebar/widget-sharebar.html", `<div class="web-widget-sharebar" :class="TopClass">
   <!--
     Title
   -->
-  <div
-    v-if="title"
-      class="as-title">{{title|i18n}}</div>
+  <div v-if="title" class="as-title">{{title|i18n}}</div>
   <!--
     Items
   -->
   <div class="as-items">
     <a
       v-for="it in TheItems"
-        class="bar-item"
-        @click.left="OnClickItem(it)">
-        <i :class="it.iconClass"></i>
+      class="bar-item"
+      :class="it.className"
+      @click.left="OnClickItem(it)"
+    >
+      <i :class="it.iconClass"></i>
     </a>
   </div>
   <!--
     Weixin QrCode
   -->
   <transition name="ti-trans-fade">
-    <div 
+    <div
       v-if="qrcodeImgSrc"
-        @click.left="qrcodeImgSrc=undefined"
-        class="as-weixin-qrcode-con">
-        <div class="as-qrcode-img">
-          <img :src="qrcodeImgSrc"/>
-        </div>
+      @click.left="qrcodeImgSrc=undefined"
+      class="as-weixin-qrcode-con"
+    >
+      <div class="as-qrcode-img">
+        <img :src="qrcodeImgSrc" />
+        <div>用微信扫描二维码</div>
+        <div>Scan a QR code on wechat</div>
+      </div>
     </div>
   </transition>
 </div>`);

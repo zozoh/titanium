@@ -1,33 +1,35 @@
-<div class="web-widget-sharebar"
-  :class="TopClass">
+<div class="web-widget-sharebar" :class="TopClass">
   <!--
     Title
   -->
-  <div
-    v-if="title"
-      class="as-title">{{title|i18n}}</div>
+  <div v-if="title" class="as-title">{{title|i18n}}</div>
   <!--
     Items
   -->
   <div class="as-items">
     <a
       v-for="it in TheItems"
-        class="bar-item"
-        @click.left="OnClickItem(it)">
-        <i :class="it.iconClass"></i>
+      class="bar-item"
+      :class="it.className"
+      @click.left="OnClickItem(it)"
+    >
+      <i :class="it.iconClass"></i>
     </a>
   </div>
   <!--
     Weixin QrCode
   -->
   <transition name="ti-trans-fade">
-    <div 
+    <div
       v-if="qrcodeImgSrc"
-        @click.left="qrcodeImgSrc=undefined"
-        class="as-weixin-qrcode-con">
-        <div class="as-qrcode-img">
-          <img :src="qrcodeImgSrc"/>
-        </div>
+      @click.left="qrcodeImgSrc=undefined"
+      class="as-weixin-qrcode-con"
+    >
+      <div class="as-qrcode-img">
+        <img :src="qrcodeImgSrc" />
+        <div>用微信扫描二维码</div>
+        <div>Scan a QR code on wechat</div>
+      </div>
     </div>
   </transition>
 </div>

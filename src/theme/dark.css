@@ -12842,6 +12842,31 @@ article.ti-article.is-theme-wiki {
   flex-wrap: nowrap; }
   .web-widget-sharebar .as-items a.bar-item {
     margin: 1em; }
+.web-widget-sharebar.mode-btn {
+  padding: 0.1rem; }
+  .web-widget-sharebar.mode-btn a.bar-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    color: #666;
+    background-color: #E0E0E0;
+    width: 0.5rem;
+    height: 0.5rem;
+    font-size: 0.24rem;
+    border-radius: 0.06rem;
+    margin: 0 0.04rem; }
+  .web-widget-sharebar.mode-btn.is-colorlized a.bar-item.as-facebook {
+    background-color: #3b5998; }
+  .web-widget-sharebar.mode-btn.is-colorlized a.bar-item.as-twitter {
+    background-color: #1DA1F2; }
+  .web-widget-sharebar.mode-btn.is-colorlized a.bar-item.as-whatsapp {
+    background-color: #128c7e; }
+  .web-widget-sharebar.mode-btn.is-colorlized a.bar-item.as-wechat {
+    background-color: #1cd66c; }
+  .web-widget-sharebar.mode-btn.is-colorlized a.bar-item.as-print {
+    background-color: #000; }
 .web-widget-sharebar .as-weixin-qrcode-con {
   position: fixed;
   left: 0;
@@ -12857,7 +12882,11 @@ article.ti-article.is-theme-wiki {
   background-color: rgba(50, 50, 50, 0.8);
   z-index: 999999; }
   .web-widget-sharebar .as-weixin-qrcode-con .as-qrcode-img {
-    text-align: center; }
+    padding: 0.2rem;
+    text-align: center;
+    display: block;
+    color: #aaa;
+    background-color: #fff; }
 
 .web-widget-summary .as-title {
   border-bottom: 1px solid rgba(210, 210, 210, 0.1);
