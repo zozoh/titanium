@@ -270,7 +270,7 @@ export default {
           this.initSortable()
         }
       }
-      // Destroy sortable
+      // Destroy sortable: (com reused) 
       else {
         if (this.$sortable) {
           this.$sortable.destroy()
@@ -293,6 +293,13 @@ export default {
   ////////////////////////////////////////////////////
   mounted: function () {
     this.tryInitSortable()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    if (this.$sortable) {
+      this.$sortable.destroy()
+      this.$sortable = undefined
+    }
   }
   ////////////////////////////////////////////////////
 }

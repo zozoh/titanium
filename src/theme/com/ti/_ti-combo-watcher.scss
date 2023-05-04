@@ -1,0 +1,76 @@
+.ti-combo-watcher {
+  user-select: none;
+  //-------------------------------------
+  $tabH: SZ(43);
+  $tabPad: SZ(8);
+  //---------------------------------------------
+  > header {
+    @include flex-align-nowrap;
+    @include color($color-bar, r, c);
+    border-bottom: 1px solid map-get($color-line, shallow);
+    //-------------------------------------------
+    > .as-empty-action {
+      @include flex-center;
+      border-radius: SZ(6);
+      cursor: pointer;
+      padding: 0 $tabPad;
+      height: SZ(32);
+      margin: SZ(4);
+      &:hover {
+        background-color: map-get($color-mask, weak);
+      }
+      > i {
+        margin-right: SZ(4);
+      }
+    } // > .as-empty-action {
+    //-------------------------------------------
+    > ul {
+      @include flex-align-nowrap;
+      padding: $tabPad $tabPad 0 $tabPad;
+      margin-bottom: -1px;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%;
+      //-----------------------------------------
+      li {
+        @include flex-center($wp: nowrap);
+        cursor: pointer;
+        border: 1px solid transparent;
+        min-width: SZ(80);
+        padding: 0 SZ(10);
+        line-height: SZ(28);
+        font-size: SZ(12);
+        &.is-current {
+          @include color($color-body, r, c);
+          border-color: map-get($color-line, shallow);
+          border-top-color: map-get($color-primary, c);
+          border-bottom-color: map-get($color-primary, c);
+          background-color: map-get($color-body, c);
+        }
+        > .it-icon {
+          padding-right: SZ(6);
+        }
+        > .it-text {
+          display: block;
+          white-space: nowrap;
+        }
+      }
+      //-----------------------------------------
+    } // > ul
+    //-------------------------------------------
+    > .ti-actionbar {
+      padding: SZ(4);
+    }
+    //-------------------------------------------
+  } // > header
+  //---------------------------------------------
+  &.at-top > header > ul {
+    li {
+      border-top-width: 3px;
+      border-bottom: 0;
+      margin-bottom: -1px;
+      border-radius: SZ(4) SZ(4) 0 0;
+    }
+  }
+  //---------------------------------------------
+}

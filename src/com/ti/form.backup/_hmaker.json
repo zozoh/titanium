@@ -1,9 +1,0 @@
-{
-  "icon"   : "im-task-o",
-  "title"  : "i18n:com-form",
-  "scenes" : ["desktop", "tablet"],
-  "editComType" : "hmaker-edit-com-form",
-  "editComConf" : {
-    "value" : "=comConf"
-  }
-}

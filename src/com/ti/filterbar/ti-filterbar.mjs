@@ -97,7 +97,13 @@ export default {
   methods: {
     //-------------------------------------
     OnSorterChange(val) {
-      this.$notify("sorter:change", val);
+      if (!_.isEqual(val, this.sorter)) {
+        this.$notify("sorter:change", val);
+        this.$notify("change", {
+          filter: this.filter,
+          sorter: val
+        });
+      }
     },
     //-------------------------------------
     OnMajorChange(val, it) {
@@ -132,11 +138,12 @@ export default {
       let reo = await Ti.App.Open(
         _.assign(
           {
-            icon: "fas-search",
-            title: "i18n:search-adv",
-            position: "top",
-            width: "6.4rem",
-            height: "61.8%"
+            "icon": "fas-search",
+            "title": "i18n:search-adv",
+            "position": "left",
+            "width": "6rem",
+            "height": "100%",
+            "clickMaskToClose": true
           },
           this.dialog,
           {
@@ -178,6 +185,10 @@ export default {
       // Do Notify
       if (!_.isEqual(this.filter, flt)) {
         this.$notify("filter:change", flt);
+        this.$notify("change", {
+          filter: flt,
+          sorter: this.sorter
+        });
       }
     },
     //-------------------------------------

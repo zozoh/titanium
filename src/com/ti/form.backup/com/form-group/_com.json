@@ -1,7 +1,0 @@
-{
-  "name" : "form-group",
-  "globally" : true,
-  "template" : "./form-group.html",
-  "props" : "./form-group-props.mjs",
-  "mixins" : ["./form-group.mjs"]
-}

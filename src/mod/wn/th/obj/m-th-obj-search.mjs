@@ -465,23 +465,32 @@ const _M = {
   // Filter / Sorter / Pager
   //
   //----------------------------------------
-  async applyFilter({ state, commit, getters, dispatch }, filter) {
-    //console.log("applyFilter", filter)
-    commit("setFilter", filter);
+  async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
+    //console.log("applySearch", {filter, sorter})
+    if (filter) {
+      commit("setFilter", filter);
+    }
+    if (sorter) {
+      commit("setSorter", sorter);
+    }
     // If pager enabled, should auto jump to first page
-    if (getters.isPagerEnabled) {
+    if (getters.isPagerEnabled && filter) {
       commit("assignPager", { pn: 1 });
     }
+    // Reload data by new search condition
     await dispatch("queryList");
-    if (state.aggAutoReload) {
+    // Reload AGG
+    if (state.aggAutoReload && filter) {
       await dispatch("queryAggResult");
     }
   },
   //----------------------------------------
+  async applyFilter({ state, commit, getters, dispatch }, filter) {
+    await dispatch("applySearch", { filter });
+  },
+  //----------------------------------------
   async applySorter({ commit, dispatch }, sorter) {
-    //console.log("applySorter", sorter)
-    commit("setSorter", sorter);
-    await dispatch("queryList");
+    await dispatch("applySearch", { sorter });
   },
   //----------------------------------------
   async applyPager({ commit, dispatch }, pager) {

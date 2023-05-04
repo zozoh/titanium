@@ -1,0 +1,8 @@
+{
+  "name": "ti-combo-watcher",
+  "globally": true,
+  "template": "./ti-combo-watcher.html",
+  "props": "@com:ti/filterbar/ti-filterbar-props.mjs",
+  "mixins": "./ti-combo-watcher.mjs",
+  "components": ["@com:ti/filterbar"]
+}

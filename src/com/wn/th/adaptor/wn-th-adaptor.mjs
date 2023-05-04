@@ -20,8 +20,7 @@ const _M = {
           "content::change": "OnContentChange",
           "save:change": "OnSaveChange",
           "list::select": "OnSearchListSelect",
-          "filter::filter:change": "OnSearchFilterChange",
-          "filter::sorter:change": "OnSearchSorterChange",
+          "filter::change": "OnSearchChange",
           "pager::change": "OnSearchPagerChange"
         },
         routing,
@@ -36,6 +35,10 @@ const _M = {
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
       await this.dispatch("selectMeta", { currentId, checkedIds });
       this.$notify("indicate", `${checked.length} items selected`);
+    },
+    //--------------------------------------
+    async OnSearchChange(payload) {
+      await this.dispatch("applySearch", payload);
     },
     //--------------------------------------
     async OnSearchFilterChange(payload) {

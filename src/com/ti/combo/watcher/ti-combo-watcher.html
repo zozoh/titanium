@@ -1,0 +1,52 @@
+<div class="ti-combo-watcher at-top">
+  <!--
+    Watching tabs
+  -->
+  <header>
+    <!-- Watcher tab list-->
+    <template v-if="hasTabItems">
+      <TiActionbar :items="ActionItems" />
+      <ul ref="tabs">
+        <li
+          v-for="li in TabItems"
+          :key="li.text"
+          :class="li.className"
+          @click="OnSelectTab(li)"
+        >
+          <span class="it-text">{{li.text}}</span>
+        </li>
+      </ul>
+    </template>
+    <a
+      class="as-empty-action"
+      v-else
+      @click="OnCreateWatch"
+      :data-ti-tip="addWatchTip"
+    >
+      <i class="zmdi zmdi-alarm-plus"></i>
+      <span>{{addWatchText | i18n}}</span>
+    </a>
+  </header>
+  <!--
+    Filterbar
+  -->
+  <main>
+    <TiFilterbar
+      :className="className"
+      :filter="filter"
+      :sorter="sorter"
+      :matchKeywords="matchKeywords"
+      :majors="majors"
+      :topMajors="topMajors"
+      :filterTags="filterTags"
+      :advanceForm="advanceForm"
+      :advanceComponents="advanceComponents"
+      :sorterConf="sorterConf"
+      :placeholder="placeholder"
+      :dialog="dialog"
+      :prefixIcon="prefixIcon"
+      :suffixIcon="suffixIcon"
+      @change="OnFilterChange"
+    />
+  </main>
+</div>

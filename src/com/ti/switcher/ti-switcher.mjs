@@ -146,7 +146,12 @@ export default {
     },
     //-------------------------------------------------
     tryNotifyChanged(valMap = this.myValueMap) {
-      let vals = Ti.Util.truthyKeys(valMap);
+      let vals = [];
+      _.forEach(this.TheItems, ({ value }) => {
+        if (valMap[value]) {
+          vals.push(value);
+        }
+      });
       if (!_.isEqual(vals, this.Values)) {
         let v;
         if (_.isFunction(this.joinBy)) {
@@ -157,12 +162,14 @@ export default {
           } else {
             v = vals;
           }
-        } else {
+        } else if (vals.length > 1) {
           v = vals.join(this.joinBy || ",");
+        } else {
+          v = _.first(vals);
         }
         //console.log("tryNotifyChanged", v);
         if (!_.isEqual(v, this.value)) {
-          if (_.isEmpty(v)) {
+          if (!_.isNumber(v) && !_.isBoolean(v) && _.isEmpty(v)) {
             v = this.emptyAs;
           }
           if ("null" === v) {

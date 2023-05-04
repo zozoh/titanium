@@ -2328,6 +2328,75 @@ i.im {
     width: 100%;
     height: 100%; }
 
+.ti-combo-watcher {
+  user-select: none; }
+  .ti-combo-watcher > header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    color: #888;
+    background-color: #F0F0F0;
+    border-bottom: 1px solid rgba(20, 20, 20, 0.1); }
+    .ti-combo-watcher > header > .as-empty-action {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      border-radius: 0.06rem;
+      cursor: pointer;
+      padding: 0 0.08rem;
+      height: 0.32rem;
+      margin: 0.04rem; }
+      .ti-combo-watcher > header > .as-empty-action:hover {
+        background-color: rgba(200, 200, 200, 0.4); }
+      .ti-combo-watcher > header > .as-empty-action > i {
+        margin-right: 0.04rem; }
+    .ti-combo-watcher > header > ul {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      align-content: center;
+      flex-wrap: nowrap;
+      padding: 0.08rem 0.08rem 0 0.08rem;
+      margin-bottom: -1px;
+      flex: 1 1 auto;
+      width: 100%;
+      height: 100%; }
+      .ti-combo-watcher > header > ul li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: nowrap;
+        cursor: pointer;
+        border: 1px solid transparent;
+        min-width: 0.8rem;
+        padding: 0 0.1rem;
+        line-height: 0.28rem;
+        font-size: 0.12rem; }
+        .ti-combo-watcher > header > ul li.is-current {
+          color: #444;
+          background-color: #FAFAFA;
+          border-color: rgba(20, 20, 20, 0.1);
+          border-top-color: #272e48;
+          border-bottom-color: #272e48;
+          background-color: #FAFAFA; }
+        .ti-combo-watcher > header > ul li > .it-icon {
+          padding-right: 0.06rem; }
+        .ti-combo-watcher > header > ul li > .it-text {
+          display: block;
+          white-space: nowrap; }
+    .ti-combo-watcher > header > .ti-actionbar {
+      padding: 0.04rem; }
+  .ti-combo-watcher.at-top > header > ul li {
+    border-top-width: 3px;
+    border-bottom: 0;
+    margin-bottom: -1px;
+    border-radius: 0.04rem 0.04rem 0 0; }
+
 .ti-crumb {
   user-select: none;
   display: flex;
@@ -3392,7 +3461,8 @@ i.im {
       .ti-gui-tabs.at-top > header li {
         border-top-width: 3px;
         border-bottom: 0;
-        margin-bottom: -1px; }
+        margin-bottom: -1px;
+        border-radius: 0.04rem 0.04rem 0 0; }
   .ti-gui-tabs.at-bottom {
     padding-bottom: 0.43rem; }
     .ti-gui-tabs.at-bottom > header {
@@ -3406,7 +3476,8 @@ i.im {
       .ti-gui-tabs.at-bottom > header li {
         border-bottom-width: 3px;
         border-top: 0;
-        margin-top: -1px; }
+        margin-top: -1px;
+        border-radius: 0 0 0.04rem 0.04rem; }
   .ti-gui-tabs.head-highlight-1 > header {
     color: #e6e6e8;
     background-color: #272e48; }

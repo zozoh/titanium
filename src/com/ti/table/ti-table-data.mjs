@@ -122,7 +122,7 @@ export default {
               }
             }
             // Quick Icon
-            else if (/^(TiIcon|ti-icon)$/.test(comType)) {
+            else if (/^(TiIcon|ti-icon)$/.test(comType) && !comConf.dict) {
               let { value, className } = comConf;
               let icon = Ti.Icons.parseFontIcon(value);
               if (icon && icon.className) {
