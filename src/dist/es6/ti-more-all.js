@@ -1,4 +1,4 @@
-// Pack At: 2023-05-01 23:40:11
+// Pack At: 2023-05-04 16:06:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8759,7 +8759,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //-------------------------------------
     OnSorterChange(val) {
-      this.$notify("sorter:change", val);
+      if (!_.isEqual(val, this.sorter)) {
+        this.$notify("sorter:change", val);
+        this.$notify("change", {
+          filter: this.filter,
+          sorter: val
+        });
+      }
     },
     //-------------------------------------
     OnMajorChange(val, it) {
@@ -8794,11 +8800,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       let reo = await Ti.App.Open(
         _.assign(
           {
-            icon: "fas-search",
-            title: "i18n:search-adv",
-            position: "top",
-            width: "6.4rem",
-            height: "61.8%"
+            "icon": "fas-search",
+            "title": "i18n:search-adv",
+            "position": "left",
+            "width": "6rem",
+            "height": "100%",
+            "clickMaskToClose": true
           },
           this.dialog,
           {
@@ -8840,6 +8847,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Do Notify
       if (!_.isEqual(this.filter, flt)) {
         this.$notify("filter:change", flt);
+        this.$notify("change", {
+          filter: flt,
+          sorter: this.sorter
+        });
       }
     },
     //-------------------------------------
@@ -11633,7 +11644,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
               }
             }
             // Quick Icon
-            else if (/^(TiIcon|ti-icon)$/.test(comType)) {
+            else if (/^(TiIcon|ti-icon)$/.test(comType) && !comConf.dict) {
               let { value, className } = comConf;
               let icon = Ti.Icons.parseFontIcon(value);
               if (icon && icon.className) {
@@ -13410,23 +13421,32 @@ const _M = {
   // Filter / Sorter / Pager
   //
   //----------------------------------------
-  async applyFilter({ state, commit, getters, dispatch }, filter) {
-    //console.log("applyFilter", filter)
-    commit("setFilter", filter);
+  async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
+    //console.log("applySearch", {filter, sorter})
+    if (filter) {
+      commit("setFilter", filter);
+    }
+    if (sorter) {
+      commit("setSorter", sorter);
+    }
     // If pager enabled, should auto jump to first page
-    if (getters.isPagerEnabled) {
+    if (getters.isPagerEnabled && filter) {
       commit("assignPager", { pn: 1 });
     }
+    // Reload data by new search condition
     await dispatch("queryList");
-    if (state.aggAutoReload) {
+    // Reload AGG
+    if (state.aggAutoReload && filter) {
       await dispatch("queryAggResult");
     }
   },
   //----------------------------------------
+  async applyFilter({ state, commit, getters, dispatch }, filter) {
+    await dispatch("applySearch", { filter });
+  },
+  //----------------------------------------
   async applySorter({ commit, dispatch }, sorter) {
-    //console.log("applySorter", sorter)
-    commit("setSorter", sorter);
-    await dispatch("queryList");
+    await dispatch("applySearch", { sorter });
   },
   //----------------------------------------
   async applyPager({ commit, dispatch }, pager) {
@@ -26497,140 +26517,6 @@ return _M;
 ;
 })()
 // ============================================================
-// EXPORT 'form-field-props.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-field/form-field-props.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //-----------------------------------
-  // Data
-  //-----------------------------------
-  "type": {
-    type: String,
-    default: "String"
-  },
-  "required": {
-    type: Boolean,
-    default: false
-  },
-  "disabled": {
-    type: Boolean,
-    default: false
-  },
-  "uniqKey": {
-    type: String,
-    default: null
-  },
-  "name": {
-    type: [String, Array],
-    default: null
-  },
-  "icon": {
-    type: String,
-    default: null
-  },
-  "message": {
-    type: String,
-    default: null
-  },
-  "title": {
-    type: String,
-    default: null
-  },
-  "tip": {
-    type: String,
-    default: null
-  },
-  "fieldWidth": {
-    type: [String, Number],
-    default: undefined
-  },
-  "checkEquals": {
-    type: Boolean,
-    default: true
-  },
-  "undefinedAs": {
-    default: undefined
-  },
-  "nullAs": {
-    default: undefined
-  },
-  "nanAs": {
-    type: Number,
-    default: undefined
-  },
-  "emptyAs": {
-    default: undefined
-  },
-  "defaultAs": {
-    default: undefined
-  },
-  "display": {
-    type: [String, Object, Boolean],
-    default: false
-  },
-  "autoValue": {
-    type: String,
-    default: "value"
-  },
-  "serializer": {
-    type: Function,
-    default: _.identity
-  },
-  "transformer": {
-    type: Function,
-    default: _.identity
-  },
-  "data": {
-    type: Object,
-    default: null
-  },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
-  "fieldStatus": {
-    type: Object,
-    default: () => ({})
-  },
-  "comType": {
-    type: String,
-    default: "ti-label"
-  },
-  "comConf": {
-    type: Object,
-    default: () => ({})
-  },
-  //-----------------------------------
-  // Aspect
-  //-----------------------------------
-  "screenMode": {
-    type: String,
-    default: "auto",
-    validator: (val) => /^(auto|desktop|tablet|phone)$/.test(val)
-  },
-  "statusIcons": {
-    type: Object,
-    default: () => ({
-      spinning: 'fas-spinner fa-spin',
-      error: 'zmdi-alert-polygon',
-      warn: 'zmdi-alert-triangle',
-      ok: 'zmdi-check-circle',
-    })
-  },
-  //-----------------------------------
-  // Measure
-  //-----------------------------------
-  "width": {
-    type: [String, Number],
-    default: "stretch"
-  },
-  "height": {
-    type: [String, Number],
-    default: undefined
-  }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
 // EXPORT 'web-nav-side.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/web/nav/side/web-nav-side.mjs'] = (function(){
@@ -29349,7 +29235,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------------------
     tryNotifyChanged(valMap = this.myValueMap) {
-      let vals = Ti.Util.truthyKeys(valMap);
+      let vals = [];
+      _.forEach(this.TheItems, ({ value }) => {
+        if (valMap[value]) {
+          vals.push(value);
+        }
+      });
       if (!_.isEqual(vals, this.Values)) {
         let v;
         if (_.isFunction(this.joinBy)) {
@@ -29360,12 +29251,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
           } else {
             v = vals;
           }
-        } else {
+        } else if (vals.length > 1) {
           v = vals.join(this.joinBy || ",");
+        } else {
+          v = _.first(vals);
         }
         //console.log("tryNotifyChanged", v);
         if (!_.isEqual(v, this.value)) {
-          if (_.isEmpty(v)) {
+          if (!_.isNumber(v) && !_.isBoolean(v) && _.isEmpty(v)) {
             v = this.emptyAs;
           }
           if ("null" === v) {
@@ -34511,6 +34404,335 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-combo-watcher.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/combo/watcher/ti-combo-watcher.mjs'] = (function(){
+const _M = {
+  ////////////////////////////////////////////////////
+  data: () => ({
+    $sortable: undefined,
+    dragging: false,
+    myTabSet: {
+      /*
+      _current: "TabName",
+      "TabName": {filter:{..}, sorter:{..}}      
+    */
+    }
+  }),
+  ////////////////////////////////////////////////////
+  props: {
+    //-----------------------------------
+    // Data
+    //-----------------------------------
+    /*
+    Watch list in Tab, 
+    this is a local store key, it will store the filter/sorter
+    to Local: 
+    {
+      "TabNameA": {
+        filter: {..},
+        sorter: {..}
+      }
+    }
+    */
+    "tabs": {
+      type: String
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "addWatchText": {
+      type: String,
+      default: "i18n:add-watch"
+    },
+    "addWatchTip": {
+      type: String,
+      default: "i18n:add-watch-tip"
+    }
+  },
+  ////////////////////////////////////////////////////
+  computed: {
+    //------------------------------------------------
+    LocalKey() {
+      if (_.isString(this.tabs) && this.tabs) {
+        return this.tabs;
+      }
+    },
+    //------------------------------------------------
+    CurrentTab() {
+      return _.get(this.myTabSet, "_current");
+    },
+    //------------------------------------------------
+    hasCurrentTab() {
+      return this.CurrentTab ? true : false;
+    },
+    //------------------------------------------------
+    hasTabItems() {
+      return !_.isEmpty(this.TabItems);
+    },
+    //------------------------------------------------
+    TabItems() {
+      let list = [];
+      for (let text of _.keys(this.myTabSet)) {
+        if ("_current" == text) {
+          continue;
+        }
+        let index = list.length;
+        let current = this.CurrentTab == text;
+        list.push({
+          index,
+          text,
+          current,
+          className: current ? "is-current" : null
+        });
+      }
+      return list;
+    },
+    //------------------------------------------------
+    ActionItems() {
+      return [
+        {
+          icon: "zmdi-filter-list",
+          items: [
+            {
+              icon: "zmdi-alarm-plus",
+              text: "i18n:add-watch-create",
+              action: () => {
+                this.OnCreateWatch();
+              }
+            },
+            {
+              icon: "far-edit",
+              text: "i18n:rename",
+              action: () => {
+                this.OnRenameCurrentWatch();
+              }
+            },
+            {
+              icon: "fas-trash-alt",
+              text: "i18n:add-watch-remove",
+              action: () => {
+                this.OnDeleteCurrentWatch();
+              }
+            },
+            {},
+            {
+              icon: "fas-snowplow",
+              text: "i18n:add-watch-clear",
+              action: () => {
+                this.OnClearAllWatch();
+              }
+            }
+          ]
+        }
+      ];
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  methods: {
+    //------------------------------------------------
+    async OnCreateWatch() {
+      let key = await this.getNewWatchName();
+      if (!key) {
+        return;
+      }
+      if (this.myTabSet[key]) {
+        return Ti.Alert("i18n:add-watch-exists", { type: "warn" });
+      }
+      let tabs = _.cloneDeep(this.myTabSet);
+      tabs._current = key;
+      tabs[key] = {
+        filter: this.filter,
+        sorter: this.sorter
+      };
+      this.saveToLocal(tabs);
+    },
+    //------------------------------------------------
+    async OnRenameCurrentWatch() {
+      let tabs = _.cloneDeep(this.myTabSet);
+      let oldKey = tabs._current;
+      if (!oldKey) {
+        return;
+      }
+      let newKey = await this.getNewWatchName(oldKey);
+      if (!newKey) {
+        return;
+      }
+      if (this.myTabSet[newKey]) {
+        return Ti.Alert("i18n:add-watch-exists", { type: "warn" });
+      }
+      delete tabs[oldKey];
+      tabs[newKey] = {
+        filter: this.filter,
+        sorter: this.sorter
+      };
+      tabs._current = newKey;
+      this.saveToLocal(tabs);
+    },
+    //------------------------------------------------
+    async getNewWatchName(oldName) {
+      let key = await Ti.Prompt("i18n:add-watch-create-tip", {
+        value: oldName
+      });
+      key = _.trim(key);
+      if (!key) {
+        return;
+      }
+      return key;
+    },
+    //------------------------------------------------
+    async OnSelectTab({ text }) {
+      // Guard
+      if (text == this.CurrentTab) {
+        return;
+      }
+      let tabs = _.cloneDeep(this.myTabSet);
+      tabs._current = text;
+      this.saveToLocal(tabs);
+      let data = tabs[text] || {};
+      let { filter, sorter } = data;
+      this.$notify("change", { filter, sorter });
+    },
+    //------------------------------------------------
+    OnDeleteCurrentWatch() {
+      // Guard
+      if (!this.hasCurrentTab || !this.hasTabItems) {
+        return;
+      }
+
+      // Get next Item
+      let data;
+      let tabs = _.cloneDeep(this.myTabSet);
+      let nextTab = _.find(this.TabItems, (it) => {
+        return it.text != this.CurrentTab;
+      });
+      if (nextTab) {
+        data = tabs[nextTab.text];
+        tabs._current = nextTab.text;
+      } else {
+        tabs._current = null;
+      }
+
+      delete tabs[this.CurrentTab];
+      this.saveToLocal(tabs);
+
+      if (data) {
+        this.$notify("change", data);
+      }
+    },
+    //------------------------------------------------
+    OnClearAllWatch() {
+      this.saveToLocal({});
+    },
+    //------------------------------------------------
+    OnFilterChange({ filter, sorter }) {
+      console.log("OnFilterChange", { filter, sorter });
+      let tabs = _.cloneDeep(this.myTabSet);
+      let key = tabs._current;
+      if (key) {
+        _.assign(tabs[key], {
+          filter,
+          sorter
+        });
+        this.saveToLocal(tabs);
+      }
+      return { stop: false };
+    },
+    //------------------------------------------------
+    saveToLocal(data = {}) {
+      // Guard
+      if (!this.LocalKey) {
+        return;
+      }
+      Ti.Storage.local.setObject(this.LocalKey, data);
+      this.myTabSet = data;
+    },
+    //------------------------------------------------
+    reloadFromLocal() {
+      // Guard
+      if (!this.LocalKey) {
+        return;
+      }
+      let tabs = Ti.Storage.local.getObject(this.LocalKey);
+      this.myTabSet = tabs;
+    },
+    //------------------------------------------------
+    reload() {
+      this.reloadFromLocal();
+      this.tryInitSortable();
+    },
+    //------------------------------------------------
+    switchItem(fromIndex, toIndex) {
+      if (fromIndex != toIndex) {
+        //console.log("switchItem", { fromIndex, toIndex });
+        let keys = _.without(_.keys(this.myTabSet), "_current");
+        Ti.Util.moveInArray(keys, fromIndex, toIndex);
+        let tabs = { _current: this.CurrentTab };
+        for (let key of keys) {
+          tabs[key] = this.myTabSet[key];
+        }
+        this.saveToLocal(tabs);
+      }
+    },
+    //------------------------------------------------
+    initSortable() {
+      this.$sortable = new Sortable(this.$refs.tabs, {
+        animation: 300,
+        //filter: ".as-nil-tip",
+        onStart: () => {
+          this.dragging = true;
+        },
+        onEnd: ({ oldIndex, newIndex }) => {
+          this.switchItem(oldIndex, newIndex);
+          _.delay(() => {
+            this.dragging = false;
+          }, 100);
+        }
+      });
+    },
+    //------------------------------------------------
+    tryInitSortable() {
+      if (_.isElement(this.$refs.tabs)) {
+        if (!this.$sortable) {
+          this.initSortable();
+        }
+      }
+      // Destroy sortable: (com reused)
+      else {
+        if (this.$sortable) {
+          this.$sortable.destroy();
+          this.$sortable = undefined;
+        }
+      }
+    }
+    //------------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  watch: {
+    //-----------------------------------------------
+    "tabs": {
+      handler: "reload",
+      immediate: true
+    }
+    //-----------------------------------------------
+  },
+  ////////////////////////////////////////////////////
+  mounted: function () {
+    this.tryInitSortable();
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    if (this.$sortable) {
+      this.$sortable.destroy();
+      this.$sortable = undefined;
+    }
+  }
+  ////////////////////////////////////////////////////
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'm-obj-children-actions.mjs' -> null
@@ -40484,275 +40706,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
-// EXPORT 'form-field.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-field/form-field.mjs'] = (function(){
-const _M = {
-  //////////////////////////////////////////////
-  data: () => ({
-    isComReady: false,
-    myComType: null,
-    myComConf: null
-  }),
-  //////////////////////////////////////////////
-  computed: {
-    //----------------------------------------
-    TopClass() {
-      return this.getTopClass({
-        "no-status-icons": !this.hasStatusIcons,
-        "has-status-icons": this.hasStatusIcons,
-        "is-disabled": this.disabled
-      },
-        //`as-${this.screenMode}`,
-        (this.StatusType ? `is-${this.StatusType}` : null))
-    },
-    //----------------------------------------
-    isShowTitle() { return !Ti.Util.isNil(this.title) },
-    isShowIcon() { return !Ti.Util.isNil(this.icon) },
-    isShowTip() { return !Ti.Util.isNil(this.tip) },
-    hasStatusIcons() { return !_.isEmpty(this.statusIcons) },
-    //----------------------------------------
-    isNumberType() {
-      return /^(Number|Integer|Float)$/.test(this.type)
-    },
-    //----------------------------------------
-    UniqName() {
-      return _.isArray(this.name)
-        ? this.name.join("-")
-        : this.name
-    },
-    //----------------------------------------
-    TheTitle() {
-      return this.title || this.UniqName
-    },
-    //----------------------------------------
-    ComClass() {
-      let auto = "auto" == this.width
-      let full = "full" == this.width
-      let stretch = "stretch" == this.width
-      let fixed = !auto && !full && !stretch && !Ti.Util.isNil(this.width)
-      return {
-        "is-size-auto": auto,
-        "is-size-full": full,
-        "is-size-stretch": stretch,
-        "is-size-fixed": fixed
-      }
-    },
-    //----------------------------------------
-    ConStyle() {
-      return Ti.Css.toStyle({
-        height: this.height,
-        width: this.fieldWidth
-      })
-    },
-    //----------------------------------------
-    ComStyle() {
-      let css = {
-        height: this.height
-      }
-      if (this.width && !/^(auto|stretch)$/.test(this.width)) {
-        css.width = Ti.Css.toSize(this.width)
-      }
-      return Ti.Css.toStyle(css)
-    },
-    //----------------------------------------
-    TheDisplay() {
-      // Guard
-      if (!this.display) {
-        return
-      }
-      // Eval setting
-      if (!_.isBoolean(this.display) && this.display) {
-        return this.evalFieldDisplayItem(this.display, {
-          //funcSet    : this.funcSet,
-          defaultKey: this.name
-        })
-      }
-      // return default.
-      return {
-        comType: "ti-label",
-        comConf: {}
-      }
-    },
-    //----------------------------------------
-    CurrentDisplayItem() {
-      // Display Mode
-      let dis = this.TheDisplay || {}
-
-      // If Actived reset the display
-      if (this.isActived || !this.display) {
-        dis = {
-          defaultAs: this.defaultAs,
-          comType: this.comType,
-          comConf: this.comConf,
-        }
-      }
-
-      // Assign the default value and return
-      return _.defaults(_.cloneDeep(dis), {
-        comType: "ti-label",
-        key: this.name,
-        type: this.type,
-        dict: this.dict,
-        transformer: this.transformer
-      })
-    },
-    //----------------------------------------
-    Status() {
-      return _.get(this.fieldStatus, this.uniqKey)
-    },
-    //----------------------------------------
-    StatusType() {
-      return _.get(this.Status, "type")
-    },
-    //----------------------------------------
-    StatusText() {
-      return _.get(this.Status, "text")
-    },
-    //----------------------------------------
-    StatusIcon() {
-      if (this.Status && this.hasStatusIcons) {
-        return this.statusIcons[this.Status.type]
-      }
-    },
-    //----------------------------------------
-  },
-  ////////////////////////////////////////////////
-  methods: {
-    //--------------------------------------------
-    __before_bubble({ name, args }) {
-      if (this.name) {
-        return {
-          name: `${this.UniqName}::${name}`,
-          args
-        }
-      }
-    },
-    //--------------------------------------------
-    OnChange(val) {
-      // apply default
-      let v2 = this.evalInputValue(val)
-
-      try {
-        //console.log("this.serializer(val):", v2)
-        v2 = this.serializer(v2)
-        //console.log("field changed", val, v2)
-      }
-      // Invalid 
-      catch (error) {
-        this.$notify("invalid", {
-          errMessage: "" + error,
-          name: this.name,
-          value: val
-        })
-        return
-      }
-
-      // apply default
-      v2 = this.evalInputValue(v2)
-
-      // Com Value
-      let comValue = _.get(this.myComConf, this.autoValue)
-
-      // emit event
-      if (!this.checkEquals || !_.isEqual(v2, comValue)) {
-        //console.log("  #field.change:", this.name, v2)
-        this.$notify("change", {
-          name: this.name,
-          value: v2
-        })
-      }
-    },
-    //--------------------------------------------
-    async evalTheCom() {
-      let theCom = await this.evalDataForFieldDisplayItem({
-        itemData: this.data,
-        displayItem: this.CurrentDisplayItem,
-        vars: {
-          "isActived": this.isActived,
-          "disabled": this.disabled
-        },
-        autoIgnoreNil: false,
-        autoIgnoreBlank: false,
-        autoValue: this.autoValue
-      })
-      // console.log("evalTheCom", {
-      //   myUID      : this._uid,
-      //   isActived  : this.isActived,
-      //   oldComType : this.myComType,
-      //   oldComConf : _.cloneDeep(this.myComConf),
-      //   newComType : theCom.comType,
-      //   newComConf : _.cloneDeep(theCom.comConf),
-      // })
-
-      if (!theCom) {
-        this.myComType = undefined
-        this.myComConf = undefined
-        this.isComReady = false
-        return
-      }
-
-      if (this.myComType != theCom.comType) {
-        this.myComType = theCom.comType
-      }
-      if (!_.isEqual(this.myComConf, theCom.comConf)) {
-        this.myComConf = theCom.comConf
-      }
-
-      this.isComReady = true
-    },
-    //--------------------------------------------
-    evalInputValue(val) {
-      let re = val;
-      //console.log("evalInputValue", val)
-      // apply default
-      if (_.isUndefined(val)) {
-        re = _.cloneDeep(
-          Ti.Util.fallback(this.undefinedAs, this.defaultAs)
-        )
-      }
-      else if (_.isNull(val)) {
-        re = _.cloneDeep(
-          Ti.Util.fallback(this.nullAs, this.defaultAs, null)
-        )
-      }
-      else if (this.isNumberType && isNaN(val)) {
-        re = _.cloneDeep(
-          Ti.Util.fallback(this.nanAs, this.defaultAs, NaN)
-        )
-      }
-      else if (
-        !(_.isBoolean(val) || _.isNumber(val))
-        && _.isEmpty(val)
-      ) {
-        if (_.isString(val)) {
-          re = _.cloneDeep(
-            Ti.Util.fallback(this.emptyAs, this.defaultAs, "")
-          )
-        } else {
-          re = Ti.Util.fallback(this.emptyAs, val)
-        }
-      }
-
-      if ("~~undefined~~" == re)
-        return
-      return re
-    }
-    //--------------------------------------------
-  },
-  ////////////////////////////////////////////////
-  watch: {
-    "CurrentDisplayItem": "evalTheCom",
-    "data": {
-      handler: "evalTheCom",
-      immediate: true
-    }
-  }
-  ////////////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
 // EXPORT 'ti-gui.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/gui/ti-gui.mjs'] = (function(){
@@ -42645,8 +42598,7 @@ const _M = {
           "content::change": "OnContentChange",
           "save:change": "OnSaveChange",
           "list::select": "OnSearchListSelect",
-          "filter::filter:change": "OnSearchFilterChange",
-          "filter::sorter:change": "OnSearchSorterChange",
+          "filter::change": "OnSearchChange",
           "pager::change": "OnSearchPagerChange"
         },
         routing,
@@ -42661,6 +42613,10 @@ const _M = {
     async OnSearchListSelect({ currentId, checkedIds, checked }) {
       await this.dispatch("selectMeta", { currentId, checkedIds });
       this.$notify("indicate", `${checked.length} items selected`);
+    },
+    //--------------------------------------
+    async OnSearchChange(payload) {
+      await this.dispatch("applySearch", payload);
     },
     //--------------------------------------
     async OnSearchFilterChange(payload) {
@@ -46667,718 +46623,6 @@ const _M = {
 return _M;;
 })()
 // ============================================================
-// EXPORT 'ti-form.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/ti-form.mjs'] = (function(){
-const _M = {
-  //////////////////////////////////////////////////////
-  model: {
-    prop: "data",
-    event: "change"
-  },
-  //////////////////////////////////////////////////////
-  data: () => ({
-    myKeysInFields: [],
-    currentTabIndex: 0,
-    isEvalMeasure: false,
-    myFormFields: [],
-    myFormFieldMap: {},
-    myFormColumHint: -1
-  }),
-  //////////////////////////////////////////////////////
-  computed: {
-    //--------------------------------------------------
-    TopClass() {
-      return this.getTopClass({
-        "is-tab-mode": this.isTabMode,
-        "is-all-mode": this.isAllMode,
-        [`tab-at-${this.tabAt}`]: this.isTabMode,
-        [`tab-at-${this.TheTabAtX}`]: this.isTabMode,
-        [`tab-at-${this.TheTabAtY}`]: this.isTabMode
-      },
-        `as-${this.ViewDisplayMode}`,
-        `as-spacing-${this.spacing || "comfy"}`,
-        `field-border-${this.fieldBorder}`
-      )
-    },
-    //--------------------------------------------------
-    TopStyle() {
-      return Ti.Css.toStyle({
-        width: this.width,
-        height: this.height,
-        visibility: this.isEvalMeasure ? "hidden" : "initial"
-      })
-    },
-    //--------------------------------------------------
-    FormColumnGrid() {
-      if (this.autoColummGrid) {
-        if (_.isBoolean(this.autoColummGrid)) {
-          return [
-            320,     // col-0
-            720,     // col-1
-            1200,    // col-2
-            1600,    // col-3
-          ]
-        }
-        return this.autoColummGrid
-      }
-    },
-    //--------------------------------------------------
-    ViewDisplayMode() {
-      if (!this.screenMode || "auto" == this.screenMode) {
-        return this.viewportMode || "desktop"
-      }
-      return this.screenMode
-    },
-    //--------------------------------------------------
-    hasHeader() {
-      return this.title || this.icon ? true : false
-    },
-    //--------------------------------------------------
-    hasData() {
-      return !Ti.Util.isNil(this.data)
-    },
-    //--------------------------------------------------
-    isTabMode() { return 'tab' == this.mode },
-    isAllMode() { return 'all' == (this.mode || "all") },
-    isAutoShowBlank() { return Ti.Util.fallback(this.autoShowBlank, false) },
-    //--------------------------------------------------
-    TheTabAt() { return this.tabAt.split("-") },
-    TheTabAtX() { return this.TheTabAt[1] },
-    TheTabAtY() { return this.TheTabAt[0] },
-    //--------------------------------------------------
-    TabList() {
-      let list = []
-      let otherFields = []
-      if (this.isTabMode) {
-        for (let fld of this.myFormFields) {
-          if (fld.type == "Group") {
-            list.push(fld)
-          }
-          // Collect to others
-          else {
-            otherFields.push(fld)
-          }
-        }
-        // Join others
-        if (!_.isEmpty(otherFields)) {
-          list.push({
-            type: "Group",
-            title: "i18n:others",
-            fields: otherFields
-          })
-        }
-      }
-      return list;
-    },
-    //--------------------------------------------------
-    // add "current" to theTabList
-    TabItems() {
-      let items = []
-      let maxTabIndex = this.TabList.length - 1
-      let currentIndex = Math.min(maxTabIndex, this.currentTabIndex)
-      _.forEach(this.TabList, (li, index) => {
-        let isCurrent = (index == currentIndex)
-        items.push(_.assign({}, li, {
-          index, isCurrent, className: Ti.Css.mergeClassName({
-            "is-current": isCurrent
-          }, li.className)
-        }))
-      })
-      return items
-    },
-    //--------------------------------------------------
-    CurrentTab() {
-      for (let tab of this.TabItems) {
-        if (tab.isCurrent) {
-          return tab
-        }
-      }
-    },
-    //--------------------------------------------------
-    FormBodyClass() {
-      if (this.isTabMode && this.CurrentTab) {
-        return Ti.Css.mergeClassName(
-          this.bodyClass,
-          `has-${this.FieldsInCurrentTab.length}-fields`,
-          `tab-body-${this.CurrentTab.index}`,
-          this.CurrentTab.className
-        )
-      }
-      return Ti.Css.mergeClassName(
-        this.bodyClass,
-        `has-${this.FieldsInCurrentTab.length}-fields`,
-        {
-          [`col-${this.myFormColumHint}`]: this.myFormColumHint >= 0
-        }
-      )
-    },
-    //--------------------------------------------------
-    FormBodyStyle() {
-      if (this.bodyStyle) {
-        return this.bodyStyle
-      }
-    },
-    //--------------------------------------------------
-    FieldsInCurrentTab() {
-      // Current Tab
-      if (this.isTabMode) {
-        if (this.CurrentTab) {
-          return this.CurrentTab.fields || []
-        }
-        return []
-      }
-      // Show All
-      else {
-        return this.myFormFields
-      }
-    },
-    //--------------------------------------------------
-    FormLinkFields() {
-      let re = {}
-      _.forEach(this.linkFields, (val, key) => {
-        // By dict
-        if (val && val.dict && val.target) {
-          let { dict, target } = val
-          // Guard
-          if (!target) {
-            return
-          }
-          // Get dict
-          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dict)
-          //.......................................................
-          let getItemFromDict = async function (value, data) {
-            let d;
-            // Dynamic
-            if (dynamic) {
-              let key = _.get(data, dictKey)
-              let vars = Ti.Util.explainObj(data, val.dictVars || {})
-              d = Ti.DictFactory.GetDynamicDict({ name, key, vars })
-            }
-            // Static Dictionary
-            else {
-              d = Ti.DictFactory.CheckDict(name)
-            }
-            // Get item data
-            if (d) {
-              // Multi value
-              if (_.isArray(value)) {
-                let list = []
-                for (let v of value) {
-                  let v2 = await d.getItem(v)
-                  list.push(v2)
-                }
-                return list
-              }
-              // Single value
-              return await d.getItem(value)
-            }
-          }
-          //.......................................................
-          let fn;
-          //.......................................................
-          // Pick
-          if (_.isArray(target)) {
-            fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return _.pick(it, target)
-            }
-          }
-          // Explain target
-          else if (val.explainTargetAs) {
-            fn = async function ({ value, name }, data) {
-              let it = await getItemFromDict(value, data)
-              let ctx = _.assign({}, data, {
-                [val.explainTargetAs]: it
-              })
-              let newVal = Ti.Util.explainObj(ctx, target)
-              //console.log(name, value, "->", newVal)
-              return newVal
-            }
-          }
-          // Simple Translate
-          else {
-            fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return Ti.Util.translate(it, target, v => Ti.Util.fallback(v, null))
-            }
-          }
-          // join to map
-          re[key] = fn
-        }
-        // Statice value
-        else if (val && val.target) {
-          re[key] = ({ name, value }, data) => {
-            let tc = _.assign({}, { "$update": { name, value } }, data)
-            if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
-              return
-            }
-            return Ti.Util.explainObj(data, val.target)
-          }
-        }
-        // Customized Function
-        else if (_.isFunction(val)) {
-          re[key] = val
-        }
-      })
-      return re
-    },
-    //--------------------------------------------------
-    /***
-     * Eval function set for `transformer|serializer` of each fields
-     * 
-     * Defaultly, it will support the function set defined in `Ti.Types`
-     */
-    // FuncSet() {
-    //   return _.assign({}, Ti.GlobalFuncs(), this.extendFunctionSet)
-    // },
-    //--------------------------------------------------
-    TheData() {
-      if (this.data) {
-        let re = this.data
-        if (this.onlyFields) {
-          re = _.pick(re, this.myKeysInFields)
-        }
-        if (this.omitHiddenFields) {
-          re = _.omitBy(re, (v, k) => {
-            if (this.myFormFieldMap[k]) {
-              return false
-            }
-            return true
-          })
-        }
-        return re
-      }
-      return {}
-    }
-    //--------------------------------------------------
-  },
-  //////////////////////////////////////////////////////
-  methods: {
-    //--------------------------------------------------
-    OnClickTab(tab) {
-      //console.log("OnClickTab", tab)
-      this.isEvalMeasure = this.currentTabIndex != tab.index
-      this.currentTabIndex = tab.index
-      this.$notify("tab:change", tab)
-    },
-    //--------------------------------------------------
-    async OnFieldChange({ name, value } = {}) {
-      // Notify at first
-      //console.log("notify field", {name, value})
-      this.$notify("field:change", { name, value })
-
-      // Link fields
-      let linkFunc = this.FormLinkFields[name]
-      let obj;
-      if (linkFunc) {
-        obj = await linkFunc({ name, value }, this.data)
-        if (!_.isEmpty(obj)) {
-          _.forEach(obj, (v, k) => {
-            this.$notify("field:change", { name: k, value: v })
-          })
-        }
-      }
-
-      // Notify later ...
-      // Wait for a tick to give a chance to parent of 'data' updating
-      this.$nextTick(() => {
-        //console.log("notify data")
-        let data = this.getData({ name, value })
-        _.assign(data, obj)
-        this.$notify("change", data)
-      })
-    },
-    //--------------------------------------
-    getData({ name, value } = {}) {
-      let data = _.cloneDeep(this.TheData)
-      //console.log("GetData:", data)
-
-      // Signle value
-      if (name && _.isString(name)) {
-        // Whole data
-        if (".." == name) {
-          _.assign(data, value)
-        }
-        // Statci value
-        else if (/^'[^']+'$/.test(name)) {
-          return
-        }
-        // Dynamic value
-        else {
-          if (_.isUndefined(value)) {
-            data = _.omit(data, name)
-          } else if (name.startsWith(".")) {
-            data[name] = value
-          } else {
-            _.set(data, name, value)
-          }
-        }
-      }
-      // Object
-      else if (_.isArray(name)) {
-        let omitKeys = []
-        for (let k of name) {
-          let v = _.get(value, k)
-          if (_.isUndefined(v)) {
-            omitKeys.push(k)
-          } else {
-            _.set(data, k, v)
-          }
-        }
-        if (omitKeys.length > 0) {
-          data = _.omit(data, omitKeys)
-        }
-      }
-
-      // Join the fixed data
-      if (this.fixed) {
-        _.assign(data, fixed)
-      }
-      return data
-    },
-    //--------------------------------------
-    isGroup(fld) {
-      return "Group" == fld.type || _.isArray(fld.fields)
-    },
-    //--------------------------------------------------
-    isLabel(fld) {
-      return "Label" == fld.type || !fld.name
-    },
-    //--------------------------------------------------
-    evalFormFieldList() {
-      let list = []
-      let keys = []
-      let fmap = {}
-      this.isEvalMeasure = true
-      //................................................
-      _.forEach(this.fields, (fld, index) => {
-        let fld2 = this.evalFormField(fld, [index])
-        if (fld2) {
-          list.push(fld2)
-          let fKeys = _.concat(fld2.name)
-          for (let fk of fKeys) {
-            fmap[fk] = fld2
-          }
-        }
-        // Gather keys
-        keys.push(fld.name)
-        // Join sub-group keys
-        _.forEach(fld.fields, ({ name }) => {
-          if (name) {
-            keys.push(name)
-          }
-        })
-      })
-      //................................................
-      this.myKeysInFields = _.flattenDeep(keys)
-      //................................................
-      this.myFormFields = list
-      this.myFormFieldMap = fmap
-      //................................................
-      this.__adjust_fields_width()
-    },
-    //--------------------------------------------------
-    evalFormField(fld = {}, nbs = []) {
-      // Get form field visibility
-      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
-      if (hidden) {
-        return
-      }
-
-      let maxColumnHint = Ti.Util.fallback(fld.maxColumnHint, this.maxColumnHint, 3)
-      let columnHint = Math.min(maxColumnHint, this.myFormColumHint)
-
-      // The key
-      let fldKey = Ti.Util.anyKey(fld.name || nbs, "ti-fld")
-      // let fldKey = fld.name
-      //   ? [].concat(fld.name).join("-")
-      //   : "ti-fld-" + nbs.join("-")
-      //............................................
-      // For group
-      if (this.isGroup(fld)) {
-        let group = {
-          disabled,
-          type: "Group",
-          key: fldKey,
-          className: Ti.Css.mergeClassName(fld.className, this.defaultGroupClass, {
-            [`col-${columnHint}`]: columnHint >= 0
-          }),
-          icon: fld.icon,
-          title: fld.title,
-          fields: []
-        }
-        // Group fields
-        _.forEach(fld.fields, (subfld, index) => {
-          let newSubFld = this.evalFormField(subfld, [...nbs, index])
-          if (newSubFld) {
-            group.fields.push(newSubFld)
-          }
-        })
-        // Done
-        return _.isEmpty(group.fields) ? null : group
-      }
-      //............................................
-      // Label
-      if (this.isLabel(fld)) {
-        return {
-          disabled,
-          type: "Label",
-          key: fldKey,
-          className: Ti.Css.mergeClassName(fld.className),
-          icon: fld.icon,
-          title: fld.title
-        }
-      }
-      //............................................
-      // For Normal Field
-      if (fld.name) {
-        let field = _.defaults(_.omit(fld, "disabled"), {
-          type: this.defaultFieldType || "String",
-          className: Ti.Css.mergeClassName(fld.className, {
-            "as-narrow": columnHint == 0,
-            "as-wide": columnHint > 0,
-          }),
-          comType: this.defaultComType || "TiLabel",
-          disabled
-        })
-
-        // The UniqKey of field
-        field.uniqKey = _.concat(field.name).join("-")
-        //console.log(field.uniqKey)
-
-        // // field status
-        // let fStatus = _.get(this.fieldStatus, funiqKey)
-        // if(fStatus) {
-        //   field.status  = fStatus.status
-        //   field.message = fStatus.message
-        // }
-
-        // Default
-        if (!field.serializer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
-          field.serializer = `Ti.Types.${fnName}`
-        }
-        if (!field.transformer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "transformer")
-          field.transformer = `Ti.Types.${fnName}`
-        }
-
-        // Tidy form function
-        const invokeOpt = {
-          context: this,
-          partial: "right"
-        }
-        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
-        if (fld.required) {
-          if (_.isBoolean(fld.required)) {
-            field.required = true
-          } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.data)
-          }
-        }
-
-        // Done
-        return field
-      }
-    },
-    //--------------------------------------------------
-    evalCoumnHint() {
-      // Guard
-      if (!_.isElement(this.$el))
-        return
-      if (this.FormColumnGrid) {
-        let { width } = Ti.Rects.createBy(this.$el)
-        let i = 0
-        for (; i < this.FormColumnGrid.length; i++) {
-          let hintW = this.FormColumnGrid[i]
-          if (width > hintW) {
-            continue;
-          }
-          break
-        }
-        this.myFormColumHint = Math.min(this.maxColumnHint, i)
-        // console.log("evalCoumnHint", {
-        //   width, hint: this.myFormColumHint,
-        //   max: this.maxColumnHint,
-        //   i
-        // })
-      }
-    },
-    //--------------------------------------------------
-    __adjust_fields_width() {
-      // Guard
-      if (!_.isElement(this.$el))
-        return
-
-      this.isEvalMeasure = true
-      //console.log("__adjust_fields_width")
-      //
-      // Find the max width in all form
-      //
-      // Find all field-name Elements
-      let $fldNames = Ti.Dom.findAll(".form-field > .field-name", this.$el)
-      let $grps = Ti.Dom.findAll('[fld-name-max-width]', this.$el)
-      if (!_.isEmpty($grps)) {
-        for (let $grp of $grps) {
-          $grp.removeAttribute("fld-name-max-width")
-        }
-      }
-
-      // Reset them to org-width
-      for (let $fldnm of $fldNames) {
-        Ti.Dom.setStyle($fldnm, { width: "" })
-      }
-
-      // Get the max-width of them
-      let maxWidth = 0
-      for (let $fldnm of $fldNames) {
-        let rect = Ti.Rects.createBy($fldnm)
-        //
-        // Only one column
-        if (this.myFormColumHint >= 0 && this.myFormColumHint <= 1) {
-          maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
-          continue;
-        }
-        // If in vertical group
-        let $pp = $fldnm.parentElement.parentElement.parentElement
-        if (Ti.Dom.hasClass($pp, "form-group")
-          && Ti.Dom.hasOneClass($pp, "as-columns", "as-vertical")
-        ) {
-          let maxw = $pp.getAttribute("fld-name-max-width") * 1 || 0
-          maxw = Math.max(maxw, rect.width)
-          $pp.setAttribute("fld-name-max-width", maxw)
-        }
-        // for whole form
-        else {
-          maxWidth = Math.ceil(Math.max(rect.width, maxWidth))
-        }
-      }
-
-
-
-      // Wait for whole view rendered, and align the field-name
-      for (let $fldnm of $fldNames) {
-        // If in group
-        let $pp = $fldnm.parentElement.parentElement.parentElement
-        let maxw = $pp.getAttribute("fld-name-max-width")
-        if (maxw) {
-          Ti.Dom.setStyle($fldnm, { width: maxw * 1 })
-        }
-        // For whole form
-        else {
-          Ti.Dom.setStyle($fldnm, { width: maxWidth })
-        }
-      }
-
-      this.$nextTick(() => {
-        this.isEvalMeasure = false
-      })
-    },
-    //--------------------------------------------------
-    adjustFieldsWidth(delay = this.adjustDelay) {
-      //console.log("adjustFieldsWidth", {hint: this.myFormColumHint})
-      if (delay > 0) {
-        _.delay(() => {
-          this.__adjust_fields_width()
-        }, delay)
-      } else {
-        this.$nextTick(() => {
-          this.__adjust_fields_width()
-        })
-      }
-    },
-    //--------------------------------------------------
-    // Callback
-    //--------------------------------------------------
-    __ti_shortcut(uniqKey) {
-      //console.log("ti-form", uniqKey)
-      if ("ENTER" == uniqKey) {
-        // It should wait a while before submit
-        // <ti-input> will apply change at @change event
-        // And the @change event will be fired when ENTER 
-        // bubble fade away
-        _.delay(() => {
-          this.$notify("submit")
-        }, 100)
-      }
-    }
-    //--------------------------------------------------
-  },
-  //////////////////////////////////////////////////////
-  watch: {
-    "data": function (newVal, oldVal) {
-      if (!oldVal || !_.isEqual(newVal, oldVal)) {
-        this.evalFormFieldList();
-        this.adjustFieldsWidth()
-      }
-    },
-    "fields": function (newVal, oldVal) {
-      if (!oldVal || !_.isEqual(newVal, oldVal)) {
-        this.evalFormFieldList();
-        this.adjustFieldsWidth()
-      }
-    },
-    "currentTab": function (index) {
-      this.currentTabIndex = index
-    },
-    "currentTabIndex": function (index) {
-      //console.log("currentTabIndex changed to", index)
-      if (this.keepTabIndexBy) {
-        Ti.Storage.session.set(this.keepTabIndexBy, index)
-      }
-      this.adjustFieldsWidth()
-      this.isEvalMeasure = false
-    },
-    "myFormColumHint": function (newVal, oldVal) {
-      if (newVal != oldVal) {
-        this.adjustFieldsWidth()
-      }
-    }
-  },
-  //////////////////////////////////////////////////////
-  created: function () {
-    this.__debounce_adjust_fields = _.debounce(() => {
-      this.evalCoumnHint()
-      this.evalFormFieldList()
-    }, 500)
-  },
-  //////////////////////////////////////////////////////
-  mounted: function () {
-    //--------------------------------------------------
-    this.currentTabIndex =
-      Ti.Storage.session.getInt(
-        this.keepTabIndexBy, this.currentTab
-      )
-    //--------------------------------------------------
-    Ti.Viewport.watch(this, {
-      resize: () => {
-        this.__debounce_adjust_fields()
-      }
-    })
-    //--------------------------------------------------
-    this.evalCoumnHint();
-    this.evalFormFieldList();
-    //--------------------------------------------------
-    this.$nextTick(() => {
-      this.__adjust_fields_width()
-      _.delay(() => {
-        this.evalCoumnHint()
-        this.evalFormFieldList()
-      }, this.adjustDelay)
-    })
-    //--------------------------------------------------
-  },
-  //////////////////////////////////////////////////////
-  beforeDestroy: function () {
-    Ti.Viewport.unwatch(this)
-  }
-  //////////////////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
 // EXPORT 'ti-logging.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/logging/ti-logging.mjs'] = (function(){
@@ -48799,34 +48043,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------
   }
   /////////////////////////////////////////
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'form-group.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-group/form-group.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  ///////////////////////////////////////////
-  computed : {
-    //----------------------------------------
-    TopClass() {
-      let klass = [`as-${this.screenMode}`]
-      if(this.className) {
-        klass.push(this.className)
-      }
-      return klass
-    },
-    //----------------------------------------
-    show() {
-      return {
-        title : this.title ? true : false,
-        icon  : this.icon  ? true : false
-      }
-    }
-    //----------------------------------------
-  }
-  ///////////////////////////////////////////
 }
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -53736,606 +52952,6 @@ const _M = {
     //--------------------------------------
   }
   //////////////////////////////////////////
-}
-return _M;;
-})()
-// ============================================================
-// EXPORT 'form-support.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/form-support.mjs'] = (function(){
-const _M = {
-  //////////////////////////////////////////////////////
-  data: () => ({
-    myLang: "zh-cn",
-    myScreenMode: "desktop",
-
-    myCandidateFormFields: [],
-
-    myKeysInFields: [],
-    myFormFields: [],
-    myFormFieldMap: {},
-    myActivedFieldKey: null,
-
-    /*field white list*/
-    myFieldWhiteList: {},
-    /*field black list*/
-    myFieldBlackList: {},
-  }),
-  //////////////////////////////////////////////////////
-  computed: {
-    //--------------------------------------------------
-    hasFieldWhiteList() {
-      return !_.isEmpty(this.myFieldWhiteList)
-    },
-    //--------------------------------------------------
-    hasFieldBlackList() {
-      return !_.isEmpty(this.myFieldBlackList)
-    },
-    //--------------------------------------------------
-    hasCustomizedWhiteFields() {
-      if (!this.hasFieldWhiteList) {
-        return false
-      }
-      let whites = Ti.Util.truthyKeys(this.myFieldWhiteList)
-      return !_.isEqual(whites, this.whiteFields)
-    },
-    //--------------------------------------------------
-    FormLinkFields() {
-      let re = {}
-      _.forEach(this.linkFields, (val, key) => {
-        // By dict
-        if (val && val.dict && val.target) {
-          let { dict, target } = val
-          // Guard
-          if (!target) {
-            return
-          }
-          // Get dict
-          let { name, dynamic, dictKey } = Ti.DictFactory.explainDictName(dict)
-          //.......................................................
-          let getItemFromDict = async function (value, data) {
-            let d;
-            // Dynamic
-            if (dynamic) {
-              let key = _.get(data, dictKey)
-              let vars = Ti.Util.explainObj(data, val.dictVars || {})
-              d = Ti.DictFactory.GetDynamicDict({ name, key, vars })
-            }
-            // Static Dictionary
-            else {
-              d = Ti.DictFactory.CheckDict(name)
-            }
-            // Get item data
-            if (d) {
-              // Multi value
-              if (_.isArray(value)) {
-                let list = []
-                for (let v of value) {
-                  let v2 = await d.getItem(v)
-                  list.push(v2)
-                }
-                return list
-              }
-              // Single value
-              return await d.getItem(value)
-            }
-          }
-          //.......................................................
-          let fn;
-          //.......................................................
-          // Pick
-          if (_.isArray(target)) {
-            fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return _.pick(it, target)
-            }
-          }
-          // Explain target
-          else if (val.explainTargetAs) {
-            fn = async function ({ value, name }, data) {
-              let it = await getItemFromDict(value, data)
-              let ctx = _.assign({}, data, {
-                [val.explainTargetAs]: it
-              })
-              let newVal = Ti.Util.explainObj(ctx, target)
-              //console.log(name, value, "->", newVal)
-              return newVal
-            }
-          }
-          // Simple Translate
-          else {
-            fn = async function ({ value }, data) {
-              let it = await getItemFromDict(value, data)
-              return Ti.Util.translate(it, target, v => Ti.Util.fallback(v, null))
-            }
-          }
-          // join to map
-          re[key] = fn
-        }
-        // Statice value
-        else if (val && val.target) {
-          re[key] = ({ name, value }, data) => {
-            let tc = _.assign({}, { "$update": { name, value } }, data)
-            if (val.test && !Ti.AutoMatch.test(val.test, tc)) {
-              return
-            }
-            return Ti.Util.explainObj(data, val.target)
-          }
-        }
-        // Customized Function
-        else if (_.isFunction(val)) {
-          re[key] = val
-        }
-      })
-      return re
-    },
-    //--------------------------------------------------
-    FormData() {
-      if (this.data) {
-        let re = this.data
-        if (this.onlyFields) {
-          re = _.pick(re, this.myKeysInFields)
-        }
-        if (this.omitHiddenFields) {
-          re = _.omitBy(re, (v, k) => {
-            if (this.myFormFieldMap[k]) {
-              return false
-            }
-            return true
-          })
-        }
-        return re
-      }
-      return {}
-    }
-    //--------------------------------------------------
-  },
-  //////////////////////////////////////////////////////
-  methods: {
-    //--------------------------------------------------
-    async OnFieldChange({ name, value } = {}) {
-      // Notify at first
-      //console.log("notify field", {name, value})
-      this.$notify("field:change", { name, value })
-
-      // Link fields
-      let linkFunc = this.FormLinkFields[name]
-      let obj;
-      if (linkFunc) {
-        obj = await linkFunc({ name, value }, this.data)
-        if (!_.isEmpty(obj)) {
-          _.forEach(obj, (v, k) => {
-            this.$notify("field:change", { name: k, value: v })
-          })
-        }
-      }
-
-      // Notify later ...
-      // Wait for a tick to give a chance to parent of 'data' updating
-      this.$nextTick(() => {
-        //console.log("notify data")
-        let data = this.getData({ name, value })
-        _.assign(data, obj)
-        this.$notify("change", data)
-      })
-    },
-    //--------------------------------------------------
-    //
-    //           EVAL FORM DATA
-    //
-    //--------------------------------------------------
-    getData({ name, value } = {}) {
-      let data = _.cloneDeep(this.FormData)
-      //console.log("GetData:", data)
-
-      // Signle value
-      if (name && _.isString(name)) {
-        // Whole data
-        if (".." == name) {
-          _.assign(data, value)
-        }
-        // Statci value
-        else if (/^'[^']+'$/.test(name)) {
-          return
-        }
-        // Dynamic value
-        else {
-          if (_.isUndefined(value)) {
-            data = _.omit(data, name)
-          } else if (name.startsWith(".")) {
-            data[name] = value
-          } else {
-            _.set(data, name, value)
-          }
-        }
-      }
-      // Object
-      else if (_.isArray(name)) {
-        let omitKeys = []
-        for (let k of name) {
-          let v = _.get(value, k)
-          if (_.isUndefined(v)) {
-            omitKeys.push(k)
-          } else {
-            _.set(data, k, v)
-          }
-        }
-        if (omitKeys.length > 0) {
-          data = _.omit(data, omitKeys)
-        }
-      }
-
-      // Join the fixed data
-      if (this.fixed) {
-        _.assign(data, fixed)
-      }
-      return data
-    },
-    //--------------------------------------------------
-    //
-    //           TIDY FORM FIELDS
-    //
-    //--------------------------------------------------
-    getFlattenFormFields(fields = []) {
-      let list = []
-      const __join_fields = function (fields = []) {
-        for (let fld of fields) {
-          if ("Group" == fld.type) {
-            __join_fields(fld.fields)
-          }
-          // Join normal fields
-          else {
-            // Replace the last Label
-            let lastFld = _.nth(list, -1)
-            if (lastFld && "Label" == lastFld.type && "Label" == fld.type) {
-              list[list.length - 1] = fld
-            }
-            // Join 
-            else {
-              list.push(fld)
-            }
-          }
-        }
-      }
-      __join_fields(fields)
-      return list
-    },
-    //--------------------------------------------------
-    getGroupedFormFields(fields = [], otherGroupTitle) {
-      let list = []
-      let otherFields = []
-      for (let fld of fields) {
-        if (this.isGroup(fld)) {
-          // Join others
-          if (!_.isEmpty(otherFields)) {
-            list.push({
-              type: "Group",
-              index: list.length,
-              fields: otherFields
-            })
-            otherFields = []
-          }
-          // Join self
-          list.push(_.assign({}, fld, {
-            index: list.length
-          }))
-        }
-        // Collect to others
-        else {
-          otherFields.push(fld)
-        }
-      }
-      // Join others
-      if (!_.isEmpty(otherFields)) {
-        list.push({
-          type: "Group",
-          index: list.length,
-          title: otherGroupTitle,
-          fields: otherFields
-        })
-      }
-      // Done
-      return list;
-    },
-    //--------------------------------------------------
-    evalMyLang() {
-      if ("auto" == this.lang) {
-        this.myLang = _.kebabCase(Ti.Config.lang())
-      } else {
-        this.myLang = _.kebabCase(this.lang)
-      }
-    },
-    //--------------------------------------------------
-    evalMyScreenMode() {
-      if ("auto" == this.screenMode) {
-        let state = Ti.App(this).$state().viewport
-        this.myScreenMode = _.get(state, "mode") || "desktop"
-      } else {
-        this.myScreenMode = this.screeMode
-      }
-    },
-    //--------------------------------------------------
-    //
-    //           FORM FIELD WHITE/BLOCK LIST
-    //
-    //--------------------------------------------------
-    __eval_form_filter_list(fields = []) {
-      let re = {}
-      _.forEach(fields, (k) => {
-        re[k] = true
-      })
-      return re
-    },
-    evalFormWhiteFieldList(fields = this.whiteFields) {
-      this.myFieldWhiteList = this.__eval_form_filter_list(fields)
-    },
-    evalFormBlackFieldList(fields = this.blackFields) {
-      this.myFieldBlackList = this.__eval_form_filter_list(fields)
-    },
-    //--------------------------------------------------
-    //
-    //           EVAL FORM FIELDS
-    //
-    //--------------------------------------------------
-    isGroup(fld) {
-      return "Group" == fld.race || _.isArray(fld.fields)
-    },
-    //--------------------------------------------------
-    isLabel(fld) {
-      return "Label" == fld.race || !fld.name
-    },
-    //--------------------------------------------------
-    isNormal(fld) {
-      return "Normal" == fld.race || fld.name
-    },
-    //--------------------------------------------------
-    async evalFormFieldList() {
-      let list = []
-      let cans = []
-      let keys = []
-      let fmap = {}
-      //................................................
-      if (_.isArray(this.fields)) {
-        for (let index = 0; index < this.fields.length; index++) {
-          let fld = this.fields[index]
-          let fld2 = await this.evalFormField(fld, [index], cans)
-          if (fld2) {
-            list.push(fld2)
-            let fKeys = _.concat(fld2.name)
-            for (let fk of fKeys) {
-              fmap[fk] = fld2
-            }
-          }
-          // Gather field names
-          if (fld.name) {
-            keys.push(..._.concat(fld.name))
-          }
-          // Join sub-group keys
-          _.forEach(fld.fields, ({ name }) => {
-            if (name) {
-              keys.push(..._.concat(name))
-            }
-          })
-        }
-      }
-      //................................................
-      // Remove the adjacent Label fields
-      let list2 = []
-      for (let i = 0; i < list.length; i++) {
-        let item = list[i]
-        let next = _.nth(list, i + 1)
-        if ('Label' == item.race) {
-          if (!next || 'Label' == next.race) {
-            continue;
-          }
-        }
-        list2.push(item)
-      }
-      //................................................
-      this.myKeysInFields = _.flattenDeep(keys)
-      //................................................
-      this.myFormFields = list2
-      this.myFormFieldMap = fmap
-      this.myCandidateFormFields = cans
-    },
-    //--------------------------------------------------
-    async evalFormField(fld = {}, nbs = [], cans = []) {
-      // The key
-      let fldKey = Ti.Util.anyKey(fld.name || nbs)
-
-      // Visibility
-      let { hidden, disabled } = Ti.Types.getFormFieldVisibility(fld, this.data)
-
-      //............................................
-      let field;
-      let omitKeys = ["hidden", "disabled", "enabled", "visible"]
-      // For group
-      if (this.isGroup(fld)) {
-        let group = _.assign(_.omit(fld, omitKeys), {
-          disabled,
-          race: "Group",
-          key: fldKey,
-          fields: []
-        })
-        // Group fields
-        if (_.isArray(fld.fields)) {
-          for (let index = 0; index < fld.fields.length; index++) {
-            let subfld = fld.fields[index]
-            let newSubFld = await this.evalFormField(subfld, [...nbs, index], cans)
-            if (newSubFld) {
-              group.fields.push(newSubFld)
-            }
-          }
-        }
-        // Done
-        field = group
-      }
-      //............................................
-      // Label
-      else if (this.isLabel(fld)) {
-        field = _.assign(_.omit(fld, omitKeys), {
-          disabled,
-          race: "Label",
-          key: fldKey
-        })
-      }
-      //............................................
-      // For Normal Field
-      else if (this.isNormal(fld)) {
-        field = _.defaults(_.omit(fld, omitKeys), {
-          race: "Normal",
-          key: fldKey,
-          isActived: this.myActivedFieldKey == fldKey,
-          type: this.defaultFieldType || "String",
-          comType: this.defaultComType || "TiLabel",
-          disabled
-        })
-
-        // The UniqKey of field
-        field.uniqKey = _.concat(field.name).join("-")
-        //console.log(field.uniqKey)
-
-        // // field status
-        // let fStatus = _.get(this.fieldStatus, funiqKey)
-        // if(fStatus) {
-        //   field.status  = fStatus.status
-        //   field.message = fStatus.message
-        // }
-
-        // Default
-        if (!field.serializer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "serializer")
-          field.serializer = `Ti.Types.${fnName}`
-        }
-        if (!field.transformer) {
-          let fnName = Ti.Types.getFuncByType(field.type || "String", "transformer")
-          field.transformer = `Ti.Types.${fnName}`
-        }
-
-        // Tidy form function
-        const invokeOpt = {
-          context: this,
-          partial: "right"
-        }
-        field.serializer = Ti.Util.genInvoking(field.serializer, invokeOpt)
-        field.transformer = Ti.Util.genInvoking(field.transformer, invokeOpt)
-        if (fld.required) {
-          if (_.isBoolean(fld.required)) {
-            field.required = true
-          } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.data)
-          }
-        }
-
-        // Display Com
-        field.com = await this.evalFieldCom(field)
-
-        // Layout style
-        _.defaults(field, {
-          "nameClass": this.fieldNameClass,
-          "nameStyle": this.fieldNameStyle,
-          "nameAlign": this.fieldNameAlign,
-          "nameVAlign": this.fieldNameVAlign,
-          "nameWrap": this.fieldNameWrap,
-          "valueWrap": this.fieldValueWrap
-        })
-      }
-      //............................................
-      // Panice
-      else {
-        throw "Invalid field: " + JSON.stringify(fld, null, '   ')
-      }
-      //............................................
-      // Join to candidate
-      cans.push(field)
-
-      //............................................
-      if ('Normal' == field.race) {
-        // No-In White List
-        if (this.hasFieldWhiteList) {
-          if (!this.myFieldWhiteList[fldKey]) {
-            return
-          }
-        }
-
-        // In Black List
-        if (this.hasFieldBlackList) {
-          if (this.myFieldBlackList[fldKey]) {
-            return
-          }
-        }
-      }
-
-      //............................................
-      // Ignore hidden
-      if (hidden) {
-        return
-      }
-
-      //............................................
-      // Ignore empty group
-      if ('Group' == field.race) {
-        if (_.isEmpty(field.fields)) {
-          return
-        }
-      }
-
-      // Done
-      return field
-    },
-    //--------------------------------------------------
-    async evalFieldCom(fld) {
-      //console.log("evalFieldCom", fld)
-      let displayItem
-      // UnActived try use display
-      if (!fld.isActived) {
-        displayItem = this.evalFieldDisplay(fld)
-      }
-      // Use default form component
-      if (!displayItem) {
-        displayItem = {
-          key: fld.name,
-          ... (_.omit(fld, "name", "key"))
-        }
-      }
-      // Explain field com
-      return await this.evalDataForFieldDisplayItem({
-        itemData: this.data,
-        displayItem,
-        vars: fld,
-        autoIgnoreNil: false,
-        autoIgnoreBlank: false,
-        autoValue: fld.autoValue || "value"
-      })
-    },
-    //--------------------------------------------------
-    evalFieldDisplay({ name, display } = {}) {
-      // Guard
-      if (!display) {
-        return
-      }
-      // Eval setting
-      if (!_.isBoolean(display) && display) {
-        // Call field_display.mjs
-        return this.evalFieldDisplayItem(display, {
-          defaultKey: name
-        })
-      }
-      // return default.
-      return {
-        comType: "ti-label",
-        comConf: {}
-      }
-    },
-    //--------------------------------------------------
-    tryEvalFormFieldList(newVal, oldVal) {
-      if (!_.isEqual(newVal, oldVal)) {
-        this.evalFormFieldList()
-      }
-    }
-    //--------------------------------------------------
-  }
-  //////////////////////////////////////////////////////
 }
 return _M;;
 })()
@@ -59505,7 +58121,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           this.initSortable()
         }
       }
-      // Destroy sortable
+      // Destroy sortable: (com reused) 
       else {
         if (this.$sortable) {
           this.$sortable.destroy()
@@ -59528,6 +58144,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ////////////////////////////////////////////////////
   mounted: function () {
     this.tryInitSortable()
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    if (this.$sortable) {
+      this.$sortable.destroy()
+      this.$sortable = undefined
+    }
   }
   ////////////////////////////////////////////////////
 }
@@ -65700,58 +64323,6 @@ const _M = {
   ////////////////////////////////////////////////////
 }
 return _M;;
-})()
-// ============================================================
-// EXPORT 'form-group-props.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-group/form-group-props.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //-----------------------------------
-  // Data
-  //-----------------------------------
-  "type" : {
-    type : String,
-    default : "Group"
-  },
-  "icon" : {
-    type : String,
-    default : null
-  },
-  "title" : {
-    type : String,
-    default : null
-  },
-  "fields" : {
-    type : Array,
-    default : ()=>[]
-  },
-  "data" : {
-    type : Object,
-    default : null
-  },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
-  "fieldStatus" : {
-    type : Object,
-    default : ()=>({})
-  },
-  //-----------------------------------
-  // Aspect
-  //-----------------------------------
-  "screenMode" : {
-    type : String,
-    default : "auto",
-    validator : (val)=>/^(auto|desktop|tablet|phone)$/.test(val)
-  },
-  "statusIcons" : {
-    spinning : 'fas-spinner fa-spin',
-    error    : 'zmdi-alert-polygon',
-    warn     : 'zmdi-alert-triangle',
-    ok       : 'zmdi-check-circle',
-  }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'ti-table-quick.mjs' -> null
@@ -75311,157 +73882,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "height" : {
     type : [Number, String],
     default : undefined
-  }
-}
-return __TI_MOD_EXPORT_VAR_NM;;
-})()
-// ============================================================
-// EXPORT 'ti-form-props.mjs' -> null
-// ============================================================
-window.TI_PACK_EXPORTS['ti/com/ti/form.backup/ti-form-props.mjs'] = (function(){
-const __TI_MOD_EXPORT_VAR_NM = {
-  //-----------------------------------
-  // Data
-  //-----------------------------------
-  "data": {
-    type: Object,
-    default: undefined
-  },
-  "fields": {
-    type: Array,
-    default: () => []
-  },
-  "fieldStatus": {
-    type: Object,
-    default: () => ({})
-  },
-  // "extendFunctionSet" : {
-  //   type : Object,
-  //   default : undefined
-  // },
-  "onlyFields": {
-    type: Boolean,
-    default: true
-  },
-  "omitHiddenFields": {
-    type: Boolean,
-    default: false
-  },
-  // merge each time data change
-  "fixed": {
-    type: Object,
-    default: undefined
-  },
-  //-----------------------------------
-  // Behavior
-  //-----------------------------------
-  "defaultFieldType": {
-    type: String,
-    default: "String"
-  },
-  "linkFields": {
-    type: Object,
-    default: undefined
-  },
-  "keepTabIndexBy": {
-    type: String,
-    default: undefined
-  },
-  "defaultComType": {
-    type: String,
-    default: "ti-label"
-  },
-  "autoShowBlank": {
-    type: Boolean,
-    default: undefined
-  },
-  "currentTab": {
-    type: Number,
-    default: 0
-  },
-  "adjustDelay": {
-    type: Number,
-    default: 0
-  },
-  "autoColummGrid": {
-    type: [Boolean, Array],
-    default: true
-  },
-  "maxColumnHint": {
-    type: Number,
-    default: 3
-  },
-  //-----------------------------------
-  // Aspect
-  //-----------------------------------
-  "bodyClass": {
-    type: [String, Object, Array]
-  },
-  "bodyStyle": {
-    type: Object
-  },
-  "defaultGroupClass": {
-    type: [String, Object, Array]
-  },
-  "mode": {
-    type: String,
-    default: "all",
-    validator: (val) => /^(all|tab)$/.test(val)
-  },
-  "screenMode": {
-    type: String,
-    default: "auto",
-    validator: (val) => /^(auto|desktop|tablet|phone)$/.test(val)
-  },
-  "tabAt": {
-    type: String,
-    default: "top-center",
-    validator: (v) => /^(top|bottom)-(left|center|right)$/.test(v)
-  },
-  "fieldBorder": {
-    type: String,
-    default: "bottom",
-    validator: (v) => /^(none|top|bottom)$/.test(v)
-  },
-  "blankAs": {
-    type: Object,
-    default: () => ({
-      icon: "fab-deezer",
-      text: "i18n:empty"
-    })
-  },
-  "icon": {
-    type: String,
-    default: undefined
-  },
-  "title": {
-    type: String,
-    default: undefined
-  },
-  "statusIcons": {
-    type: Object,
-    default: () => ({
-      spinning: 'fas-spinner fa-spin',
-      error: 'zmdi-alert-polygon',
-      warn: 'zmdi-alert-triangle',
-      ok: 'zmdi-check-circle',
-    })
-  },
-  "spacing": {
-    type: String,
-    default: "comfy",
-    validator: v => /^(comfy|tiny)$/.test(v)
-  },
-  //-----------------------------------
-  // Measure
-  //-----------------------------------
-  "width": {
-    type: [Number, String],
-    default: undefined
-  },
-  "height": {
-    type: [Number, String],
-    default: undefined
   }
 }
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -89144,6 +87564,76 @@ Ti.Preload("ti/com/ti/combo/table/_com.json", {
     "@com:ti/form"]
 });
 //========================================
+// JOIN <ti-combo-watcher.html> ti/com/ti/combo/watcher/ti-combo-watcher.html
+//========================================
+Ti.Preload("ti/com/ti/combo/watcher/ti-combo-watcher.html", `<div class="ti-combo-watcher at-top">
+  <!--
+    Watching tabs
+  -->
+  <header>
+    <!-- Watcher tab list-->
+    <template v-if="hasTabItems">
+      <TiActionbar :items="ActionItems" />
+      <ul ref="tabs">
+        <li
+          v-for="li in TabItems"
+          :key="li.text"
+          :class="li.className"
+          @click="OnSelectTab(li)"
+        >
+          <span class="it-text">{{li.text}}</span>
+        </li>
+      </ul>
+    </template>
+    <a
+      class="as-empty-action"
+      v-else
+      @click="OnCreateWatch"
+      :data-ti-tip="addWatchTip"
+    >
+      <i class="zmdi zmdi-alarm-plus"></i>
+      <span>{{addWatchText | i18n}}</span>
+    </a>
+  </header>
+  <!--
+    Filterbar
+  -->
+  <main>
+    <TiFilterbar
+      :className="className"
+      :filter="filter"
+      :sorter="sorter"
+      :matchKeywords="matchKeywords"
+      :majors="majors"
+      :topMajors="topMajors"
+      :filterTags="filterTags"
+      :advanceForm="advanceForm"
+      :advanceComponents="advanceComponents"
+      :sorterConf="sorterConf"
+      :placeholder="placeholder"
+      :dialog="dialog"
+      :prefixIcon="prefixIcon"
+      :suffixIcon="suffixIcon"
+      @change="OnFilterChange"
+    />
+  </main>
+</div>`);
+//========================================
+// JOIN <ti-combo-watcher.mjs> ti/com/ti/combo/watcher/ti-combo-watcher.mjs
+//========================================
+Ti.Preload("ti/com/ti/combo/watcher/ti-combo-watcher.mjs", TI_PACK_EXPORTS['ti/com/ti/combo/watcher/ti-combo-watcher.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/combo/watcher/_com.json
+//========================================
+Ti.Preload("ti/com/ti/combo/watcher/_com.json", {
+  "name": "ti-combo-watcher",
+  "globally": true,
+  "template": "./ti-combo-watcher.html",
+  "props": "@com:ti/filterbar/ti-filterbar-props.mjs",
+  "mixins": "./ti-combo-watcher.mjs",
+  "components": ["@com:ti/filterbar"]
+});
+//========================================
 // JOIN <crumb-item.html> ti/com/ti/crumb/com/crumb-item/crumb-item.html
 //========================================
 Ti.Preload("ti/com/ti/crumb/com/crumb-item/crumb-item.html", `<div class="ti-crumb-item" 
@@ -90073,290 +88563,6 @@ Ti.Preload("ti/com/ti/form/_com.json", {
 // JOIN <_hmaker.json> ti/com/ti/form/_hmaker.json
 //========================================
 Ti.Preload("ti/com/ti/form/_hmaker.json", {
-  "icon"   : "im-task-o",
-  "title"  : "i18n:com-form",
-  "scenes" : ["desktop", "tablet"],
-  "editComType" : "hmaker-edit-com-form",
-  "editComConf" : {
-    "value" : "=comConf"
-  }
-});
-//========================================
-// JOIN <form-field-props.mjs> ti/com/ti/form.backup/com/form-field/form-field-props.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-field/form-field-props.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-field/form-field-props.mjs']);
-//========================================
-// JOIN <form-field.html> ti/com/ti/form.backup/com/form-field/form-field.html
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-field/form-field.html", `<div class="form-field"
-  :class="TopClass"
-  :style="ConStyle"
-  v-ti-activable>
-  <!--========================================
-    Field Name
-  -->
-  <div 
-    v-if="isShowTitle || required"
-      class="field-name"
-      :title="StatusText">
-        <!--Status Icon-->
-        <span 
-          v-if="StatusIcon"
-            class="name-status">
-            <ti-icon :value="StatusIcon"/>
-        </span>
-        <!--Title Text-->
-        <span
-          v-if="isShowTitle"
-            class="name-title">{{TheTitle|i18n}}</span>
-        <!--Required-->
-        <span
-          v-if="required"
-            class="name-required">*</span>
-        <!--Field Icon-->
-        <span 
-          v-if="isShowIcon" 
-            class="name-icon">
-            <ti-icon :value="icon"/>
-        </span>
-  </div>
-  <!--========================================
-    Field Value
-  -->
-  <div class="field-value"
-    :style="ConStyle">
-    <!--
-      UI Component
-    -->
-    <div v-if="isComReady"
-      class="field-component"
-      :class="ComClass"
-      :style="ComStyle">
-      <component 
-        :is="myComType"
-          v-bind="myComConf"
-          @change="OnChange"/>
-    </div>
-    <!--
-      Tips
-    -->
-    <div 
-      v-if="isShowTip"
-        class="field-tip">{{tip|i18n}}</div>
-  </div>
-</div>`);
-//========================================
-// JOIN <form-field.mjs> ti/com/ti/form.backup/com/form-field/form-field.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-field/form-field.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-field/form-field.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/ti/form.backup/com/form-field/_com.json
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-field/_com.json", {
-  "name" : "ti-form-field",
-  "globally" : true,
-  "template" : "./form-field.html",
-  "methods"  : "@com:ti/support/field_display.mjs",
-  "props" : "./form-field-props.mjs",
-  "mixins" : ["./form-field.mjs"]
-});
-//========================================
-// JOIN <form-group-props.mjs> ti/com/ti/form.backup/com/form-group/form-group-props.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-group/form-group-props.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-group/form-group-props.mjs']);
-//========================================
-// JOIN <form-group.html> ti/com/ti/form.backup/com/form-group/form-group.html
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-group/form-group.html", `<div class="form-group"
-  :class="TopClass">
-  <div
-    v-if="title" 
-      class="group-title">
-      <ti-icon
-        v-if="show.icon" 
-        :value="icon"/>
-      <span
-        v-if="show.title"
-        class="name-title">{{title|i18n}}</span>
-  </div>
-  <div class="group-fields">
-    <template
-      v-for="fld in fields">
-        <!--
-          Show Label
-        -->
-        <div 
-          v-if="'Label' == fld.type"
-            class="form-label">
-            <ti-icon
-              v-if="fld.icon" 
-                class="as-label-icon"
-                :value="fld.icon"/>
-            <span
-              v-if="fld.title"
-                class="as-label-text">{{fld.title|i18n}}</span>
-        </div>
-        <!--
-          Show Field
-        -->
-        <ti-form-field
-          v-else
-            :key="fld.uniqKey"
-            v-bind="fld"
-            :data="data"
-            :field-status="fieldStatus"
-            :status-icons="statusIcons"
-            :screen-mode="screenMode"/>
-    </template>
-  </div>
-</div>`);
-//========================================
-// JOIN <form-group.mjs> ti/com/ti/form.backup/com/form-group/form-group.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-group/form-group.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/com/form-group/form-group.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/ti/form.backup/com/form-group/_com.json
-//========================================
-Ti.Preload("ti/com/ti/form.backup/com/form-group/_com.json", {
-  "name" : "form-group",
-  "globally" : true,
-  "template" : "./form-group.html",
-  "props" : "./form-group-props.mjs",
-  "mixins" : ["./form-group.mjs"]
-});
-//========================================
-// JOIN <form-support.mjs> ti/com/ti/form.backup/form-support.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/form-support.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/form-support.mjs']);
-//========================================
-// JOIN <ti-form-props.mjs> ti/com/ti/form.backup/ti-form-props.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/ti-form-props.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/ti-form-props.mjs']);
-//========================================
-// JOIN <ti-form.html> ti/com/ti/form.backup/ti-form.html
-//========================================
-Ti.Preload("ti/com/ti/form.backup/ti-form.html", `<div class="ti-form"
-  :class="TopClass"
-  :style="TopStyle"
-  v-ti-activable>
-  <template v-if="hasData || !isAutoShowBlank">
-    <!--
-      Form Header
-    -->
-    <header class="form-header" v-if="hasHeader">
-      <span v-if="icon"
-        class="it-icon"><ti-icon :value="icon"/></span>
-      <span v-if="title"
-        class="it-text">{{title|i18n}}</span>
-    </header>
-    <!--
-      Tabs for display:"tab"
-    -->
-    <div class="form-tab" v-if="isTabMode">
-      <ul>
-        <li v-for="tab in TabItems" 
-          :class="tab.className"
-          @click.left="OnClickTab(tab)">
-          <ti-icon 
-            class="tab-icon" v-if="tab.icon" :value="tab.icon"/>
-          <span 
-            class="tab-text" v-if="tab.title">{{tab.title|i18n}}</span>
-        </li>
-      </ul>
-    </div>
-    <!--
-      Form Fields
-    -->
-    <div class="form-body" :class="FormBodyClass" :style="FormBodyStyle">
-      <template v-for="fld in FieldsInCurrentTab">
-        <!--
-          For Group
-        -->
-        <form-group
-          v-if="'Group' == fld.type"
-            v-bind="fld"
-            :data="data"
-            :field-status="fieldStatus"
-            :status-icons="statusIcons"
-            :screen-mode="ViewDisplayMode"
-            @change="OnFieldChange"/>
-        <!---
-          Lable
-        -->
-        <div 
-          v-else-if="'Label' == fld.type"
-            class="form-label">
-            <ti-icon
-              v-if="fld.icon" 
-                class="as-label-icon"
-                :value="fld.icon"/>
-            <span
-              v-if="fld.title"
-                class="as-label-text">{{fld.title|i18n}}</span>
-        </div>
-        <!--
-          For field
-        -->
-        <ti-form-field
-          v-else
-            :key="fld.uniqKey"
-            v-bind="fld"
-            :data="data"
-            :field-status="fieldStatus"
-            :status-icons="statusIcons"
-            :screen-mode="ViewDisplayMode"
-            @change="OnFieldChange"/>
-      </template>
-    </div>
-  </template>
-  <!--
-    Show Blank
-  -->
-  <ti-loading 
-    v-else
-      class="nil-data as-big-mask"
-      v-bind="blankAs"/>
-</div>`);
-//========================================
-// JOIN <ti-form.mjs> ti/com/ti/form.backup/ti-form.mjs
-//========================================
-Ti.Preload("ti/com/ti/form.backup/ti-form.mjs", TI_PACK_EXPORTS['ti/com/ti/form.backup/ti-form.mjs']);
-//========================================
-// JOIN <_com.json> ti/com/ti/form.backup/_com.json
-//========================================
-Ti.Preload("ti/com/ti/form.backup/_com.json", {
-  "name" : "ti-form",
-  "globally" : true,
-  "template" : "./ti-form.html",
-  "methods"  : "@com:ti/support/field_display.mjs",
-  "props" : "./ti-form-props.mjs",
-  "mixins" : ["./ti-form.mjs"],
-  "components" : [
-    "./com/form-group",
-    "./com/form-field",
-    "@com:ti/input",
-    "@com:ti/input/num",
-    "@com:ti/input/tags",
-    "@com:ti/input/color",
-    "@com:ti/input/icon",
-    "@com:ti/input/date",
-    "@com:ti/input/time",
-    "@com:ti/input/timerange",
-    "@com:ti/input/month",
-    "@com:ti/input/datetime",
-    "@com:ti/input/daterange",
-    "@com:ti/input/text",
-    "@com:ti/combo/input",
-    "@com:ti/combo/multi-input",
-    "@com:ti/label",
-    "@com:ti/toggle",
-    "@com:ti/switcher",
-    "@com:ti/droplist"]
-});
-//========================================
-// JOIN <_hmaker.json> ti/com/ti/form.backup/_hmaker.json
-//========================================
-Ti.Preload("ti/com/ti/form.backup/_hmaker.json", {
   "icon"   : "im-task-o",
   "title"  : "i18n:com-form",
   "scenes" : ["desktop", "tablet"],
@@ -106965,6 +105171,13 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "add": "添加",
   "add-item": "添加新项",
   "add-now": "立即添加",
+  "add-watch": "添加监控",
+  "add-watch-tip": "将当前的搜索条件保存到本地存储",
+  "add-watch-create-tip": "请输入监控名称",
+  "add-watch-exists": "这个名字已经存在了，请换一个",
+  "add-watch-remove": "删除当前监控",
+  "add-watch-clear": "清除全部监控",
+  "add-watch-create": "建立新监控",
   "album": "相册",
   "album-add": "添加相册",
   "album-clrsz": "清除相册尺寸",
