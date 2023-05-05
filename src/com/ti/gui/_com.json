@@ -10,6 +10,7 @@
     "@com:ti/gui/cols",
     "@com:ti/gui/rows",
     "@com:ti/gui/tabs",
+    "@com:ti/gui/grid",
     "@com:ti/gui/panel"
   ]
 }

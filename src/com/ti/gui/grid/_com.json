@@ -1,0 +1,10 @@
+{
+  "name": "ti-gui-grid",
+  "globally": true,
+  "template": "./ti-gui-grid.html",
+  "mixins"   : [
+    "@com:ti/gui/gui-block-support.mjs",
+    "./ti-gui-grid-drag.mjs",
+    "./ti-gui-grid.mjs"
+  ]
+}

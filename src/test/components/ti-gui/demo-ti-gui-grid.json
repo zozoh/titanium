@@ -1,0 +1,80 @@
+{
+  "comType": "ti-gui",
+  "comConf": {
+    "keepShownTo": "gui_grid_0_status",
+    "layout": {
+      "type": "grid",
+      "border": false,
+      "card": "comfy",
+      "grid": {
+        "grid-template-columns": "30% auto 20%",
+        "grid-template-rows": "1fr 50% 1fr",
+        "grid-auto-rows": "1fr",
+        "grid-gap":".1rem",
+        "padding":".1rem"
+      },
+      "blocks": [
+        {
+          "body": {
+            "comConf": {
+              "value": "LOGO"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "TITLE"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "MENU"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "NAV"
+            }
+          }
+        },
+        {
+          "style": {
+            "grid-column-end": "span 2"
+          },
+          "body": {
+            "comConf": {
+              "value": "ARENA"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "TREE"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "ASIDE"
+            }
+          }
+        },
+        {
+          "body": {
+            "comConf": {
+              "value": "FOOTER"
+            }
+          }
+        }
+      ]
+    },
+    "schema": {}
+  }
+}

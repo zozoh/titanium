@@ -17,6 +17,8 @@
   "wn-expose-hidden-on": "Show hidden objects",
   "wn-gui": "General gui",
   "wn-list-view-type": "View Type",
+  "wn-manager-is-loading": "Manager is loading",
+  "wn-manager-no-meta": "Manager without meta data",
   "wn-move-to-confirm": "Are you sure you want to move the selected ${N} items? This is an irrevocable operation!",
   "wn-move-to-none": "Please select at least one file to move!",
   "wn-move-to-ok": "${N} objects have been moved",

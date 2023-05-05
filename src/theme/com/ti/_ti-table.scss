@@ -432,6 +432,10 @@
           @include row-status-color2($color-boldtip);
         }
         //-----------------------------------------
+        &.is-boldtip-r {
+          @include row-status-color-r($color-boldtip);
+        }
+        //-----------------------------------------
         //
         //             Status Color
         //

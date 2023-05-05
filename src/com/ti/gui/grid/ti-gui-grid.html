@@ -1,0 +1,32 @@
+<div
+  class="ti-gui-grid"
+  @mousemove="OnMouseMove"
+  v-ti-draggable="GridDraggable"
+>
+  <main
+    v-if="hasBlocks"
+    ref="blocks"
+    :class="TopClass"
+    :card="card"
+    :style="TopStyle"
+  >
+    <template v-for="(block, index) in GuiBlocks">
+      <ti-gui-block
+        v-if="!block.hide"
+        :key="block.key"
+        embedIn="cols"
+        v-bind="block"
+        :schema="schema"
+        :action-status="block.actionStatus || actionStatus"
+        :shown="shown"
+      />
+    </template>
+  </main>
+  <div
+    v-if="isShowDragBar"
+    class="ti-gui-grid-drag-bar"
+    :class="DragBarClass"
+    :style="DragBarStyle"
+  ></div>
+  <div v-if="isDragging" class="ti-gui-dragging-mask"></div>
+</div>

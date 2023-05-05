@@ -6,71 +6,83 @@
     <!--
       Layout as rows
     -->
-    <ti-gui-rows 
+    <ti-gui-rows
       v-if="'rows' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
     <!--
       Layout as cols
     -->
-    <ti-gui-cols 
+    <ti-gui-cols
       v-else-if="'cols' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
     <!--
       Layout as tabs
     -->
-    <ti-gui-tabs 
+    <ti-gui-tabs
       v-else-if="'tabs' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
+    <!--
+      Layout as grid
+    -->
+    <ti-gui-grid
+      v-else-if="'grid' == LayoutType"
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
   </div>
   <!--===========================================
     All float panels
   -->
-  <template 
-    v-for="pan in ThePanels">
-      <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
-        <ti-gui-panel
-          v-if="pan.visible"
-            :key="pan.key"
-            v-bind="pan.panel"
-            :refer-element="activeElement"
-            :viewport-width="myViewportWidth"
-            :viewport-height="myViewportHeight"
-            :schema="schema"
-            :shown="TheShown"
-            :visibles="myPanelVisibles"
-            :default-flex="defaultFlex"
-            :action-status="actionStatus"/>
-      </transition>
+  <template v-for="pan in ThePanels">
+    <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
+      <ti-gui-panel
+        v-if="pan.visible"
+        :key="pan.key"
+        v-bind="pan.panel"
+        :refer-element="activeElement"
+        :viewport-width="myViewportWidth"
+        :viewport-height="myViewportHeight"
+        :schema="schema"
+        :shown="TheShown"
+        :visibles="myPanelVisibles"
+        :default-flex="defaultFlex"
+        :action-status="actionStatus"
+      />
+    </transition>
   </template>
   <!--===========================================
     Loading
   -->
   <template v-if="isLoading">
-    <div
-      v-if="maskWhenLoading"
-        class="ti-mask-loading">
-        <ti-loading v-bind="TheLoading"/>
+    <div v-if="maskWhenLoading" class="ti-mask-loading">
+      <ti-loading v-bind="TheLoading" />
     </div>
-    <ti-loading
-      v-else
-        v-bind="TheLoading"/>
-</template>
+    <ti-loading v-else v-bind="TheLoading" />
+  </template>
 </div>

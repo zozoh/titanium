@@ -17,6 +17,8 @@
    "wn-expose-hidden-on": "顯示隱藏的對象",
    "wn-gui": "通用佈局界面",
    "wn-list-view-type": "視圖類型",
+   "wn-manager-is-loading": "管理器正在加載數據",
+   "wn-manager-no-meta": "管理器未設置對象",
    "wn-move-to-confirm": "您確定要移動選中的${N}個項目嗎？這是一個不可撤銷的操作！",
    "wn-move-to-none": "請選擇至少一個對象進行移動!",
    "wn-move-to-ok": "已有 ${N} 個對象被移動到了新的目標",

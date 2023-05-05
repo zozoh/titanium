@@ -4,6 +4,7 @@
   "template": "./ti-gui-rows.html",
   "mixins": [
     "@com:ti/gui/gui-block-support.mjs",
+    "@com:ti/gui/gui-flex-dragging.mjs",
     "./ti-gui-rows.mjs"
   ]
 }

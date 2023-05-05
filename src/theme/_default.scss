@@ -1,11 +1,13 @@
 html {
-  height:100%; font-size:100px;
+  height: 100%;
+  font-size: 100px;
 }
 //...................................................
 body {
   @include color($color-body, r, c);
-  @include font-nice(.14rem);
-  height: 100%; margin:0;
+  @include font-nice(0.14rem);
+  height: 100%;
+  margin: 0;
 }
 //...................................................
 * {
@@ -14,21 +16,26 @@ body {
   scrollbar-color: map-get($color-line, dark) map-get($color-line, shallow);
 }
 //...................................................
-::-webkit-input-placeholder { /* WebKit browsers */
+::-webkit-input-placeholder {
+  /* WebKit browsers */
   @include color($color-disable, t);
 }
-:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+:-moz-placeholder {
+  /* Mozilla Firefox 4 to 18 */
   @include color($color-disable, t);
 }
-::-moz-placeholder { /* Mozilla Firefox 19+ */
+::-moz-placeholder {
+  /* Mozilla Firefox 19+ */
   @include color($color-disable, t);
 }
-:-ms-input-placeholder { /* Internet Explorer 10+ */
+:-ms-input-placeholder {
+  /* Internet Explorer 10+ */
   @include color($color-disable, t);
 }
 //...................................................
 ::-webkit-scrollbar {
-  width: 8px; height: 8px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
   @include color($color-line, null, shallow);
@@ -46,29 +53,41 @@ body {
 //...................................................
 pre {
   @include font-fixed;
-  -moz-tab-size:4; tab-size: 4;
-  padding:.2rem; margin:0;
+  -moz-tab-size: 4;
+  tab-size: 4;
+  padding: 0.2rem;
+  margin: 0;
 }
 //...................................................
 hr {
-  height:0px; border:0;
+  height: 0px;
+  border: 0;
   @include border(1px, solid, shallow, top);
-  margin:.1rem 0;
-  &.no-space {margin:0;}
-  &.as-dashed {border-top-style:dashed;}
-  &.as-dotted {border-top-style:dotted;}
+  margin: 0.1rem 0;
+  &.no-space {
+    margin: 0;
+  }
+  &.as-dashed {
+    border-top-style: dashed;
+  }
+  &.as-dotted {
+    border-top-style: dotted;
+  }
 }
 //...................................................
 ul {
   @include raw-list;
 }
 //...................................................
-button, input {font-family: inherit;}
+button,
+input {
+  font-family: inherit;
+}
 //...................................................
 a {
   @include color($color-primary, c);
   text-decoration: none;
-  cursor:pointer;
+  cursor: pointer;
 }
 a[href]:hover {
   @include color($color-secondary, c);
@@ -80,12 +99,23 @@ a:focus {
 //...................................................
 @include font-sizes("body > *");
 //...................................................
-i.im {font-size: inherit;}
+i.im {
+  font-size: inherit;
+}
 //...................................................
 .app-loading {
   @include flex-full-center;
-  @include color($color-secondary, c);
+  @include color($color-mask, thin);
   overflow: hidden;
-  padding:2rem 0 0 0;
-  font-size: .5rem;
+  padding: 2rem 0 0 0;
+  > i {
+    font-size: 0.5rem;
+  }
+  > span {
+    font-size: 0.18rem;
+    display: block;
+    width: 100%;
+    padding: 0.1rem;
+    text-align: center;
+  }
 }

@@ -145,6 +145,9 @@
 @FILE mock/components/ti-gui/ti-gui.comt 'GUI'
 {com:'/rs/ti/test/components/ti-gui/demo-ti-gui.json'}
 #---------------------------------------------------------
+@FILE mock/components/ti-gui/ti-gui-grid.comt 'Grid GUI'
+{com:'/rs/ti/test/components/ti-gui/demo-ti-gui-grid.json'}
+#---------------------------------------------------------
 @FILE mock/components/ti-gui/ti-wizard.comt 'WIZARD'
 {com:'/rs/ti/test/components/ti-gui/demo-ti-wizard.json'}
 #---------------------------------------------------------

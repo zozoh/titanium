@@ -20,6 +20,7 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   .ti-gui-dragging-mask {
     @include pos-abs-full;
     z-index: $z-above;
+    //background-color: rgba(255, 255, 0, 0.1);
   }
   //-------------------------------------
 }
@@ -706,6 +707,63 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-------------------------------------
   &[card="tiny"] {
     @include __card_space(SZ(4));
+  }
+  //-------------------------------------
+}
+//---------------------------------------
+//
+//          Gui Block As Card
+//
+//---------------------------------------
+.ti-gui-grid {
+  background-color: map-get($color-line, shallow);
+  position: relative;
+  //-------------------------------------
+  > main {
+    width: 100%;
+    height: 100%;
+    > .ti-gui-block.inside-nocard > .block-con {
+      background-color: map-get($color-body, c);
+    }
+    //-----------------------------------
+    &[card] {
+      background-color: map-get($color-card, r);
+      > .ti-gui-block.inside-nocard {
+        > .block-con {
+          background-color: map-get($color-card, c);
+          box-shadow: SZ(1) SZ(1) SZ(4) map-get($color-shadow, thin);
+        }
+      }
+    }
+    //-----------------------------------
+    &[card="comfy"] > .ti-gui-block.inside-nocard > .block-con {
+      border-radius: $r-box * 2;
+      overflow: hidden;
+    }
+    //-----------------------------------
+    &[card="normal"] > .ti-gui-block.inside-nocard > .block-con {
+      border-radius: $r-box * 1.5;
+      overflow: hidden;
+    }
+    //-----------------------------------
+    &[card="tiny"] > .ti-gui-block.inside-nocard > .block-con {
+      border-radius: $r-box;
+      overflow: hidden;
+    }
+  } // main
+  //-------------------------------------
+  > .ti-gui-grid-drag-bar {
+    position: absolute;
+    background-color: map-get($color-mask, weak);
+    //-----------------------------------
+    &.as-column {
+      cursor: col-resize;
+    }
+    //-----------------------------------
+    &.as-row {
+      cursor: row-resize;
+    }
+    //-----------------------------------
   }
   //-------------------------------------
 }

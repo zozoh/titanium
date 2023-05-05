@@ -17,6 +17,8 @@
   "wn-expose-hidden-on": "显示隐藏的对象",
   "wn-gui": "通用布局界面",
   "wn-list-view-type": "视图类型",
+  "wn-manager-is-loading": "管理器正在加载数据",
+  "wn-manager-no-meta": "管理器未设置对象",
   "wn-move-to-confirm": "您确定要移动选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-move-to-none": "请选择至少一个对象进行移动!",
   "wn-move-to-ok": "已有 ${N} 个对象被移动到了新的目标",
@@ -34,7 +36,5 @@
   "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
   "wn-rename-too-long": "名称过长",
   "wn-thing-manager": "数据管理器",
-  "wn-view-opening": "正在加载界面...",
-  "wn-manager-no-meta": "管理器未设置对象",
-  "wn-manager-is-loading": "管理器正在加载数据"
+  "wn-view-opening": "正在加载界面..."
 }
