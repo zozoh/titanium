@@ -1,4 +1,4 @@
-// Pack At: 2023-05-04 16:06:31
+// Pack At: 2023-05-07 23:50:17
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -1093,10 +1093,10 @@ const { Be } = (function(){
     function TiDraggable($el, setup = {}) {
       //let vm = context
       let {
-        trigger,     // Which element will trigger the behavior
-        viewport,    // The dragging viewport, default is $el
-        watchZone,   // The dragging viewport, default is $el
-        handler = null,  // Dragging handle default is trigger
+        trigger, // Which element will trigger the behavior
+        viewport, // The dragging viewport, default is $el
+        watchZone, // The dragging viewport, default is $el
+        handler = null, // Dragging handle default is trigger
         // Speed Unit, move 1px per 1ms
         // default 100, mean: move 1px in 1ms, it was 100
         speed = 100,
@@ -1105,9 +1105,9 @@ const { Be } = (function(){
         // If the moved distance (offsetX or offsetY) over the value(in PX)
         // it will active dragging
         // If object form like {x:50, y:-1}
-        // just actived when x move distance over the indicated value 
+        // just actived when x move distance over the indicated value
         activedRadius = 0,
-        // If the dragging duration (duInMs) over the value(in MS), 
+        // If the dragging duration (duInMs) over the value(in MS),
         // it will active dragging
         activedDelay = 0,
         // Function(context) call alway before call actived
@@ -1121,232 +1121,241 @@ const { Be } = (function(){
         done = _.identity,
         // Function(context)  call alway when dragging quit
         finished = _.identity
-      } = setup
+      } = setup;
       //-----------------------------------------------
       // Format actived radius
-      let AR = {}
+      let AR = {};
       if (_.isNumber(activedRadius)) {
         AR.x = activedRadius;
         AR.y = activedRadius;
       } else {
-        _.assign(AR, { x: -1, y: -1 }, _.pick(activedRadius, "x", "y"))
+        _.assign(AR, { x: -1, y: -1 }, _.pick(activedRadius, "x", "y"));
       }
       //-----------------------------------------------
       const findBy = function ($trigger, find, $dft) {
         if (_.isFunction(find)) {
-          return find($trigger) || $dft
+          return find($trigger) || $dft;
         }
         if (_.isString(find)) {
-          return Ti.Dom.find(find, $el) || $dft
+          return Ti.Dom.find(find, $el) || $dft;
         }
-        return $dft
-      }
+        return $dft;
+      };
       //-----------------------------------------------
       let EVENTS = {
         setClientXY: function (ctx, evt) {
-          let pe = this.getPointerEvent(evt)
-          ctx.clientX = pe.clientX
-          ctx.clientY = pe.clientY
+          let pe = this.getPointerEvent(evt);
+          ctx.clientX = pe.clientX;
+          ctx.clientY = pe.clientY;
         }
-      }
+      };
       if (Ti.Dom.isTouchDevice()) {
         _.assign(EVENTS, {
           POINTER_DOWN: "touchstart",
           POINTER_MOVE: "touchmove",
           POINTER_UP: "touchend",
           //POINTER_CLICK  : "click",
-          getPointerEvent: evt => evt.touches[0]
-        })
+          getPointerEvent: (evt) => evt.touches[0]
+        });
       } else {
         _.assign(EVENTS, {
           POINTER_DOWN: "mousedown",
           POINTER_MOVE: "mousemove",
           POINTER_UP: "mouseup",
           POINTER_CLICK: "click",
-          getPointerEvent: evt => evt
-        })
+          getPointerEvent: (evt) => evt
+        });
       }
       //console.log(EVENTS)
       //-----------------------------------------------
       $el.addEventListener(EVENTS.POINTER_DOWN, function (evt) {
         //console.log(EVENTS.POINTER_DOWN, evt, {activedRadius, activedDelay})
         // Find the trigger
-        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el)
+        let $trigger = Ti.Dom.eventCurrentTarget(evt, trigger, $el);
         if (!_.isElement($trigger)) {
-          return
+          return;
         }
         // Enter dragmode
         let $doc = $el.ownerDocument;
-        let $body = $el.ownerDocument.body
-        let $viewport = findBy($trigger, viewport, $el)
-        let $watchZone = findBy($trigger, watchZone, $el.ownerDocument)
-        let $handler = findBy($trigger, handler, $el)
-        let context = {}
+        let $body = $el.ownerDocument.body;
+        let $viewport = findBy($trigger, viewport, $el);
+        let $watchZone = findBy($trigger, watchZone, $el.ownerDocument);
+        let $handler = findBy($trigger, handler, $el);
+        let context = {};
         _.assign(context, {
           $event: evt,
-          $doc, $body, $viewport, $handler, $trigger, $watchZone
-        })
-        EVENTS.setClientXY(context, evt)
-        context.$src = evt.srcElement
+          $doc,
+          $body,
+          $viewport,
+          $handler,
+          $trigger,
+          $watchZone
+        });
+        EVENTS.setClientXY(context, evt);
+        context.$src = evt.srcElement;
     
         if (!testActive(context)) {
-          return
+          return;
         }
-    
     
         // Guard
         if (!_.isElement($viewport) || !_.isElement($handler)) {
-          return
+          return;
         }
     
         // Count the view/handler
-        context.__already_call_actived = false
-        context.watchZone = Ti.Rects.createBy($watchZone)
-        context.viewport = Ti.Rects.createBy($viewport)
-        context.handler = Ti.Rects.createBy($handler)
-        context.startInMs = Date.now()
+        context.__already_call_actived = false;
+        context.watchZone = Ti.Rects.createBy($watchZone);
+        context.viewport = Ti.Rects.createBy($viewport);
+        context.handler = Ti.Rects.createBy($handler);
+        context.startInMs = Date.now();
         //........................................
         context.initScale = function () {
-          let { left, top } = this.viewport
-          this.nowInMs = Date.now()
-          this.duInMs = this.nowInMs - this.startInMs
-          let x = this.clientX - left
-          let y = this.clientY - top
-          // First time, to init 
-          this.startX = x
-          this.startY = y
-          this.x = x
-          this.y = y
-          this.offsetX = 0
-          this.offsetY = 0
-          this.moveX = 0
-          this.moveY = 0
-          this.scaleX = 0
-          this.scaleY = 0
-        }
+          let { left, top } = this.viewport;
+          this.nowInMs = Date.now();
+          this.duInMs = this.nowInMs - this.startInMs;
+          let x = this.clientX - left;
+          let y = this.clientY - top;
+          // First time, to init
+          this.startX = x;
+          this.startY = y;
+          this.x = x;
+          this.y = y;
+          this.offsetX = 0;
+          this.offsetY = 0;
+          this.moveX = 0;
+          this.moveY = 0;
+          this.scaleX = 0;
+          this.scaleY = 0;
+        };
         //........................................
         context.evalScale = function () {
-          let { width, height, left, top } = this.viewport
+          let { width, height, left, top } = this.viewport;
           //console.log(this.viewport.tagName, {width, left, clientX:this.clientX})
-          this.nowInMs = Date.now()
-          this.duInMs = this.nowInMs - this.startInMs
-          let x = this.clientX - left
-          let y = this.clientY - top
+          this.nowInMs = Date.now();
+          this.duInMs = this.nowInMs - this.startInMs;
+          let x = this.clientX - left;
+          let y = this.clientY - top;
     
-          this.offsetX = x - this.startX
-          this.offsetY = y - this.startY
-          this.offsetDistance = Math.sqrt(Math.pow(this.offsetX, 2) + Math.pow(this.offsetY, 2))
-          this.moveX = x - this.x
-          this.moveY = y - this.y
-          this.moveDistance = Math.sqrt(Math.pow(this.moveX, 2) + Math.pow(this.moveY, 2))
+          this.offsetX = x - this.startX;
+          this.offsetY = y - this.startY;
+          this.offsetDistance = Math.sqrt(
+            Math.pow(this.offsetX, 2) + Math.pow(this.offsetY, 2)
+          );
+          this.moveX = x - this.x;
+          this.moveY = y - this.y;
+          this.moveDistance = Math.sqrt(
+            Math.pow(this.moveX, 2) + Math.pow(this.moveY, 2)
+          );
     
-          this.directionX = this.moveX < 0 ? "left" : "right"
-          this.directionY = this.moveY < 0 ? "up" : "down"
-          this.speed = this.moveDistance * speed / this.duInMs
+          this.directionX = this.moveX < 0 ? "left" : "right";
+          this.directionY = this.moveY < 0 ? "up" : "down";
+          this.speed = (this.moveDistance * speed) / this.duInMs;
           //console.log("move:", this.speed, this.moveDistance+'px', this.duInMs+'ms')
     
-          this.x = this.clientX - left
-          this.y = this.clientY - top
-          this.scaleX = x / width
-          this.scaleY = y / height
+          this.x = this.clientX - left;
+          this.y = this.clientY - top;
+          this.scaleX = x / width;
+          this.scaleY = y / height;
           // Eval actived status
           if (!this.actived) {
-            let offX = Math.abs(this.offsetX)
-            let offY = Math.abs(this.offsetY)
+            let offX = Math.abs(this.offsetX);
+            let offY = Math.abs(this.offsetY);
             if (this.duInMs > activedDelay) {
               if (AR.x < 0 || offX > AR.x) {
                 if (AR.y < 0 || offY > AR.y) {
-                  this.actived = true
+                  this.actived = true;
                 }
               }
             }
           }
-        }
+        };
         //........................................
         context.evalLeftBySpeed = function (left = 0) {
-          let { viewport, $trigger, offsetX, speed } = this
+          let { viewport, $trigger, offsetX, speed } = this;
           if (speed > 1) {
             //console.log(left, speed * offsetX, {offsetX, speed})
-            left += speed * offsetX
+            left += speed * offsetX;
           }
-          let wScroller = $trigger.scrollWidth
-          let minLeft = viewport.width - wScroller
+          let wScroller = $trigger.scrollWidth;
+          let minLeft = viewport.width - wScroller;
           left = _.clamp(left, minLeft, 0);
-          return left
-        }
+          return left;
+        };
         //........................................
         context.evalTopBySpeed = function (top = 0) {
-          let { viewport, $trigger, offsetY, speed } = this
+          let { viewport, $trigger, offsetY, speed } = this;
           if (speed > 1) {
-            top += speed * offsetY
+            top += speed * offsetY;
           }
-          let hScroller = $trigger.scrollHeight
-          let minTop = viewport.height - hScroller
+          let hScroller = $trigger.scrollHeight;
+          let minTop = viewport.height - hScroller;
           top = _.clamp(top, minTop, 0);
-          return top
-        }
+          return top;
+        };
         //........................................
         // Prepare
         context.initScale();
-        context = prepare(context, evt) || context
+        context = prepare(context, evt) || context;
         //---------------------------------------------
         function PreventClick(evt) {
           //console.log("PreventClick", evt)
-          evt.preventDefault()
-          evt.stopPropagation()
+          evt.preventDefault();
+          evt.stopPropagation();
         }
         //---------------------------------------------
         function OnBodyMouseMove(evt) {
           // Test if leave
-          let p = { x: context.clientX, y: context.clientY }
+          let p = { x: context.clientX, y: context.clientY };
           //console.log("OnBodyMouseMove", p)
           if (!context.watchZone.hasPoint(p)) {
-            RemoveDraggle(evt)
-            return
+            RemoveDraggle(evt);
+            return;
           }
     
-          EVENTS.setClientXY(context, evt)
-          context.evalScale()
+          EVENTS.setClientXY(context, evt);
+          context.evalScale();
           if (context.actived) {
             if (!context.__already_call_actived) {
-              actived(context)
-              context.__already_call_actived = true
+              actived(context);
+              context.__already_call_actived = true;
               // Then hold $src
               if (EVENTS.POINTER_CLICK) {
                 context.$src.addEventListener(EVENTS.POINTER_CLICK, PreventClick, {
-                  capture: true, once: true
-                })
+                  capture: true,
+                  once: true
+                });
               }
             }
-            dragging(context)
+            dragging(context);
           }
         }
         //---------------------------------------------
         function RemoveDraggle(evt) {
           //console.log("RemoveDraggle", context.actived)
-          $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
-          $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
+          $doc.removeEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true);
+          $doc.removeEventListener(EVENTS.POINTER_UP, RemoveDraggle, true);
     
-          context.clientX = evt.clientX
-          context.clientY = evt.clientY
-          context.$stopEvent = evt
+          context.clientX = evt.clientX;
+          context.clientY = evt.clientY;
+          context.$stopEvent = evt;
     
           if (context.actived) {
             if (EVENTS.POINTER_CLICK) {
-              context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick)
+              context.$src.removeEventListener(EVENTS.POINTER_CLICK, PreventClick);
             }
-            done(context)
+            done(context);
           }
     
-          finished(context)
+          finished(context);
         }
         //---------------------------------------------
         // Watch dragging in doc
-        $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true)
+        $doc.addEventListener(EVENTS.POINTER_MOVE, OnBodyMouseMove, true);
     
-        // Quit 
-        $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true)
-      })
+        // Quit
+        $doc.addEventListener(EVENTS.POINTER_UP, RemoveDraggle, true);
+      });
       //-----------------------------------------------
     }
     return TiDraggable;
@@ -6204,159 +6213,167 @@ const { Rect, Rects } = (function(){
   class QuickKeyMap {
     constructor() {
       _.assign(this, {
-        t : "top",
-        l : "left",
-        w : "width",
-        h : "height",
-        r : "right",
-        b : "bottom",
-        x : "x",
-        y : "y"
-      })
+        t: "top",
+        l: "left",
+        w: "width",
+        h: "height",
+        r: "right",
+        b: "bottom",
+        x: "x",
+        y: "y"
+      });
     }
-    explainToArray(keys, sorted=true) {
-      let re = []
-      let ks = NormalizeQuickKeys(keys, sorted)
-      for(let k of ks) {
+    explainToArray(keys, sorted = true) {
+      let re = [];
+      let ks = NormalizeQuickKeys(keys, sorted);
+      for (let k of ks) {
         let key = this[k];
-        if(key)
-          re.push(key)
+        if (key) re.push(key);
       }
       return re;
     }
     getKey(qk) {
-      return this[qk]
+      return this[qk];
     }
   }
-  const QKM = new QuickKeyMap()
+  const QKM = new QuickKeyMap();
   //--------------------------------------
-  function AutoModeBy(rect={}) {
-    let keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"]
-    let ms = []
-    for(let key of keys) {
-      if(!_.isUndefined(rect[key])) {
-        let k = key.substring(0,1)
-        ms.push(k)
+  function AutoModeBy(rect = {}) {
+    let keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"];
+    let ms = [];
+    for (let key of keys) {
+      if (!_.isUndefined(rect[key])) {
+        let k = key.substring(0, 1);
+        ms.push(k);
       }
     }
-    return ms.join("")
+    return ms.join("");
   }
   //--------------------------------------
-  function NormalizeQuickKeys(keys, sorted=true) {
-    if(!keys)
-      return []
-    if(_.isArray(keys))
-      return keys
-    let list =  keys.toLowerCase().split("")
-    if(sorted)
-      return list.sort()
-    return list
+  function NormalizeQuickKeys(keys, sorted = true) {
+    if (!keys) return [];
+    if (_.isArray(keys)) return keys;
+    let list = keys.toLowerCase().split("");
+    if (sorted) return list.sort();
+    return list;
   }
   //--------------------------------------
   function PickKeys(rect, keys, dft) {
     let re = {};
-    let ks = QKM.explainToArray(keys, false)
-    for(let key of ks) {
-      let val = Ti.Util.fallback(rect[key], dft)
-      if(!_.isUndefined(val)) {
-        re[key] = val
+    let ks = QKM.explainToArray(keys, false);
+    for (let key of ks) {
+      let val = Ti.Util.fallback(rect[key], dft);
+      if (!_.isUndefined(val)) {
+        re[key] = val;
       }
     }
     return re;
   }
   //--------------------------------------
   class Rect {
-    constructor(rect, mode){
+    constructor(rect, mode) {
       this.__ti_rect__ = true;
-      this.set(rect, mode)
+      this.set(rect, mode);
     }
     //--------------------------------------
-    set(rect={top:0,left:0,width:0,height:0}, mode) {
-      const keys = ["bottom", "height", "left", "right", "top", "width", "x", "y"]
+    set(rect = { top: 0, left: 0, width: 0, height: 0 }, mode) {
+      const keys = [
+        "bottom",
+        "height",
+        "left",
+        "right",
+        "top",
+        "width",
+        "x",
+        "y"
+      ];
   
       // Pick keys and auto-mode
-      if(_.isUndefined(mode)) {
-        let ms = []
-        for(let key of keys) {
-          let val = rect[key]
-          if(_.isNumber(val)) {
+      if (_.isUndefined(mode)) {
+        let ms = [];
+        for (let key of keys) {
+          let val = rect[key];
+          if (_.isNumber(val)) {
             // copy value
-            this[key] = val
+            this[key] = val;
             // quick key
-            let k = key.substring(0,1)
-            ms.push(k)
+            let k = key.substring(0, 1);
+            ms.push(k);
           }
         }
         // Gen the quick mode
-        mode = ms.join("")
+        mode = ms.join("");
       }
       // Just pick the keys
       else {
-        for(let key of keys) {
-          let val = rect[key]
-          if(_.isNumber(val)) {
-            this[key] = val
+        for (let key of keys) {
+          let val = rect[key];
+          if (_.isNumber(val)) {
+            this[key] = val;
           }
         }
       }
-      
-      // Ignore 
-      if("bhlrtwxy" == mode)
-        return this
-      
+  
+      // Ignore
+      if ("bhlrtwxy" == mode) return this;
+  
       // update
-      return this.updateBy(mode)
+      return this.updateBy(mode);
     }
     //--------------------------------------
-    toString(keys="tlwh"){
-      let re = PickKeys(this, keys, "NaN")
-      let ss = []
-      _.forEach(re, (val)=>ss.push(Math.round(val)))
-      return ss.join(",")
+    toString(keys = "tlwh") {
+      let re = PickKeys(this, keys, "NaN");
+      let ss = [];
+      _.forEach(re, (val, key) => {
+        let k = key[0].toUpperCase();
+        ss.push(`${k}=${Math.round(val)}`);
+      });
+  
+      return ss.join(",");
     }
-    valueOf(){
-      return this.toString()
+    valueOf() {
+      return this.toString();
     }
     //--------------------------------------
     update(mode) {
-      return this.updateBy(mode)
+      return this.updateBy(mode);
     }
     //--------------------------------------
-    updateBy(mode="tlwh") {
-      let ary = QKM.explainToArray(mode)
+    updateBy(mode = "tlwh") {
+      let ary = QKM.explainToArray(mode);
       let alg = ary.join("/");
       ({
-        "height/left/top/width" : ()=>{
+        "height/left/top/width": () => {
           this.right = this.left + this.width;
           this.bottom = this.top + this.height;
           this.x = this.left + this.width / 2;
           this.y = this.top + this.height / 2;
         },
-        "height/right/top/width" : ()=>{
+        "height/right/top/width": () => {
           this.left = this.right - this.width;
           this.bottom = this.top + this.height;
           this.x = this.left + this.width / 2;
           this.y = this.top + this.height / 2;
         },
-        "bottom/height/left/width" : ()=>{
+        "bottom/height/left/width": () => {
           this.top = this.bottom - this.height;
           this.right = this.left + this.width;
           this.x = this.left + this.width / 2;
           this.y = this.top + this.height / 2;
         },
-        "bottom/height/right/width" : ()=>{
+        "bottom/height/right/width": () => {
           this.top = this.bottom - this.height;
           this.left = this.right - this.width;
           this.x = this.left + this.width / 2;
           this.y = this.top + this.height / 2;
         },
-        "bottom/left/right/top" : ()=>{
+        "bottom/left/right/top": () => {
           this.width = this.right - this.left;
           this.height = this.bottom - this.top;
           this.x = this.left + this.width / 2;
           this.y = this.top + this.height / 2;
         },
-        "height/width/x/y" : ()=>{
+        "height/width/x/y": () => {
           let W2 = this.width / 2;
           let H2 = this.height / 2;
           this.top = this.y - H2;
@@ -6364,7 +6381,7 @@ const { Rect, Rects } = (function(){
           this.left = this.x - W2;
           this.right = this.x + W2;
         },
-        "height/left/width/y" : ()=>{
+        "height/left/width/y": () => {
           let W2 = this.width / 2;
           let H2 = this.height / 2;
           this.top = this.y - H2;
@@ -6372,7 +6389,7 @@ const { Rect, Rects } = (function(){
           this.x = this.left + W2;
           this.right = this.left + this.width;
         },
-        "height/right/width/y" : ()=>{
+        "height/right/width/y": () => {
           let W2 = this.width / 2;
           let H2 = this.height / 2;
           this.top = this.y - H2;
@@ -6380,7 +6397,7 @@ const { Rect, Rects } = (function(){
           this.x = this.right - W2;
           this.left = this.right - this.width;
         },
-        "height/top/width/x" : ()=>{
+        "height/top/width/x": () => {
           let W2 = this.width / 2;
           let H2 = this.height / 2;
           this.y = this.top + H2;
@@ -6388,7 +6405,7 @@ const { Rect, Rects } = (function(){
           this.left = this.x - W2;
           this.right = this.x + W2;
         },
-        "bottom/height/width/x" : ()=>{
+        "bottom/height/width/x": () => {
           let W2 = this.width / 2;
           let H2 = this.height / 2;
           this.y = this.bottom - H2;
@@ -6396,16 +6413,16 @@ const { Rect, Rects } = (function(){
           this.left = this.x - W2;
           this.right = this.x + W2;
         }
-      })[alg]()
-      
-      return this
+      })[alg]();
+  
+      return this;
     }
     //--------------------------------------
     /***
      * Pick keys and create another raw object
      */
-    raw(keys="tlwh", dft) {
-      return PickKeys(this, keys, dft)
+    raw(keys = "tlwh", dft) {
+      return PickKeys(this, keys, dft);
     }
     //--------------------------------------
     // 将一个矩形转换为得到一个 CSS 的矩形描述
@@ -6415,34 +6432,38 @@ const { Rect, Rects } = (function(){
     // keys 也支持快捷定义:
     //   - "tlwh" : "top,left,width,height"
     //   - "tlbr" : "top,left,bottom,right"
-    toCss(viewport={
-      width  : window.innerWidth,
-      height : window.innerHeight
-    }, keys="tlwh", dft) {
+    toCss(
+      viewport = {
+        width: window.innerWidth,
+        height: window.innerHeight
+      },
+      keys = "tlwh",
+      dft
+    ) {
       // 计算
       var css = {
-          top    : this.top,
-          left   : this.left,
-          width  : this.width,
-          height : this.height,
-          right  : viewport.width  - this.right,
-          bottom : viewport.height - this.bottom
+        top: this.top,
+        left: this.left,
+        width: this.width,
+        height: this.height,
+        right: viewport.width - this.right,
+        bottom: viewport.height - this.bottom
       };
-      if(Ti.IsDebug()) {
-        console.log("CSS:", css)
+      if (Ti.IsDebug()) {
+        console.log("CSS:", css);
       }
-      return PickKeys(css, keys, dft)
+      return PickKeys(css, keys, dft);
     }
     //--------------------------------------
     // 得到一个新 Rect，左上顶点坐标系相对于 base (Rect)
     // 如果给定 forCss=true，则将坐标系统换成 CSS 描述
     // baseScroll 是描述 base 的滚动，可以是 Element/jQuery
     // 也可以是 {x,y} 格式的对象
-    // 默认为 {x:0,y:0} 
-    relative(rect, scroll={x:0,y:0}) {
+    // 默认为 {x:0,y:0}
+    relative(rect, scroll = { x: 0, y: 0 }) {
       // 计算相对位置
-      this.top  = this.top  - (rect.top  - scroll.y)
-      this.left = this.left - (rect.left - scroll.x)
+      this.top = this.top - (rect.top - scroll.y);
+      this.left = this.left - (rect.left - scroll.x);
   
       return this.updateBy("tlwh");
     }
@@ -6452,11 +6473,11 @@ const { Rect, Rects } = (function(){
     // - y : Y 轴缩放，默认与 zoomX 相等
     // - centre : 相对的顶点 {x,y}，默认取自己的中心点
     // 返回矩形自身
-    zoom({x=1, y=x, centre=this}={}) {
-      this.top  = (this.top  - centre.y) * y + centre.y
-      this.left = (this.left - centre.x) * x + centre.x
-      this.width  = this.width * x
-      this.height = this.height * y
+    zoom({ x = 1, y = x, centre = this } = {}) {
+      this.top = (this.top - centre.y) * y + centre.y;
+      this.left = (this.left - centre.x) * x + centre.x;
+      this.width = this.width * x;
+      this.height = this.height * y;
   
       return this.updateBy("tlwh");
     }
@@ -6468,43 +6489,43 @@ const { Rect, Rects } = (function(){
     //      - contain : 确保包含在内
     //      - cover   : 最大限度撑满视口
     // 返回矩形自身
-    zoomTo({width,height,mode="contain", round=false}={}) {
+    zoomTo({ width, height, mode = "contain", round = false } = {}) {
       // zoom scale when necessary
-      if("contain" == mode){
-        let viewport = new Rect({top:0,left:0,width,height})
-        if(viewport.contains(this)) {
+      if ("contain" == mode) {
+        let viewport = new Rect({ top: 0, left: 0, width, height });
+        if (viewport.contains(this)) {
           return this;
         }
       }
       // 获得尺寸
-      let w  = width;
-      let h  = height;
+      let w = width;
+      let h = height;
       let oW = this.width;
       let oH = this.height;
       let oR = oW / oH;
-      let nR = w  / h;
+      let nR = w / h;
   
       let nW, nH;
   
       // Too wide
       if (oR > nR) {
         // Cover
-        if("cover" == mode) {
+        if ("cover" == mode) {
           nH = h;
           nW = h * oR;
         }
         // Contain
         else {
           nW = w;
-          nH = (w) / oR;
+          nH = w / oR;
         }
       }
       // Too hight
       else if (oR < nR) {
         // Cover
-        if("cover" == mode) {
+        if ("cover" == mode) {
           nW = w;
-          nH = (w) / oR;
+          nH = w / oR;
         }
         // Contain
         else {
@@ -6514,87 +6535,90 @@ const { Rect, Rects } = (function(){
       }
       // Then same
       else {
-          nW = w;
-          nH = h;
+        nW = w;
+        nH = h;
       }
   
-      this.width  = round ? Math.round(nW) : nW;
+      this.width = round ? Math.round(nW) : nW;
       this.height = round ? Math.round(nH) : nH;
-      
-      return this.updateBy("tlwh")
+  
+      return this.updateBy("tlwh");
     }
     //--------------------------------------
     // 移动自己到指定视口的中间
-    centreTo({width,height,top=0,left=0}={}, {xAxis=true,yAxis=true}={}) {
+    centreTo(
+      { width, height, top = 0, left = 0 } = {},
+      { xAxis = true, yAxis = true } = {}
+    ) {
       // Translate xAxis
-      if(xAxis) {
-        if(width > 0) {
-          let w = width - this.width
-          this.left = left + (w/2)
+      if (xAxis) {
+        if (width > 0) {
+          let w = width - this.width;
+          this.left = left + w / 2;
         }
       }
       // Translate yAxis
-      if(yAxis) {
-        if(height > 0) {
-          let h = height - this.height
-          this.top = top + (h/2)
+      if (yAxis) {
+        if (height > 0) {
+          let h = height - this.height;
+          this.top = top + h / 2;
         }
       }
   
-      return this.updateBy("tlwh")
+      return this.updateBy("tlwh");
     }
     //--------------------------------------
     // 移动矩形
     // - x   : X 轴位移
     // - y   : Y 周位移
     // 返回矩形自身
-    translate({x=0,y=0}={}) {
+    translate({ x = 0, y = 0 } = {}) {
       this.y += y;
       this.x += x;
       return this.updateBy("xywh");
     }
     /***
      * Move to position by one of four corners
-     * 
+     *
      * @params pos : The targt position
-     * @params offset : the orignal position 
+     * @params offset : the orignal position
      * @params mode : "tl|br|tr|bl"
      */
-    moveTo(pos={}, offset={}, mode="tl") {
-      _.defaults(pos, {x:0, y:0})
-      _.defaults(offset, {x:0, y:0})
+    moveTo(pos = {}, offset = {}, mode = "tl") {
+      _.defaults(pos, { x: 0, y: 0 });
+      _.defaults(offset, { x: 0, y: 0 });
   
-      let ary = QKM.explainToArray(mode)
+      let ary = QKM.explainToArray(mode);
       let alg = ary.join("/");
       ({
-        "left/top" : ()=>{
-          this.left = pos.x - offset.x
-          this.top  = pos.y - offset.y
-          this.updateBy("tlwh")
+        "left/top": () => {
+          this.left = pos.x - offset.x;
+          this.top = pos.y - offset.y;
+          this.updateBy("tlwh");
         },
-        "right/top" : ()=>{
-          this.right = pos.x + offset.x
-          this.top   = pos.y - offset.y
-          this.updateBy("trwh")
+        "right/top": () => {
+          this.right = pos.x + offset.x;
+          this.top = pos.y - offset.y;
+          this.updateBy("trwh");
         },
-        "bottom/left" : ()=>{
-          this.left   = pos.x - offset.x
-          this.bottom = pos.y + offset.y
-          this.updateBy("blwh")
+        "bottom/left": () => {
+          this.left = pos.x - offset.x;
+          this.bottom = pos.y + offset.y;
+          this.updateBy("blwh");
         },
-        "bottom/right" : ()=>{
-          this.right  = pos.x + offset.x
-          this.bottom = pos.y + offset.y
-          this.updateBy("brwh")
-        },
-      })[alg]()
+        "bottom/right": () => {
+          this.right = pos.x + offset.x;
+          this.bottom = pos.y + offset.y;
+          this.updateBy("brwh");
+        }
+      })[alg]();
   
-      return this
+      return this;
     }
     /***
-     * Dock self to target rectangle, with special 
+     * Dock self to target rectangle, with special
      * docking mode, which specified by `@param axis`.
-     * 
+     *
      * ```
      *                 H:center/top
      *          H:left/top          H:right:top
@@ -6606,7 +6630,7 @@ const { Rect, Rects } = (function(){
      *       H:left/bottom          H:right:bottom
      *                H:center/bottom
      * ```
-     * 
+     *
      * @param rect{Rect}`R` - Target rectangle
      * @param axis.x{String} - axisX dock mode:
      *  - `left`   : Dock to left side
@@ -6620,104 +6644,108 @@ const { Rect, Rects } = (function(){
      * @param space.y{int} - spacing for horizontal-side
      * @param viewportBorder{int}
      * @param wrapCut{Boolean}
-     * 
+     *
      * @return {Self} If need to be cut
      */
-    dockTo(rect, mode="H", {
-      axis={}, 
-      space={}, 
-      viewport={}, 
-      viewportBorder=4,
-      wrapCut=false
-    }={}) {
-      if(_.isNumber(space)) {
-        space = {x:space, y:space}
+    dockTo(
+      rect,
+      mode = "H",
+      {
+        axis = {},
+        space = {},
+        viewport = {},
+        viewportBorder = 4,
+        wrapCut = false
+      } = {}
+    ) {
+      if (_.isNumber(space)) {
+        space = { x: space, y: space };
       }
-      _.defaults(axis,  {x:"center", y:"bottom"})
-      _.defaults(space, {x:0, y:0})
+      _.defaults(axis, { x: "center", y: "bottom" });
+      _.defaults(space, { x: 0, y: 0 });
   
       let alg = mode + ":" + axis.x + "/" + axis.y;
       ({
-        "V:left/top" : ()=>{
-          this.right = rect.left - space.x
-          this.top = rect.top + space.y
-          this.updateBy("rtwh")
+        "V:left/top": () => {
+          this.right = rect.left - space.x;
+          this.top = rect.top + space.y;
+          this.updateBy("rtwh");
         },
-        "V:left/center" : ()=>{
-          this.right = rect.left - space.x
-          this.y = rect.y + space.y
-          this.updateBy("rywh")
+        "V:left/center": () => {
+          this.right = rect.left - space.x;
+          this.y = rect.y + space.y;
+          this.updateBy("rywh");
         },
-        "V:left/bottom" : ()=>{
-          this.right = rect.left - space.x
-          this.bottom = rect.bottom - space.y
-          this.updateBy("rbwh")
+        "V:left/bottom": () => {
+          this.right = rect.left - space.x;
+          this.bottom = rect.bottom - space.y;
+          this.updateBy("rbwh");
         },
-        "V:right/top" : ()=>{
-          this.left = rect.right + space.x
-          this.top = rect.top + space.y
-          this.updateBy("ltwh")
+        "V:right/top": () => {
+          this.left = rect.right + space.x;
+          this.top = rect.top + space.y;
+          this.updateBy("ltwh");
         },
-        "V:right/center" : ()=>{
-          this.left = rect.right + space.x
-          this.y = rect.y + space.y
-          this.updateBy("lywh")
+        "V:right/center": () => {
+          this.left = rect.right + space.x;
+          this.y = rect.y + space.y;
+          this.updateBy("lywh");
         },
-        "V:right/bottom" : ()=>{
-          this.left = rect.right + space.x
-          this.bottom = rect.bottom - space.y
-          this.updateBy("lbwh")
+        "V:right/bottom": () => {
+          this.left = rect.right + space.x;
+          this.bottom = rect.bottom - space.y;
+          this.updateBy("lbwh");
         },
-        "H:left/top" : ()=>{
-          this.left = rect.left + space.x
-          this.bottom = rect.top - space.y
-          this.updateBy("lbwh")
+        "H:left/top": () => {
+          this.left = rect.left + space.x;
+          this.bottom = rect.top - space.y;
+          this.updateBy("lbwh");
         },
-        "H:left/bottom" : ()=>{
-          this.left = rect.left + space.x
-          this.top = rect.bottom + space.y
-          this.updateBy("ltwh")
+        "H:left/bottom": () => {
+          this.left = rect.left + space.x;
+          this.top = rect.bottom + space.y;
+          this.updateBy("ltwh");
         },
-        "H:center/top" : ()=>{
-          this.x = rect.x + space.x
-          this.bottom = rect.top - space.y
-          this.updateBy("xbwh")
+        "H:center/top": () => {
+          this.x = rect.x + space.x;
+          this.bottom = rect.top - space.y;
+          this.updateBy("xbwh");
         },
-        "H:center/bottom" : ()=>{
-          this.x = rect.x + space.x
-          this.top = rect.bottom + space.y
-          this.updateBy("xtwh")
+        "H:center/bottom": () => {
+          this.x = rect.x + space.x;
+          this.top = rect.bottom + space.y;
+          this.updateBy("xtwh");
         },
-        "H:right/top" : ()=>{
-          this.right = rect.right - space.x
-          this.bottom = rect.top - space.y
-          this.updateBy("rbwh")
+        "H:right/top": () => {
+          this.right = rect.right - space.x;
+          this.bottom = rect.top - space.y;
+          this.updateBy("rbwh");
         },
-        "H:right/bottom" : ()=>{
-          this.right = rect.right - space.x
-          this.top = rect.bottom + space.y
-          this.updateBy("rtwh")
+        "H:right/bottom": () => {
+          this.right = rect.right - space.x;
+          this.top = rect.bottom + space.y;
+          this.updateBy("rtwh");
         }
-      })[alg]()
+      })[alg]();
   
       // Wrap cut
-      let dockMode = "tl"
-      if(wrapCut && TiRects.isRect(viewport)) {
-        let viewport2 = viewport.clone(viewportBorder)
+      let dockMode = "tl";
+      if (wrapCut && TiRects.isRect(viewport)) {
+        let viewport2 = viewport.clone(viewportBorder);
         // Wrap at first
-        viewport2.wrap(this)
+        viewport2.wrap(this);
         // If still can not contains, overlay it
-        if(!viewport2.contains(this)) {
-          this.overlap(viewport2)
-          dockMode = "tlwh"
+        if (!viewport2.contains(this)) {
+          this.overlap(viewport2);
+          dockMode = "tlwh";
         }
       }
       // return
-      return dockMode
+      return dockMode;
     }
     /***
      * Like `dockTo` but dock to target inside
-     * 
+     *
      *
      *         +------top-------+
      *         |       |        |
@@ -6725,199 +6753,192 @@ const { Rect, Rects } = (function(){
      *         |       |        |
      *         +-----bottom-----+
      *
-     * 
+     *
      * @see #dockTo
      */
-    dockIn(rect, axis={}, space={}) {
-      _.defaults(axis,  {x:"center", y:"center"})
-      _.defaults(space, {x:0, y:0})
-      
+    dockIn(rect, axis = {}, space = {}) {
+      _.defaults(axis, { x: "center", y: "center" });
+      _.defaults(space, { x: 0, y: 0 });
+  
       let alg = axis.x + "/" + axis.y;
   
       ({
-        "left/top" : ()=>{
-          this.left = rect.left + space.x
-          this.top = rect.top + space.y
-          this.updateBy("ltwh")
+        "left/top": () => {
+          this.left = rect.left + space.x;
+          this.top = rect.top + space.y;
+          this.updateBy("ltwh");
         },
-        "left/center" : ()=>{
-          this.left = rect.left + space.x
-          this.y = rect.y + space.y
-          this.updateBy("lywh")
+        "left/center": () => {
+          this.left = rect.left + space.x;
+          this.y = rect.y + space.y;
+          this.updateBy("lywh");
         },
-        "left/bottom" : ()=>{
-          this.left = rect.left + space.x
-          this.bottom = rect.bottom - space.y
-          this.updateBy("lbwh")
+        "left/bottom": () => {
+          this.left = rect.left + space.x;
+          this.bottom = rect.bottom - space.y;
+          this.updateBy("lbwh");
         },
-        "right/top" : ()=>{
-          this.right = rect.right - space.x
-          this.top = rect.top + space.y
-          this.updateBy("rtwh")
+        "right/top": () => {
+          this.right = rect.right - space.x;
+          this.top = rect.top + space.y;
+          this.updateBy("rtwh");
         },
-        "right/center" : ()=>{
-          this.right = rect.right - space.x
-          this.y = rect.y + space.y
-          this.updateBy("rywh")
+        "right/center": () => {
+          this.right = rect.right - space.x;
+          this.y = rect.y + space.y;
+          this.updateBy("rywh");
         },
-        "right/bottom" : ()=>{
-          this.right = rect.right - space.x
-          this.bottom = rect.bottom - space.y
-          this.updateBy("brwh")
+        "right/bottom": () => {
+          this.right = rect.right - space.x;
+          this.bottom = rect.bottom - space.y;
+          this.updateBy("brwh");
         },
-        "center/center" : ()=>{
-          this.x = rect.x + space.x
-          this.x = rect.y + space.y
-          this.updateBy("xywh")
+        "center/center": () => {
+          this.x = rect.x + space.x;
+          this.x = rect.y + space.y;
+          this.updateBy("xywh");
         }
-      })[alg]()
+      })[alg]();
   
-      return this
-  
+      return this;
     }
     //--------------------------------------
     /***
      * Make given rect contained by self rect(as viewport).
      * It will auto move the given rect to suited position.
      * If still can not fail to contains it, let it be.
-     * 
+     *
      * @param rect{Rect} : target rect
-     * 
+     *
      * @return target rect
-     * 
-     */ 
+     *
+     */
     wrap(rect) {
-      let ms = ["w","h"]
+      let ms = ["w", "h"];
       //....................................
       // Try X
-      if(!this.containsX(rect)) {
+      if (!this.containsX(rect)) {
         // [viewport]{given} or [viewport {gi]ven}
-        if(rect.left>this.left && rect.right>this.right) {
-          rect.right = this.right
-          ms.push("r")
+        if (rect.left > this.left && rect.right > this.right) {
+          rect.right = this.right;
+          ms.push("r");
         }
         // {given}[viewport] or { gi[ven }viewport ]
         // {giv-[viewport]-en}
         else {
-          rect.left = this.left
-          ms.push("l")
+          rect.left = this.left;
+          ms.push("l");
         }
       }
       //....................................
       // Try Y
-      if(!this.containsY(rect)) {
+      if (!this.containsY(rect)) {
         // top:=> [viewport]{given} or [viewport {gi]ven}
-        if(rect.top>this.top && rect.bottom>this.bottom) {
-          rect.bottom = this.bottom
-          ms.push("b")
+        if (rect.top > this.top && rect.bottom > this.bottom) {
+          rect.bottom = this.bottom;
+          ms.push("b");
         }
         // top:=> {given}[viewport] or { gi[ven }viewport ]
         // top:=> {giv-[viewport]-en}
         else {
-          rect.top = this.top
-          ms.push("t")
+          rect.top = this.top;
+          ms.push("t");
         }
       }
       // Has already X
-      else if(ms.length == 3) {
-        ms.push("t")
+      else if (ms.length == 3) {
+        ms.push("t");
       }
       //....................................
       // Lack X
-      if(3 == ms.length) {
-        ms.push("l")
+      if (3 == ms.length) {
+        ms.push("l");
       }
       //....................................
       // Update it
-      if(4 == ms.length) {
-        return rect.updateBy(ms.join(""))
+      if (4 == ms.length) {
+        return rect.updateBy(ms.join(""));
       }
       //....................................
       // Done
-      return rect
+      return rect;
     }
     //--------------------------------------
     /***
      * Make given rect contained by self rect(as viewport).
      * It will auto move the given rect to suited position.
      * If still can not fail to contains it, do the overlap
-     * 
+     *
      * @param rect{Rect} : target rect
-     * 
+     *
      * @return target rect
-     * 
-     */ 
+     *
+     */
     wrapCut(rect) {
       // Wrap at first
-      this.wrap(rect)
+      this.wrap(rect);
       // If still can not contains, overlay it
-      if(!this.contains(rect)) {
-        rect.overlap(this)
+      if (!this.contains(rect)) {
+        rect.overlap(this);
       }
-      return rect
+      return rect;
     }
     //--------------------------------------
     /***
      * Union current rectangles with another
      */
     union(...rects) {
-      for(let rect of rects) {
-        this.top    = Math.min(this.top,    rect.top);
-        this.left   = Math.min(this.left,   rect.left);
-        this.right  = Math.max(this.right,  rect.right);
+      for (let rect of rects) {
+        this.top = Math.min(this.top, rect.top);
+        this.left = Math.min(this.left, rect.left);
+        this.right = Math.max(this.right, rect.right);
         this.bottom = Math.max(this.bottom, rect.bottom);
       }
-      return this.updateBy("tlbr")
+      return this.updateBy("tlbr");
     }
     //--------------------------------------
     overlap(...rects) {
-      for(let rect of rects) {
-        this.top    = Math.max(this.top,    rect.top);
-        this.left   = Math.max(this.left,   rect.left);
-        this.right  = Math.min(this.right,  rect.right);
+      for (let rect of rects) {
+        this.top = Math.max(this.top, rect.top);
+        this.left = Math.max(this.left, rect.left);
+        this.right = Math.min(this.right, rect.right);
         this.bottom = Math.min(this.bottom, rect.bottom);
       }
-      return this.updateBy("tlbr")
+      return this.updateBy("tlbr");
     }
     //--------------------------------------
-    contains(rect, border=0) {
-      return this.containsX(rect, border)
-          && this.containsY(rect, border)
+    contains(rect, border = 0) {
+      return this.containsX(rect, border) && this.containsY(rect, border);
     }
     //--------------------------------------
-    containsX(rect, border=0) {
-      return (this.left   + border) <= rect.left
-          && (this.right  - border) >= rect.right;
+    containsX(rect, border = 0) {
+      return this.left + border <= rect.left && this.right - border >= rect.right;
     }
     //--------------------------------------
-    containsY(rect, border=0) {
-      return (this.top    + border) <= rect.top
-          && (this.bottom - border) >= rect.bottom
+    containsY(rect, border = 0) {
+      return this.top + border <= rect.top && this.bottom - border >= rect.bottom;
     }
     //--------------------------------------
-    hasPoint({x,y}={}, border=0) {
-      return this.hasPointX(x, border)
-          && this.hasPointY(y, border)
+    hasPoint({ x, y } = {}, border = 0) {
+      return this.hasPointX(x, border) && this.hasPointY(y, border);
     }
     //--------------------------------------
-    hasPointX(x=0, border=0) {
-      return (this.left  + border) <= x
-          && (this.right - border) >= x
+    hasPointX(x = 0, border = 0) {
+      return this.left + border <= x && this.right - border >= x;
     }
     //--------------------------------------
-    hasPointY(y=0, border=0) {
-      return (this.top    + border) <= y
-          && (this.bottom - border) >= y
+    hasPointY(y = 0, border = 0) {
+      return this.top + border <= y && this.bottom - border >= y;
     }
     //--------------------------------------
     isOverlap(rect) {
-      let t = Math.max(this.top, rect.top)
-      let l = Math.max(this.left, rect.left)
-      let r = Math.min(this.right, rect.right)
-      let b = Math.min(this.bottom, rect.bottom)
-      let w = r - l
-      let h = b - t
-      return w>0 && h>0
+      let t = Math.max(this.top, rect.top);
+      let l = Math.max(this.left, rect.left);
+      let r = Math.min(this.right, rect.right);
+      let b = Math.min(this.bottom, rect.bottom);
+      let w = r - l;
+      let h = b - t;
+      return w > 0 && h > 0;
     }
     //--------------------------------------
     /***
@@ -6930,67 +6951,66 @@ const { Rect, Rects } = (function(){
     /***
      * Create new rect without the border
      */
-    clone(border=0) {
-      return new Rect({
-        left   : this.left   + border,
-        right  : this.right  - border,
-        top    : this.top    + border,
-        bottom : this.bottom - border
-      }, "tlbr")
+    clone(border = 0) {
+      return new Rect(
+        {
+          left: this.left + border,
+          right: this.right - border,
+          top: this.top + border,
+          bottom: this.bottom - border
+        },
+        "tlbr"
+      );
     }
   }
   //--------------------------------------
   const TiRects = {
     create(rect, mode) {
-      return new Rect(rect, mode)
+      return new Rect(rect, mode);
     },
     //--------------------------------------
     createBy($el) {
-      if(!$el)
-        return
+      if (!$el) return;
       // Whole window
-      if(!$el.ownerDocument) {
-        let $win = Ti.Dom.ownerWindow($el)
+      if (!$el.ownerDocument) {
+        let $win = Ti.Dom.ownerWindow($el);
         return new Rect({
-          top : 0, left: 0,
-          width  : $win.document.documentElement.clientWidth,
-          height : $win.document.documentElement.clientHeight
-        })
+          top: 0,
+          left: 0,
+          width: $win.document.documentElement.clientWidth,
+          height: $win.document.documentElement.clientHeight
+        });
       }
       // Element
-      let rect = $el.getBoundingClientRect()
-      return new Rect(rect, "tlwh")
+      let rect = $el.getBoundingClientRect();
+      return new Rect(rect, "tlwh");
     },
     //--------------------------------------
     union(...rects) {
       // empty
-      if (rects.length == 0)
-        return new Rect();
-      
-      let r0 = new Rect(rects[0])
-      r0.union(...rects.slice(1))
+      if (rects.length == 0) return new Rect();
   
-      return r0
+      let r0 = new Rect(rects[0]);
+      r0.union(...rects.slice(1));
+  
+      return r0;
     },
     //--------------------------------------
     overlap(...rects) {
       // empty
-      if (rects.length == 0)
-        return new Rect();
-      
-      let r0 = new Rect(rects[0])
-      r0.overlap(...rects.slice(1))
+      if (rects.length == 0) return new Rect();
   
-      return r0
+      let r0 = new Rect(rects[0]);
+      r0.overlap(...rects.slice(1));
+  
+      return r0;
     },
     //--------------------------------------
     isRect(rect) {
-      return rect 
-        && rect.__ti_rect__
-        && (rect instanceof Rect)
+      return rect && rect.__ti_rect__ && rect instanceof Rect;
     }
     //--------------------------------------
-  }
+  };
   //////////////////////////////////////////
   return {Rect, TiRects, Rects: TiRects};
 })();
@@ -20277,7 +20297,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230504.160631",
+  "version": "1.6-20230507.235017",
   "dev": false,
   "appName": null,
   "session": {},

@@ -1,4 +1,4 @@
-// Pack At: 2023-05-04 16:06:31
+// Pack At: 2023-05-07 23:50:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1466,8 +1466,7 @@ window.TI_PACK_EXPORTS['ti/com/ti/gui/gui-block-support.mjs'] = (function(){
 const __TI_MOD_EXPORT_VAR_NM = {
   /////////////////////////////////////////
   data: () => ({
-    isDragging: false,
-    blockSizes: undefined
+    isDragging: false
   }),
   /////////////////////////////////////////
   props: {
@@ -1555,7 +1554,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         if (Ti.Util.isNil(li.minSize)) {
           li.minSize = 50;
         }
-        if (this.adjustable) {
+        if (this.adjustable && _.isFunction(this.getBlockAdjacentMode)) {
           li.resizeMode = this.resize_mode;
           if (li.index > 0) {
             let prevI = li.index - 1;
@@ -1569,268 +1568,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         list.push(li);
       });
       return list;
-    },
-    //--------------------------------------
-    Draggable() {
-      //....................................
-      const do_dragging = (ctx) => {
-        let { orgBlockSizes, prevI, selfI } = ctx;
-        let offset = ctx[this.offset_key];
-        //console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
-        let sizes = _.cloneDeep(orgBlockSizes);
-
-        // Block minimum size
-        let prevSize = sizes[prevI];
-        let selfSize = sizes[selfI];
-        let sum = prevSize + selfSize;
-
-        // Use prev minSize
-        if (offset < 0) {
-          let minSize = this.GuiBlocks[prevI].minSize;
-          prevSize = Math.max(minSize, prevSize + offset);
-          selfSize = sum - prevSize;
-        }
-        // Use self minSize
-        else {
-          let minSize = this.GuiBlocks[selfI].minSize;
-          selfSize = Math.max(minSize, selfSize - offset);
-          prevSize = sum - selfSize;
-        }
-
-        // Offset block size
-        sizes[prevI] = prevSize;
-        sizes[selfI] = selfSize;
-
-        // Depends on bar adjacent-mode
-        //console.log(sizes)
-        this.blockSizes = this.normlizedBlockSize(sizes, ctx);
-      };
-      //....................................
-      return {
-        trigger: ".block-adjust-bar",
-        prepare: (_, evt) => {
-          evt.stopPropagation();
-          this.isDragging = true;
-        },
-        actived: (ctx) => {
-          //console.log("actived", ctx)
-          // Get all my blocks and init them rect
-          // Set mark
-          // Prepare sizing
-          let sizes = this.genBlockRealSizes();
-          ctx.orgBlockSizes = sizes;
-          ctx.viewportSize = _.sum(sizes);
-          ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
-          ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
-          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode");
-        },
-        dragging: do_dragging,
-        done: (ctx) => {
-          // Save customized
-          this.trySaveLocalCustomized();
-          // Notify whole window resizing
-          Ti.Viewport.resize();
-        },
-        finished: (ctx) => {
-          // Reset mark
-          this.isDragging = false;
-        }
-      };
-      //....................................
     }
     //--------------------------------------
-  },
-  //////////////////////////////////////////
-  methods: {
-    //--------------------------------------
-    OnBarReset() {
-      //console.log("OnBarReset")
-      this.blockSizes = null;
-      this.trySaveLocalCustomized();
-    },
-    //--------------------------------------
-    OnBarToggleSize(payload) {
-      //console.log("OnBarToggleSize")
-      //..............................
-      let { prevMinimum, selfMinimum, adjacentMode, adjustIndex } = payload;
-      //..............................
-      let sizes = this.genBlockRealSizes();
-      let viewportSize = _.sum(sizes);
-      let prevI = adjustIndex[0];
-      let selfI = adjustIndex[1];
-      //..............................
-      const __toggle_sizes = (sizes = []) => {
-        let prevSize = sizes[prevI];
-        let selfSize = sizes[selfI];
-        let sum = prevSize + selfSize;
-
-        let prevMinSize = this.GuiBlocks[prevI].minSize;
-        let prevOrgSize = this.blocks[prevI].size;
-
-        let selfMinSize = this.GuiBlocks[selfI].minSize;
-        let selfOrgSize = this.blocks[selfI].size;
-
-        // Prev
-        if ("prev" == adjacentMode || ("both" == adjacentMode && 0 == prevI)) {
-          // => min
-          if (!prevMinimum) {
-            sizes[prevI] = prevMinSize;
-            sizes[selfI] = sum - prevMinSize;
-          }
-          // => org
-          else {
-            prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
-              base: viewportSize
-            });
-            sizes[prevI] = prevSize;
-            sizes[selfI] = sum - prevSize;
-          }
-        }
-        // Self
-        else {
-          // => min
-          if (!selfMinimum) {
-            sizes[selfI] = selfMinSize;
-            sizes[prevI] = sum - selfMinSize;
-          }
-          // => org
-          else {
-            selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
-              base: viewportSize
-            });
-            sizes[selfI] = selfSize;
-            sizes[prevI] = sum - selfSize;
-          }
-        }
-      };
-      //..............................
-      __toggle_sizes(sizes);
-      //..............................
-      this.blockSizes = this.normlizedBlockSize(sizes, {
-        adjacentMode,
-        viewportSize,
-        prevI,
-        selfI
-      });
-      //..............................
-      this.trySaveLocalCustomized();
-      //..............................
-      this.$nextTick(() => {
-        Ti.Viewport.resize();
-      });
-    },
-    //--------------------------------------
-    normlizedBlockSize(
-      sizes = [],
-      { adjacentMode, viewportSize, prevI, selfI } = {}
-    ) {
-      //console.log("normlizedBlockSize", adjacentMode)
-      // Depends on bar adjacent-mode
-      switch (adjacentMode) {
-        case "prev":
-          sizes[selfI] = null;
-          break;
-        case "self":
-          sizes[prevI] = null;
-          break;
-        case "none":
-          if (0 == prevI) {
-            sizes[selfI] = null;
-          } else {
-            sizes[prevI] = null;
-          }
-      }
-
-      // Cover to percent
-      if ("%" == this.BlockAdjustMode) {
-        return _.map(sizes, (sz) => {
-          if (null === sz) {
-            return null;
-          }
-          return Ti.S.toPercent(sz / viewportSize);
-        });
-      }
-
-      return sizes;
-    },
-    //--------------------------------------
-    // When click the `min` button, it will shrink which block
-    // ajacent with the bar.
-    //
-    //  [Prev] || [Self]
-    //
-    //  - prev: set prev block to mininum size
-    //  - self: set self block to minimum size
-    //  - both: if prev is head block, set it to minimum size,
-    //          else set the next to minimum size
-    //  - none: do nothing
-    //
-    getBlockAdjacentMode(prevI, selfI) {
-      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch");
-      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch");
-      let prevIsStrech = "stretch" == prevSize;
-      let selfIsStrech = "stretch" == selfSize;
-
-      // .. 40        | <stretch> ..
-      if (!prevIsStrech && selfIsStrech) {
-        return "prev";
-      }
-      // .. <stretch> | 40   ..
-      else if (prevIsStrech && !selfIsStrech) {
-        return "self";
-      }
-      // .. 40        | 80   ..
-      else if (!prevIsStrech && !selfIsStrech) {
-        return "both";
-      }
-      // .. <stretch> | <stretch> ..
-      return "none";
-    },
-    //--------------------------------------
-    genBlockRealSizes() {
-      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el);
-      let sizes = [];
-      _.forEach($blocks, ($block) => {
-        let rect = $block.getBoundingClientRect();
-        let sz = rect[this.block_size_by];
-        sizes.push(sz);
-      });
-      return sizes;
-    },
-    //--------------------------------------
-    getBlockSize(index) {
-      if (this.blockSizes) {
-        return _.nth(this.blockSizes, index) || null;
-      }
-      return (_.nth(this.blocks, index) || {}).size;
-    },
-    //--------------------------------------
-    isBlockSizeMinimum(index) {
-      if (index >= 0 && index < this.$children.length) {
-        return this.$children[index].isMinimumSize;
-      }
-    },
-    //--------------------------------------
-    trySaveLocalCustomized() {
-      if (this.keepCustomizedTo) {
-        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes;
-        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes);
-      }
-    },
-    //--------------------------------------
-    tryRestoreLocalCustomized() {
-      if (this.keepCustomizedTo) {
-        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo);
-        if (_.isArray(sizes)) {
-          this.blockSizes = sizes;
-        }
-      }
-    }
-    //--------------------------------------
-  },
-  //////////////////////////////////////////
-  mounted() {
-    this.tryRestoreLocalCustomized();
   }
   //////////////////////////////////////////
 };
@@ -7714,6 +7453,403 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
   ////////////////////////////////////////////////////
 }
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
+// EXPORT 'ti-gui-grid.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/gui/grid/ti-gui-grid.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: () => ({
+    myBlockAreas: [],
+    myWatchAreas: [
+      /*{index, type:"row|column", rect}*/
+    ],
+    myView: undefined, // Rect
+    myGrid: {
+      /*columns,rows,lineV,lineH */
+    },
+    myCustomizedTracks: {
+      /*columns:[...],
+      rows:[...]*/
+    }
+  }),
+  /////////////////////////////////////////
+  props: {
+    "adjustable": {
+      type: Boolean,
+      default: true
+    },
+    "grid": {
+      type: Object
+    },
+    "lineRadius": {
+      type: Number,
+      default: 4
+    },
+    "cellMinWidth": {
+      type: Number,
+      default: 50
+    },
+    "cellMinHeight": {
+      type: Number,
+      default: 50
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopStyle() {
+      let re = {
+        display: "grid"
+      };
+      _.forEach(this.grid, (val, key) => {
+        let k = _.kebabCase(key);
+        re[k] = val;
+      });
+      if (this.border) {
+        _.defaults(re, {
+          "grid-gap": "1px"
+        });
+      }
+      //
+      // patch customized track columns/rows
+      //
+      if (this.myCustomizedTracks) {
+        let { columns, rows } = this.myCustomizedTracks;
+        if (!_.isEmpty(columns)) {
+          re["grid-template-columns"] = columns.join(" ");
+        }
+        if (!_.isEmpty(rows)) {
+          re["grid-template-rows"] = rows.join(" ");
+        }
+      }
+      //
+      // patch columns/rows setting during dragging
+      //
+      if (this.isDragging && this.myTrackScales) {
+        let cssProp = {
+          column: "grid-template-columns",
+          row: "grid-template-rows"
+        }[this.myDragArea.type];
+
+        // auto 有毒， 还是不要这么搞了，这个逻辑没用了应该
+        // let autoIxs = {
+        //   column: this.AutoColTrackIndexes,
+        //   row: this.AutoRowTrackIndexes
+        // }[this.myDragArea.type];
+
+        let scales = _.map(this.myTrackScales, (v, index) => {
+          // if (_.indexOf(autoIxs, index) >= 0) {
+          //   return "auto";
+          // }
+          return v;
+        });
+        re[cssProp] = scales.join(" ");
+      }
+      return re;
+    }
+    //--------------------------------------
+    // auto 有毒， 还是不要这么搞了，这两个函数没用了应该
+    // AutoColTrackIndexes() {
+    //   return this.getAutoTrackIndexes(
+    //     _.get(this.grid, "grid-template-columns")
+    //   );
+    // },
+    //--------------------------------------
+    // AutoRowTrackIndexes() {
+    //   return this.getAutoTrackIndexes(_.get(this.grid, "grid-template-rows"));
+    // }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnResize() {
+      this.debounceEvalGridMeasure();
+    },
+    //--------------------------------------
+    OnResetTracks() {
+      this.LOG("OnResetTracks");
+      this.clearDragging();
+      Ti.Viewport.resize();
+      this.myCustomizedTracks = {};
+    },
+    //--------------------------------------
+    clearDragging() {
+      this.isDragging = false;
+      this.myDragX = undefined;
+      this.myDragY = undefined;
+      this.myDragArea = undefined;
+      this.myTrackScales = undefined;
+    },
+    //--------------------------------------
+    getAutoTrackIndexes(track) {
+      let re = [];
+      if (_.isString(track)) {
+        let ss = Ti.S.splitIgnoreBlank(track, /\s+/g);
+        for (let i = 0; i < ss.length; i++) {
+          if (/^auto$/i.test(ss[i])) {
+            re.push(i);
+          }
+        }
+      }
+      return re;
+    },
+    //--------------------------------------
+    evalGridMeasure() {
+      this.LOG("evalGridMeasure", this.$el);
+      let $blocks = Ti.Dom.findAll(":scope > main> .ti-gui-block", this.$el);
+
+      // Guard
+      if (_.isEmpty($blocks)) {
+        this.LOG("No blocks found");
+        return;
+      }
+
+      let N = $blocks.length;
+      this.LOG(`Loop ${N} blocks`);
+
+      //
+      // Collect each row and column top/bottom, left/right
+      //
+      let MEA = {
+        view: Ti.Rects.createBy(this.$el),
+        tops: [],
+        bottoms: [],
+        lefts: [],
+        rights: [],
+        //.............................................
+        push: function (rect = {}) {
+          //rect.relative(this.view);
+          let { left, right, top, bottom } = rect;
+
+          this.tops.push(Math.round(top));
+          this.lefts.push(Math.round(left));
+          this.rights.push(Math.round(right));
+          this.bottoms.push(Math.round(bottom));
+        },
+        //.............................................
+        uniquely: function () {
+          this.tops = _.uniq(this.tops);
+          this.lefts = _.uniq(this.lefts);
+          this.rights = _.uniq(this.rights);
+          this.bottoms = _.uniq(this.bottoms);
+          if (this.tops.length != this.bottoms.length) {
+            console.error(_.pick(this, "tops", "bottoms"));
+            throw `Unmatched row top/bottom`;
+          }
+          if (this.lefts.length != this.rights.length) {
+            console.error(_.pick(this, "lefts", "rights"));
+            throw `Unmatched column left/right`;
+          }
+        },
+        //.............................................
+        /*
+        return {
+          columns: [{left,right}],
+          rows: [{top,bottom}],
+          lineV : [N,..],
+          lineH : [N,..]
+        }
+        */
+        toGrid: function () {
+          let columns = [];
+          let rows = [];
+
+          for (let i = 0; i < this.lefts.length; i++) {
+            columns.push({
+              left: this.lefts[i],
+              right: this.rights[i]
+            });
+          }
+
+          for (let i = 0; i < this.tops.length; i++) {
+            rows.push({
+              top: this.tops[i],
+              bottom: this.bottoms[i]
+            });
+          }
+
+          let lineV = [];
+          let lineH = [];
+
+          for (let i = 1; i < columns.length; i++) {
+            let col0 = columns[i - 1];
+            let col1 = columns[i];
+            lineV.push(Math.round(col0.right + (col1.left - col0.right) / 2));
+          }
+
+          for (let i = 1; i < rows.length; i++) {
+            let row0 = rows[i - 1];
+            let row1 = rows[i];
+            lineH.push(Math.round(row0.bottom + (row1.top - row0.bottom) / 2));
+          }
+
+          return { columns, rows, lineV, lineH };
+        },
+        //.............................................
+        getWatchAreas(radius = 5, grid) {
+          if (!grid) {
+            grid = this.toGrid();
+          }
+          let { top, bottom, left, right } = this.view;
+          let areas = [];
+          let { lineH, lineV } = grid;
+          //
+          // Watch column border(vertical line)
+          for (let i = 0; i < lineV.length; i++) {
+            let v = lineV[i];
+            areas.push({
+              index: i,
+              type: "column",
+              rect: Ti.Rects.create({
+                left: v - radius,
+                right: v + radius,
+                top,
+                bottom
+              })
+            });
+          }
+          //
+          // Watch column border(vertical line)
+          for (let i = 0; i < lineH.length; i++) {
+            let v = lineH[i];
+            areas.push({
+              index: i,
+              type: "row",
+              rect: Ti.Rects.create({
+                left,
+                right,
+                top: v - radius,
+                bottom: v + radius
+              })
+            });
+          }
+
+          return areas;
+        },
+        //.............................................
+        toGridString(grid) {
+          if (!grid) {
+            grid = this.toGrid();
+          }
+          let ss = ["COLs:"];
+          ss[1] = _.map(grid.columns, ({ left, right }, I) => {
+            let s = `${I}:${left}-${right}`;
+            if (I < grid.lineV.length) {
+              s += ` |<${grid.lineV[I]}>|`;
+            }
+            return s;
+          }).join(" ");
+          ss[2] = "ROWs:";
+          ss[3] = _.map(grid.rows, ({ top, bottom }, I) => {
+            let s = `${I}:${top}-${bottom}`;
+            if (I < grid.lineH.length) {
+              s += ` |<${grid.lineH[I]}>|`;
+            }
+            return s;
+          }).join(" ");
+          return ss.join("\n");
+        }
+        //.............................................
+      }; // ~ MEA
+
+      // Collection each block
+      let blockAreas = [];
+      for (let i = 0; i < N; i++) {
+        let $B = $blocks[i];
+
+        // Join block the measure, to eval the watching area
+        // to show the adjust bar
+        let R = Ti.Rects.createBy($B);
+        MEA.push(R);
+
+        // Add block rect to list , when mouse move in it
+        // will not show the adjust bar,
+        // in case one block span 2 row/cols ,
+        let bR = R.clone();
+        bR.width = bR.width - this.lineRadius * 2;
+        bR.height = bR.height - this.lineRadius * 2;
+
+        blockAreas.push({
+          index: i,
+          rect: bR.update("xywh")
+        });
+        this.LOG(`${i}) ${R.toString()}`);
+      }
+      MEA.uniquely();
+      let grid = MEA.toGrid();
+      this.LOG(MEA.toGridString(grid));
+
+      let watchAreas = MEA.getWatchAreas(this.lineRadius);
+      this.LOG("Watch Areas:", watchAreas);
+
+      this.myGrid = grid;
+      this.myView = MEA.view;
+      this.myBlockAreas = blockAreas;
+      this.myWatchAreas = watchAreas;
+    },
+    //--------------------------------------
+    tryEvalGridMeasure() {
+      // Guard
+      if (!_.isElement(this.$el)) {
+        return;
+      }
+      this.LOG("delay call evalGridMeasure");
+      _.delay(() => {
+        this.evalGridMeasure();
+      }, 100);
+    },
+    //--------------------------------------
+    trySaveLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let tracks = _.isEmpty(this.myCustomizedTracks)
+          ? null
+          : this.myCustomizedTracks;
+        Ti.Storage.local.setObject(this.keepCustomizedTo, tracks);
+      }
+    },
+    //--------------------------------------
+    tryRestoreLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let tracks = Ti.Storage.local.getObject(this.keepCustomizedTo);
+        if (!_.isEmpty(tracks)) {
+          this.myCustomizedTracks = tracks;
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "GuiBlocks": "tryEvalGridMeasure"
+  },
+  //////////////////////////////////////////
+  created: function () {
+    this.debounceEvalGridMeasure = _.debounce(() => {
+      this.tryEvalGridMeasure();
+    }, 500);
+    this.LOG = () => {};
+    //this.LOG = console.log;
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this.OnResize();
+      }
+    });
+    this.tryEvalGridMeasure();
+    this.tryRestoreLocalCustomized();
+  },
+  ///////////////////////////////////////////////////
+  beforeDestroy: function () {
+    Ti.Viewport.unwatch(this);
+  }
+  //////////////////////////////////////////
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -23903,7 +24039,7 @@ const _M = {
       if (!_.isEmpty(setup)) {
         return _.assign(
           {
-            className: "btn-r4",
+            className: `btn-r4 at-${this.actionAlign}`,
             size: "tiny" == this.spacing ? "tiny" : "small",
             setup
           },
@@ -31746,6 +31882,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: undefined
   },
+  "titleClass": {
+    type: String,
+    default: undefined
+  },
   "statusIcons": {
     type: Object,
     default: () => ({
@@ -31778,6 +31918,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: String,
     default: "bottom",
     validator: (v) => /^(top|bottom)$/.test(v)
+  },
+  "actionAlign": {
+    type: String,
+    default: "center",
+    validator: (v) => /^(left|center|right)$/.test(v)
   },
   "setupMenuAt": {
     type: String,
@@ -31915,7 +32060,7 @@ const _M = {
               "blocks": [
                 {
                   "name": "filter",
-                  "size": 43,
+                  "size": "auto",
                   "body": "filter"
                 },
                 {
@@ -31952,11 +32097,6 @@ const _M = {
             "filter": "=filter",
             "sorter": "=sorter",
             "dialog": {
-              "icon": "fas-search",
-              "title": "i18n:search-adv",
-              "position": "top",
-              "width": "6.4rem",
-              "height": "90%"
             },
             "majors": [],
             "matchKeywords": [
@@ -64802,6 +64942,283 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'gui-flex-dragging.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/gui/gui-flex-dragging.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: () => ({
+    blockSizes: undefined
+  }),
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    Draggable() {
+      //....................................
+      const do_dragging = (ctx) => {
+        let { orgBlockSizes, prevI, selfI } = ctx;
+        let offset = ctx[this.offset_key];
+        //console.log("dragging", { offset, orgBlockSizes, prevI, selfI })
+        let sizes = _.cloneDeep(orgBlockSizes);
+
+        // Block minimum size
+        let prevSize = sizes[prevI];
+        let selfSize = sizes[selfI];
+        let sum = prevSize + selfSize;
+
+        // Use prev minSize
+        if (offset < 0) {
+          let minSize = this.GuiBlocks[prevI].minSize;
+          prevSize = Math.max(minSize, prevSize + offset);
+          selfSize = sum - prevSize;
+        }
+        // Use self minSize
+        else {
+          let minSize = this.GuiBlocks[selfI].minSize;
+          selfSize = Math.max(minSize, selfSize - offset);
+          prevSize = sum - selfSize;
+        }
+
+        // Offset block size
+        sizes[prevI] = prevSize;
+        sizes[selfI] = selfSize;
+
+        // Depends on bar adjacent-mode
+        //console.log(sizes)
+        this.blockSizes = this.normlizedBlockSize(sizes, ctx);
+      };
+      //....................................
+      return {
+        trigger: ".block-adjust-bar",
+        prepare: (_, evt) => {
+          evt.stopPropagation();
+          this.isDragging = true;
+        },
+        actived: (ctx) => {
+          //console.log("actived", ctx)
+          // Get all my blocks and init them rect
+          // Set mark
+          // Prepare sizing
+          let sizes = this.genBlockRealSizes();
+          ctx.orgBlockSizes = sizes;
+          ctx.viewportSize = _.sum(sizes);
+          ctx.prevI = parseInt(ctx.$trigger.getAttribute("adjust-0"));
+          ctx.selfI = parseInt(ctx.$trigger.getAttribute("adjust-1"));
+          ctx.adjacentMode = ctx.$trigger.getAttribute("adjacent-mode");
+        },
+        dragging: do_dragging,
+        done: (ctx) => {
+          // Save customized
+          this.trySaveLocalCustomized();
+          // Notify whole window resizing
+          Ti.Viewport.resize();
+        },
+        finished: (ctx) => {
+          // Reset mark
+          this.isDragging = false;
+        }
+      };
+      //....................................
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnBarReset() {
+      //console.log("OnBarReset")
+      this.blockSizes = null;
+      this.trySaveLocalCustomized();
+    },
+    //--------------------------------------
+    OnBarToggleSize(payload) {
+      //console.log("OnBarToggleSize")
+      //..............................
+      let { prevMinimum, selfMinimum, adjacentMode, adjustIndex } = payload;
+      //..............................
+      let sizes = this.genBlockRealSizes();
+      let viewportSize = _.sum(sizes);
+      let prevI = adjustIndex[0];
+      let selfI = adjustIndex[1];
+      //..............................
+      const __toggle_sizes = (sizes = []) => {
+        let prevSize = sizes[prevI];
+        let selfSize = sizes[selfI];
+        let sum = prevSize + selfSize;
+
+        let prevMinSize = this.GuiBlocks[prevI].minSize;
+        let prevOrgSize = this.blocks[prevI].size;
+
+        let selfMinSize = this.GuiBlocks[selfI].minSize;
+        let selfOrgSize = this.blocks[selfI].size;
+
+        // Prev
+        if ("prev" == adjacentMode || ("both" == adjacentMode && 0 == prevI)) {
+          // => min
+          if (!prevMinimum) {
+            sizes[prevI] = prevMinSize;
+            sizes[selfI] = sum - prevMinSize;
+          }
+          // => org
+          else {
+            prevSize = Ti.Css.toAbsPixel(prevOrgSize, {
+              base: viewportSize
+            });
+            sizes[prevI] = prevSize;
+            sizes[selfI] = sum - prevSize;
+          }
+        }
+        // Self
+        else {
+          // => min
+          if (!selfMinimum) {
+            sizes[selfI] = selfMinSize;
+            sizes[prevI] = sum - selfMinSize;
+          }
+          // => org
+          else {
+            selfSize = Ti.Css.toAbsPixel(selfOrgSize, {
+              base: viewportSize
+            });
+            sizes[selfI] = selfSize;
+            sizes[prevI] = sum - selfSize;
+          }
+        }
+      };
+      //..............................
+      __toggle_sizes(sizes);
+      //..............................
+      this.blockSizes = this.normlizedBlockSize(sizes, {
+        adjacentMode,
+        viewportSize,
+        prevI,
+        selfI
+      });
+      //..............................
+      this.trySaveLocalCustomized();
+      //..............................
+      this.$nextTick(() => {
+        Ti.Viewport.resize();
+      });
+    },
+    //--------------------------------------
+    normlizedBlockSize(
+      sizes = [],
+      { adjacentMode, viewportSize, prevI, selfI } = {}
+    ) {
+      //console.log("normlizedBlockSize", adjacentMode)
+      // Depends on bar adjacent-mode
+      switch (adjacentMode) {
+        case "prev":
+          sizes[selfI] = null;
+          break;
+        case "self":
+          sizes[prevI] = null;
+          break;
+        case "none":
+          if (0 == prevI) {
+            sizes[selfI] = null;
+          } else {
+            sizes[prevI] = null;
+          }
+      }
+
+      // Cover to percent
+      if ("%" == this.BlockAdjustMode) {
+        return _.map(sizes, (sz) => {
+          if (null === sz) {
+            return null;
+          }
+          return Ti.S.toPercent(sz / viewportSize);
+        });
+      }
+
+      return sizes;
+    },
+    //--------------------------------------
+    // When click the `min` button, it will shrink which block
+    // ajacent with the bar.
+    //
+    //  [Prev] || [Self]
+    //
+    //  - prev: set prev block to mininum size
+    //  - self: set self block to minimum size
+    //  - both: if prev is head block, set it to minimum size,
+    //          else set the next to minimum size
+    //  - none: do nothing
+    //
+    getBlockAdjacentMode(prevI, selfI) {
+      let prevSize = Ti.Util.fallbackNil(this.blocks[prevI].size, "stretch");
+      let selfSize = Ti.Util.fallbackNil(this.blocks[selfI].size, "stretch");
+      let prevIsStrech = "stretch" == prevSize;
+      let selfIsStrech = "stretch" == selfSize;
+
+      // .. 40        | <stretch> ..
+      if (!prevIsStrech && selfIsStrech) {
+        return "prev";
+      }
+      // .. <stretch> | 40   ..
+      else if (prevIsStrech && !selfIsStrech) {
+        return "self";
+      }
+      // .. 40        | 80   ..
+      else if (!prevIsStrech && !selfIsStrech) {
+        return "both";
+      }
+      // .. <stretch> | <stretch> ..
+      return "none";
+    },
+    //--------------------------------------
+    genBlockRealSizes() {
+      let $blocks = Ti.Dom.findAll(":scope > .ti-gui-block", this.$el);
+      let sizes = [];
+      _.forEach($blocks, ($block) => {
+        let rect = $block.getBoundingClientRect();
+        let sz = rect[this.block_size_by];
+        sizes.push(sz);
+      });
+      return sizes;
+    },
+    //--------------------------------------
+    getBlockSize(index) {
+      if (this.blockSizes) {
+        return _.nth(this.blockSizes, index) || null;
+      }
+      return (_.nth(this.blocks, index) || {}).size;
+    },
+    //--------------------------------------
+    isBlockSizeMinimum(index) {
+      if (index >= 0 && index < this.$children.length) {
+        return this.$children[index].isMinimumSize;
+      }
+    },
+    //--------------------------------------
+    trySaveLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = _.isEmpty(this.blockSizes) ? null : this.blockSizes;
+        Ti.Storage.local.setObject(this.keepCustomizedTo, sizes);
+      }
+    },
+    //--------------------------------------
+    tryRestoreLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let sizes = Ti.Storage.local.getObject(this.keepCustomizedTo);
+        if (_.isArray(sizes)) {
+          this.blockSizes = sizes;
+        }
+      }
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted() {
+    this.tryRestoreLocalCustomized();
+  }
+  //////////////////////////////////////////
+};
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'wn-entity-history.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/wn/entity/history/wn-entity-history.mjs'] = (function(){
@@ -71616,6 +72033,219 @@ const _M = {
   ////////////////////////////////////////////
 }
 return _M;;
+})()
+// ============================================================
+// EXPORT 'ti-gui-grid-drag.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/gui/grid/ti-gui-grid-drag.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  data: () => ({
+    myDragArea: undefined,
+    myDragX: undefined,
+    myDragY: undefined,
+    myTrackScales: undefined
+  }),
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    isShowDragBar() {
+      return this.myDragArea ? true : false;
+    },
+    //--------------------------------------
+    DragBarClass() {
+      if (this.myDragArea) {
+        return `as-${this.myDragArea.type}`;
+      }
+    },
+    //--------------------------------------
+    DragBarStyle() {
+      if (this.myDragArea) {
+        let rect = this.myDragArea.rect.clone();
+        let view = this.myView;
+        // console.log(rect);
+        // console.log(view);
+        rect.relative(view);
+        let css = rect.toCss(view);
+        if (this.isDragging) {
+          // Drag in X-axis
+          if (_.isNumber(this.myDragX)) {
+            css.left = `${this.myDragX - this.lineRadius}px`;
+          }
+          // Drag in Y-axis
+          else if (_.isNumber(this.myDragY)) {
+            css.top = `${this.myDragY - this.lineRadius}px`;
+          }
+        }
+        return Ti.Css.toStyle(css);
+      }
+    },
+    //--------------------------------------
+    GridDraggable() {
+      //....................................
+      const do_dragging = (ctx) => {
+        let {
+          viewWidth,
+          trackSizes,
+          dragScope,
+          minSize,
+          sumSize,
+          lineI,
+          gapRadius,
+          padHead,
+          padTail
+        } = ctx;
+        // x-column(left/right), y-row(top/bottom)
+        let k = ctx.axisMode;
+        let v = ctx[k];
+        /*
+         Eval the track size:
+                   +--- mouse X/Y
+                   V
+         | [...]   |  [...]   |
+          ^      ^          ^
+          |      |          +-- pad Tail
+          |      +-- garRadius  
+          +-- padHead         
+        */
+        let [MIN, MAX] = dragScope;
+        let v2 = _.clamp(v, MIN + minSize, MAX - minSize);
+        // Move the bar in-time
+        this[ctx.propKey] = v2; // myDragX/Y
+
+        // Calculate the track size
+        let prev = v2 - MIN - gapRadius;
+        let next = MAX - v2 - gapRadius;
+        trackSizes[lineI] = prev;
+        trackSizes[lineI + 1] = next;
+
+        // Calculate the scale
+        let scales = [];
+        for (let sz of trackSizes) {
+          let s = sz / viewWidth;
+          let p = Ti.S.toPercent(s);
+          scales.push(p);
+          //scales.push(`${sz}px`);
+        }
+
+        this.LOG(
+          ` I=${lineI} ${k}=${v}/${v2} GapR=${gapRadius}, pad=${padHead}:${padTail}`,
+          `sum=${sumSize}, scope=${JSON.stringify(dragScope)}`,
+          trackSizes,
+          `=${_.sum(trackSizes)}`,
+          scales
+        );
+        this.myTrackScales = scales;
+      };
+      //....................................
+      return {
+        trigger: ".ti-gui-grid-drag-bar",
+        prepare: (ctx, evt) => {
+          this.isDragging = true;
+          let mk = Ti.Dom.hasClass(ctx.$trigger, "as-column") ? "x" : "y";
+          ctx.axisMode = mk;
+          ctx.propKey = `myDrag${_.upperCase(mk)}`;
+          let minSize = {
+            x: this.cellMinWidth,
+            y: this.cellMinHeight
+          }[mk];
+
+          let I = this.myDragArea.index;
+          // Get the left/right top/bottom key of track
+          let K0 = { x: "left", y: "top" }[mk];
+          let K1 = { x: "right", y: "bottom" }[mk];
+
+          // Get the track columns/rows
+          let tracks = this.myGrid[{ x: "columns", y: "rows" }[mk]];
+          let tk0 = tracks[I];
+          let tk1 = tracks[I + 1];
+
+          // Get mouse move scope (relative the viewport)
+          let dragScope = [
+            tk0[K0] - this.myView[K0],
+            tk1[K1] - this.myView[K0]
+          ];
+
+          // Eval each cell size in track
+          // X-Axis: columns : left/right
+          // Y-Axis: rows : top/bottom
+          let trackSizes = _.map(tracks, (cell) => {
+            return cell[K1] - cell[K0];
+          });
+
+          ctx.gapRadius = (tk1[K0] - tk0[K1]) / 2;
+          ctx.padHead = _.first(tracks)[K0] - this.myView[K0];
+          ctx.padTail = this.myView[K1] - _.last(tracks)[K1];
+          ctx.trackSizes = trackSizes;
+          ctx.sumSize = _.sum(trackSizes);
+          ctx.dragScope = dragScope;
+          ctx.minSize = minSize;
+          ctx.lineI = I;
+          ctx.viewWidth = ctx.sumSize + ctx.gapRadius * 2 * (tracks.length - 1);
+        },
+        actived: (ctx) => {
+          //console.log("actived", ctx);
+          // Get all my blocks and init them rect
+        },
+        dragging: do_dragging,
+        done: (ctx) => {
+          //console.log("dragging done");
+          // Save customized
+          let { axisMode } = ctx;
+          let cuKey = {
+            x: "columns",
+            y: "rows"
+          }[axisMode];
+          let tracks = _.assign({}, this.myCustomizedTracks);
+          tracks[cuKey] = _.cloneDeep(this.myTrackScales);
+          this.myCustomizedTracks = tracks;
+          this.trySaveLocalCustomized();
+          // Notify whole window resizing
+          Ti.Viewport.resize();
+        },
+        finished: (ctx) => {
+          // Reset mark
+          this.clearDragging();
+        }
+      };
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    OnMouseMove($event) {
+      // If is dragging, watching mouse is unnecessary
+      if (this.isDragging) {
+        return;
+      }
+
+      // get mouse pointer
+      let point = { x: $event.pageX, y: $event.pageY };
+
+      // In block area will not show the adjustbar
+      for (let B of this.myBlockAreas) {
+        if (B.rect.hasPoint(point)) {
+          return;
+        }
+      }
+
+      // found area
+      let area = _.find(this.myWatchAreas, (area) => area.rect.hasPoint(point));
+
+      // if (area) {
+      //   this.LOG(`AREA=${area.index} : X=${pageX},Y=${pageY} : ${area.rect}`);
+      // }
+      // if (area)
+      this.myDragArea = area;
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  mounted() {}
+  //////////////////////////////////////////
+};
+return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
 // EXPORT 'mod-profile-actions.mjs' -> null
@@ -88246,6 +88876,7 @@ Ti.Preload("ti/com/ti/form/grid/ti-form-grid.html", `<div class="ti-form-grid"
       <header
         v-if="hasTitle"
           class="form-title"
+          :class="titleClass"
           :spacing="spacing"
           :mode="FormMode">
           <span v-if="icon" class="title-icon"><ti-icon :value="icon"/></span>
@@ -88716,13 +89347,80 @@ Ti.Preload("ti/com/ti/gui/cols/_com.json", {
   "template": "./ti-gui-cols.html",
   "mixins"   : [
     "@com:ti/gui/gui-block-support.mjs",
+    "@com:ti/gui/gui-flex-dragging.mjs",
     "./ti-gui-cols.mjs"
+  ]
+});
+//========================================
+// JOIN <ti-gui-grid-drag.mjs> ti/com/ti/gui/grid/ti-gui-grid-drag.mjs
+//========================================
+Ti.Preload("ti/com/ti/gui/grid/ti-gui-grid-drag.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/grid/ti-gui-grid-drag.mjs']);
+//========================================
+// JOIN <ti-gui-grid.html> ti/com/ti/gui/grid/ti-gui-grid.html
+//========================================
+Ti.Preload("ti/com/ti/gui/grid/ti-gui-grid.html", `<div
+  class="ti-gui-grid"
+  @mousemove="OnMouseMove"
+  v-ti-draggable="GridDraggable"
+>
+  <main
+    v-if="hasBlocks"
+    ref="blocks"
+    :class="TopClass"
+    :card="card"
+    :style="TopStyle"
+  >
+    <template v-for="(block, index) in GuiBlocks">
+      <ti-gui-block
+        v-if="!block.hide"
+        :key="block.key"
+        embedIn="cols"
+        v-bind="block"
+        :schema="schema"
+        :action-status="block.actionStatus || actionStatus"
+        :shown="shown"
+      />
+    </template>
+  </main>
+  <div
+    v-if="isShowDragBar"
+    class="ti-gui-grid-drag-bar"
+    :class="DragBarClass"
+    :style="DragBarStyle"
+  >
+    <div>
+      <a @mousedown.stop="OnResetTracks" data-ti-tip="Reset to default layout"
+        ><i class="zmdi zmdi-time-restore"></i
+      ></a>
+    </div>
+  </div>
+  <div v-if="isDragging" class="ti-gui-dragging-mask"></div>
+</div>`);
+//========================================
+// JOIN <ti-gui-grid.mjs> ti/com/ti/gui/grid/ti-gui-grid.mjs
+//========================================
+Ti.Preload("ti/com/ti/gui/grid/ti-gui-grid.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/grid/ti-gui-grid.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/gui/grid/_com.json
+//========================================
+Ti.Preload("ti/com/ti/gui/grid/_com.json", {
+  "name": "ti-gui-grid",
+  "globally": true,
+  "template": "./ti-gui-grid.html",
+  "mixins"   : [
+    "@com:ti/gui/gui-block-support.mjs",
+    "./ti-gui-grid-drag.mjs",
+    "./ti-gui-grid.mjs"
   ]
 });
 //========================================
 // JOIN <gui-block-support.mjs> ti/com/ti/gui/gui-block-support.mjs
 //========================================
 Ti.Preload("ti/com/ti/gui/gui-block-support.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/gui-block-support.mjs']);
+//========================================
+// JOIN <gui-flex-dragging.mjs> ti/com/ti/gui/gui-flex-dragging.mjs
+//========================================
+Ti.Preload("ti/com/ti/gui/gui-flex-dragging.mjs", TI_PACK_EXPORTS['ti/com/ti/gui/gui-flex-dragging.mjs']);
 //========================================
 // JOIN <ti-gui-panel.html> ti/com/ti/gui/panel/ti-gui-panel.html
 //========================================
@@ -88822,6 +89520,7 @@ Ti.Preload("ti/com/ti/gui/rows/_com.json", {
   "template": "./ti-gui-rows.html",
   "mixins": [
     "@com:ti/gui/gui-block-support.mjs",
+    "@com:ti/gui/gui-flex-dragging.mjs",
     "./ti-gui-rows.mjs"
   ]
 });
@@ -88888,73 +89587,85 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
     <!--
       Layout as rows
     -->
-    <ti-gui-rows 
+    <ti-gui-rows
       v-if="'rows' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
     <!--
       Layout as cols
     -->
-    <ti-gui-cols 
+    <ti-gui-cols
       v-else-if="'cols' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
     <!--
       Layout as tabs
     -->
-    <ti-gui-tabs 
+    <ti-gui-tabs
       v-else-if="'tabs' == LayoutType"
-        class="ti-fill-parent"
-        v-bind="myLayout"
-        :schema="schema"
-        :shown="TheShown"
-        :default-flex="defaultFlex"
-        :action-status="actionStatus"
-        :on-init="OnMainTypeInit"/>
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
+    <!--
+      Layout as grid
+    -->
+    <ti-gui-grid
+      v-else-if="'grid' == LayoutType"
+      class="ti-fill-parent"
+      v-bind="myLayout"
+      :schema="schema"
+      :shown="TheShown"
+      :default-flex="defaultFlex"
+      :action-status="actionStatus"
+      :on-init="OnMainTypeInit"
+    />
   </div>
   <!--===========================================
     All float panels
   -->
-  <template 
-    v-for="pan in ThePanels">
-      <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
-        <ti-gui-panel
-          v-if="pan.visible"
-            :key="pan.key"
-            v-bind="pan.panel"
-            :refer-element="activeElement"
-            :viewport-width="myViewportWidth"
-            :viewport-height="myViewportHeight"
-            :schema="schema"
-            :shown="TheShown"
-            :visibles="myPanelVisibles"
-            :default-flex="defaultFlex"
-            :action-status="actionStatus"/>
-      </transition>
+  <template v-for="pan in ThePanels">
+    <transition :name="pan.transName" @after-enter="OnPanelAfterEnter(pan)">
+      <ti-gui-panel
+        v-if="pan.visible"
+        :key="pan.key"
+        v-bind="pan.panel"
+        :refer-element="activeElement"
+        :viewport-width="myViewportWidth"
+        :viewport-height="myViewportHeight"
+        :schema="schema"
+        :shown="TheShown"
+        :visibles="myPanelVisibles"
+        :default-flex="defaultFlex"
+        :action-status="actionStatus"
+      />
+    </transition>
   </template>
   <!--===========================================
     Loading
   -->
   <template v-if="isLoading">
-    <div
-      v-if="maskWhenLoading"
-        class="ti-mask-loading">
-        <ti-loading v-bind="TheLoading"/>
+    <div v-if="maskWhenLoading" class="ti-mask-loading">
+      <ti-loading v-bind="TheLoading" />
     </div>
-    <ti-loading
-      v-else
-        v-bind="TheLoading"/>
-</template>
+    <ti-loading v-else v-bind="TheLoading" />
+  </template>
 </div>`);
 //========================================
 // JOIN <ti-gui.mjs> ti/com/ti/gui/ti-gui.mjs
@@ -88975,6 +89686,7 @@ Ti.Preload("ti/com/ti/gui/_com.json", {
     "@com:ti/gui/cols",
     "@com:ti/gui/rows",
     "@com:ti/gui/tabs",
+    "@com:ti/gui/grid",
     "@com:ti/gui/panel"
   ]
 });
@@ -98536,80 +99248,89 @@ Ti.Preload("ti/com/wn/obj/preview/wn-obj-preview.html", `<div class="wn-obj-prev
   -->
   <div
     v-if="hasMeta"
-      class="wop-con"
-      v-drop-files.mask="UploadDragAndDropHandler">
-      <!--
+    class="wop-con"
+    v-drop-files.mask="UploadDragAndDropHandler"
+  >
+    <!--
         Main View
       -->
-      <component class="as-main"
-        :is="PreviewCom.comType"
-        v-bind="PreviewCom.comConf"/>
-      <!--
+    <component
+      class="as-main"
+      :is="PreviewCom.comType"
+      v-bind="PreviewCom.comConf"
+    />
+    <!--
         ActionBar at top
       -->
-      <div class="as-abar">
-        <ul>
-          <li v-for="it in TheActions"
-            @click.left="OnAction(it.action)">
-            <ti-icon class="it-icon" :value="it.icon"/>
-          </li>
-        </ul>
-      </div>
-      <!--
+    <div class="as-abar">
+      <ul>
+        <li
+          v-for="it in TheActions"
+          :data-ti-tip="it.text"
+          data-ti-tip-mode="V"
+          @click.left="OnAction(it.action)"
+        >
+          <ti-icon class="it-icon" :value="it.icon" />
+        </li>
+      </ul>
+    </div>
+    <!--
         Meta at bottom
       -->
-      <div class="as-info" v-if="isShowInfo">
-        <!--
+    <div class="as-info" v-if="isShowInfo">
+      <!--
           Head
         -->
-        <div class="info-head">
-          <!--Pin Status Icon-->
-          <span class="it-icon" @click.left="toggleInfoFloat">
-            <ti-icon :value="PreviewInfoPinIcon"/>
-          </span>
-          <!--Head text-->
-          <span class="it-text">{{'i18n:info'|i18n}}</span>
-          <!--Edit Button-->
-          <span class="it-edit"
-            @click.left="OnEditInfo">{{'i18n:edit'|i18n}}</span>
-        </div>
-        <!--
-          Fields
-        -->
-        <div class="info-field-con">
-          <wn-obj-preview-info-field
-            v-for="fld in PrevewInfoFields"
-            :key="fld.name"
-            v-bind="fld"
-            :data="meta"/>
-        </div>
+      <div class="info-head">
+        <!--Pin Status Icon-->
+        <span class="it-icon" @click.left="toggleInfoFloat">
+          <ti-icon :value="PreviewInfoPinIcon" />
+        </span>
+        <!--Head text-->
+        <span class="it-text">{{'i18n:info'|i18n}}</span>
+        <!--Edit Button-->
+        <span class="it-edit" @click.left="OnEditInfo"
+          >{{'i18n:edit'|i18n}}</span
+        >
       </div>
       <!--
+          Fields
+        -->
+      <div class="info-field-con">
+        <wn-obj-preview-info-field
+          v-for="fld in PrevewInfoFields"
+          :key="fld.name"
+          v-bind="fld"
+          :data="meta"
+        />
+      </div>
+    </div>
+    <!--
         Process bar
       -->
-      <div class="as-progress" v-if="uploading>0">
-        <TiProgressBar
-          class="fs-lg tip-mask"
-          :value="uploading"/>
-      </div>
-      <!--==================================
+    <div class="as-progress" v-if="uploading>0">
+      <TiProgressBar class="fs-lg tip-mask" :value="uploading" />
+    </div>
+    <!--==================================
         Hidden file upload control
       -->
-      <input 
-        type="file" 
-        ref="file" 
-        class="ti-hide"
-        :accept="MetaMime"
-        @change.stop.seft="OnSelectLocalFilesToUpload">
+    <input
+      type="file"
+      ref="file"
+      class="ti-hide"
+      :accept="MetaMime"
+      @change.stop.seft="OnSelectLocalFilesToUpload"
+    />
   </div>
   <!--
     Blank 
   -->
   <ti-loading
     v-else
-      v-bind="blankAs"
-      class="ti-fill-parent"
-      :class="blankClass"/>
+    v-bind="blankAs"
+    class="ti-fill-parent"
+    :class="blankClass"
+  />
 </div>`);
 //========================================
 // JOIN <wn-obj-preview.mjs> ti/com/wn/obj/preview/wn-obj-preview.mjs
@@ -101827,6 +102548,8 @@ Ti.Preload("ti/i18n/en-uk/wn-manager.i18n.json", {
   "wn-expose-hidden-on": "Show hidden objects",
   "wn-gui": "General gui",
   "wn-list-view-type": "View Type",
+  "wn-manager-is-loading": "Manager is loading",
+  "wn-manager-no-meta": "Manager without meta data",
   "wn-move-to-confirm": "Are you sure you want to move the selected ${N} items? This is an irrevocable operation!",
   "wn-move-to-none": "Please select at least one file to move!",
   "wn-move-to-ok": "${N} objects have been moved",
@@ -101907,6 +102630,13 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "add": "Add",
   "add-item": "New item",
   "add-now": "Add Now",
+  "add-watch": "Add Monitor",
+  "add-watch-clear": "Clear All",
+  "add-watch-create": "Create New Montitor",
+  "add-watch-create-tip": "Please enter a monitoring name",
+  "add-watch-exists": "This name already exists, please change another",
+  "add-watch-remove": "Remove Current",
+  "add-watch-tip": "Saves the current search criteria to local storage",
   "album": "Album",
   "album-add": "Add album",
   "album-clrsz": "Clear album size",
@@ -102032,8 +102762,8 @@ Ti.Preload("ti/i18n/en-uk/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
   "e-auth-login-NoSaltedPasswd": "Password without salting",
   "e-auth-login-invalid-passwd": "Invalid password",
+  "e-data-InvalidScope": "Invalid data range! The valid format is similar to: 1-20 but you entered:",
   "e-export_data-ConfirmBigLimit": "You want to export a lot of data, it may take a while, should we continue?",
-  "e-export_data-InvalidScope": "The export range you declared is invalid. It should like: 1-20 but you typed:",
   "e-export_data-UnknownMode": "Unknown Export Mode",
   "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "e-io-forbidden": "IO Forbidden",
@@ -102424,6 +103154,9 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
+  "wn-data-scope": "Range",
+  "wn-data-scope-phd": "Such as: 1-100",
+  "wn-data-scope-tip": "Range of data to be processed, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -102437,19 +103170,20 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-en-his-unm": "User name",
   "wn-en-his-usr": "User",
   "wn-en-his-utp": "User type",
+  "wn-expi-10m": "10Min.",
+  "wn-expi-12h": "12Hr.",
+  "wn-expi-14d": "14Day",
+  "wn-expi-1d": "1Day",
+  "wn-expi-1h": "1Hr.",
+  "wn-expi-2h": "2Hr.",
+  "wn-expi-30d": "30Day",
+  "wn-expi-30m": "30Min.",
+  "wn-expi-3d": "3Day",
+  "wn-expi-6h": "6小时",
+  "wn-expi-7d": "7Day",
+  "wn-expi-never": "Never",
   "wn-export-c-expi": "Expire in",
-  "wn-export-c-expi-12h": "12Hr.",
-  "wn-export-c-expi-14d": "14Days",
-  "wn-export-c-expi-1d": "1Day",
-  "wn-export-c-expi-1h": "1Hr.",
-  "wn-export-c-expi-2h": "2Hr.",
-  "wn-export-c-expi-30d": "30Day",
-  "wn-export-c-expi-3d": "3Days",
-  "wn-export-c-expi-6h": "6Hr.",
-  "wn-export-c-expi-7d": "7Days",
-  "wn-export-c-expi-off": "Never",
   "wn-export-c-expi-tip": "How long to keep temporary files on the server",
-  "wn-export-c-limit": "Limit",
   "wn-export-c-mapping": "Mapping",
   "wn-export-c-mapping-phd": "Choose mapping mode",
   "wn-export-c-mapping-tip": "The so-called mapping mode, is how to output the field, including how to specify the field name, field value how to convert",
@@ -102457,9 +103191,6 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-export-c-mode-all": "All Pages",
   "wn-export-c-mode-checked": "Checked",
   "wn-export-c-mode-current": "Current Page",
-  "wn-export-c-mode-scope": "Scope",
-  "wn-export-c-mode-scope-phd": "Such as: 1-100",
-  "wn-export-c-mode-scope-tip": "Range of data to be exported, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-export-c-name": "Export name",
   "wn-export-c-name-phd": "Enter the export file name",
   "wn-export-c-name-tip": "Export file name. If no suffix is available, it will be auto completed based on Export type",
@@ -102470,6 +103201,7 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-export-c-type-xls": "Spreadsheet",
   "wn-export-c-type-zip": "Zip data",
   "wn-export-choose-fields": "Choose Fields",
+  "wn-export-confirm-many": "You want to export a lot of data, this operation may take a long time, continue?",
   "wn-export-done": "Finished",
   "wn-export-done-fail": "Fail To Export",
   "wn-export-done-fail-tip": "Please click to see the error details",
@@ -102481,6 +103213,17 @@ Ti.Preload("ti/i18n/en-uk/_wn.i18n.json", {
   "wn-export-setup": "Export setup",
   "wn-fsc-mail-scene-new": "New a email scenario",
   "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
+  "wn-import-WithoutInput": "Please upload the data file to be imported",
+  "wn-import-c-expi": "Expi Time",
+  "wn-import-c-expi-tip": "How long will the uploaded temporary file remain on the server",
+  "wn-import-c-mapping": "Mapping rule",
+  "wn-import-c-mapping-phd": "Select a field mapping rule",
+  "wn-import-c-mapping-tip": "The so-called mapping rules, is the field output conversion rules, including how to specify the field name, field value how to convert",
+  "wn-import-c-mode-all": "All Data",
+  "wn-import-confirm-many": "You want to import a lot of data, this operation may take some time, continue?",
+  "wn-import-setup": "Import Settings",
+  "wn-import-upload": "Upload file",
+  "wn-import-upload-xlsx-tip": "Only 'xlsx' files are supported, if 'xls' files, you need to save as 'xlsx' before uploading",
   "wn-invalid-fsize-max": "最大上传文件尺寸为 ${maxSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-fsize-min": "最小上传文件尺寸为 ${minSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
@@ -103458,6 +104201,8 @@ Ti.Preload("ti/i18n/en-us/wn-manager.i18n.json", {
   "wn-expose-hidden-on": "Show hidden objects",
   "wn-gui": "General gui",
   "wn-list-view-type": "View Type",
+  "wn-manager-is-loading": "Manager is loading",
+  "wn-manager-no-meta": "Manager without meta data",
   "wn-move-to-confirm": "Are you sure you want to move the selected ${N} items? This is an irrevocable operation!",
   "wn-move-to-none": "Please select at least one file to move!",
   "wn-move-to-ok": "${N} objects have been moved",
@@ -103538,6 +104283,13 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "add": "Add",
   "add-item": "New item",
   "add-now": "Add Now",
+  "add-watch": "Add Monitor",
+  "add-watch-clear": "Clear All",
+  "add-watch-create": "Create New Montitor",
+  "add-watch-create-tip": "Please enter a monitoring name",
+  "add-watch-exists": "This name already exists, please change another",
+  "add-watch-remove": "Remove Current",
+  "add-watch-tip": "Saves the current search criteria to local storage",
   "album": "Album",
   "album-add": "Add album",
   "album-clrsz": "Clear album size",
@@ -103663,8 +104415,8 @@ Ti.Preload("ti/i18n/en-us/_ti.i18n.json", {
   "e-auth-login-NoPhoneOrEmail": "Invalid phone number or email address",
   "e-auth-login-NoSaltedPasswd": "Password without salting",
   "e-auth-login-invalid-passwd": "Invalid password",
+  "e-data-InvalidScope": "Invalid data range! The valid format is similar to: 1-20 but you entered:",
   "e-export_data-ConfirmBigLimit": "You want to export a lot of data, it may take a while, should we continue?",
-  "e-export_data-InvalidScope": "The export range you declared is invalid. It should like: 1-20 but you typed:",
   "e-export_data-UnknownMode": "Unknown Export Mode",
   "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
   "e-io-forbidden": "IO Forbidden",
@@ -104055,6 +104807,9 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-ctt-txt-text": "Pure text",
   "wn-ctt-wnml-text": "WNML File",
   "wn-ctt-xml-text": "XML File",
+  "wn-data-scope": "Range",
+  "wn-data-scope-phd": "Such as: 1-100",
+  "wn-data-scope-tip": "Range of data to be processed, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-edit-com-nil": "Default as label control",
   "wn-en-his-ct": "Created",
   "wn-en-his-flt-tip": "Please input user id or name to filtering",
@@ -104068,19 +104823,20 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-en-his-unm": "User name",
   "wn-en-his-usr": "User",
   "wn-en-his-utp": "User type",
+  "wn-expi-10m": "10Min.",
+  "wn-expi-12h": "12Hr.",
+  "wn-expi-14d": "14Day",
+  "wn-expi-1d": "1Day",
+  "wn-expi-1h": "1Hr.",
+  "wn-expi-2h": "2Hr.",
+  "wn-expi-30d": "30Day",
+  "wn-expi-30m": "30Min.",
+  "wn-expi-3d": "3Day",
+  "wn-expi-6h": "6小时",
+  "wn-expi-7d": "7Day",
+  "wn-expi-never": "Never",
   "wn-export-c-expi": "Expire in",
-  "wn-export-c-expi-12h": "12Hr.",
-  "wn-export-c-expi-14d": "14Days",
-  "wn-export-c-expi-1d": "1Day",
-  "wn-export-c-expi-1h": "1Hr.",
-  "wn-export-c-expi-2h": "2Hr.",
-  "wn-export-c-expi-30d": "30Day",
-  "wn-export-c-expi-3d": "3Days",
-  "wn-export-c-expi-6h": "6Hr.",
-  "wn-export-c-expi-7d": "7Days",
-  "wn-export-c-expi-off": "Never",
   "wn-export-c-expi-tip": "How long to keep temporary files on the server",
-  "wn-export-c-limit": "Limit",
   "wn-export-c-mapping": "Mapping",
   "wn-export-c-mapping-phd": "Choose mapping mode",
   "wn-export-c-mapping-tip": "The so-called mapping mode, is how to output the field, including how to specify the field name, field value how to convert",
@@ -104088,9 +104844,6 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-export-c-mode-all": "All Pages",
   "wn-export-c-mode-checked": "Checked",
   "wn-export-c-mode-current": "Current Page",
-  "wn-export-c-mode-scope": "Scope",
-  "wn-export-c-mode-scope-phd": "Such as: 1-100",
-  "wn-export-c-mode-scope-tip": "Range of data to be exported, 1-200 indicates from Record 1 to record 200 (inclusive)",
   "wn-export-c-name": "Export name",
   "wn-export-c-name-phd": "Enter the export file name",
   "wn-export-c-name-tip": "Export file name. If no suffix is available, it will be auto completed based on Export type",
@@ -104101,6 +104854,7 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-export-c-type-xls": "Spreadsheet",
   "wn-export-c-type-zip": "Zip data",
   "wn-export-choose-fields": "Choose Fields",
+  "wn-export-confirm-many": "You want to export a lot of data, this operation may take a long time, continue?",
   "wn-export-done": "Finished",
   "wn-export-done-fail": "Fail To Export",
   "wn-export-done-fail-tip": "Please click to see the error details",
@@ -104112,6 +104866,17 @@ Ti.Preload("ti/i18n/en-us/_wn.i18n.json", {
   "wn-export-setup": "Export setup",
   "wn-fsc-mail-scene-new": "New a email scenario",
   "wn-fsc-mail-tmpl-new": "Enter new unique name (such as 'signup')",
+  "wn-import-WithoutInput": "Please upload the data file to be imported",
+  "wn-import-c-expi": "Expi Time",
+  "wn-import-c-expi-tip": "How long will the uploaded temporary file remain on the server",
+  "wn-import-c-mapping": "Mapping rule",
+  "wn-import-c-mapping-phd": "Select a field mapping rule",
+  "wn-import-c-mapping-tip": "The so-called mapping rules, is the field output conversion rules, including how to specify the field name, field value how to convert",
+  "wn-import-c-mode-all": "All Data",
+  "wn-import-confirm-many": "You want to import a lot of data, this operation may take some time, continue?",
+  "wn-import-setup": "Import Settings",
+  "wn-import-upload": "Upload file",
+  "wn-import-upload-xlsx-tip": "Only 'xlsx' files are supported, if 'xls' files, you need to save as 'xlsx' before uploading",
   "wn-invalid-fsize-max": "最大上传文件尺寸为 ${maxSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-fsize-min": "最小上传文件尺寸为 ${minSize}，但是您上传的文件尺寸为 ${fileSize}",
   "wn-invalid-mimes": "Unsupported mime \"${current}\", only \"${supports}\" allowed",
@@ -105089,6 +105854,8 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-expose-hidden-on": "显示隐藏的对象",
   "wn-gui": "通用布局界面",
   "wn-list-view-type": "视图类型",
+  "wn-manager-is-loading": "管理器正在加载数据",
+  "wn-manager-no-meta": "管理器未设置对象",
   "wn-move-to-confirm": "您确定要移动选中的${N}个项目吗？这是一个不可撤销的操作！",
   "wn-move-to-none": "请选择至少一个对象进行移动!",
   "wn-move-to-ok": "已有 ${N} 个对象被移动到了新的目标",
@@ -105106,9 +105873,7 @@ Ti.Preload("ti/i18n/zh-cn/wn-manager.i18n.json", {
   "wn-rename-suffix-changed": "您的文件后缀名发生变化，您需要自动为您补全原来的后缀吗？",
   "wn-rename-too-long": "名称过长",
   "wn-thing-manager": "数据管理器",
-  "wn-view-opening": "正在加载界面...",
-  "wn-manager-no-meta": "管理器未设置对象",
-  "wn-manager-is-loading": "管理器正在加载数据"
+  "wn-view-opening": "正在加载界面..."
 });
 //========================================
 // JOIN <wn-obj-preview.i18n.json> ti/i18n/zh-cn/wn-obj-preview.i18n.json
@@ -105172,12 +105937,12 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "add-item": "添加新项",
   "add-now": "立即添加",
   "add-watch": "添加监控",
-  "add-watch-tip": "将当前的搜索条件保存到本地存储",
+  "add-watch-clear": "清除全部监控",
+  "add-watch-create": "建立新监控",
   "add-watch-create-tip": "请输入监控名称",
   "add-watch-exists": "这个名字已经存在了，请换一个",
   "add-watch-remove": "删除当前监控",
-  "add-watch-clear": "清除全部监控",
-  "add-watch-create": "建立新监控",
+  "add-watch-tip": "将当前的搜索条件保存到本地存储",
   "album": "相册",
   "album-add": "添加相册",
   "album-clrsz": "清除相册尺寸",
@@ -105304,6 +106069,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "e-auth-login-NoSaltedPasswd": "未设置合法的密码",
   "e-auth-login-invalid-passwd": "账户密码未通过校验",
   "e-data-InvalidScope": "你声明的数据范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
+  "e-export_data-ConfirmBigLimit": "你要导出很多数据，这可能需要一些时间，要继续吗?",
   "e-export_data-UnknownMode": "未知的导出模式",
   "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
   "e-io-forbidden": "禁止写入",
@@ -105677,17 +106443,6 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-cn/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
-  "wn-import-setup": "导入设置",
-  "wn-import-upload": "上传文件",
-  "wn-import-upload-xlsx-tip": "仅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存为 'xlsx'再上传",
-  "wn-import-c-mode-all": "全部数据",
-  "wn-import-c-mapping": "映射规则",
-  "wn-import-c-mapping-phd": "选择一种字段映射规则",
-  "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
-  "wn-import-c-expi": "暂存时间",
-  "wn-import-c-expi-tip": "上传的临时文件将在服务器端保留多久",
-  "wn-import-WithoutInput":"请上传要导入的数据文件",
-  "wn-import-confirm-many":"你要导入的数据很多，这个操作可能会需要花一些时间，你确定要继续导入吗？",
   "wn-admin-check-obj-thumb": "检查图像缩略图...",
   "wn-admin-tools": "管理工具",
   "wn-cmd-panel-epilog": "脚本执行完毕，您可以关闭本窗口了 ^_^",
@@ -105705,6 +106460,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-ctt-txt-text": "纯文本",
   "wn-ctt-wnml-text": "WNML源文件",
   "wn-ctt-xml-text": "XML文本",
+  "wn-data-scope": "指定范围",
+  "wn-data-scope-phd": "譬如: 1-100",
+  "wn-data-scope-tip": "要处理的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
   "wn-edit-com-nil": "默认为标签控件",
   "wn-en-his-ct": "创建时间",
   "wn-en-his-flt-tip": "请输入用户ID或者名称过滤",
@@ -105718,11 +106476,9 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-en-his-unm": "用户名",
   "wn-en-his-usr": "用户",
   "wn-en-his-utp": "用户类型",
-  "wn-export-c-expi": "保存时间",
-  "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
+  "wn-expi-10m": "10分钟",
   "wn-expi-12h": "12小时",
   "wn-expi-14d": "14天",
-  "wn-expi-10m": "10分钟",
   "wn-expi-1d": "1天",
   "wn-expi-1h": "1小时",
   "wn-expi-2h": "2小时",
@@ -105732,7 +106488,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-expi-6h": "6小时",
   "wn-expi-7d": "7天",
   "wn-expi-never": "永不过期",
-  "wn-export-confirm-many":"你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
+  "wn-export-c-expi": "保存时间",
+  "wn-export-c-expi-tip": "输出的临时文件将在服务器端保留多久",
   "wn-export-c-mapping": "映射规则",
   "wn-export-c-mapping-phd": "选择一种字段映射规则",
   "wn-export-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
@@ -105740,9 +106497,6 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-c-mode-all": "全部页",
   "wn-export-c-mode-checked": "选中记录",
   "wn-export-c-mode-current": "当前页",
-  "wn-data-scope": "指定范围",
-  "wn-data-scope-phd": "譬如: 1-100",
-  "wn-data-scope-tip": "要处理的数据范围，1-200 表示从第1条记录到第200条记录（包含）",
   "wn-export-c-name": "导出文件名",
   "wn-export-c-name-phd": "请输入导出文件名",
   "wn-export-c-name-tip": "导出文件名，如果没有后缀名，会自动根据【导出类型】补全",
@@ -105753,6 +106507,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-c-type-xls": "电子表格",
   "wn-export-c-type-zip": "数据压缩包",
   "wn-export-choose-fields": "选择字段",
+  "wn-export-confirm-many": "你要导出的数据很多，这个操作可能会需要较长时间，你确定要继续导出吗？",
   "wn-export-done": "完成",
   "wn-export-done-fail": "导出失败",
   "wn-export-done-fail-tip": "请点击查看错误详情",
@@ -105764,6 +106519,17 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-export-setup": "导出设置",
   "wn-fsc-mail-scene-new": "新建一个邮件场景",
   "wn-fsc-mail-tmpl-new": "请输入新邮件模板的名称(要唯一，譬如 signup)",
+  "wn-import-WithoutInput": "请上传要导入的数据文件",
+  "wn-import-c-expi": "暂存时间",
+  "wn-import-c-expi-tip": "上传的临时文件将在服务器端保留多久",
+  "wn-import-c-mapping": "映射规则",
+  "wn-import-c-mapping-phd": "选择一种字段映射规则",
+  "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
+  "wn-import-c-mode-all": "全部数据",
+  "wn-import-confirm-many": "你要导入的数据很多，这个操作可能会需要花一些时间，你确定要继续导入吗？",
+  "wn-import-setup": "导入设置",
+  "wn-import-upload": "上传文件",
+  "wn-import-upload-xlsx-tip": "仅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存为 'xlsx'再上传",
   "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",
   "wn-invalid-fsize-min": "The minimum upload file size is ${minSize}, but your file size is ${fileSize}",
   "wn-invalid-mimes": "不支持的文件内容类型 \"${current}\"，仅能支持 \"${supports}\"",
@@ -106741,6 +107507,8 @@ Ti.Preload("ti/i18n/zh-hk/wn-manager.i18n.json", {
    "wn-expose-hidden-on": "顯示隱藏的對象",
    "wn-gui": "通用佈局界面",
    "wn-list-view-type": "視圖類型",
+   "wn-manager-is-loading": "管理器正在加載數據",
+   "wn-manager-no-meta": "管理器未設置對象",
    "wn-move-to-confirm": "您確定要移動選中的${N}個項目嗎？這是一個不可撤銷的操作！",
    "wn-move-to-none": "請選擇至少一個對象進行移動!",
    "wn-move-to-ok": "已有 ${N} 個對象被移動到了新的目標",
@@ -106821,6 +107589,13 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "add": "添加",
    "add-item": "添加新項",
    "add-now": "立即添加",
+   "add-watch": "添加監控",
+   "add-watch-clear": "清除全部監控",
+   "add-watch-create": "建立新監控",
+   "add-watch-create-tip": "請輸入監控名稱",
+   "add-watch-exists": "這個名字已經存在了，請換一個",
+   "add-watch-remove": "刪除當前監控",
+   "add-watch-tip": "將當前的搜索條件保存到本地存儲",
    "album": "相冊",
    "album-add": "添加相冊",
    "album-clrsz": "清除相冊尺寸",
@@ -106947,6 +107722,7 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
    "e-auth-login-NoSaltedPasswd": "未設置合法的密碼",
    "e-auth-login-invalid-passwd": "賬戶密碼未通過校驗",
    "e-data-InvalidScope": "你聲明的數據範圍格式不正確，正確的格式類似：1-20 但是你卻輸入了：",
+   "e-export_data-ConfirmBigLimit": "你要導出很多數據，這可能需要一些時間，要繼續嗎?",
    "e-export_data-UnknownMode": "未知的導出模式",
    "e-form-incomplete": "表單缺失必要字段: 【${title|name}】 ${tip?}",
    "e-io-forbidden": "禁止寫入",
@@ -107320,17 +108096,6 @@ Ti.Preload("ti/i18n/zh-hk/_ti.i18n.json", {
 // JOIN <_wn.i18n.json> ti/i18n/zh-hk/_wn.i18n.json
 //========================================
 Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
-   "wn-import-setup": "導入設置",
-   "wn-import-upload": "上傳文件",
-   "wn-import-upload-xlsx-tip": "僅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存爲 'xlsx'再上傳",
-   "wn-import-c-mode-all": "全部數據",
-   "wn-import-c-mapping": "映射規則",
-   "wn-import-c-mapping-phd": "選擇一種字段映射規則",
-   "wn-import-c-mapping-tip": "所謂映射規則，就是字段輸出時的轉換的規則，包括如何指定字段名稱，字段值如何轉換等",
-   "wn-import-c-expi": "暫存時間",
-   "wn-import-c-expi-tip": "上傳的臨時文件將在服務器端保留多久",
-   "wn-import-WithoutInput": "請上傳要導入的數據文件",
-   "wn-import-confirm-many": "你要導入的數據很多，這個操作可能會需要花一些時間，你確定要繼續導入嗎？",
    "wn-admin-check-obj-thumb": "檢查圖像縮略圖...",
    "wn-admin-tools": "管理工具",
    "wn-cmd-panel-epilog": "腳本執行完畢，您可以關閉本窗口了 ^_^",
@@ -107348,6 +108113,9 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-ctt-txt-text": "純文本",
    "wn-ctt-wnml-text": "WNML源文件",
    "wn-ctt-xml-text": "XML文本",
+   "wn-data-scope": "指定範圍",
+   "wn-data-scope-phd": "譬如: 1-100",
+   "wn-data-scope-tip": "要處理的數據範圍，1-200 表示從第1條記錄到第200條記錄（包含）",
    "wn-edit-com-nil": "默認爲標籤控件",
    "wn-en-his-ct": "創建時間",
    "wn-en-his-flt-tip": "請輸入用戶ID或者名稱過濾",
@@ -107361,11 +108129,9 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-en-his-unm": "用戶名",
    "wn-en-his-usr": "用戶",
    "wn-en-his-utp": "用戶類型",
-   "wn-export-c-expi": "保存時間",
-   "wn-export-c-expi-tip": "輸出的臨時文件將在服務器端保留多久",
+   "wn-expi-10m": "10分鐘",
    "wn-expi-12h": "12小時",
    "wn-expi-14d": "14天",
-   "wn-expi-10m": "10分鐘",
    "wn-expi-1d": "1天",
    "wn-expi-1h": "1小時",
    "wn-expi-2h": "2小時",
@@ -107375,7 +108141,8 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-expi-6h": "6小時",
    "wn-expi-7d": "7天",
    "wn-expi-never": "永不過期",
-   "wn-export-confirm-many": "你要導出的數據很多，這個操作可能會需要較長時間，你確定要繼續導出嗎？",
+   "wn-export-c-expi": "保存時間",
+   "wn-export-c-expi-tip": "輸出的臨時文件將在服務器端保留多久",
    "wn-export-c-mapping": "映射規則",
    "wn-export-c-mapping-phd": "選擇一種字段映射規則",
    "wn-export-c-mapping-tip": "所謂映射規則，就是字段輸出時的轉換的規則，包括如何指定字段名稱，字段值如何轉換等",
@@ -107383,9 +108150,6 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-export-c-mode-all": "全部頁",
    "wn-export-c-mode-checked": "選中記錄",
    "wn-export-c-mode-current": "當前頁",
-   "wn-data-scope": "指定範圍",
-   "wn-data-scope-phd": "譬如: 1-100",
-   "wn-data-scope-tip": "要處理的數據範圍，1-200 表示從第1條記錄到第200條記錄（包含）",
    "wn-export-c-name": "導出文件名",
    "wn-export-c-name-phd": "請輸入導出文件名",
    "wn-export-c-name-tip": "導出文件名，如果沒有後綴名，會自動根據【導出類型】補全",
@@ -107396,6 +108160,7 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-export-c-type-xls": "電子表格",
    "wn-export-c-type-zip": "數據壓縮包",
    "wn-export-choose-fields": "選擇字段",
+   "wn-export-confirm-many": "你要導出的數據很多，這個操作可能會需要較長時間，你確定要繼續導出嗎？",
    "wn-export-done": "完成",
    "wn-export-done-fail": "導出失敗",
    "wn-export-done-fail-tip": "請點擊查看錯誤詳情",
@@ -107407,6 +108172,17 @@ Ti.Preload("ti/i18n/zh-hk/_wn.i18n.json", {
    "wn-export-setup": "導出設置",
    "wn-fsc-mail-scene-new": "新建一個郵件場景",
    "wn-fsc-mail-tmpl-new": "請輸入新郵件模板的名稱(要唯一，譬如 signup)",
+   "wn-import-WithoutInput": "請上傳要導入的數據文件",
+   "wn-import-c-expi": "暫存時間",
+   "wn-import-c-expi-tip": "上傳的臨時文件將在服務器端保留多久",
+   "wn-import-c-mapping": "映射規則",
+   "wn-import-c-mapping-phd": "選擇一種字段映射規則",
+   "wn-import-c-mapping-tip": "所謂映射規則，就是字段輸出時的轉換的規則，包括如何指定字段名稱，字段值如何轉換等",
+   "wn-import-c-mode-all": "全部數據",
+   "wn-import-confirm-many": "你要導入的數據很多，這個操作可能會需要花一些時間，你確定要繼續導入嗎？",
+   "wn-import-setup": "導入設置",
+   "wn-import-upload": "上傳文件",
+   "wn-import-upload-xlsx-tip": "僅支持 'xlsx' 文件，如果是 'xls' 文件，你需要另存爲 'xlsx'再上傳",
    "wn-invalid-fsize-max": "The maximum upload file size is ${maxSize}, but your file size is ${fileSize}",
    "wn-invalid-fsize-min": "The minimum upload file size is ${minSize}, but your file size is ${fileSize}",
    "wn-invalid-mimes": "不支持的文件內容類型 \"${current}\"，僅能支持 \"${supports}\"",

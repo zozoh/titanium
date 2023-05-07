@@ -754,14 +754,42 @@ $GUI-BLOCK-HEADER-HEIGHT: SZ(43);
   //-------------------------------------
   > .ti-gui-grid-drag-bar {
     position: absolute;
-    background-color: map-get($color-mask, weak);
+    background-color: map-get($color-mask, thin);
+    //background-color: map-get($color-secondary, c);
+    //-----------------------------------
+    > div {
+      @include flex-center;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      > a {
+        @include color($color-mask, r, thin);
+        @include flex-center;
+        position: absolute;
+        font-size: SZ(16);
+        width: SZ(32);
+        height: SZ(32);
+        cursor: pointer;
+        &:hover {
+          @include color($color-secondary, r, c);
+        }
+      }
+    }
     //-----------------------------------
     &.as-column {
       cursor: col-resize;
+      > div > a {
+        bottom: 0;
+        border-radius: 50% 50% 0 0;
+      }
     }
     //-----------------------------------
     &.as-row {
       cursor: row-resize;
+      > div > a {
+        right: 0;
+        border-radius: 50% 0 0 50%;
+      }
     }
     //-----------------------------------
   }

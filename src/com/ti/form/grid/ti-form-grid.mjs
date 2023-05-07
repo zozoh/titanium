@@ -331,7 +331,7 @@ const _M = {
       if (!_.isEmpty(setup)) {
         return _.assign(
           {
-            className: "btn-r4",
+            className: `btn-r4 at-${this.actionAlign}`,
             size: "tiny" == this.spacing ? "tiny" : "small",
             setup
           },

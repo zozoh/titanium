@@ -27,6 +27,12 @@
     class="ti-gui-grid-drag-bar"
     :class="DragBarClass"
     :style="DragBarStyle"
-  ></div>
+  >
+    <div>
+      <a @mousedown.stop="OnResetTracks" data-ti-tip="Reset to default layout"
+        ><i class="zmdi zmdi-time-restore"></i
+      ></a>
+    </div>
+  </div>
   <div v-if="isDragging" class="ti-gui-dragging-mask"></div>
 </div>

@@ -8,6 +8,10 @@ export default {
     myView: undefined, // Rect
     myGrid: {
       /*columns,rows,lineV,lineH */
+    },
+    myCustomizedTracks: {
+      /*columns:[...],
+      rows:[...]*/
     }
   }),
   /////////////////////////////////////////
@@ -48,38 +52,54 @@ export default {
           "grid-gap": "1px"
         });
       }
+      //
+      // patch customized track columns/rows
+      //
+      if (this.myCustomizedTracks) {
+        let { columns, rows } = this.myCustomizedTracks;
+        if (!_.isEmpty(columns)) {
+          re["grid-template-columns"] = columns.join(" ");
+        }
+        if (!_.isEmpty(rows)) {
+          re["grid-template-rows"] = rows.join(" ");
+        }
+      }
+      //
       // patch columns/rows setting during dragging
+      //
       if (this.isDragging && this.myTrackScales) {
         let cssProp = {
           column: "grid-template-columns",
           row: "grid-template-rows"
         }[this.myDragArea.type];
 
-        let autoIxs = {
-          column: this.AutoColTrackIndexes,
-          row: this.AutoRowTrackIndexes
-        }[this.myDragArea.type];
+        // auto 有毒， 还是不要这么搞了，这个逻辑没用了应该
+        // let autoIxs = {
+        //   column: this.AutoColTrackIndexes,
+        //   row: this.AutoRowTrackIndexes
+        // }[this.myDragArea.type];
 
         let scales = _.map(this.myTrackScales, (v, index) => {
-          if (_.indexOf(autoIxs, index) >= 0) {
-            return "auto";
-          }
+          // if (_.indexOf(autoIxs, index) >= 0) {
+          //   return "auto";
+          // }
           return v;
         });
         re[cssProp] = scales.join(" ");
       }
       return re;
-    },
-    //--------------------------------------
-    AutoColTrackIndexes() {
-      return this.getAutoTrackIndexes(
-        _.get(this.grid, "grid-template-columns")
-      );
-    },
-    //--------------------------------------
-    AutoRowTrackIndexes() {
-      return this.getAutoTrackIndexes(_.get(this.grid, "grid-template-rows"));
     }
+    //--------------------------------------
+    // auto 有毒， 还是不要这么搞了，这两个函数没用了应该
+    // AutoColTrackIndexes() {
+    //   return this.getAutoTrackIndexes(
+    //     _.get(this.grid, "grid-template-columns")
+    //   );
+    // },
+    //--------------------------------------
+    // AutoRowTrackIndexes() {
+    //   return this.getAutoTrackIndexes(_.get(this.grid, "grid-template-rows"));
+    // }
     //--------------------------------------
   },
   //////////////////////////////////////////
@@ -87,6 +107,21 @@ export default {
     //--------------------------------------
     OnResize() {
       this.debounceEvalGridMeasure();
+    },
+    //--------------------------------------
+    OnResetTracks() {
+      this.LOG("OnResetTracks");
+      this.clearDragging();
+      Ti.Viewport.resize();
+      this.myCustomizedTracks = {};
+    },
+    //--------------------------------------
+    clearDragging() {
+      this.isDragging = false;
+      this.myDragX = undefined;
+      this.myDragY = undefined;
+      this.myDragArea = undefined;
+      this.myTrackScales = undefined;
     },
     //--------------------------------------
     getAutoTrackIndexes(track) {
@@ -305,6 +340,24 @@ export default {
       _.delay(() => {
         this.evalGridMeasure();
       }, 100);
+    },
+    //--------------------------------------
+    trySaveLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let tracks = _.isEmpty(this.myCustomizedTracks)
+          ? null
+          : this.myCustomizedTracks;
+        Ti.Storage.local.setObject(this.keepCustomizedTo, tracks);
+      }
+    },
+    //--------------------------------------
+    tryRestoreLocalCustomized() {
+      if (this.keepCustomizedTo) {
+        let tracks = Ti.Storage.local.getObject(this.keepCustomizedTo);
+        if (!_.isEmpty(tracks)) {
+          this.myCustomizedTracks = tracks;
+        }
+      }
     }
     //--------------------------------------
   },
@@ -328,6 +381,7 @@ export default {
       }
     });
     this.tryEvalGridMeasure();
+    this.tryRestoreLocalCustomized();
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {

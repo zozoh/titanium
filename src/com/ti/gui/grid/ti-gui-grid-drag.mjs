@@ -101,7 +101,6 @@ export default {
       return {
         trigger: ".ti-gui-grid-drag-bar",
         prepare: (ctx, evt) => {
-          evt.stopPropagation();
           this.isDragging = true;
           let mk = Ti.Dom.hasClass(ctx.$trigger, "as-column") ? "x" : "y";
           ctx.axisMode = mk;
@@ -152,17 +151,21 @@ export default {
         done: (ctx) => {
           //console.log("dragging done");
           // Save customized
-          // TODO this.trySaveLocalCustomized();
+          let { axisMode } = ctx;
+          let cuKey = {
+            x: "columns",
+            y: "rows"
+          }[axisMode];
+          let tracks = _.assign({}, this.myCustomizedTracks);
+          tracks[cuKey] = _.cloneDeep(this.myTrackScales);
+          this.myCustomizedTracks = tracks;
+          this.trySaveLocalCustomized();
           // Notify whole window resizing
           Ti.Viewport.resize();
         },
         finished: (ctx) => {
           // Reset mark
-          this.isDragging = false;
-          this.myDragX = undefined;
-          this.myDragY = undefined;
-          this.myDragArea = undefined;
-          this.myTrackScales = undefined;
+          this.clearDragging();
         }
       };
     }
@@ -193,6 +196,7 @@ export default {
       // if (area) {
       //   this.LOG(`AREA=${area.index} : X=${pageX},Y=${pageY} : ${area.rect}`);
       // }
+      // if (area)
       this.myDragArea = area;
     }
     //--------------------------------------

@@ -4,78 +4,87 @@
   -->
   <div
     v-if="hasMeta"
-      class="wop-con"
-      v-drop-files.mask="UploadDragAndDropHandler">
-      <!--
+    class="wop-con"
+    v-drop-files.mask="UploadDragAndDropHandler"
+  >
+    <!--
         Main View
       -->
-      <component class="as-main"
-        :is="PreviewCom.comType"
-        v-bind="PreviewCom.comConf"/>
-      <!--
+    <component
+      class="as-main"
+      :is="PreviewCom.comType"
+      v-bind="PreviewCom.comConf"
+    />
+    <!--
         ActionBar at top
       -->
-      <div class="as-abar">
-        <ul>
-          <li v-for="it in TheActions"
-            @click.left="OnAction(it.action)">
-            <ti-icon class="it-icon" :value="it.icon"/>
-          </li>
-        </ul>
-      </div>
-      <!--
+    <div class="as-abar">
+      <ul>
+        <li
+          v-for="it in TheActions"
+          :data-ti-tip="it.text"
+          data-ti-tip-mode="V"
+          @click.left="OnAction(it.action)"
+        >
+          <ti-icon class="it-icon" :value="it.icon" />
+        </li>
+      </ul>
+    </div>
+    <!--
         Meta at bottom
       -->
-      <div class="as-info" v-if="isShowInfo">
-        <!--
+    <div class="as-info" v-if="isShowInfo">
+      <!--
           Head
         -->
-        <div class="info-head">
-          <!--Pin Status Icon-->
-          <span class="it-icon" @click.left="toggleInfoFloat">
-            <ti-icon :value="PreviewInfoPinIcon"/>
-          </span>
-          <!--Head text-->
-          <span class="it-text">{{'i18n:info'|i18n}}</span>
-          <!--Edit Button-->
-          <span class="it-edit"
-            @click.left="OnEditInfo">{{'i18n:edit'|i18n}}</span>
-        </div>
-        <!--
-          Fields
-        -->
-        <div class="info-field-con">
-          <wn-obj-preview-info-field
-            v-for="fld in PrevewInfoFields"
-            :key="fld.name"
-            v-bind="fld"
-            :data="meta"/>
-        </div>
+      <div class="info-head">
+        <!--Pin Status Icon-->
+        <span class="it-icon" @click.left="toggleInfoFloat">
+          <ti-icon :value="PreviewInfoPinIcon" />
+        </span>
+        <!--Head text-->
+        <span class="it-text">{{'i18n:info'|i18n}}</span>
+        <!--Edit Button-->
+        <span class="it-edit" @click.left="OnEditInfo"
+          >{{'i18n:edit'|i18n}}</span
+        >
       </div>
       <!--
+          Fields
+        -->
+      <div class="info-field-con">
+        <wn-obj-preview-info-field
+          v-for="fld in PrevewInfoFields"
+          :key="fld.name"
+          v-bind="fld"
+          :data="meta"
+        />
+      </div>
+    </div>
+    <!--
         Process bar
       -->
-      <div class="as-progress" v-if="uploading>0">
-        <TiProgressBar
-          class="fs-lg tip-mask"
-          :value="uploading"/>
-      </div>
-      <!--==================================
+    <div class="as-progress" v-if="uploading>0">
+      <TiProgressBar class="fs-lg tip-mask" :value="uploading" />
+    </div>
+    <!--==================================
         Hidden file upload control
       -->
-      <input 
-        type="file" 
-        ref="file" 
-        class="ti-hide"
-        :accept="MetaMime"
-        @change.stop.seft="OnSelectLocalFilesToUpload">
+    <input
+      type="file"
+      ref="file"
+      class="ti-hide"
+      :accept="MetaMime"
+      @change.stop.seft="OnSelectLocalFilesToUpload"
+    />
   </div>
   <!--
     Blank 
   -->
   <ti-loading
     v-else
-      v-bind="blankAs"
-      class="ti-fill-parent"
-      :class="blankClass"/>
+    v-bind="blankAs"
+    class="ti-fill-parent"
+    :class="blankClass"
+  />
 </div>

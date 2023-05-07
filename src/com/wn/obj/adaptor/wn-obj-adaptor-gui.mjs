@@ -20,7 +20,7 @@ const _M = {
               "blocks": [
                 {
                   "name": "filter",
-                  "size": 43,
+                  "size": "auto",
                   "body": "filter"
                 },
                 {
@@ -57,11 +57,6 @@ const _M = {
             "filter": "=filter",
             "sorter": "=sorter",
             "dialog": {
-              "icon": "fas-search",
-              "title": "i18n:search-adv",
-              "position": "top",
-              "width": "6.4rem",
-              "height": "90%"
             },
             "majors": [],
             "matchKeywords": [

@@ -2,14 +2,16 @@
   "comType": "ti-gui",
   "comConf": {
     "keepShownTo": "gui_grid_0_status",
+    "defaultFlex": "none",
     "layout": {
       "type": "grid",
       "border": false,
       "card": "comfy",
+      "keepCustomizedTo": "Demo-Gui-Grid-Tracks0",
       "grid": {
         "grid-template-columns": "30% auto 20%",
-        "grid-template-rows": "1fr 50% 1fr",
-        "grid-auto-rows": "1fr",
+        "grid-template-rows": "auto 1fr auto",
+        "grid-auto-rows": "auto",
         "grid-gap":".1rem",
         "padding":".1rem"
       },
@@ -17,6 +19,9 @@
         {
           "body": {
             "comConf": {
+              "style": {
+                "height":".5rem"
+              },
               "value": "LOGO"
             }
           }

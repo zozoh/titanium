@@ -21,6 +21,7 @@
       <header
         v-if="hasTitle"
           class="form-title"
+          :class="titleClass"
           :spacing="spacing"
           :mode="FormMode">
           <span v-if="icon" class="title-icon"><ti-icon :value="icon"/></span>

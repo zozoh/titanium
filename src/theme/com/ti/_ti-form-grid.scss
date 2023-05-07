@@ -79,6 +79,9 @@
       .title-icon {
         margin-right: SZ(6);
       }
+      &.at-top-left {
+        margin: 0;
+      }
     }
     //------------------------------------
     &[spacing="comfy"] {
@@ -88,6 +91,17 @@
       .title-icon {
         margin-right: SZ(10);
       }
+      &.at-top-left {
+        margin: 0;
+      }
+      &.at-top-left {
+        margin: 0;
+      }
+    }
+    //------------------------------------
+    &.at-top-left {
+      @include pos-abs($t: 0, $l: 0);
+      margin: 0;
     }
     //------------------------------------
   }

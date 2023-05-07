@@ -253,6 +253,10 @@ export default {
     type: String,
     default: undefined
   },
+  "titleClass": {
+    type: String,
+    default: undefined
+  },
   "statusIcons": {
     type: Object,
     default: () => ({
@@ -285,6 +289,11 @@ export default {
     type: String,
     default: "bottom",
     validator: (v) => /^(top|bottom)$/.test(v)
+  },
+  "actionAlign": {
+    type: String,
+    default: "center",
+    validator: (v) => /^(left|center|right)$/.test(v)
   },
   "setupMenuAt": {
     type: String,

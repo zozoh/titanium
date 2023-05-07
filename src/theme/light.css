@@ -2894,12 +2894,23 @@ i.im {
       margin: 0.06rem 0 0 0; }
       .ti-form-grid > header.form-title[spacing="tiny"] .title-icon {
         margin-right: 0.06rem; }
+      .ti-form-grid > header.form-title[spacing="tiny"].at-top-left {
+        margin: 0; }
     .ti-form-grid > header.form-title[spacing="comfy"] {
       font-size: 1.4em;
       padding: 0.12rem;
       margin: 0.12rem 0 0 0; }
       .ti-form-grid > header.form-title[spacing="comfy"] .title-icon {
         margin-right: 0.1rem; }
+      .ti-form-grid > header.form-title[spacing="comfy"].at-top-left {
+        margin: 0; }
+      .ti-form-grid > header.form-title[spacing="comfy"].at-top-left {
+        margin: 0; }
+    .ti-form-grid > header.form-title.at-top-left {
+      position: absolute;
+      left: 0;
+      top: 0;
+      margin: 0; }
   .ti-form-grid > main.form-main {
     flex: 1 1 auto;
     padding: 1px; }
@@ -4125,11 +4136,42 @@ i.im {
       overflow: hidden; }
   .ti-gui-grid > .ti-gui-grid-drag-bar {
     position: absolute;
-    background-color: rgba(220, 220, 220, 0.3); }
+    background-color: rgba(50, 50, 50, 0.372); }
+    .ti-gui-grid > .ti-gui-grid-drag-bar > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      position: relative;
+      width: 100%;
+      height: 100%; }
+      .ti-gui-grid > .ti-gui-grid-drag-bar > div > a {
+        color: #cce8ff;
+        background-color: rgba(50, 50, 50, 0.372);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        align-content: center;
+        flex-wrap: wrap;
+        position: absolute;
+        font-size: 0.16rem;
+        width: 0.32rem;
+        height: 0.32rem;
+        cursor: pointer; }
+        .ti-gui-grid > .ti-gui-grid-drag-bar > div > a:hover {
+          color: #FFF;
+          background-color: #ff4081; }
     .ti-gui-grid > .ti-gui-grid-drag-bar.as-column {
       cursor: col-resize; }
+      .ti-gui-grid > .ti-gui-grid-drag-bar.as-column > div > a {
+        bottom: 0;
+        border-radius: 50% 50% 0 0; }
     .ti-gui-grid > .ti-gui-grid-drag-bar.as-row {
       cursor: row-resize; }
+      .ti-gui-grid > .ti-gui-grid-drag-bar.as-row > div > a {
+        right: 0;
+        border-radius: 50% 0 0 50%; }
 
 .ti-icon {
   display: flex;
