@@ -76,7 +76,7 @@ const _M = {
     // Do Create
     let cmdText = cmds.join(" ");
     let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" });
-    console.log(newMeta);
+    //console.log(newMeta);
     if (newMeta && !(newMeta instanceof Error)) {
       // Append To Search List as the first
       commit("prependListItem", newMeta);

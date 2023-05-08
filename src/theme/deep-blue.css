@@ -963,7 +963,7 @@ i.im {
       padding: 0 0.6em;
       height: 2.4em;
       line-height: 2.4em;
-      border-radius: 0.04rem; }
+      border-radius: 0.06rem; }
       .ti-actionbar .bar-item-info.is-top.has-icon > .as-text {
         margin-left: 0.4em; }
     .ti-actionbar .bar-item-info.is-sub {
@@ -1438,7 +1438,7 @@ i.im {
         color: #e6e6e8;
         background-color: #272e48;
         border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 0.04rem;
+        border-radius: 0.06rem;
         margin: 0 0.25em;
         padding: 0 0.5em;
         line-height: 2.3em;
@@ -2209,7 +2209,7 @@ i.im {
     z-index: 10001;
     position: fixed;
     overflow: auto;
-    border-radius: 0.04rem; }
+    border-radius: 0.06rem; }
 
 .ti-combo-filter {
   display: flex;
@@ -4089,7 +4089,7 @@ i.im {
   padding: 0.08rem; }
   .ti-gui-cols[card="comfy"] > .ti-gui-block.inside-nocard > .block-con,
   .ti-gui-rows[card="comfy"] > .ti-gui-block.inside-nocard > .block-con {
-    border-radius: 0.04rem;
+    border-radius: 0.06rem;
     overflow: hidden; }
 .ti-gui-cols[card="normal"].no-outside-card-layout,
 .ti-gui-rows[card="normal"].no-outside-card-layout {
@@ -4099,7 +4099,7 @@ i.im {
   padding: 0.06rem; }
   .ti-gui-cols[card="normal"] > .ti-gui-block.inside-nocard > .block-con,
   .ti-gui-rows[card="normal"] > .ti-gui-block.inside-nocard > .block-con {
-    border-radius: 0.04rem;
+    border-radius: 0.06rem;
     overflow: hidden; }
 .ti-gui-cols[card="tiny"].no-outside-card-layout,
 .ti-gui-rows[card="tiny"].no-outside-card-layout {
@@ -4109,7 +4109,7 @@ i.im {
   padding: 0.04rem; }
   .ti-gui-cols[card="tiny"] > .ti-gui-block.inside-nocard > .block-con,
   .ti-gui-rows[card="tiny"] > .ti-gui-block.inside-nocard > .block-con {
-    border-radius: 0.04rem;
+    border-radius: 0.06rem;
     overflow: hidden; }
 
 .ti-gui-grid {
@@ -4126,13 +4126,13 @@ i.im {
         background-color: #FFF;
         box-shadow: 0.01rem 0.01rem 0.04rem rgba(20, 20, 20, 0.2); }
     .ti-gui-grid > main[card="comfy"] > .ti-gui-block.inside-nocard > .block-con {
-      border-radius: 0.08rem;
+      border-radius: 0.12rem;
       overflow: hidden; }
     .ti-gui-grid > main[card="normal"] > .ti-gui-block.inside-nocard > .block-con {
-      border-radius: 0.06rem;
+      border-radius: 0.09rem;
       overflow: hidden; }
     .ti-gui-grid > main[card="tiny"] > .ti-gui-block.inside-nocard > .block-con {
-      border-radius: 0.04rem;
+      border-radius: 0.06rem;
       overflow: hidden; }
   .ti-gui-grid > .ti-gui-grid-drag-bar {
     position: absolute;
@@ -4603,7 +4603,7 @@ i.im {
   align-content: center;
   flex-wrap: nowrap;
   border: 1px solid rgba(20, 20, 20, 0.1);
-  border-radius: 0.04rem;
+  border-radius: 0.06rem;
   overflow: hidden;
   border-left: 0;
   border-right: 0; }
@@ -4797,7 +4797,7 @@ div.ti-input-tags {
   flex-wrap: nowrap;
   color: #444;
   background-color: #FFF;
-  border-radius: 0.04rem;
+  border-radius: 0.06rem;
   min-height: 2.4em;
   min-width: 0.5rem;
   overflow: hidden; }
@@ -7644,7 +7644,7 @@ div.ti-input-tags {
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
-  border-radius: 0.04rem;
+  border-radius: 0.06rem;
   overflow: hidden; }
   .ti-switcher > .switcher-con {
     display: flex;
@@ -9066,7 +9066,7 @@ div.ti-input-tags {
   line-height: 2em; }
 
 .ti-upload-file-box {
-  border-radius: 0.04rem;
+  border-radius: 0.06rem;
   overflow: hidden; }
   .ti-upload-file-box.show-border {
     border: 1px solid rgba(20, 20, 20, 0.1); }
