@@ -7,55 +7,23 @@
       "type": "grid",
       "border": false,
       "card": "comfy",
+      "adjustMode": "both",
       "keepCustomizedTo": "Demo-Gui-Grid-Tracks0",
       "grid": {
-        "grid-template-columns": "30% auto 20%",
-        "grid-template-rows": "auto 1fr auto",
+        "grid-template-columns": "61.8% auto",
+        "grid-template-rows": "30% 30%",
         "grid-auto-rows": "auto",
-        "grid-gap":".1rem",
-        "padding":".1rem"
+        "grid-gap": ".1rem",
+        "padding": ".1rem",
+        "overflow": "auto"
       },
       "blocks": [
-        {
-          "body": {
-            "comConf": {
-              "style": {
-                "height":".5rem"
-              },
-              "value": "LOGO"
-            }
-          }
-        },
-        {
-          "body": {
-            "comConf": {
-              "value": "TITLE"
-            }
-          }
-        },
-        {
-          "body": {
-            "comConf": {
-              "value": "MENU"
-            }
-          }
-        },
-        {
-          "body": {
-            "comConf": {
-              "value": "NAV"
-            }
-          }
-        },
+ 
         {
           "style": {
-            "grid-column-end": "span 2"
+            "grid-row-end": "span 2"
           },
-          "body": {
-            "comConf": {
-              "value": "ARENA"
-            }
-          }
+          "body": "arena"
         },
         {
           "body": {
@@ -80,6 +48,127 @@
         }
       ]
     },
-    "schema": {}
+    "schema": {
+      "arena": {
+        "comType": "TiForm",
+        "comConf": {
+          "fields": [
+            {
+              "title": "ID",
+              "name": "id",
+              "comType": "WnObjId"
+            },
+            {
+              "title": "statecode",
+              "name": "statecode",
+              "type": "Integer",
+              "comType": "TiInputNum"
+            },
+            {
+              "title": "statuscode",
+              "name": "statuscode",
+              "type": "Integer",
+              "comType": "TiInputNum"
+            },
+            {
+              "title": "GUID",
+              "name": "guid",
+              "comConf": {
+                "className": "is-nowrap"
+              }
+            },
+            {
+              "title": "Code",
+              "name": "code",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Type",
+              "name": "type",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Name",
+              "name": "name",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Title",
+              "name": "title",
+              "comType": "TiInput"
+            },
+            {
+              "title": "NameFirst",
+              "name": "name_first",
+              "comType": "TiInput"
+            },
+            {
+              "title": "NameSecond",
+              "name": "name_second",
+              "comType": "TiInput"
+            },
+            {
+              "title": "NameFamily",
+              "name": "name_family",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Suffix",
+              "name": "suffix",
+              "comType": "TiInput"
+            },
+            {
+              "title": "DOB",
+              "name": "dob",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Gender",
+              "name": "gender",
+              "comType": "TiInput"
+            },
+            {
+              "title": "EvidenceID",
+              "name": "evidence_id",
+              "comType": "TiInput"
+            },
+            {
+              "title": "EXDOCUser",
+              "name": "exdocuser",
+              "comType": "TiInput"
+            },
+            {
+              "title": "NameOther",
+              "name": "name_other",
+              "comType": "TiInput"
+            },
+            {
+              "title": "UNLOCO",
+              "name": "unloco",
+              "comType": "TiInput"
+            },
+            {
+              "title": "LOAReceived",
+              "name": "loareceived",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Website",
+              "name": "website",
+              "comType": "TiInput"
+            },
+            {
+              "title": "Keywords",
+              "name": "keywords",
+              "colSpan": 10,
+              "comConf": {
+                "className": "is-nowrap",
+                "editable": true
+              }
+            }
+          ]
+        }
+      }
+    }
   }
 }

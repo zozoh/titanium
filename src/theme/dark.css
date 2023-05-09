@@ -7437,8 +7437,9 @@ div.ti-input-tags {
           bottom: -1px;
           min-height: 0.28rem;
           z-index: 1; }
-          .ti-sheet-table > .sheet-con > table td.as-row-cell .as-cell-editor .ti-input {
-            min-height: unset; }
+          .ti-sheet-table > .sheet-con > table td.as-row-cell .as-cell-editor.ti-input {
+            min-height: unset;
+            border-radius: 0; }
           .ti-sheet-table > .sheet-con > table td.as-row-cell .as-cell-editor .as-input-icon.at-prefix {
             width: 0.18rem;
             font-size: 0.1rem; }

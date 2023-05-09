@@ -190,8 +190,14 @@ export default {
         }
       }
 
+      let amode = this.adjustMode;
+
       // found area
-      let area = _.find(this.myWatchAreas, (area) => area.rect.hasPoint(point));
+      let area = _.find(this.myWatchAreas, (area) => {
+        if ("both" == amode || amode == area.type) {
+          return area.rect.hasPoint(point);
+        }
+      });
 
       // if (area) {
       //   this.LOG(`AREA=${area.index} : X=${pageX},Y=${pageY} : ${area.rect}`);

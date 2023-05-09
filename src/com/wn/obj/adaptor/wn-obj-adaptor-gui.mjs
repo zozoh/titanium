@@ -1,8 +1,7 @@
 /////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////
-  data: () => ({
-  }),
+  data: () => ({}),
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
@@ -10,13 +9,15 @@ const _M = {
       return {
         desktop: {
           "type": "cols",
-          "border": true,
+          "border": false,
+          "card": "normal",
           "blocks": [
             {
               "name": "search",
               "size": "62%",
               "type": "rows",
-              "border": true,
+              "border": false,
+              "card": "normal",
               "blocks": [
                 {
                   "name": "filter",
@@ -40,11 +41,12 @@ const _M = {
               "name": "meta",
               "size": "stretch",
               "body": "meta"
-            }]
+            }
+          ]
         },
         tablet: "desktop",
         phone: "desktop"
-      }
+      };
     },
     //--------------------------------------
     GuiStdSchema() {
@@ -56,8 +58,7 @@ const _M = {
             "placeholder": "i18n:search",
             "filter": "=filter",
             "sorter": "=sorter",
-            "dialog": {
-            },
+            "dialog": {},
             "majors": [],
             "matchKeywords": [
               {
@@ -127,7 +128,7 @@ const _M = {
                     type: "text",
                     className: "as-circle is-track as-label-60 ",
                     value: obj.sort || 0
-                  }
+                  };
                 }
               }
             },
@@ -138,9 +139,9 @@ const _M = {
             },
             "itemStatus": "=itemStatus",
             "afterUpload": async (checkedIds) => {
-              let currentId = _.first(checkedIds)
-              await this.dispatch("queryList")
-              await this.dispatch("selectMeta", { currentId, checkedIds })
+              let currentId = _.first(checkedIds);
+              await this.dispatch("queryList");
+              await this.dispatch("selectMeta", { currentId, checkedIds });
             }
           }
         },
@@ -158,7 +159,7 @@ const _M = {
             "fieldStatus": "=fieldStatus"
           }
         }
-      }
+      };
     },
     //--------------------------------------
     GuiExplainContext() {
@@ -188,65 +189,65 @@ const _M = {
         exposeHidden: this.exposeHidden,
         //------------------------------
         ...this.getters
-      }
+      };
     },
     //--------------------------------------
     GuiLayout() {
-      let c = this.GuiExplainContext
-      let layout = this.layout
+      let c = this.GuiExplainContext;
+      let layout = this.layout;
       if (_.isEmpty(layout)) {
-        layout = this.GuiStdLayout
+        layout = this.GuiStdLayout;
       }
-      return Ti.Util.explainObj(c, layout)
+      return Ti.Util.explainObj(c, layout);
     },
     //--------------------------------------
     GuiSchema() {
-      let c = this.GuiExplainContext
-      let names = _.keys(this.GuiStdSchema)
-      _.forEach(this.schema, (_, k) => names.push(k))
-      names = _.uniq(names)
+      let c = this.GuiExplainContext;
+      let names = _.keys(this.GuiStdSchema);
+      _.forEach(this.schema, (_, k) => names.push(k));
+      names = _.uniq(names);
 
       // Merge schame
-      let schema = {}
+      let schema = {};
       for (let bodyName of names) {
         // Guard
         if (/^(components|localBehaviorKeepAt|events)$/.test(bodyName)) {
-          continue
+          continue;
         }
         // Merge from std schema
-        let com = _.cloneDeep(this.GuiStdSchema[bodyName]) || {}
-        _.defaults(com, { comConf: {} })
+        let com = _.cloneDeep(this.GuiStdSchema[bodyName]) || {};
+        _.defaults(com, { comConf: {} });
 
         // Get customized configration
-        let cus = _.get(this.schema, bodyName)
+        let cus = _.get(this.schema, bodyName);
         if (cus && !_.isEmpty(cus)) {
-          schema[bodyName] = com
+          schema[bodyName] = com;
           let { comType, comConf, mergeMode = "merge" } = cus;
           // ComType
-          com.comType = comType || com.comType
+          com.comType = comType || com.comType;
           // ComConf
           if ("merge" == mergeMode) {
-            _.merge(com.comConf, comConf)
+            _.merge(com.comConf, comConf);
           }
           // Assign
           else if ("assign" == mergeMode) {
-            _.assign(com.comConf, comConf)
+            _.assign(com.comConf, comConf);
           }
           // Reset
           else {
-            com.comConf = comConf
+            com.comConf = comConf;
           }
         }
 
         // Join to schema
-        schema[bodyName] = com
+        schema[bodyName] = com;
       }
 
-      return Ti.Util.explainObj(c, schema)
+      return Ti.Util.explainObj(c, schema);
     },
     //--------------------------------------
     GuiVars() {
-      return {}
+      return {};
     },
     //--------------------------------------
     GuiLoadingAs() {
@@ -283,27 +284,25 @@ const _M = {
           icon: "zmdi-settings zmdi-hc-spin",
           text: "i18n:thing-cleaning"
         }
-      }
+      };
     },
     //--------------------------------------
     GuiIsLoading() {
-      return (this.status.reloading
-        || this.status.reloadContent
-        || this.status.doing
-        || this.status.saving
-        || this.status.deleting
-        || this.status.publishing
-        || this.status.restoring
-        || this.status.cleaning)
+      return this.status.reloading ||
+        this.status.reloadContent ||
+        this.status.doing ||
+        this.status.saving ||
+        this.status.deleting ||
+        this.status.publishing ||
+        this.status.restoring ||
+        this.status.cleaning
         ? true
         : false;
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods: {
-
-  }
+  methods: {}
   ///////////////////////////////////////////
-}
+};
 export default _M;

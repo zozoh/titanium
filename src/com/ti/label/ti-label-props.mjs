@@ -60,6 +60,10 @@ export default {
     type: Boolean,
     default: false
   },
+  "notifyName": {
+    type: String
+  },
+  "notifyPayload": undefined,
   //-----------------------------------
   // Aspect
   //-----------------------------------

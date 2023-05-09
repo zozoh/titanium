@@ -16,9 +16,10 @@ export default {
   }),
   /////////////////////////////////////////
   props: {
-    "adjustable": {
-      type: Boolean,
-      default: true
+    "adjustMode": {
+      type: String,
+      default: "none",
+      validator: (v) => /^(none|both|column|row)$/.test(v)
     },
     "grid": {
       type: Object
@@ -114,6 +115,7 @@ export default {
       this.clearDragging();
       Ti.Viewport.resize();
       this.myCustomizedTracks = {};
+      this.trySaveLocalCustomized();
     },
     //--------------------------------------
     clearDragging() {
@@ -122,6 +124,37 @@ export default {
       this.myDragY = undefined;
       this.myDragArea = undefined;
       this.myTrackScales = undefined;
+    },
+    //--------------------------------------
+    drawWatchingArea() {
+      _.forEach(this.myWatchAreas, ({ type, rect }) => {
+        Ti.Dom.createElement({
+          $p: this.$el,
+          style: _.assign(
+            {
+              position: "fixed",
+              backgroundColor: {
+                column: "#F00",
+                row: "#00F"
+              }[type]
+            },
+            rect.toCss()
+          )
+        });
+      });
+
+      _.forEach(this.myBlockAreas, ({ rect }) => {
+        Ti.Dom.createElement({
+          $p: this.$el,
+          style: _.assign(
+            {
+              position: "fixed",
+              backgroundColor: "rgba(255,255,0,0.3)"
+            },
+            rect.toCss()
+          )
+        });
+      });
     },
     //--------------------------------------
     getAutoTrackIndexes(track) {
@@ -171,10 +204,13 @@ export default {
         },
         //.............................................
         uniquely: function () {
-          this.tops = _.uniq(this.tops);
-          this.lefts = _.uniq(this.lefts);
-          this.rights = _.uniq(this.rights);
-          this.bottoms = _.uniq(this.bottoms);
+          const _uniq_sort = (list) => {
+            return _.uniq(_.clone(list)).sort((a, b) => a - b);
+          };
+          this.tops = _uniq_sort(this.tops);
+          this.lefts = _uniq_sort(this.lefts);
+          this.rights = _uniq_sort(this.rights);
+          this.bottoms = _uniq_sort(this.bottoms);
           if (this.tops.length != this.bottoms.length) {
             console.error(_.pick(this, "tops", "bottoms"));
             throw `Unmatched row top/bottom`;
@@ -319,6 +355,7 @@ export default {
         this.LOG(`${i}) ${R.toString()}`);
       }
       MEA.uniquely();
+      this.LOG(_.pick(MEA, "tops", "bottoms", "lefts", "rights"));
       let grid = MEA.toGrid();
       this.LOG(MEA.toGridString(grid));
 
@@ -329,9 +366,12 @@ export default {
       this.myView = MEA.view;
       this.myBlockAreas = blockAreas;
       this.myWatchAreas = watchAreas;
+
+      //this.drawWatchingArea();
     },
     //--------------------------------------
     tryEvalGridMeasure() {
+      console.log("tryEvalGridMeasure");
       // Guard
       if (!_.isElement(this.$el)) {
         return;
@@ -339,7 +379,7 @@ export default {
       this.LOG("delay call evalGridMeasure");
       _.delay(() => {
         this.evalGridMeasure();
-      }, 100);
+      }, 200);
     },
     //--------------------------------------
     trySaveLocalCustomized() {
@@ -371,7 +411,7 @@ export default {
       this.tryEvalGridMeasure();
     }, 500);
     this.LOG = () => {};
-    //this.LOG = console.log;
+    this.LOG = console.log;
   },
   //////////////////////////////////////////
   mounted: function () {

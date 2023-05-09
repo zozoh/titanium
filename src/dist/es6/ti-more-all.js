@@ -1,4 +1,4 @@
-// Pack At: 2023-05-07 23:50:17
+// Pack At: 2023-05-09 23:27:06
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -7477,9 +7477,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }),
   /////////////////////////////////////////
   props: {
-    "adjustable": {
-      type: Boolean,
-      default: true
+    "adjustMode": {
+      type: String,
+      default: "none",
+      validator: (v) => /^(none|both|column|row)$/.test(v)
     },
     "grid": {
       type: Object
@@ -7575,6 +7576,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.clearDragging();
       Ti.Viewport.resize();
       this.myCustomizedTracks = {};
+      this.trySaveLocalCustomized();
     },
     //--------------------------------------
     clearDragging() {
@@ -7583,6 +7585,37 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myDragY = undefined;
       this.myDragArea = undefined;
       this.myTrackScales = undefined;
+    },
+    //--------------------------------------
+    drawWatchingArea() {
+      _.forEach(this.myWatchAreas, ({ type, rect }) => {
+        Ti.Dom.createElement({
+          $p: this.$el,
+          style: _.assign(
+            {
+              position: "fixed",
+              backgroundColor: {
+                column: "#F00",
+                row: "#00F"
+              }[type]
+            },
+            rect.toCss()
+          )
+        });
+      });
+
+      _.forEach(this.myBlockAreas, ({ rect }) => {
+        Ti.Dom.createElement({
+          $p: this.$el,
+          style: _.assign(
+            {
+              position: "fixed",
+              backgroundColor: "rgba(255,255,0,0.3)"
+            },
+            rect.toCss()
+          )
+        });
+      });
     },
     //--------------------------------------
     getAutoTrackIndexes(track) {
@@ -7632,10 +7665,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
         },
         //.............................................
         uniquely: function () {
-          this.tops = _.uniq(this.tops);
-          this.lefts = _.uniq(this.lefts);
-          this.rights = _.uniq(this.rights);
-          this.bottoms = _.uniq(this.bottoms);
+          const _uniq_sort = (list) => {
+            return _.uniq(_.clone(list)).sort((a, b) => a - b);
+          };
+          this.tops = _uniq_sort(this.tops);
+          this.lefts = _uniq_sort(this.lefts);
+          this.rights = _uniq_sort(this.rights);
+          this.bottoms = _uniq_sort(this.bottoms);
           if (this.tops.length != this.bottoms.length) {
             console.error(_.pick(this, "tops", "bottoms"));
             throw `Unmatched row top/bottom`;
@@ -7780,6 +7816,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         this.LOG(`${i}) ${R.toString()}`);
       }
       MEA.uniquely();
+      this.LOG(_.pick(MEA, "tops", "bottoms", "lefts", "rights"));
       let grid = MEA.toGrid();
       this.LOG(MEA.toGridString(grid));
 
@@ -7790,9 +7827,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.myView = MEA.view;
       this.myBlockAreas = blockAreas;
       this.myWatchAreas = watchAreas;
+
+      //this.drawWatchingArea();
     },
     //--------------------------------------
     tryEvalGridMeasure() {
+      console.log("tryEvalGridMeasure");
       // Guard
       if (!_.isElement(this.$el)) {
         return;
@@ -7800,7 +7840,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.LOG("delay call evalGridMeasure");
       _.delay(() => {
         this.evalGridMeasure();
-      }, 100);
+      }, 200);
     },
     //--------------------------------------
     trySaveLocalCustomized() {
@@ -7832,7 +7872,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       this.tryEvalGridMeasure();
     }, 500);
     this.LOG = () => {};
-    //this.LOG = console.log;
+    this.LOG = console.log;
   },
   //////////////////////////////////////////
   mounted: function () {
@@ -16719,8 +16759,12 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
+      console.log(evt)
       if (this.editable || !this.navigable) {
         evt.preventDefault();
+      }
+      if (this.notifyName) {
+        this.$notify(this.notifyName, this.notifyPayload);
       }
     },
     //------------------------------------------------
@@ -20391,6 +20435,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Boolean,
     default: false
   },
+  "notifyName": {
+    type: String
+  },
+  "notifyPayload": undefined,
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -26942,7 +26990,7 @@ const _M = {
     // Do Create
     let cmdText = cmds.join(" ");
     let newMeta = await Wn.Sys.exec2(cmdText, { input: json, as: "json" });
-    console.log(newMeta);
+    //console.log(newMeta);
     if (newMeta && !(newMeta instanceof Error)) {
       // Append To Search List as the first
       commit("prependListItem", newMeta);
@@ -32041,8 +32089,7 @@ window.TI_PACK_EXPORTS['ti/com/wn/obj/adaptor/wn-obj-adaptor-gui.mjs'] = (functi
 /////////////////////////////////////////////
 const _M = {
   ///////////////////////////////////////////
-  data: () => ({
-  }),
+  data: () => ({}),
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
@@ -32050,13 +32097,15 @@ const _M = {
       return {
         desktop: {
           "type": "cols",
-          "border": true,
+          "border": false,
+          "card": "normal",
           "blocks": [
             {
               "name": "search",
               "size": "62%",
               "type": "rows",
-              "border": true,
+              "border": false,
+              "card": "normal",
               "blocks": [
                 {
                   "name": "filter",
@@ -32080,11 +32129,12 @@ const _M = {
               "name": "meta",
               "size": "stretch",
               "body": "meta"
-            }]
+            }
+          ]
         },
         tablet: "desktop",
         phone: "desktop"
-      }
+      };
     },
     //--------------------------------------
     GuiStdSchema() {
@@ -32096,8 +32146,7 @@ const _M = {
             "placeholder": "i18n:search",
             "filter": "=filter",
             "sorter": "=sorter",
-            "dialog": {
-            },
+            "dialog": {},
             "majors": [],
             "matchKeywords": [
               {
@@ -32167,7 +32216,7 @@ const _M = {
                     type: "text",
                     className: "as-circle is-track as-label-60 ",
                     value: obj.sort || 0
-                  }
+                  };
                 }
               }
             },
@@ -32178,9 +32227,9 @@ const _M = {
             },
             "itemStatus": "=itemStatus",
             "afterUpload": async (checkedIds) => {
-              let currentId = _.first(checkedIds)
-              await this.dispatch("queryList")
-              await this.dispatch("selectMeta", { currentId, checkedIds })
+              let currentId = _.first(checkedIds);
+              await this.dispatch("queryList");
+              await this.dispatch("selectMeta", { currentId, checkedIds });
             }
           }
         },
@@ -32198,7 +32247,7 @@ const _M = {
             "fieldStatus": "=fieldStatus"
           }
         }
-      }
+      };
     },
     //--------------------------------------
     GuiExplainContext() {
@@ -32228,65 +32277,65 @@ const _M = {
         exposeHidden: this.exposeHidden,
         //------------------------------
         ...this.getters
-      }
+      };
     },
     //--------------------------------------
     GuiLayout() {
-      let c = this.GuiExplainContext
-      let layout = this.layout
+      let c = this.GuiExplainContext;
+      let layout = this.layout;
       if (_.isEmpty(layout)) {
-        layout = this.GuiStdLayout
+        layout = this.GuiStdLayout;
       }
-      return Ti.Util.explainObj(c, layout)
+      return Ti.Util.explainObj(c, layout);
     },
     //--------------------------------------
     GuiSchema() {
-      let c = this.GuiExplainContext
-      let names = _.keys(this.GuiStdSchema)
-      _.forEach(this.schema, (_, k) => names.push(k))
-      names = _.uniq(names)
+      let c = this.GuiExplainContext;
+      let names = _.keys(this.GuiStdSchema);
+      _.forEach(this.schema, (_, k) => names.push(k));
+      names = _.uniq(names);
 
       // Merge schame
-      let schema = {}
+      let schema = {};
       for (let bodyName of names) {
         // Guard
         if (/^(components|localBehaviorKeepAt|events)$/.test(bodyName)) {
-          continue
+          continue;
         }
         // Merge from std schema
-        let com = _.cloneDeep(this.GuiStdSchema[bodyName]) || {}
-        _.defaults(com, { comConf: {} })
+        let com = _.cloneDeep(this.GuiStdSchema[bodyName]) || {};
+        _.defaults(com, { comConf: {} });
 
         // Get customized configration
-        let cus = _.get(this.schema, bodyName)
+        let cus = _.get(this.schema, bodyName);
         if (cus && !_.isEmpty(cus)) {
-          schema[bodyName] = com
+          schema[bodyName] = com;
           let { comType, comConf, mergeMode = "merge" } = cus;
           // ComType
-          com.comType = comType || com.comType
+          com.comType = comType || com.comType;
           // ComConf
           if ("merge" == mergeMode) {
-            _.merge(com.comConf, comConf)
+            _.merge(com.comConf, comConf);
           }
           // Assign
           else if ("assign" == mergeMode) {
-            _.assign(com.comConf, comConf)
+            _.assign(com.comConf, comConf);
           }
           // Reset
           else {
-            com.comConf = comConf
+            com.comConf = comConf;
           }
         }
 
         // Join to schema
-        schema[bodyName] = com
+        schema[bodyName] = com;
       }
 
-      return Ti.Util.explainObj(c, schema)
+      return Ti.Util.explainObj(c, schema);
     },
     //--------------------------------------
     GuiVars() {
-      return {}
+      return {};
     },
     //--------------------------------------
     GuiLoadingAs() {
@@ -32323,29 +32372,27 @@ const _M = {
           icon: "zmdi-settings zmdi-hc-spin",
           text: "i18n:thing-cleaning"
         }
-      }
+      };
     },
     //--------------------------------------
     GuiIsLoading() {
-      return (this.status.reloading
-        || this.status.reloadContent
-        || this.status.doing
-        || this.status.saving
-        || this.status.deleting
-        || this.status.publishing
-        || this.status.restoring
-        || this.status.cleaning)
+      return this.status.reloading ||
+        this.status.reloadContent ||
+        this.status.doing ||
+        this.status.saving ||
+        this.status.deleting ||
+        this.status.publishing ||
+        this.status.restoring ||
+        this.status.cleaning
         ? true
         : false;
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
-  methods: {
-
-  }
+  methods: {}
   ///////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -45203,7 +45250,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: undefined
     },
     "currentId": {
-      type: String,
+      type: [String, Number, Boolean],
       default: undefined
     },
     "checkedIds": {
@@ -70151,72 +70198,78 @@ window.TI_PACK_EXPORTS['ti/com/wn/obj/icon/wn-obj-icon.mjs'] = (function(){
 /////////////////////////////////////////////////////
 const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////
-  props : {
+  props: {
     // icon string
-    "icon" : {
-      type : String
+    icon: {
+      type: String
     },
     // image thumb: id:xxxx
-    "thumb" : {
-      type : String
+    thumb: {
+      type: String
     },
-    "mime" : {
-      type : String
+    mime: {
+      type: String
     },
-    "type" : {
-      type : String
+    type: {
+      type: String
     },
-    "race" : {
-      type : String
+    race: {
+      type: String
     },
     // higher priority then default Icon and {type,mime,race}
-    "candidateIcon" : {
-      type : String
+    candidateIcon: {
+      type: String
     },
     // default icon string
-    "defaultIcon" : {
-      type : String,
-      default : "fas-cube"
+    defaultIcon: {
+      type: String,
+      default: "fas-cube"
     },
     // timestamp
-    "timestamp" : {
-      type : Number,
-      default : 0
+    timestamp: {
+      type: Number,
+      default: 0
     }
   },
   ///////////////////////////////////////////////////
-  computed : {
+  computed: {
     //-----------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return Ti.Css.mergeClassName(this.className);
     },
     //-----------------------------------------------
     theIcon() {
-      if(/^https?:\/\//.test(this.thumb)) {
-        return  {
-          type : "image",
-          value : this.thumb
-        }
+      if (
+        /^https?:\/\//.test(this.thumb) ||
+        /.+\.(png|jpe>g|webp|gif)$/i.test(this.thunmb)
+      ) {
+        return {
+          type: "image",
+          value: this.thumb
+        };
       }
-      return Wn.Util.getObjThumbIcon({
-        candidateIcon : this.candidateIcon,
-        timestamp : this.timestamp,
-        thumb : this.thumb,
-        icon  : this.icon,
-        mime  : this.mime,
-        type  : this.type,
-        race  : this.race,
-      }, this.defaultIcon)
+      return Wn.Util.getObjThumbIcon(
+        {
+          candidateIcon: this.candidateIcon,
+          timestamp: this.timestamp,
+          thumb: this.thumb,
+          icon: this.icon,
+          mime: this.mime,
+          type: this.type,
+          race: this.race
+        },
+        this.defaultIcon
+      );
     }
     //-----------------------------------------------
   },
   ///////////////////////////////////////////////////
-  methods : {
+  methods: {
     //-----------------------------------------------
     //-----------------------------------------------
   }
   ///////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -72230,8 +72283,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
         }
       }
 
+      let amode = this.adjustMode;
+
       // found area
-      let area = _.find(this.myWatchAreas, (area) => area.rect.hasPoint(point));
+      let area = _.find(this.myWatchAreas, (area) => {
+        if ("both" == amode || amode == area.type) {
+          return area.rect.hasPoint(point);
+        }
+      });
 
       // if (area) {
       //   this.LOG(`AREA=${area.index} : X=${pageX},Y=${pageY} : ${area.rect}`);

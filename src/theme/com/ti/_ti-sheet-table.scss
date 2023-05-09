@@ -138,8 +138,9 @@
           min-height: SZ(28);
           z-index: $z-above;
           //----------------------------------------
-          .ti-input {
+          &.ti-input {
             min-height: unset;
+            border-radius: 0;
           }
           //----------------------------------------
           .as-input-icon.at-prefix {

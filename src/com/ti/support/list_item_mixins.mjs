@@ -47,7 +47,7 @@ export default {
       default: undefined
     },
     "currentId": {
-      type: String,
+      type: [String, Number, Boolean],
       default: undefined
     },
     "checkedIds": {
