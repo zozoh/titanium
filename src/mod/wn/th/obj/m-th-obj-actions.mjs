@@ -54,7 +54,9 @@ const _M = {
         return;
       }
       if (
-        /^(events|view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(k)
+        /^(events|view|path|lbkOff|thingSetId|oTs|meta|(__saved_)?content)$/.test(
+          k
+        )
       ) {
         return;
       }
@@ -458,7 +460,7 @@ const _M = {
     if (state.oTs) {
       state.LOG("reloadData: queryList");
       await dispatch("queryList");
-      if(state.aggAutoReload){
+      if (state.aggAutoReload) {
         await dispatch("queryAggResult");
       }
     }
@@ -565,8 +567,17 @@ const _M = {
 
     // Reload thing list
     if (state.oTs) {
-      await dispatch("queryList");
-      await dispatch("queryAggResult");
+      if (state.autoQueryList) {
+        await dispatch("queryList");
+        await dispatch("queryAggResult");
+      }
+      // Dont load data list, just reset it
+      else {
+        commit("setPager", {});
+        commit("setList", []);
+        commit("setCurrentMeta");
+        commit("setAggResult", {});
+      }
     }
     // Mock the list loading in thing meta mode
     else if (!_.isEmpty(mockList)) {

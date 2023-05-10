@@ -18,6 +18,10 @@ const _M = {
     state.moduleName = moduleName;
   },
   //----------------------------------------
+  setAutoQueryList(state, autoQueryList) {
+    state.autoQueryList = autoQueryList;
+  },
+  //----------------------------------------
   setPvg(state, pvg) {
     state.pvg = pvg;
   },

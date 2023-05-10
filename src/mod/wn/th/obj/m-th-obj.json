@@ -6,6 +6,7 @@
     "update": null,
     "save": null
   },
+  "autoQueryList": true,
   "load": {},
   "view": null,
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",

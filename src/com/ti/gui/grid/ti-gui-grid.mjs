@@ -371,7 +371,7 @@ export default {
     },
     //--------------------------------------
     tryEvalGridMeasure() {
-      console.log("tryEvalGridMeasure");
+      this.LOG("tryEvalGridMeasure");
       // Guard
       if (!_.isElement(this.$el)) {
         return;
@@ -411,7 +411,7 @@ export default {
       this.tryEvalGridMeasure();
     }, 500);
     this.LOG = () => {};
-    this.LOG = console.log;
+    //this.LOG = console.log;
   },
   //////////////////////////////////////////
   mounted: function () {
