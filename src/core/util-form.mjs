@@ -198,7 +198,7 @@ const TiFormHelper = {
       else if (fld.required) {
         // is Required
         if (!_.isBoolean(fld.required)) {
-          if (!Ti.AutoMatch.test(fld.required, this.myData)) {
+          if (!Ti.AutoMatch.test(fld.required, data)) {
             return;
           }
         }
