@@ -196,7 +196,7 @@ const _M = {
       // Do add
       let reo = await newItHandle(this.TheValue);
 
-      console.log(reo);
+      //console.log(reo);
       // User cancel
       if (_.isUndefined(reo)) return;
 

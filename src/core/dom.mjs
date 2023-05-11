@@ -1094,6 +1094,7 @@ const TiDom = {
     }
     let r_view = Ti.Rects.createBy($view);
     let r_row = Ti.Rects.createBy($row);
+    //let scrollTop = $view.scrollTop;
 
     let testFnName = {
       xy: "contains",

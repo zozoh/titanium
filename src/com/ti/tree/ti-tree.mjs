@@ -706,6 +706,7 @@ const TI_TREE = {
   //////////////////////////////////////////
   watch: {
     "data": async function (newVal, oldVal) {
+      //console.log("change data")
       if (!_.isEqual(newVal, oldVal)) {
         await this.evalTreeTableData()
       }

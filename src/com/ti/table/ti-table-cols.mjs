@@ -14,24 +14,24 @@ export default {
     //--------------------------------------
     TableFields() {
       if (!this.myTableRect) {
-        return []
+        return [];
       }
-      let fields = []
-      let lastI = this.myFields.length - 1
+      let fields = [];
+      let lastI = this.myFields.length - 1;
       for (let i = 0; i < this.myFields.length; i++) {
-        let fld = this.myFields[i]
+        let fld = this.myFields[i];
         //..................................
         if (_.isBoolean(fld.visible) && !fld.visible) {
-          continue
+          continue;
         }
         if (_.isBoolean(fld.hidden) && fld.hidden) {
-          continue
+          continue;
         }
         //..................................
-        let display = this.evalFieldDisplay(fld.display, fld.name)
+        let display = this.evalFieldDisplay(fld.display, fld.name);
         //..................................
-        let fldWidth = _.nth(this.myFieldWidths, i)
-        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch")
+        let fldWidth = _.nth(this.myFieldWidths, i);
+        fldWidth = Ti.Util.fallbackNil(fldWidth, fld.width, "stretch");
         //..................................
         if (_.isString(fldWidth)) {
           // Percent
@@ -40,12 +40,12 @@ export default {
           }
           // Auto or stretch
           else if (!/^(auto|stretch)$/.test(fldWidth)) {
-            fldWidth = "stretch"
+            fldWidth = "stretch";
           }
         }
         // Must be number
         else if (!_.isNumber(fldWidth)) {
-          fldWidth = "stretch"
+          fldWidth = "stretch";
         }
         //..................................
         let cell = {
@@ -65,14 +65,14 @@ export default {
           comConf: fld.comConf,
           transformer: fld.transformer,
           serializer: fld.serializer
-        }
+        };
         //..................................
-        cell.headStyle = this.getHeadCellStyle(cell)
+        cell.headStyle = this.getHeadCellStyle(cell);
         //..................................
-        fields.push(cell)
+        fields.push(cell);
         //..................................
       }
-      return fields
+      return fields;
     }
     //--------------------------------------
   },
@@ -81,43 +81,47 @@ export default {
     //--------------------------------------
     OnResize() {
       if (_.isElement(this.$el)) {
-        this.myTableRect = Ti.Rects.createBy(this.$el)
+        this.myTableRect = Ti.Rects.createBy(this.$el);
       }
     },
     //--------------------------------------
     getHeadCellStyle(fld) {
-      if (fld && !Ti.Util.isNil(fld.width)
-        && this.myTableRect && this.myTableRect.width > 0) {
+      if (
+        fld &&
+        !Ti.Util.isNil(fld.width) &&
+        this.myTableRect &&
+        this.myTableRect.width > 0
+      ) {
         // Copy width
-        let width = fld.width
+        let width = fld.width;
 
         // Number
         if (_.isNumber(width)) {
           // -100: it will conver to percent
           if (width < 0) {
-            let per = Math.abs(width / this.myTableRect.width)
-            width = Math.round(per * 100) + "%"
+            let per = Math.abs(width / this.myTableRect.width);
+            width = Math.round(per * 100) + "%";
           }
           // 0-1: => Percent
           else if (width >= 0 && width < 1) {
-            width = Math.round(width * 100) + "%"
+            width = Math.round(width * 100) + "%";
           }
           // 100: => pixcel
           else {
-            width = `${width}px`
+            width = `${width}px`;
           }
         }
 
-        return { width }
+        return { width };
       }
     },
     //--------------------------------------
     async OnCustomizeFields() {
       // Found all avaliable fields
       let cans = _.map(this.allFields, ({ title, key }) => {
-        return { text: title, value: key }
-      })
-      let vals = _.map(this.myFields, fld => fld.key)
+        return { text: title, value: key };
+      });
+      let vals = _.map(this.myFields, (fld) => fld.key);
 
       // Show the dialog
       let reo = await Ti.App.Open({
@@ -144,90 +148,100 @@ export default {
         comConf: {
           options: cans
         },
-        components: [
-          "@com:ti/transfer"
-        ]
-      })
+        components: ["@com:ti/transfer"]
+      });
 
       // User cancel
       if (!reo) {
-        return
+        return;
       }
 
       // Store to local
       if (this.keepCustomizedTo) {
         //this.myFieldKeys = reo
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
-        cuo.shownFieldKeys = reo
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo);
+        cuo.shownFieldKeys = reo;
         // Clear to reset width at same time
         if (_.isEmpty(reo)) {
-          cuo.setFieldsWidth = []
+          cuo.setFieldsWidth = [];
         }
-        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo);
       }
 
       // Update the new field key
-      this.updateMyFieldsByKey(reo)
+      this.updateMyFieldsByKey(reo);
       if (_.isEmpty(reo)) {
-        this.myFieldWidths = []
+        this.myFieldWidths = [];
       }
 
-      await this.evalListData()
-      await this.evalTableRows()
+      await this.evalListData();
+      await this.evalTableRows();
     },
     //--------------------------------------
     OnDblClickColumnResizer(index) {
-      // Make sure get the table ract 
+      // Make sure get the table ract
       this.OnResize();
       // Get Each column width
-      let colWidths = this.getTableColumnWidths()
+      let colWidths = this.getTableColumnWidths();
       // 得到列最大宽度
-      let left = 10
+      let left = 10;
       let $cells = Ti.Dom.findAll(
-        `:scope > tbody > tr.table-row > td.table-cell:nth-child(${index+1}) > .cell-wrapper`, 
-        this.$refs.table)
-      _.forEach($cells, $cell=>{
-        left = Math.max(left, $cell.scrollWidth)
-      })
+        `:scope > tbody > tr.table-row > td.table-cell:nth-child(${
+          index + 1
+        }) > .cell-wrapper`,
+        this.$refs.table
+      );
+      _.forEach($cells, ($cell) => {
+        left = Math.max(left, $cell.scrollWidth);
+      });
       // 更新
       this.updateColumnWidth({
-        index, colWidths, left
-      })
+        index,
+        colWidths,
+        left
+      });
     },
     //--------------------------------------
     OnColumnResizeBegin(index) {
-      // Make sure get the table ract 
+      // Make sure get the table ract
       this.OnResize();
       // Get Each column width
       let vm = this;
       let $doc = this.$el.ownerDocument;
-      let colWidths = this.getTableColumnWidths()
-      let TW = _.sum(colWidths)
+      let colWidths = this.getTableColumnWidths();
+      let TW = _.sum(colWidths);
       //
       // Prepare the dragging context
       //
       let DRG = {
-        // Sum the column width 
+        // Sum the column width
         viewWidth: TW,
         // Get a virtual rect (remove the scrollbar width)
         // so it should be TableRect + SUM(columnsWith)
-        vRect: Ti.Rects.create(_.assign({}, this.myTableRect, {
-          width: TW
-        }, "tlwh")),
+        vRect: Ti.Rects.create(
+          _.assign(
+            {},
+            this.myTableRect,
+            {
+              width: TW
+            },
+            "tlwh"
+          )
+        ),
         // Get the current column left
         left: _.sum(colWidths.slice(0, index + 1))
-      }
+      };
       //
       // evel the indic-bar rect
       //
-      let R = 1.5
-      DRG.moveLeft = DRG.left + DRG.vRect.left
+      let R = 1.5;
+      DRG.moveLeft = DRG.left + DRG.vRect.left;
       DRG.indicBarRect = Ti.Rects.create({
         top: DRG.vRect.top,
         left: DRG.moveLeft - R,
         width: R * 2,
         height: DRG.vRect.height
-      })
+      });
       //
       // Create indicBar
       //
@@ -239,64 +253,66 @@ export default {
           zIndex: 99999999,
           ...DRG.indicBarRect.toCss()
         }
-      })
+      });
       //
       // Update indicBar
       //
       DRG.updateIndicBar = function () {
-        let mvL = this.moveLeft - R
-        Ti.Dom.setStyleValue(this.$indic, "left", mvL)
-      }
-      // 
-      // Mouse move 
+        let mvL = this.moveLeft - R;
+        Ti.Dom.setStyleValue(this.$indic, "left", mvL);
+      };
+      //
+      // Mouse move
       //
       const OnBodyMouseMove = function ({ clientX }) {
-        let { left, right } = DRG.vRect
-        DRG.moveLeft = _.clamp(clientX, left, right)
-        DRG.updateIndicBar()
-      }
+        let { left, right } = DRG.vRect;
+        DRG.moveLeft = _.clamp(clientX, left, right);
+        DRG.updateIndicBar();
+      };
       //
       // Rlease
       //
       const DeposAll = function () {
-        $doc.removeEventListener("mousemove", OnBodyMouseMove, true)
-        $doc.removeEventListener("mouseup", DeposAll, true)
-        Ti.Dom.remove(DRG.$indic)
+        $doc.removeEventListener("mousemove", OnBodyMouseMove, true);
+        $doc.removeEventListener("mouseup", DeposAll, true);
+        Ti.Dom.remove(DRG.$indic);
         // Is need to update fields width?
-        let rL0 = Math.round(DRG.left)
-        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left)
+        let rL0 = Math.round(DRG.left);
+        let rL1 = Math.round(DRG.moveLeft - DRG.vRect.left);
         if (Math.abs(rL0 - rL1) > R) {
           vm.updateColumnWidth({
-            index, colWidths, left: rL1
-          })
+            index,
+            colWidths,
+            left: rL1
+          });
         }
-      }
+      };
       //
       // Bind events
       //
-      $doc.addEventListener("mousemove", OnBodyMouseMove, true)
-      $doc.addEventListener("mouseup", DeposAll, true)
+      $doc.addEventListener("mousemove", OnBodyMouseMove, true);
+      $doc.addEventListener("mouseup", DeposAll, true);
     },
     //--------------------------------------
     updateColumnWidth({ index, colWidths, left }) {
-      let TW = _.sum(colWidths)
+      let TW = _.sum(colWidths);
       // Get the ajacent columns
-      let ajColsWs = colWidths.slice(index, index + 2)
-      let ajLeft = _.sum(colWidths.slice(0, index))
-      let ajSumW = _.sum(ajColsWs)
+      let ajColsWs = colWidths.slice(index, index + 2);
+      let ajLeft = _.sum(colWidths.slice(0, index));
+      let ajSumW = _.sum(ajColsWs);
       // Aj-Columns with after resize
-      let ajColsW2 = []
-      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW)
-      ajColsW2[1] = ajSumW - ajColsW2[0]
+      let ajColsW2 = [];
+      ajColsW2[0] = _.clamp(left - ajLeft, 0, ajSumW);
+      ajColsW2[1] = ajSumW - ajColsW2[0];
 
       // Merge together
-      let colWs = _.concat(colWidths)
-      colWs[index] = ajColsW2[0]
-      colWs[index + 1] = ajColsW2[1]
+      let colWs = _.concat(colWidths);
+      colWs[index] = ajColsW2[0];
+      colWs[index + 1] = ajColsW2[1];
 
       // Eval each coumns percent
-      let sumW = _.sum(colWs)
-      let colPs = _.map(colWs, w => w / sumW)
+      let sumW = _.sum(colWs);
+      let colPs = _.map(colWs, (w) => w / sumW);
       // this.LOG({
       //   index,
       //   before: ajColsWs.join(", "),
@@ -304,35 +320,39 @@ export default {
       //   ps: colPs.join(", "),
       //   psum: _.sum(colPs)
       // })
-      this.myFieldWidths = _.map(colPs, p => Ti.S.toPercent(p))
+      this.myFieldWidths = _.map(colPs, (p) => Ti.S.toPercent(p));
       // Persistance
       if (this.keepCustomizedTo) {
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo)
-        cuo.setFieldsWidth = this.myFieldWidths
-        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo)
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo);
+        cuo.setFieldsWidth = this.myFieldWidths;
+        Ti.Storage.local.setObject(this.keepCustomizedTo, cuo);
       }
     },
     //--------------------------------------
-    getTableColumnWidths(){
-      let $ths = Ti.Dom.findAll("thead th", this.$refs.table)
-      let colWidths = []
+    getTableColumnWidths() {
+      let $ths = Ti.Dom.findAll("thead th", this.$refs.table);
+      let colWidths = [];
       for (let $th of $ths) {
-        let w = $th.getBoundingClientRect().width
-        colWidths.push(w)
+        let w = $th.getBoundingClientRect().width;
+        colWidths.push(w);
       }
-      return colWidths
+      return colWidths;
     },
     //--------------------------------------
     scrollCurrentIntoView() {
-      this.LOG("scrollCurrentIntoView", this.myLastIndex, this.theCurrentId)
+      //console.log("scroll");
+      this.LOG("scrollCurrentIntoView", this.myLastIndex, this.theCurrentId);
       if (this.autoScrollIntoView && this.theCurrentId) {
-        let $view = this.$el
-        let $row = Ti.Dom.find(`.table-row[row-id="${this.theCurrentId}"]`, $view)
-        this.LOG("find row", $row)
+        let $view = this.$el;
+        let $row = Ti.Dom.find(
+          `.table-row[row-id="${this.theCurrentId}"]`,
+          $view
+        );
+        this.LOG("find row", $row);
         Ti.Dom.scrollIntoView($view, $row, {
-          to:"center",
-          axis:"y"
-        })
+          to: "center",
+          axis: "y"
+        });
       }
     },
     //--------------------------------------
@@ -340,64 +360,64 @@ export default {
       let list;
       // Empty to all fields
       if (_.isEmpty(keys)) {
-        list = []
-        _.forEach(this.allFields, fld => {
+        list = [];
+        _.forEach(this.allFields, (fld) => {
           if (!fld.candidate) {
-            list.push(_.cloneDeep(fld))
+            list.push(_.cloneDeep(fld));
           }
-        })
+        });
       }
       // Pick fields
       else {
         // Make Map by all fields
-        let fldMap = {}
+        let fldMap = {};
         for (let fld of this.allFields) {
-          fldMap[fld.key] = fld
+          fldMap[fld.key] = fld;
         }
         // Load the field
-        list = _.map(keys, k => _.cloneDeep(fldMap[k]))
+        list = _.map(keys, (k) => _.cloneDeep(fldMap[k]));
       }
       // Merge first column display
       if (list.length > 0 && this.headDisplay) {
-        list[0].display = _.concat(this.headDisplay, list[0].display)
+        list[0].display = _.concat(this.headDisplay, list[0].display);
       }
       // Up to data
-      this.myFields = _.without(list, undefined, null)
+      this.myFields = _.without(list, undefined, null);
     },
     //--------------------------------------
     setupAllFields(fields = []) {
-      let list = []
+      let list = [];
       _.forEach(fields, (fld, i) => {
-        let f2 = _.cloneDeep(fld)
-        f2.key = f2.key || `C${i}`
-        list.push(f2)
-      })
-      this.allFields = list
+        let f2 = _.cloneDeep(fld);
+        f2.key = f2.key || `C${i}`;
+        list.push(f2);
+      });
+      this.allFields = list;
     },
     //--------------------------------------
     restoreLocalSettings() {
       if (this.keepCustomizedTo) {
-        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {}
-        this.myShownFieldKeys = cuo.shownFieldKeys
-        this.myFieldWidths = cuo.setFieldsWidth
+        let cuo = Ti.Storage.local.getObject(this.keepCustomizedTo) || {};
+        this.myShownFieldKeys = cuo.shownFieldKeys;
+        this.myFieldWidths = cuo.setFieldsWidth;
       }
     },
     //--------------------------------------
     evalFields() {
-      this.restoreLocalSettings()
-      this.setupAllFields(this.fields)
-      this.updateMyFieldsByKey(this.myShownFieldKeys)
+      this.restoreLocalSettings();
+      this.setupAllFields(this.fields);
+      this.updateMyFieldsByKey(this.myShownFieldKeys);
     },
     //--------------------------------------
     async tryEvalFields(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-        this.evalFields()
-        await this.evalListData()
+        this.evalFields();
+        await this.evalListData();
         this.evalRenderScope();
-        await this.__eval_row_after_data()
+        await this.__eval_row_after_data();
       }
     }
     //--------------------------------------
-  },
+  }
   ///////////////////////////////////////////////////F
-}
+};

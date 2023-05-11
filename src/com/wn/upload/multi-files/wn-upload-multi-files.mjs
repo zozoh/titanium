@@ -148,7 +148,7 @@ const _M = {
     },
     //--------------------------------------
     isQueryMode() {
-      return this.query && (this.target || this.query.path);
+      return this.query && this.query.path ? true : false;
     },
     //--------------------------------------
     LocalFileFilter() {
@@ -235,8 +235,10 @@ const _M = {
       else {
         for (let val of this.value) {
           let obj = this.myFileObjs[val];
-          let it = this.genFileItem(obj);
-          list.push(it);
+          if (obj) {
+            let it = this.genFileItem(obj);
+            list.push(it);
+          }
         }
       }
       //
@@ -281,14 +283,14 @@ const _M = {
     },
     //--------------------------------------
     async OnClean() {
-      console.log("Do onclean")
+      console.log("Do onclean");
       let cmds = [];
       _.forEach(this.FileItems, ({ id, value } = {}) => {
         if (value) {
           cmds.push(`rm id:${id}`);
         }
       });
-      console.log(cmds)
+      console.log(cmds);
       if (_.isEmpty(cmds)) {
         return;
       }
