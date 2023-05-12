@@ -1,4 +1,4 @@
-// Pack At: 2023-05-09 23:27:06
+// Pack At: 2023-05-12 23:57:51
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -6272,6 +6272,7 @@ const { Dom } = (function(){
       }
       let r_view = Ti.Rects.createBy($view);
       let r_row = Ti.Rects.createBy($row);
+      //let scrollTop = $view.scrollTop;
   
       let testFnName = {
         xy: "contains",
@@ -11949,7 +11950,7 @@ const { Util } = (function(){
           else if (fld.required) {
             // is Required
             if (!_.isBoolean(fld.required)) {
-              if (!Ti.AutoMatch.test(fld.required, this.myData)) {
+              if (!Ti.AutoMatch.test(fld.required, data)) {
                 return;
               }
             }
@@ -20410,7 +20411,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230509.232706",
+  "version": "1.6-20230512.235751",
   "dev": false,
   "appName": null,
   "session": {},
