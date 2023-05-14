@@ -107,7 +107,7 @@ export default {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
-      console.log("OnMajorChange", { val, it });
+      //console.log("OnMajorChange", { val, it });
       if (_.isEmpty(val) && (_.isArray(val) || _.isObject(val))) {
         val = null;
       }
