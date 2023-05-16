@@ -29,8 +29,8 @@ export default {
         let itV = this.Dict.getValue(it);
         let text = this.Dict.getText(it);
         text = Ti.I18n.text(text);
-        let tip;
-        if (this.autoValueTip) {
+        let tip = this.Dict.getTip(it);
+        if (!tip && this.autoValueTip) {
           tip = {
             "data-ti-tip": `<strong>${text}</strong>: <codd>${itV}</code>`,
             "data-ti-tip-mode": "H",
@@ -38,6 +38,15 @@ export default {
             "data-ti-tip-type": "paper",
             "data-ti-tip-content-type": "html",
             "data-ti-keyboard": "ctrl"
+          };
+        }
+        if(_.isString(tip)){
+          tip = {
+            "data-ti-tip": tip,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "text"
           };
         }
         let selected =
@@ -65,6 +74,7 @@ export default {
 
       _.forEach(this.myOptionsData, (it, index) => {
         let item = __gen_items(it, index);
+        //console.log(item);
         if (item) {
           list.push(item);
         }

@@ -1,4 +1,4 @@
-// Pack At: 2023-05-12 23:57:51
+// Pack At: 2023-05-16 21:31:33
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -8949,7 +8949,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     OnMajorChange(val, it) {
-      console.log("OnMajorChange", { val, it });
+      //console.log("OnMajorChange", { val, it });
       if (_.isEmpty(val) && (_.isArray(val) || _.isObject(val))) {
         val = null;
       }
@@ -29306,8 +29306,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
         let itV = this.Dict.getValue(it);
         let text = this.Dict.getText(it);
         text = Ti.I18n.text(text);
-        let tip;
-        if (this.autoValueTip) {
+        let tip = this.Dict.getTip(it);
+        if (!tip && this.autoValueTip) {
           tip = {
             "data-ti-tip": `<strong>${text}</strong>: <codd>${itV}</code>`,
             "data-ti-tip-mode": "H",
@@ -29315,6 +29315,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "data-ti-tip-type": "paper",
             "data-ti-tip-content-type": "html",
             "data-ti-keyboard": "ctrl"
+          };
+        }
+        if(_.isString(tip)){
+          tip = {
+            "data-ti-tip": tip,
+            "data-ti-tip-mode": "H",
+            "data-ti-tip-size": "auto",
+            "data-ti-tip-type": "paper",
+            "data-ti-tip-content-type": "text"
           };
         }
         let selected =
@@ -29342,6 +29351,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
 
       _.forEach(this.myOptionsData, (it, index) => {
         let item = __gen_items(it, index);
+        //console.log(item);
         if (item) {
           list.push(item);
         }
