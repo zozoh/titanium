@@ -333,7 +333,7 @@ const FieldDisplay = {
     if (_.isFunction(dis.transformer)) {
       // Sometimes, we need transform nil also
       if (!Ti.Util.isNil(value) || dis.transNil) {
-        value = dis.transformer(value);
+        value = await dis.transformer(value);
       }
     }
     // Ignore the Blank

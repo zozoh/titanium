@@ -91,7 +91,9 @@ const _M = {
           }
         }
 
-        if ("~~undefined~~" == re) return;
+        if ("~~undefined~~" == re) {
+          return;
+        }
         return re;
       };
 

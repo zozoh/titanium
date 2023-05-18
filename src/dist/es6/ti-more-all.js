@@ -1,4 +1,4 @@
-// Pack At: 2023-05-16 21:31:33
+// Pack At: 2023-05-18 21:33:50
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11768,32 +11768,60 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 dict,
                 format,
                 placeholder,
-                autoLoadDictIcon,
+                autoLoadDictIcon = Ti.Config.getComProp(
+                  "TiLabel",
+                  "autoLoadDictIcon",
+                  true
+                ),
                 prefixIcon,
                 editable,
+                multiValSep = ",",
+                valueMustInDict = true,
+                inDictsplitBy = /[,;]+/g,
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
               if (!editable && !enterNotifyName && !leaveNotifyName) {
                 let text = value;
                 let icon = prefixIcon;
+                let isBlank = false;
                 // Show empty placeholder
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
                   text = Ti.Util.fallback(placeholder, "i18n:blank");
+                  isBlank = true;
                 }
                 // Explain Dict
                 else if (dict) {
-                  if (Ti.Util.isNil(autoLoadDictIcon)) {
-                    autoLoadDictIcon = Ti.Config.getComProp(
-                      "TiLabel",
-                      "autoLoadDictIcon",
-                      true
-                    );
-                  }
                   let $d = Ti.DictFactory.CheckDict(dict);
-                  text = await $d.getItemText(value);
-                  if (autoLoadDictIcon) {
-                    icon = await $d.getItemIcon(value);
+                  // Uniform the values to array
+                  let vals;
+                  if (_.isString(value) && inDictsplitBy) {
+                    vals = Ti.S.splitIgnoreBlank(value, inDictsplitBy);
+                  } else {
+                    vals = _.concat([], value);
+                  }
+
+                  // explain the value or values
+                  if (vals.length > 1) {
+                    let ss = [];
+                    for (let v of vals) {
+                      let it = await $d.getItem(v);
+                      let s = $d.getText(it);
+                      if (!Ti.Util.isNil(s) || valueMustInDict) {
+                        ss.push(s);
+                      } else {
+                        ss.push(v);
+                      }
+                    }
+                    text = ss.join(multiValSep);
+                  } else if (vals.length > 0) {
+                    text = await $d.getItemText(vals[0]);
+                    if (autoLoadDictIcon) {
+                      icon = await $d.getItemIcon(vals[0]);
+                    }
+                  } else {
+                    text = "i18n:empty";
+                    isBlank = true;
                   }
                 }
                 // Formater
@@ -11810,7 +11838,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 disIt.quickLabel = {
                   style,
                   className: Ti.Css.mergeClassName(className, disIt.className, {
-                    "is-hover-copy": hoverCopy
+                    "is-hover-copy": hoverCopy,
+                    "is-blank": isBlank
                   }),
                   hoverCopy,
                   newTab,
@@ -16426,6 +16455,10 @@ const _M = {
       type: String,
       default: ", "
     },
+    "inDictsplitBy": {
+      type: [RegExp, String],
+      default: () => /[,;]+/g
+    },
     "hoverable": {
       type: Boolean,
       default: false
@@ -16763,7 +16796,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
-      console.log(evt)
+      console.log(evt);
       if (this.editable || !this.navigable) {
         evt.preventDefault();
       }
@@ -18306,7 +18339,9 @@ const _M = {
           }
         }
 
-        if ("~~undefined~~" == re) return;
+        if ("~~undefined~~" == re) {
+          return;
+        }
         return re;
       };
 
@@ -26192,7 +26227,7 @@ const _M = {
         }
       );
       if (!_.isEmpty(this.moreActions)) {
-        items.push({})
+        items.push({});
         _.forEach(this.moreActions, (ma) => {
           let handler = ma.action;
           if (_.isFunction(handler)) {
@@ -26287,7 +26322,7 @@ const _M = {
       let checkedIds = this.$table.theCheckedIds;
       let payload = this.$table.getEmitContext(currentId, checkedIds);
       let newVal = await handler(payload, this.TheValue);
-      console.log(newVal)
+      console.log(newVal);
       if (newVal && _.isArray(newVal)) {
         this.notifyChange(newVal);
       }
@@ -26428,21 +26463,18 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForSource(json = "[]") {
-      let dialog = _.assign(
-        {
-          title: "i18n:edit",
-          width: 500,
-          height: 500
-        },
-        this.dialog,
-        {
-          result: json,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
+      let dialog = _.assign({
+        title: "i18n:edit",
+        position: "bottom",
+        width: "73%",
+        height: "96%",
+        clickMaskToClose: true,
+        result: json,
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
         }
-      );
+      });
 
       return await Ti.App.Open(dialog);
     },
@@ -49708,7 +49740,7 @@ const FieldDisplay = {
     if (_.isFunction(dis.transformer)) {
       // Sometimes, we need transform nil also
       if (!Ti.Util.isNil(value) || dis.transNil) {
-        value = dis.transformer(value);
+        value = await dis.transformer(value);
       }
     }
     // Ignore the Blank
@@ -56861,7 +56893,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             title: "i18n:role-behaviors",
             display: {
               key: "roleActions",
-              comType: "TiTags",
+              comType: "TiLabel",
               comConf: {
                 className: "is-nowrap",
                 dict: "SysActions"
@@ -76262,7 +76294,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------------------
     OnCopyAll(evt) {
       let $ta = Ti.Dom.find("table", this.$el);
-      let ids = _.concat(_.get(this.OID, "homeId"), _.get(this.OID, "myId"));
+      let ids = [];
+      let homeId = _.get(this.OID, "homeId");
+      let myId = _.get(this.OID, "myId");
+      if (homeId) {
+        ids.push(homeId);
+      }
+      if (myId) {
+        ids.push(myId);
+      }
       this.__copy(ids.join(":"), $ta);
     },
     //-----------------------------------------------

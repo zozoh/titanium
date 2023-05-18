@@ -61,7 +61,15 @@ export default {
     //-----------------------------------------------
     OnCopyAll(evt) {
       let $ta = Ti.Dom.find("table", this.$el);
-      let ids = _.concat(_.get(this.OID, "homeId"), _.get(this.OID, "myId"));
+      let ids = [];
+      let homeId = _.get(this.OID, "homeId");
+      let myId = _.get(this.OID, "myId");
+      if (homeId) {
+        ids.push(homeId);
+      }
+      if (myId) {
+        ids.push(myId);
+      }
       this.__copy(ids.join(":"), $ta);
     },
     //-----------------------------------------------

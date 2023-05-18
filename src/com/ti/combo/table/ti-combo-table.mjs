@@ -68,7 +68,7 @@ const _M = {
         }
       );
       if (!_.isEmpty(this.moreActions)) {
-        items.push({})
+        items.push({});
         _.forEach(this.moreActions, (ma) => {
           let handler = ma.action;
           if (_.isFunction(handler)) {
@@ -163,7 +163,7 @@ const _M = {
       let checkedIds = this.$table.theCheckedIds;
       let payload = this.$table.getEmitContext(currentId, checkedIds);
       let newVal = await handler(payload, this.TheValue);
-      console.log(newVal)
+      console.log(newVal);
       if (newVal && _.isArray(newVal)) {
         this.notifyChange(newVal);
       }
@@ -304,21 +304,18 @@ const _M = {
     },
     //-----------------------------------------------
     async openDialogForSource(json = "[]") {
-      let dialog = _.assign(
-        {
-          title: "i18n:edit",
-          width: 500,
-          height: 500
-        },
-        this.dialog,
-        {
-          result: json,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
+      let dialog = _.assign({
+        title: "i18n:edit",
+        position: "bottom",
+        width: "73%",
+        height: "96%",
+        clickMaskToClose: true,
+        result: json,
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
         }
-      );
+      });
 
       return await Ti.App.Open(dialog);
     },
