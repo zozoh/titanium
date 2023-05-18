@@ -1,4 +1,4 @@
-// Pack At: 2023-05-18 21:33:50
+// Pack At: 2023-05-19 01:15:07
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13631,7 +13631,7 @@ const _M = {
   //
   //----------------------------------------
   async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
-    //console.log("applySearch", {filter, sorter})
+    console.log("applySearch", {filter, sorter})
     if (filter) {
       commit("setFilter", filter);
     }
@@ -76651,6 +76651,7 @@ const _M = {
       importSettings,
       agg,
       aggQuery,
+      aggAutoReload,
       currentId,
       checkedIds,
       pageSize,
@@ -76694,6 +76695,9 @@ const _M = {
     }
     if (aggQuery) {
       commit("setAggQuery", aggQuery);
+    }
+    if (_.isBoolean(aggAutoReload)) {
+      commit("setAggAutoReload", aggAutoReload);
     }
 
     // Apply fixed match
@@ -76819,7 +76823,7 @@ const _M = {
     state.LOG = () => {};
 
     // if ("casetasks" == state.moduleName) {
-    //   state.LOG = console.log;
+    state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard

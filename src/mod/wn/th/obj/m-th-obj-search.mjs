@@ -466,7 +466,7 @@ const _M = {
   //
   //----------------------------------------
   async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
-    //console.log("applySearch", {filter, sorter})
+    console.log("applySearch", {filter, sorter})
     if (filter) {
       commit("setFilter", filter);
     }
