@@ -29,6 +29,10 @@ const _M = {
       type: String,
       default: ", "
     },
+    "inDictsplitBy": {
+      type: [RegExp, String],
+      default: () => /[,;]+/g
+    },
     "hoverable": {
       type: Boolean,
       default: false
@@ -366,7 +370,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
-      console.log(evt)
+      console.log(evt);
       if (this.editable || !this.navigable) {
         evt.preventDefault();
       }

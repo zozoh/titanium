@@ -66,32 +66,60 @@ export default {
                 dict,
                 format,
                 placeholder,
-                autoLoadDictIcon,
+                autoLoadDictIcon = Ti.Config.getComProp(
+                  "TiLabel",
+                  "autoLoadDictIcon",
+                  true
+                ),
                 prefixIcon,
                 editable,
+                multiValSep = ",",
+                valueMustInDict = true,
+                inDictsplitBy = /[,;]+/g,
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
               if (!editable && !enterNotifyName && !leaveNotifyName) {
                 let text = value;
                 let icon = prefixIcon;
+                let isBlank = false;
                 // Show empty placeholder
                 if (Ti.Util.isNil(text) || (_.isString(text) && !text)) {
                   text = Ti.Util.fallback(placeholder, "i18n:blank");
+                  isBlank = true;
                 }
                 // Explain Dict
                 else if (dict) {
-                  if (Ti.Util.isNil(autoLoadDictIcon)) {
-                    autoLoadDictIcon = Ti.Config.getComProp(
-                      "TiLabel",
-                      "autoLoadDictIcon",
-                      true
-                    );
-                  }
                   let $d = Ti.DictFactory.CheckDict(dict);
-                  text = await $d.getItemText(value);
-                  if (autoLoadDictIcon) {
-                    icon = await $d.getItemIcon(value);
+                  // Uniform the values to array
+                  let vals;
+                  if (_.isString(value) && inDictsplitBy) {
+                    vals = Ti.S.splitIgnoreBlank(value, inDictsplitBy);
+                  } else {
+                    vals = _.concat([], value);
+                  }
+
+                  // explain the value or values
+                  if (vals.length > 1) {
+                    let ss = [];
+                    for (let v of vals) {
+                      let it = await $d.getItem(v);
+                      let s = $d.getText(it);
+                      if (!Ti.Util.isNil(s) || valueMustInDict) {
+                        ss.push(s);
+                      } else {
+                        ss.push(v);
+                      }
+                    }
+                    text = ss.join(multiValSep);
+                  } else if (vals.length > 0) {
+                    text = await $d.getItemText(vals[0]);
+                    if (autoLoadDictIcon) {
+                      icon = await $d.getItemIcon(vals[0]);
+                    }
+                  } else {
+                    text = "i18n:empty";
+                    isBlank = true;
                   }
                 }
                 // Formater
@@ -108,7 +136,8 @@ export default {
                 disIt.quickLabel = {
                   style,
                   className: Ti.Css.mergeClassName(className, disIt.className, {
-                    "is-hover-copy": hoverCopy
+                    "is-hover-copy": hoverCopy,
+                    "is-blank": isBlank
                   }),
                   hoverCopy,
                   newTab,

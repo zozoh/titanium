@@ -68,7 +68,7 @@ export default {
             title: "i18n:role-behaviors",
             display: {
               key: "roleActions",
-              comType: "TiTags",
+              comType: "TiLabel",
               comConf: {
                 className: "is-nowrap",
                 dict: "SysActions"
