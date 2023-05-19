@@ -1,4 +1,4 @@
-// Pack At: 2023-05-19 01:16:38
+// Pack At: 2023-05-20 02:38:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23340,7 +23340,7 @@ const _M = {
   props: {
     "focusValue": {
       type: [String, Number]
-    },
+    }
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -23360,89 +23360,76 @@ const _M = {
         "has-prefix-icon": this.prefixIcon ? true : false,
         "has-prefix-text": !Ti.Util.isNil(this.prefixText),
         "has-suffix-icon": this.suffixIcon ? true : false,
-        "has-suffix-text": !Ti.Util.isNil(this.suffixText),
-      })
+        "has-suffix-text": !Ti.Util.isNil(this.suffixText)
+      });
     },
     //------------------------------------------------
     TopStyle() {
       return Ti.Css.toStyle({
         width: this.width,
         height: this.height
-      })
+      });
     },
     //------------------------------------------------
-    InputValueTip(){
-      let tip = this.valueTip
-      if(this.valueTip){
-        if(_.isString(this.valueTip)) {
+    InputValueTip() {
+      let tip = this.valueTip;
+      if (this.valueTip) {
+        if (_.isString(this.valueTip)) {
           return {
             "data-ti-tip": this.valueTip
-          }
+          };
         }
       }
-      return tip
+      return tip;
     },
     //------------------------------------------------
     TheValue() {
       if (!_.isUndefined(this.inputingValue)) {
-        return this.inputingValue
+        return this.inputingValue;
       }
       //console.log("input value:", this.value)
-      let val = this.value
+      let val = this.value;
       if (this.isFocused && !Ti.Util.isNil(this.focusValue)) {
-        val = this.focusValue
+        val = this.focusValue;
       }
-      val = Ti.Types.toStr(val, this.format)
+      val = Ti.Types.toStr(val, this.format);
       if (this.autoI18n) {
-        return Ti.I18n.text(val)
+        return Ti.I18n.text(val);
       }
-      return val
+      return val;
     },
-    //------------------------------------------------
-    Validating() {
-      if (this.validator) {
-        let { test, message } = this.validator
-        if (test) {
-          let am = Ti.AutoMatch.parse(test)
-          return v => {
-            if (!am(v)) {
-              Ti.Toast.Open(message || "i18n:invalid-val", "warn")
-              return false
-            }
-            return true
-          }
-        }
-      }
-      return v => true
-    },
+
     //------------------------------------------------
     ThePrefixIcon() {
-      let icon = Ti.Util.trueGet(this.prefixIcon, 'zmdi-close', this.prefixIcon)
-      let hove = this.prefixHoverIcon
-      if ("prefixIcon" == this.pointerHover
-        && this.isCanHover("prefixIcon")) {
-        return hove || icon
+      let icon = Ti.Util.trueGet(
+        this.prefixIcon,
+        "zmdi-close",
+        this.prefixIcon
+      );
+      let hove = this.prefixHoverIcon;
+      if ("prefixIcon" == this.pointerHover && this.isCanHover("prefixIcon")) {
+        return hove || icon;
       }
-      return icon
+      return icon;
     },
     //--------------------------------------
     ThePrefixText() {
-      return Ti.Util.explainObj(this, this.prefixText)
+      return Ti.Util.explainObj(this, this.prefixText);
     },
     //--------------------------------------
     TheSuffixText() {
-      return Ti.Util.explainObj(this, this.suffixText)
+      return Ti.Util.explainObj(this, this.suffixText);
     },
     //------------------------------------------------
     TheHover() {
-      let map = {}
-      let hos = _.concat(this.hover)
+      let map = {};
+      let hos = _.concat(this.hover);
       for (let ho of hos) {
         if (ho) {
-          map[ho] = true
+          map[ho] = true;
         }
       }
-      return map
+      return map;
     }
     //------------------------------------------------
   },
@@ -23450,43 +23437,43 @@ const _M = {
   methods: {
     //------------------------------------------------
     isCanHover(hoverName) {
-      return this.TheHover[hoverName] ? true : false
+      return this.TheHover[hoverName] ? true : false;
     },
     //------------------------------------------------
     getHoverClass(hoverName) {
-      let canHover = this.isCanHover(hoverName)
+      let canHover = this.isCanHover(hoverName);
       return {
         "can-hover": canHover,
         "for-look": !canHover,
         "is-prefix-icon-hover": "prefixIcon" == hoverName
-      }
+      };
     },
     //------------------------------------------------
     OnInputCompositionStart() {
-      this.inputCompositionstart = true
+      this.inputCompositionstart = true;
     },
     //------------------------------------------------
     OnInputCompositionEnd() {
-      this.inputCompositionstart = false
-      this.doWhenInput()
+      this.inputCompositionstart = false;
+      this.doWhenInput();
     },
     //------------------------------------------------
     OnInputing($event) {
       if (!this.inputCompositionstart) {
-        this.doWhenInput()
+        this.doWhenInput();
       }
     },
     //------------------------------------------------
     doWhenInput() {
-      let val = this.getInputValue(false)
+      let val = this.getInputValue(false);
       if (!Ti.Util.isNil(val)) {
-        this.inputingValue = val
-        this.$notify("inputing", val)
+        this.inputingValue = val;
+        this.$notify("inputing", val);
       }
     },
     //------------------------------------------------
     // OnInputKeyDown($event) {
-    //   let payload = _.pick($event, 
+    //   let payload = _.pick($event,
     //     "code","key","keyCode",
     //     "altKey","ctrlKey","metaKey","shiftKey")
     //   payload.uniqueKey = Ti.Shortcut.getUniqueKey(payload)
@@ -23495,81 +23482,78 @@ const _M = {
     // },
     //------------------------------------------------
     OnInputChanged() {
-      let val = this.getInputValue(this.autoJsValue)
+      //console.log("OnInputChanged");
+      let val = this.getInputValue(this.autoJsValue);
       // validate
-      if (!this.Validating(val)) {
-        this.$notify("invalid", val)
-        return
+      let checker = this.genValidating();
+      if (!checker(val)) {
+        this.$notify("invalid", val);
+        return;
       }
       //console.log("OnInputChange", JSON.stringify(val))
-      this.$notify("change", val)
+      this.$notify("change", val);
       _.delay(() => {
-        this.inputingValue = undefined
-      }, 100)
-
+        this.inputingValue = undefined;
+      }, 100);
     },
     //------------------------------------------------
     OnClickInput() {
       if (!this.readonly) {
-        this.isFocused = true
+        this.isFocused = true;
       }
       if (!this.isActived) {
-        this.setActived()
+        this.setActived();
       }
-      this.$notify("input:click")
+      this.$notify("input:click");
     },
     //------------------------------------------------
     OnInputFocus() {
-      if (this.readonly)
-        return;
+      if (this.readonly) return;
       if (this.autoSelect) {
-        this.$refs.input.select()
+        this.$refs.input.select();
       } else {
-        this.$refs.input.focus()
+        this.$refs.input.focus();
       }
-      this.isFocused = true
-      this.$notify("input:focus")
+      this.isFocused = true;
+      this.$notify("input:focus");
       // Auto Actived
       if (!this.isActived) {
-        this.setActived()
+        this.setActived();
       }
     },
     //------------------------------------------------
     OnInputBlur() {
-      this.isFocused = false
-      this.$notify("input:blur")
+      this.isFocused = false;
+      this.$notify("input:blur");
     },
     //------------------------------------------------
     OnClickPrefixIcon() {
       if (this.prefixIconForClean) {
-        this.$notify("change", null)
+        this.$notify("change", null);
       }
-      if (this.prefixIconNotifyName)
-        this.$notify(this.prefixIconNotifyName)
+      if (this.prefixIconNotifyName) this.$notify(this.prefixIconNotifyName);
     },
     //------------------------------------------------
     OnClickPrefixText() {
-      if (this.prefixTextNotifyName)
-        this.$notify(this.prefixTextNotifyName)
+      if (this.prefixTextNotifyName) this.$notify(this.prefixTextNotifyName);
     },
     //------------------------------------------------
     OnClickSuffixIcon() {
-      if (this.suffixIconNotifyName){
-        this.$notify(this.suffixIconNotifyName)
+      if (this.suffixIconNotifyName) {
+        this.$notify(this.suffixIconNotifyName);
       }
     },
     //------------------------------------------------
     OnClickSuffixText() {
       //console.log("suffix")
-      if (this.suffixTextNotifyName)
-        this.$notify(this.suffixTextNotifyName)
+      if (this.suffixTextNotifyName) this.$notify(this.suffixTextNotifyName);
     },
     //------------------------------------------------
     OnInputKeyPress($event) {
       if (13 == $event.which) {
         if (this.enterKeyNotifyName) {
-          let val = this.getInputValue(this.autoJsValue)
-          this.$notify(this.enterKeyNotifyName, val)
+          let val = this.getInputValue(this.autoJsValue);
+          this.$notify(this.enterKeyNotifyName, val);
         }
       }
     },
@@ -23579,30 +23563,47 @@ const _M = {
     getInputValue(autoJsValue = false) {
       if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
-        let val = this.$refs.input.value
+        let val = this.$refs.input.value;
         // Auto js value
         if (autoJsValue) {
           val = Ti.S.toJsValue(val, {
             autoNil: true,
             autoDate: false,
             trimed: this.trimed
-          })
+          });
         }
         // Trim
         else if (this.trimed) {
-          val = _.trim(val)
+          val = _.trim(val);
         }
         // case
-        val = Ti.S.toCase(val, this.valueCase)
+        val = Ti.S.toCase(val, this.valueCase);
 
         // notify
-        return val
+        return val;
       }
+    },
+    //------------------------------------------------
+    genValidating() {
+      if (this.validator) {
+        let { test, message } = this.validator;
+        if (test) {
+          let am = Ti.AutoMatch.parse(test);
+          return (v) => {
+            if (!am(v)) {
+              Ti.Toast.Open(message || "i18n:invalid-val", "warn");
+              return false;
+            }
+            return true;
+          };
+        }
+      }
+      return (v) => true;
     },
     //------------------------------------------------
     doAutoFocus() {
       if (this.focused && !this.isFocused) {
-        this.OnInputFocus()
+        this.OnInputFocus();
       }
     }
     //------------------------------------------------
@@ -23613,10 +23614,10 @@ const _M = {
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.doAutoFocus()
+    this.doAutoFocus();
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -24319,6 +24320,7 @@ const _M = {
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFormFieldList",
+    //"myData": "tryEvalFormFieldList",
     "data": {
       handler: "tryEvalData",
       immediate: true

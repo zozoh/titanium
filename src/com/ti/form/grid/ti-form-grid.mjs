@@ -524,6 +524,7 @@ const _M = {
   //////////////////////////////////////////////////////
   watch: {
     "fields": "tryEvalFormFieldList",
+    //"myData": "tryEvalFormFieldList",
     "data": {
       handler: "tryEvalData",
       immediate: true
