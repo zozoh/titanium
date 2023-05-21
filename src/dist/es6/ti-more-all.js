@@ -1,4 +1,4 @@
-// Pack At: 2023-05-20 02:38:13
+// Pack At: 2023-05-22 00:15:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -82493,6 +82493,11 @@ const _M = {
         } else if ("value" == this.InputBoxMode) {
           conf.value = this.value;
         }
+      }
+
+      if (conf.readonly) {
+        conf.hover = null;
+        conf.prefixIconForClean = false;
       }
 
       if (this.isPicking) {

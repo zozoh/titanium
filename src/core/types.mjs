@@ -847,7 +847,7 @@ const TiTypes = {
   },
   //.......................................
   toBoolStr(val, falsy = "No", trusy = "Yes") {
-    console.log(val, falsy, trusy);
+    //console.log(val, falsy, trusy);
     return val ? trusy : falsy;
   },
   //.......................................

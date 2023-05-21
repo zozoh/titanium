@@ -1,4 +1,4 @@
-// Pack At: 2023-05-20 02:38:13
+// Pack At: 2023-05-22 00:15:35
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -10760,7 +10760,7 @@ const { Types } = (function(){
     },
     //.......................................
     toBoolStr(val, falsy = "No", trusy = "Yes") {
-      console.log(val, falsy, trusy);
+      //console.log(val, falsy, trusy);
       return val ? trusy : falsy;
     },
     //.......................................
@@ -20455,7 +20455,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230520.023813",
+  "version": "1.6-20230522.001535",
   "dev": false,
   "appName": null,
   "session": {},

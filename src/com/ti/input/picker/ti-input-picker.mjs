@@ -176,6 +176,11 @@ const _M = {
         }
       }
 
+      if (conf.readonly) {
+        conf.hover = null;
+        conf.prefixIconForClean = false;
+      }
+
       if (this.isPicking) {
         conf.suffixIcon = this.pickingIcon;
         if (this.pickingText) {
