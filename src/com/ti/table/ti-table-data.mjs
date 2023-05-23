@@ -122,6 +122,10 @@ export default {
                     isBlank = true;
                   }
                 }
+                // Normal value
+                else if(_.isArray(value)){
+                  text = value.join(multiValSep);
+                }
                 // Formater
                 if (format) {
                   if (_.isFunction(format)) {

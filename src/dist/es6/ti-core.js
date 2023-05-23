@@ -1,4 +1,4 @@
-// Pack At: 2023-05-22 00:15:35
+// Pack At: 2023-05-23 13:06:18
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -9664,7 +9664,12 @@ const { DateTime } = (function(){
       if (last < fmt.length) {
         list.push(fmt.substring(last));
       }
-      return list.join("");
+      let re = list.join("");
+      // if end by 00:00:00 then auto trim it
+      if (re.endsWith(" 00:00:00")) {
+        return re.substring(0, re.length - 9);
+      }
+      return re;
     },
     //---------------------------------------
     getWeekDayAbbr(day) {
@@ -20455,7 +20460,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230522.001535",
+  "version": "1.6-20230523.130618",
   "dev": false,
   "appName": null,
   "session": {},

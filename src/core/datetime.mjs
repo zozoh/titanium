@@ -223,7 +223,12 @@ const TiDateTime = {
     if (last < fmt.length) {
       list.push(fmt.substring(last));
     }
-    return list.join("");
+    let re = list.join("");
+    // if end by 00:00:00 then auto trim it
+    if (re.endsWith(" 00:00:00")) {
+      return re.substring(0, re.length - 9);
+    }
+    return re;
   },
   //---------------------------------------
   getWeekDayAbbr(day) {

@@ -1,4 +1,4 @@
-// Pack At: 2023-05-22 00:15:35
+// Pack At: 2023-05-23 13:06:18
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1327,42 +1327,61 @@ const Obj = (function(){
               }
               // Auto com type
               let jsType = Ti.Types.getJsType(v, "String");
-              let fldConf = {
-                Integer: {
-                  type: "Number",
-                  display: k,
-                  comType: "ti-input"
-                },
-                Number: {
-                  type: "Number",
-                  display: k,
-                  comType: "ti-input"
-                },
-                Boolean: {
-                  type: "Boolean",
-                  comType: "ti-toggle"
-                },
-                Array: {
-                  type: "Array",
+              let fldConf;
+              // Auto detact timestamp :
+              // Integer and more than 1977-09-21
+              if (_.isNumber(v) && parseInt(v) === v && v > 243619200000) {
+                fldConf = {
+                  type: "AMS",
                   display: {
-                    key: k
+                    key: k,
+                    transformer: "Ti.DateTime.format",
+                    comConf:{
+                      className:"ass-tip"
+                    }
                   },
-                  transformer: "JSON.stringify(null, '  ')",
-                  comType: "ti-input-text",
-                  comConf: {
-                    height: 240
+                  comType: "TiInputDatetime"
+                };
+              }
+              // Normal field auto by type
+              else {
+                fldConf = {
+                  Integer: {
+                    type: "Number",
+                    display: k,
+                    comType: "ti-input"
+                  },
+                  Number: {
+                    type: "Number",
+                    display: k,
+                    comType: "ti-input"
+                  },
+                  Boolean: {
+                    type: "Boolean",
+                    comType: "ti-toggle"
+                  },
+                  Array: {
+                    type: "Array",
+                    display: {
+                      key: k
+                    },
+                    transformer: "JSON.stringify(null, '  ')",
+                    comType: "ti-input-text",
+                    comConf: {
+                      height: 240
+                    }
                   }
-                }
-              }[jsType] || {
-                type: "String",
-                display: {
-                  key: k,
-                  comConf: {
-                    className: "is-nowrap"
-                  }
-                },
-                comType: "ti-input"
-              };
+                }[jsType] || {
+                  type: "String",
+                  display: {
+                    key: k,
+                    comConf: {
+                      className: "is-nowrap"
+                    }
+                  },
+                  comType: "ti-input"
+                };
+              }
   
               // Join
               let f2 = iteratee({
@@ -4576,7 +4595,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230522.001535"
+const WALNUT_VERSION = "1.2-20230523.130618"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

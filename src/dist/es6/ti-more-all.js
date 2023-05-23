@@ -1,4 +1,4 @@
-// Pack At: 2023-05-22 00:15:35
+// Pack At: 2023-05-23 13:06:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11823,6 +11823,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
                     text = "i18n:empty";
                     isBlank = true;
                   }
+                }
+                // Normal value
+                else if(_.isArray(value)){
+                  text = value.join(multiValSep);
                 }
                 // Formater
                 if (format) {
