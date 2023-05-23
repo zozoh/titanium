@@ -123,8 +123,16 @@ export default {
                   }
                 }
                 // Normal value
-                else if(_.isArray(value)){
-                  text = value.join(multiValSep);
+                else if (_.isArray(value)) {
+                  let ss = [];
+                  _.forEach(value, (val) => {
+                    if (_.isString(val)) {
+                      ss.push(val);
+                    } else {
+                      ss.push(JSON.stringify(val));
+                    }
+                  });
+                  text = ss.join(multiValSep);
                 }
                 // Formater
                 if (format) {
