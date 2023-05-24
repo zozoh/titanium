@@ -1,4 +1,4 @@
-// Pack At: 2023-05-23 13:06:18
+// Pack At: 2023-05-25 00:13:02
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11825,8 +11825,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
                   }
                 }
                 // Normal value
-                else if(_.isArray(value)){
-                  text = value.join(multiValSep);
+                else if (_.isArray(value)) {
+                  let ss = [];
+                  _.forEach(value, (val) => {
+                    if (_.isString(val)) {
+                      ss.push(val);
+                    } else {
+                      ss.push(JSON.stringify(val));
+                    }
+                  });
+                  text = ss.join(multiValSep);
                 }
                 // Formater
                 if (format) {
@@ -13635,7 +13643,7 @@ const _M = {
   //
   //----------------------------------------
   async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
-    console.log("applySearch", {filter, sorter})
+    //console.log("applySearch", {filter, sorter})
     if (filter) {
       commit("setFilter", filter);
     }
@@ -44577,13 +44585,14 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
+      this.LOG("Gen VirtualRows")
       if (this.rowsRenderedAt > 0) {
         if (this.virtualPageCount > 0) {
           let I0 = this.RowScopeFrom;
           let I1 = this.RowScopeTo;
-          return this.tblRows.slice(I0, I1);
+          return _.cloneDeep(this.tblRows.slice(I0, I1));
         }
-        return this.tblRows.slice(0);
+        return _.cloneDeep(this.tblRows.slice(0));
       }
     },
     //--------------------------------------
@@ -94043,21 +94052,18 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :checked-ids="checkedIds"
   :multi="multi"
   :dftLabelHoverCopy="false"
-
+  :enableScope="false"
   :row-class-by="rowClassBy"
-
   :row-checkable="isNodeCheckable"
   :row-selectable="isNodeSelectable"
   :row-cancelable="isNodeCancelable"
   :row-openable="isNodeOpenable"
   :row-hoverable="isNodeHoverable"
-
   :checkable="checkable"
   :selectable="selectable"
   :cancelable="cancelable"
   :openable="openable"
   :hoverable="hoverable"
-
   :puppet-mode="puppetMode"
   :width="width"
   :height="height"
@@ -94068,14 +94074,12 @@ Ti.Preload("ti/com/ti/tree/ti-tree.html", `<ti-table
   :auto-scroll-into-view="autoScrollIntoView"
   :columnResizable="columnResizable"
   :keepCustomizedTo="keepCustomizedTo"
-
   :on-init="OnTableInit"
-
   @icon="OnRowIconClick"
   @open="OnRowOpen"
   @select="OnRowSelect"
-  @cell:item:change="OnCellItemChange"/>
-  `);
+  @cell:item:change="OnCellItemChange"
+/>`);
 //========================================
 // JOIN <ti-tree.mjs> ti/com/ti/tree/ti-tree.mjs
 //========================================

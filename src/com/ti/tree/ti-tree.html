@@ -12,21 +12,18 @@
   :checked-ids="checkedIds"
   :multi="multi"
   :dftLabelHoverCopy="false"
-
+  :enableScope="false"
   :row-class-by="rowClassBy"
-
   :row-checkable="isNodeCheckable"
   :row-selectable="isNodeSelectable"
   :row-cancelable="isNodeCancelable"
   :row-openable="isNodeOpenable"
   :row-hoverable="isNodeHoverable"
-
   :checkable="checkable"
   :selectable="selectable"
   :cancelable="cancelable"
   :openable="openable"
   :hoverable="hoverable"
-
   :puppet-mode="puppetMode"
   :width="width"
   :height="height"
@@ -37,11 +34,9 @@
   :auto-scroll-into-view="autoScrollIntoView"
   :columnResizable="columnResizable"
   :keepCustomizedTo="keepCustomizedTo"
-
   :on-init="OnTableInit"
-
   @icon="OnRowIconClick"
   @open="OnRowOpen"
   @select="OnRowSelect"
-  @cell:item:change="OnCellItemChange"/>
-  
+  @cell:item:change="OnCellItemChange"
+/>

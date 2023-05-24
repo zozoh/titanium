@@ -113,13 +113,14 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
+      this.LOG("Gen VirtualRows")
       if (this.rowsRenderedAt > 0) {
         if (this.virtualPageCount > 0) {
           let I0 = this.RowScopeFrom;
           let I1 = this.RowScopeTo;
-          return this.tblRows.slice(I0, I1);
+          return _.cloneDeep(this.tblRows.slice(I0, I1));
         }
-        return this.tblRows.slice(0);
+        return _.cloneDeep(this.tblRows.slice(0));
       }
     },
     //--------------------------------------
