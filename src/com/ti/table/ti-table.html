@@ -125,7 +125,7 @@
                     </template>
                     <!--ICON: Checker-->
                     <div 
-                      v-if="checkable" 
+                      v-if="checkable && row.checkable" 
                         class="ti-icon row-checker is-font as-checkbox"
                         @click.left.stop="OnClickChecker(row,$event)">
                         <div class="icon-icon">

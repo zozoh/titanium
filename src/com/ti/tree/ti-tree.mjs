@@ -692,7 +692,6 @@ const TI_TREE = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      console.log(uniqKey)
       if ("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }

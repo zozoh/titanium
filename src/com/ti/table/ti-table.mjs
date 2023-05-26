@@ -113,7 +113,7 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      this.LOG("Gen VirtualRows")
+      this.LOG("Gen VirtualRows");
       if (this.rowsRenderedAt > 0) {
         if (this.virtualPageCount > 0) {
           let I0 = this.RowScopeFrom;
@@ -195,19 +195,23 @@ const _M = {
     },
     //--------------------------------------
     OnClickChecker(row, $event) {
-      if (this.checkable) {
-        this.OnRowCheckerClick({
-          rowId: row.id,
-          shift: $event.shiftKey,
-          toggle: $event.ctrlKey || $event.metaKey
-        });
+      if (!this.checkable || !row.checkable) {
+        return;
       }
+      this.OnRowCheckerClick({
+        rowId: row.id,
+        shift: $event.shiftKey,
+        toggle: $event.ctrlKey || $event.metaKey
+      });
     },
     //--------------------------------------
     OnClickRow(row, $event = {}) {
       this.LOG("OnClickRow", row.id);
+      if (!this.selectable || !row.selectable) {
+        return;
+      }
       let toggle = $event.ctrlKey || $event.metaKey;
-      if (this.selectable && (!row.current || toggle)) {
+      if (!row.current || toggle) {
         this.OnRowSelect({
           rowId: row.id,
           shift: $event.shiftKey,

@@ -1,4 +1,4 @@
-// Pack At: 2023-05-25 00:13:02
+// Pack At: 2023-05-27 00:52:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -37891,7 +37891,6 @@ const TI_TREE = {
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
-      console.log(uniqKey)
       if ("ARROWLEFT" == uniqKey) {
         this.closeRow(this.myCurrentId)
       }
@@ -44585,7 +44584,7 @@ const _M = {
     },
     //--------------------------------------
     VirtualRows() {
-      this.LOG("Gen VirtualRows")
+      this.LOG("Gen VirtualRows");
       if (this.rowsRenderedAt > 0) {
         if (this.virtualPageCount > 0) {
           let I0 = this.RowScopeFrom;
@@ -44667,19 +44666,23 @@ const _M = {
     },
     //--------------------------------------
     OnClickChecker(row, $event) {
-      if (this.checkable) {
-        this.OnRowCheckerClick({
-          rowId: row.id,
-          shift: $event.shiftKey,
-          toggle: $event.ctrlKey || $event.metaKey
-        });
+      if (!this.checkable || !row.checkable) {
+        return;
       }
+      this.OnRowCheckerClick({
+        rowId: row.id,
+        shift: $event.shiftKey,
+        toggle: $event.ctrlKey || $event.metaKey
+      });
     },
     //--------------------------------------
     OnClickRow(row, $event = {}) {
       this.LOG("OnClickRow", row.id);
+      if (!this.selectable || !row.selectable) {
+        return;
+      }
       let toggle = $event.ctrlKey || $event.metaKey;
-      if (this.selectable && (!row.current || toggle)) {
+      if (!row.current || toggle) {
         this.OnRowSelect({
           rowId: row.id,
           shift: $event.shiftKey,
@@ -93055,7 +93058,7 @@ Ti.Preload("ti/com/ti/table/ti-table.html", `<div class="ti-table"
                     </template>
                     <!--ICON: Checker-->
                     <div 
-                      v-if="checkable" 
+                      v-if="checkable && row.checkable" 
                         class="ti-icon row-checker is-font as-checkbox"
                         @click.left.stop="OnClickChecker(row,$event)">
                         <div class="icon-icon">
