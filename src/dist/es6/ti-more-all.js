@@ -1,4 +1,4 @@
-// Pack At: 2023-05-27 00:52:01
+// Pack At: 2023-05-29 12:24:29
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13325,7 +13325,18 @@ const _M = {
         //.........................
         // All
         else if ("all" == mode) {
-          // Do nothing
+          let sum = _.get(state, "pager.sum") || 100000;
+          if (sum > 1000) {
+            if (
+              !(await Ti.Confirm("i18n:wn-export-confirm-many", {
+                type: "warn"
+              }))
+            ) {
+              return;
+            }
+          }
+          // if limit is 0 mean unlimited, so we just give it a big number, such as 10W
+          cmds.push(`-limit ${sum}`);
         }
         //.........................
         // Invalid Mode
@@ -13379,7 +13390,7 @@ const _M = {
       cmdText = gre.cmdText;
       input = gre.input;
       outputPath = gre.outputPath;
-      state.LOG("Export Data:", cmdText);
+      state.LOG("Export Data:", cmdText, input, outputPath);
     } catch (E) {
       // Fail to Generate the command
       Ti.Alert(E.toString() || "Some Erro Happend IN Gen Command", {
@@ -13513,6 +13524,10 @@ const _M = {
 
     // Check data Scope
     let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
+    // if limit is 0 mean unlimited, so we just give it a big number, such as 10W
+    if (!limit) {
+      limit = 100000;
+    }
     if (limit > 1000) {
       if (
         !(await Ti.Confirm("i18n:wn-import-confirm-many", {
@@ -20586,7 +20601,8 @@ const _M = {
     myMappingFiles: [],
     myCanFields: {
       /*mappingName : []*/
-    }
+    },
+    forceShowMapping: false
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -20749,7 +20765,7 @@ const _M = {
       //
       // Choose mapping file
       //
-      if (this.myMappingFiles.length > 1) {
+      if (this.myMappingFiles.length > 1 || this.forceShowMapping) {
         fields.push({
           title: "i18n:wn-export-c-mapping",
           name: "mapping",
@@ -20966,8 +20982,13 @@ const _M = {
     //---------------------------------------------------
     async reloadMappingFields(mappingId = this.MappingFileId) {
       if (mappingId && !this.myCanFields[mappingId]) {
+        let oMapping = await Wn.Io.loadMetaById(mappingId);
+        if (!oMapping) {
+          this.forceShowMapping = true;
+          return;
+        }
         // Try Cache
-        let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
+        let json = await Wn.Io.loadContent(oMapping);
         let cans = [];
         if (!Ti.S.isBlank(json)) {
           let list = JSON.parse(json);
@@ -21075,6 +21096,10 @@ const _M = {
       }
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch: {
+    "data.mapping" : "reloadMappingFields"
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {
@@ -53866,7 +53891,7 @@ const _M = {
   /////////////////////////////////////////
   props: {
     "icon": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "title": {

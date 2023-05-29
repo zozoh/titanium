@@ -5,7 +5,8 @@ const _M = {
     myMappingFiles: [],
     myCanFields: {
       /*mappingName : []*/
-    }
+    },
+    forceShowMapping: false
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -168,7 +169,7 @@ const _M = {
       //
       // Choose mapping file
       //
-      if (this.myMappingFiles.length > 1) {
+      if (this.myMappingFiles.length > 1 || this.forceShowMapping) {
         fields.push({
           title: "i18n:wn-export-c-mapping",
           name: "mapping",
@@ -385,8 +386,13 @@ const _M = {
     //---------------------------------------------------
     async reloadMappingFields(mappingId = this.MappingFileId) {
       if (mappingId && !this.myCanFields[mappingId]) {
+        let oMapping = await Wn.Io.loadMetaById(mappingId);
+        if (!oMapping) {
+          this.forceShowMapping = true;
+          return;
+        }
         // Try Cache
-        let json = await Wn.Sys.exec2(`cat id:${mappingId}`);
+        let json = await Wn.Io.loadContent(oMapping);
         let cans = [];
         if (!Ti.S.isBlank(json)) {
           let list = JSON.parse(json);
@@ -494,6 +500,10 @@ const _M = {
       }
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch: {
+    "data.mapping" : "reloadMappingFields"
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {

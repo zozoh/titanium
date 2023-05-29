@@ -148,7 +148,18 @@ const _M = {
         //.........................
         // All
         else if ("all" == mode) {
-          // Do nothing
+          let sum = _.get(state, "pager.sum") || 100000;
+          if (sum > 1000) {
+            if (
+              !(await Ti.Confirm("i18n:wn-export-confirm-many", {
+                type: "warn"
+              }))
+            ) {
+              return;
+            }
+          }
+          // if limit is 0 mean unlimited, so we just give it a big number, such as 10W
+          cmds.push(`-limit ${sum}`);
         }
         //.........................
         // Invalid Mode
@@ -202,7 +213,7 @@ const _M = {
       cmdText = gre.cmdText;
       input = gre.input;
       outputPath = gre.outputPath;
-      state.LOG("Export Data:", cmdText);
+      state.LOG("Export Data:", cmdText, input, outputPath);
     } catch (E) {
       // Fail to Generate the command
       Ti.Alert(E.toString() || "Some Erro Happend IN Gen Command", {
@@ -336,6 +347,10 @@ const _M = {
 
     // Check data Scope
     let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
+    // if limit is 0 mean unlimited, so we just give it a big number, such as 10W
+    if (!limit) {
+      limit = 100000;
+    }
     if (limit > 1000) {
       if (
         !(await Ti.Confirm("i18n:wn-import-confirm-many", {

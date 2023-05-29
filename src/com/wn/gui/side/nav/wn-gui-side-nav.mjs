@@ -2,7 +2,7 @@ const _M = {
   /////////////////////////////////////////
   props: {
     "icon": {
-      type: String,
+      type: [String, Object],
       default: undefined
     },
     "title": {
