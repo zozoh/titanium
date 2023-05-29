@@ -1,4 +1,4 @@
-// Pack At: 2023-05-29 23:39:17
+// Pack At: 2023-05-30 01:38:15
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -2441,6 +2441,11 @@ const Util = (function(){
         }
       });
     },
+    getDownloadLinkStr(meta, options) {
+      if (meta) {
+        return WnUtil.getDownloadLink(meta, options).toString();
+      }
+    },
     /**
      * Eval filter obj {keyword, match, majorKey, majorValue}
      * to the query object match
@@ -4595,7 +4600,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230529.233918"
+const WALNUT_VERSION = "1.2-20230530.013816"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

@@ -316,6 +316,11 @@ const WnUtil = {
       }
     });
   },
+  getDownloadLinkStr(meta, options) {
+    if (meta) {
+      return WnUtil.getDownloadLink(meta, options).toString();
+    }
+  },
   /**
    * Eval filter obj {keyword, match, majorKey, majorValue}
    * to the query object match
