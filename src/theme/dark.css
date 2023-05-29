@@ -5588,7 +5588,7 @@ div.ti-input-tags {
   font-size: 0.24rem; }
   .ti-loading .as-icon {
     font-size: 1.2em;
-    margin: 0 .5em; }
+    margin: 0 0.5em; }
   .ti-loading .as-text {
     display: flex;
     justify-content: flex-start;
@@ -5635,7 +5635,7 @@ div.ti-input-tags {
       font-size: 1.28rem; }
     .ti-loading.as-hug > .as-text {
       display: block;
-      padding: .5em;
+      padding: 0.5em;
       font-size: 0.2rem;
       width: 100%;
       text-align: center; }
@@ -5645,7 +5645,7 @@ div.ti-input-tags {
       font-size: 0.64rem; }
     .ti-loading.as-big > .as-text {
       display: block;
-      padding: .5em;
+      padding: 0.5em;
       font-size: 0.16rem;
       width: 100%;
       text-align: center; }
@@ -5667,10 +5667,25 @@ div.ti-input-tags {
       font-size: 0.64rem; }
     .ti-loading.as-big-mask > .as-text {
       display: block;
-      padding: .5em;
+      padding: 0.5em;
       font-size: 0.16rem;
       width: 100%;
       text-align: center; }
+  .ti-loading.as-mask {
+    color: #AAA;
+    background-color: rgba(50, 50, 50, 0.4); }
+  .ti-loading.pad-s {
+    padding: 0.5em; }
+  .ti-loading.pad-m {
+    padding: 1em; }
+  .ti-loading.pad-b {
+    padding: 2em; }
+  .ti-loading.radius-s {
+    border-radius: 0.06rem; }
+  .ti-loading.radius-m {
+    border-radius: 0.1rem; }
+  .ti-loading.radius-b {
+    border-radius: 0.14rem; }
   .ti-loading.as-mid {
     padding: 1.5em 0 1em 0;
     font-size: 0.12rem; }
@@ -5678,7 +5693,7 @@ div.ti-input-tags {
       font-size: 2em; }
     .ti-loading.as-mid > .as-text {
       display: block;
-      padding-top: .5em;
+      padding-top: 0.5em;
       width: 100%;
       text-align: center; }
   .ti-loading.as-mid-tip {

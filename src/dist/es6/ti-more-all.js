@@ -1,4 +1,4 @@
-// Pack At: 2023-05-29 12:24:29
+// Pack At: 2023-05-29 23:39:17
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -89861,9 +89861,9 @@ Ti.Preload("ti/com/ti/gui/ti-gui.html", `<div class="ti-gui" :class="TopClass">
   -->
   <template v-if="isLoading">
     <div v-if="maskWhenLoading" class="ti-mask-loading">
-      <ti-loading v-bind="TheLoading" />
+      <ti-loading v-bind="TheLoading" class="as-mask pad-m radius-m" />
     </div>
-    <ti-loading v-else v-bind="TheLoading" />
+    <ti-loading v-else v-bind="TheLoading" class="as-mask pad-m radius-m" />
   </template>
 </div>`);
 //========================================

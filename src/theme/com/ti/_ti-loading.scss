@@ -2,15 +2,15 @@
   @include noselect;
   @include flex-center;
   @include color($color-track, c);
-  font-size:SZ(24);
+  font-size: SZ(24);
   //------------------------------------------
   .as-icon {
-    font-size:1.2em;
-    margin:0 .5em;
+    font-size: 1.2em;
+    margin: 0 0.5em;
   }
   //------------------------------------------
   .as-text {
-    @include flex-align($ai:center);
+    @include flex-align($ai: center);
   }
   //------------------------------------------
   &.as-cover {
@@ -19,36 +19,62 @@
     @include flex-center;
     z-index: $z-mask;
     //----------------------------------------
-    &.at-top    {bottom:unset;}
-    &.at-bottom {top:unset;}
-    &.at-left   {right:unset;}
-    &.at-right  {left:unset;}
-    &.at-left-top    {bottom:unset; right:unset;}
-    &.at-bottom-left  {top:unset; right:unset;}
-    &.at-bottom-right {top:unset; left:unset;}
-    &.at-right-top    {left:unset; bottom:unset;}
+    &.at-top {
+      bottom: unset;
+    }
+    &.at-bottom {
+      top: unset;
+    }
+    &.at-left {
+      right: unset;
+    }
+    &.at-right {
+      left: unset;
+    }
+    &.at-left-top {
+      bottom: unset;
+      right: unset;
+    }
+    &.at-bottom-left {
+      top: unset;
+      right: unset;
+    }
+    &.at-bottom-right {
+      top: unset;
+      left: unset;
+    }
+    &.at-right-top {
+      left: unset;
+      bottom: unset;
+    }
     //----------------------------------------
   }
   //------------------------------------------
   &.as-hug {
     padding: 3em 1em;
-    > .as-icon{font-size: SZ(128);}
-    > .as-text{
-      display:block; padding:.5em;
-      font-size:SZ(20);
-      width:100%;
-      text-align:center;
+    > .as-icon {
+      font-size: SZ(128);
+    }
+    > .as-text {
+      display: block;
+      padding: 0.5em;
+      font-size: SZ(20);
+      width: 100%;
+      text-align: center;
     }
   }
   //------------------------------------------
   &.as-big {
     padding: 3em;
-    > .as-icon{font-size: SZ(64);}
-    > .as-text{
-      display:block; padding:.5em;
-      font-size:SZ(16);
-      width:100%;
-      text-align:center;
+    > .as-icon {
+      font-size: SZ(64);
+    }
+    > .as-text {
+      display: block;
+      padding: 0.5em;
+      font-size: SZ(16);
+      width: 100%;
+      text-align: center;
     }
   }
   //------------------------------------------
@@ -57,22 +83,53 @@
     @include color($color-mask, r, weak);
     @include flex-center;
     z-index: $z-mask;
-    > .as-icon{font-size: SZ(64);}
-    > .as-text{
-      display:block; padding:.5em;
-      font-size:SZ(16);
-      width:100%;
-      text-align:center;
+    > .as-icon {
+      font-size: SZ(64);
+    }
+    > .as-text {
+      display: block;
+      padding: 0.5em;
+      font-size: SZ(16);
+      width: 100%;
+      text-align: center;
     }
   }
   //------------------------------------------
+  &.as-mask {
+    @include color($color-mask, r, thin);
+  }
+  //------------------------------------------
+  &.pad-s {
+    padding: 0.5em;
+  }
+  &.pad-m {
+    padding: 1em;
+  }
+  &.pad-b {
+    padding: 2em;
+  }
+  //------------------------------------------
+  &.radius-s {
+    border-radius: SZ(6);
+  }
+  &.radius-m {
+    border-radius: SZ(10);
+  }
+  &.radius-b {
+    border-radius: SZ(14);
+  }
+  //------------------------------------------
   &.as-mid {
-    padding: 1.5em 0 1em 0; font-size: SZ(12);
-    > .as-icon{font-size: 2em;}
-    > .as-text{
-      display:block; padding-top:.5em;
-      width:100%;
-      text-align:center;
+    padding: 1.5em 0 1em 0;
+    font-size: SZ(12);
+    > .as-icon {
+      font-size: 2em;
+    }
+    > .as-text {
+      display: block;
+      padding-top: 0.5em;
+      width: 100%;
+      text-align: center;
     }
   }
   //------------------------------------------
@@ -102,17 +159,39 @@
     padding: 0.5em;
   }
   //------------------------------------------
-  &.align-left   {justify-content: flex-start;}
-  &.align-center {justify-content: center;}
-  &.align-right  {justify-content: flex-end;}
+  &.align-left {
+    justify-content: flex-start;
+  }
+  &.align-center {
+    justify-content: center;
+  }
+  &.align-right {
+    justify-content: flex-end;
+  }
   //------------------------------------------
-  &.is-success {color: map-get($color-success, c);}
-  &.is-warn    {color: map-get($color-warn, c);}
-  &.is-info    {color: map-get($color-info, c);} 
-  &.is-error   {color: map-get($color-error, c);}
-  &.is-track   {color: map-get($color-track, c);}
-  &.is-disable {color: map-get($color-disable, c);}
-  &.is-text    {color: map-get($color-text, c);}
-  &.is-number  {color: map-get($color-number, c);}
+  &.is-success {
+    color: map-get($color-success, c);
+  }
+  &.is-warn {
+    color: map-get($color-warn, c);
+  }
+  &.is-info {
+    color: map-get($color-info, c);
+  }
+  &.is-error {
+    color: map-get($color-error, c);
+  }
+  &.is-track {
+    color: map-get($color-track, c);
+  }
+  &.is-disable {
+    color: map-get($color-disable, c);
+  }
+  &.is-text {
+    color: map-get($color-text, c);
+  }
+  &.is-number {
+    color: map-get($color-number, c);
+  }
   //------------------------------------------
 }
