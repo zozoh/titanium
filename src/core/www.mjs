@@ -135,7 +135,7 @@ const TiWWW = {
       }
       // Static value
       return ({ path, params, value }) => {
-        if (!Ti.Util.isNil(value) && it.value == value) {
+        if (!Ti.Util.isNil(value) && (it.value == value || it.id == value)) {
           return true;
         }
         if (!_.isEqual(path, highlightBy)) return false;

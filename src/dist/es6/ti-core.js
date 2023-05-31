@@ -1,4 +1,4 @@
-// Pack At: 2023-05-30 01:38:15
+// Pack At: 2023-06-01 02:24:42
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -14863,7 +14863,7 @@ const { WWW } = (function(){
         }
         // Static value
         return ({ path, params, value }) => {
-          if (!Ti.Util.isNil(value) && it.value == value) {
+          if (!Ti.Util.isNil(value) && (it.value == value || it.id == value)) {
             return true;
           }
           if (!_.isEqual(path, highlightBy)) return false;
@@ -20460,7 +20460,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230530.013815",
+  "version": "1.6-20230601.022442",
   "dev": false,
   "appName": null,
   "session": {},
