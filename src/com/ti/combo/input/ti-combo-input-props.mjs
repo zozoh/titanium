@@ -1,3 +1,4 @@
+const COM_TYPE = "TiComboInput";
 export default {
   //-----------------------------------
   // Data
@@ -13,6 +14,14 @@ export default {
   "optionFilter": {
     type : [Function, Object, Array],
     default: undefined
+  },
+  "showCleanOption": {
+    type:Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "showCleanOption", false)
+  },
+  "prefixIconForClean": {
+    type: Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", false)
   },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,

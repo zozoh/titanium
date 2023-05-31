@@ -1,3 +1,4 @@
+const COM_TYPE = "TiInputPicker";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -60,7 +61,7 @@ const _M = {
     },
     "mustInList": {
       type: Boolean,
-      default: false
+      default: Ti.Config.getComProp(COM_TYPE, "mustInList", false)
     },
     //-----------------------------------
     // Aspect
@@ -91,7 +92,7 @@ const _M = {
     // only for single box-mode
     "boxMode": {
       type: String,
-      default: "auto",
+      default: Ti.Config.getComProp(COM_TYPE, "boxMode", "auto"),
       validator: (v) => /^(auto|value-text|text-value|text|value)$/.test(v)
     },
     "canInput": {
@@ -203,7 +204,7 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnInputChange(value) {
-      //console.log("OnInputChange")
+      console.log("OnInputChange");
       // Guard: only check with dict
       if (!this.Dict) {
         this.tryNotifyChange(value);
@@ -219,8 +220,9 @@ const _M = {
         let vals = [];
         for (let val of value) {
           if (this.mustInList) {
-            if (await this.Dict.hasItem(val)) {
-              vals.push(val);
+            let it = await this.findItem(val);
+            if (it) {
+              vals.push(this.Dict.getValue(it));
             }
           } else {
             vals.push(val);
@@ -230,14 +232,33 @@ const _M = {
       }
       // Single check
       else if (this.mustInList) {
-        if (await this.Dict.hasItem(value)) {
-          this.tryNotifyChange(value);
+        let it = await this.findItem(value);
+        if (it) {
+          let v2 = this.Dict.getValue(it);
+          this.tryNotifyChange(v2);
         } else {
           this.tryNotifyChange(null);
         }
       } else {
         this.tryNotifyChange(value);
       }
+    },
+    //------------------------------------------------
+    async findItem(str) {
+      if (!this.Dict) {
+        return;
+      }
+      let it = await this.Dict.getItem(str);
+      if (_.isEmpty(it)) {
+        it = null;
+      }
+      if (!it) {
+        let cans = await this.Dict.queryData(str);
+        if (!_.isEmpty(cans)) {
+          it = _.first(cans);
+        }
+      }
+      return it;
     },
     //------------------------------------------------
     async OnClickSuffixIcon() {

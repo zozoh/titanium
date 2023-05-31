@@ -247,12 +247,21 @@ const _M = {
             trimed: this.trimed
           });
         }
-        // Trim
-        else if (this.trimed) {
-          val = _.trim(val);
+        // Keep value as string
+        else {
+          // Trim
+          if (this.trimed) {
+            val = _.trim(val);
+          }
+          // emptyAsNull
+          if (this.emptyAsNull && !val) {
+            val = null;
+          }
         }
         // case
-        val = Ti.S.toCase(val, this.valueCase);
+        if (this.valueCase) {
+          val = Ti.S.toCase(val, this.valueCase);
+        }
 
         // notify
         return val;

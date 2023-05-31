@@ -35,7 +35,7 @@
   "checkedIds": {},
   "pager": {
     "pn": 1,
-    "pgsz": 50,
+    "pgsz": 20,
     "pgc": 0,
     "sum": 0,
     "skip": 0,
