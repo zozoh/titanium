@@ -23,16 +23,19 @@ export default {
   computed: {
     //-----------------------------------------------
     TopClass() {
-      return this.getListItemClass({
-        "is-group": this.asGroupTitle,
-        "is-selectable": !this.asGroupTitle && this.selectable,
-        "is-checkable": !this.asGroupTitle && this.checkable,
-        "is-openable": !this.asGroupTitle && this.openable,
-      }, `row-indent-${this.indent}`)
+      return this.getListItemClass(
+        {
+          "is-group": this.asGroupTitle,
+          "is-selectable": !this.asGroupTitle && this.selectable,
+          "is-checkable": !this.asGroupTitle && this.checkable,
+          "is-openable": !this.asGroupTitle && this.openable
+        },
+        `row-indent-${this.indent}`
+      );
     },
     //-----------------------------------------------
     hasRealIcon() {
-      return this.icon && _.isString(this.icon)
+      return this.icon && _.isString(this.icon);
     }
     //-----------------------------------------------
   },
@@ -40,15 +43,18 @@ export default {
   methods: {
     //-----------------------------------------------
     async evalMyDisplayItems() {
-      let items = []
+      let items = [];
       // if(this.data && this.data.title && this.data.type) {
       //   console.log("evalCellDisplayItems", this.data)
       // }
       // Eval each items
-      let diss = this.asGroupTitle
-        ? this.groupTitleDisplay
-        : this.display
-      diss = diss || this.display || []
+      let diss = this.asGroupTitle ? this.groupTitleDisplay : this.display;
+      // Override by current row data
+      if (this.data && this.data._row_display) {
+        diss = this.data._row_display;
+      }
+
+      diss = diss || this.display || [];
       for (let displayItem of diss) {
         let it = await this.evalDataForFieldDisplayItem({
           itemData: this.data,
@@ -59,40 +65,41 @@ export default {
             "isChanged": this.isChanged,
             "isActived": this.isActived,
             "rowId": this.rowId
-          },
+          }
           // autoIgnoreNil: !this.asGroupTitle,
           // autoIgnoreBlank: !this.asGroupTitle
-        })
+        });
         if (it) {
-          items.push(it)
+          items.push(it);
         }
       }
       // Update and return
-      this.myDisplayItems = items
+      this.myDisplayItems = items;
     },
     //-----------------------------------------------
     onItemChanged({ name, value } = {}) {
       this.$notify("item:changed", {
-        name, value,
+        name,
+        value,
         rowId: this.rowId,
         data: this.data
-      })
+      });
     },
     //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
         rowId: this.rowId,
         shift: $event.shiftKey,
-        toggle: ($event.ctrlKey || $event.metaKey)
-      })
+        toggle: $event.ctrlKey || $event.metaKey
+      });
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list-row", uniqKey)
       if (!_.isEmpty(this.rowToggleKey)) {
         if (this.isRowToggleKey(uniqKey)) {
-          this.onClickChecker({})
-          return { prevent: true, stop: true, quit: true }
+          this.onClickChecker({});
+          return { prevent: true, stop: true, quit: true };
         }
       }
     }
@@ -101,22 +108,22 @@ export default {
   ///////////////////////////////////////////////////
   watch: {
     "display": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "data": function () {
       //console.log("data changed")
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "isCurrent": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "isChecked": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     }
   },
   ///////////////////////////////////////////////////
   mounted: function () {
-    this.evalMyDisplayItems()
+    this.evalMyDisplayItems();
   }
   ///////////////////////////////////////////////////
-}
+};

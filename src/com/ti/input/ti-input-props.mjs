@@ -1,3 +1,4 @@
+const COM_TYPE = "TiInput";
 export default {
   //-----------------------------------
   // Data
@@ -27,6 +28,10 @@ export default {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "emptyAsNull": {
+    type: Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "emptyAsNull", true)
+  },
   "readonly": {
     type: Boolean,
     default: false

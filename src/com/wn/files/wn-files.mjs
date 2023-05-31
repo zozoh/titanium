@@ -68,57 +68,62 @@ export default {
             "name": "detail",
             "size": "stretch",
             "body": "detail"
-          }]
-      }
+          }
+        ]
+      };
     },
     //------------------------------------------------
     GuiSchemaFilter() {
       return {
         comType: "TiFilterbar",
-        comConf: _.assign({
-          className: "is-nowrap",
-          placeholder: "ID/标题",
-          filter: "=filter",
-          sorter: "=sorter",
-          dialog: {
-            "icon": "fas-search",
-            "title": "i18n:search-adv",
-            "position": "top",
-            "width": "6.4rem",
-            "height": "90%"
-          },
-          majors: [],
-          matchKeywords: [
-            {
-              "test": "^[\\d\\w:]{26,}$",
-              "key": "id"
+        comConf: _.assign(
+          {
+            className: "is-nowrap",
+            placeholder: "ID/标题",
+            filter: "=filter",
+            sorter: "=sorter",
+            dialog: {
+              "icon": "fas-search",
+              "title": "i18n:search-adv",
+              "position": "top",
+              "width": "6.4rem",
+              "height": "90%"
             },
-            {
-              "test": "^[a-zA-Z0-9._-]+$",
-              "key": "nm",
-              "mode": ":=~"
+            majors: [],
+            matchKeywords: [
+              {
+                "test": "^[\\d\\w:]{26,}$",
+                "key": "id"
+              },
+              {
+                "test": "^[a-zA-Z0-9._-]+$",
+                "key": "nm",
+                "mode": ":=~"
+              },
+              {
+                "key": "title",
+                "mode": "~~"
+              }
+            ],
+            filterTags: {
+              "id": ":->ID【${val}】",
+              "nm": ":=val",
+              "title": ":=val"
             },
-            {
-              "key": "title",
-              "mode": "~~"
+            sorterConf: {
+              dropWidth: "1.6rem",
+              options: [
+                { "value": "nm", "text": "i18n:wn-key-nm" },
+                { "value": "title", "text": "i18n:wn-key-title" },
+                { "value": "sort", "text": "i18n:sort" },
+                { "value": "ct", "text": "i18n:wn-key-ct" },
+                { "value": "lm", "text": "i18n:wn-key-lm" }
+              ]
             }
-          ],
-          filterTags: {
-            "id": ":->ID【${val}】",
-            "nm": ":=val",
-            "title": ":=val"
           },
-          sorterConf: {
-            dropWidth: "1.6rem",
-            options: [
-              { "value": "nm", "text": "i18n:wn-key-nm" },
-              { "value": "title", "text": "i18n:wn-key-title" },
-              { "value": "ct", "text": "i18n:wn-key-ct" },
-              { "value": "lm", "text": "i18n:wn-key-lm" },
-            ]
-          }
-        }, this.filterConf)
-      }
+          this.filterConf
+        )
+      };
     }, // The Filter
     //------------------------------------------------
     GuiSchemaDetail() {
@@ -131,7 +136,7 @@ export default {
             text: "i18n:loading-gui",
             icon: "fas-cog fa-spin"
           }
-        }
+        };
       }
       if (!this.currentId) {
         return {
@@ -141,25 +146,24 @@ export default {
             text: "i18n:nil-detail",
             icon: "zmdi-arrow-left"
           }
-        }
+        };
       }
       // Load from configuration
-      let gui = this.detailGuiSetups[this.currentId]
-        || this.defaultDetail
+      let gui = this.detailGuiSetups[this.currentId] || this.defaultDetail;
       if (!_.isEmpty(gui)) {
-        return Ti.Util.explainObj(this, gui)
+        return Ti.Util.explainObj(this, gui);
       }
 
       // Show default detail
-      return Ti.Util.explainObj(this, this.schemaDetail)
+      return Ti.Util.explainObj(this, this.schemaDetail);
     },
     //------------------------------------------------
     WallItemBadges() {
       return {
-        "NW": o => {
-          return this.getFileIcon(o)
+        "NW": (o) => {
+          return this.getFileIcon(o);
         }
-      }
+      };
     },
     //------------------------------------------------
     TableHeadDisplay() {
@@ -167,11 +171,11 @@ export default {
         {
           key: "..",
           transformer: ({ rawData } = {}) => {
-            return this.getFileIcon(rawData)
+            return this.getFileIcon(rawData);
           },
           comType: "TiIcon"
         }
-      ]
+      ];
     },
     //------------------------------------------------
     TableFields() {
@@ -221,11 +225,11 @@ export default {
             transformer: "Ti.Types.formatDate('yy年MM月dd日 HH:mm')"
           }
         }
-      ]
+      ];
     },
     //------------------------------------------------
     CurrentOfficialDoc() {
-      return this.meta
+      return this.meta;
     },
     //------------------------------------------------
     GuiSchema() {
@@ -237,22 +241,21 @@ export default {
             tableFields: this.TableFields,
             tableViewConf: {
               headDisplay: this.TableHeadDisplay
-            },
-
+            }
           }
         },
-        detail: this.GuiSchemaDetail,
-      }
+        detail: this.GuiSchemaDetail
+      };
     },
     //------------------------------------------------
     GuiEvents() {
       return {
         "detail::change": (payload) => {
-          //console.log("OnDetailChange", payload)    
-          let $a = this.getObjAdaptor()
-          $a.dispatch("changeContent", payload)
+          //console.log("OnDetailChange", payload)
+          let $a = this.getObjAdaptor();
+          $a.dispatch("changeContent", payload);
         }
-      }
+      };
     }
     //------------------------------------------------
   },
@@ -266,7 +269,7 @@ export default {
     // },
     //------------------------------------------------
     getFileIcon(o, dft = "fas-cog") {
-      return Ti.Icons.get(o, dft)
+      return Ti.Icons.get(o, dft);
     },
     //------------------------------------------------
     //
@@ -274,90 +277,94 @@ export default {
     //
     //------------------------------------------------
     getObjAdaptor() {
-      return this.findComBy($com => {
-        return "WnObjAdaptor" == $com.tiComType
-      })
+      return this.findComBy(($com) => {
+        return "WnObjAdaptor" == $com.tiComType;
+      });
     },
     //------------------------------------------------
     async reloadDetailGuiSetup() {
       //console.log("reloadDetailGuiSetup")
       if (this.isLoadingGui) {
-        return
+        return;
       }
       // Guard
       if (!this.meta) {
-        return
+        return;
       }
       // Reload meta GUI
-      let metaId = this.meta.id
+      let metaId = this.meta.id;
 
       // Match cache
       if (this.detailGuiSetups[metaId]) {
-        return
+        return;
       }
 
       // Prepare the vars
       let vars = {
-        ... this.meta,
+        ...this.meta,
         major: Ti.Util.getMajorName(this.meta.nm)
-      }
+      };
 
-      this.isLoadingGui = true
+      this.isLoadingGui = true;
       // Get gui path
       let oGuiDetail;
-      let guiPath = this.meta.gui_path
-        || _.get(this.oDir, "gui_path")
-        || this.guiPath
+      let guiPath =
+        this.meta.gui_path || _.get(this.oDir, "gui_path") || this.guiPath;
       if (guiPath) {
-        let ph = Ti.S.renderBy(guiPath, vars)
-        oGuiDetail = await Wn.Io.loadMeta(ph)
+        let ph = Ti.S.renderBy(guiPath, vars);
+        oGuiDetail = await Wn.Io.loadMeta(ph);
       }
 
       // Use the default GUI Path
       if (!oGuiDetail) {
-        guiPath = _.get(this.oDir, "gui_path_dft")
-          || this.guiPathDefault
+        guiPath = _.get(this.oDir, "gui_path_dft") || this.guiPathDefault;
         if (guiPath) {
-          let ph = Ti.S.renderBy(guiPath, vars)
-          oGuiDetail = await Wn.Io.loadMeta(ph)
+          let ph = Ti.S.renderBy(guiPath, vars);
+          oGuiDetail = await Wn.Io.loadMeta(ph);
         }
       }
 
       // Load GUI Detail Content
       if (oGuiDetail) {
-        let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" })
-        guiDetail = guiDetail || {}
-        this.detailGuiSetups = _.assign({
-          [metaId]: guiDetail
-        }, this.detailGuiSetups)
+        let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" });
+        guiDetail = guiDetail || {};
+        this.detailGuiSetups = _.assign(
+          {
+            [metaId]: guiDetail
+          },
+          this.detailGuiSetups
+        );
         // Load components ...
         if (!_.isEmpty(guiDetail.components)) {
           await Ti.App(this).loadView({
             components: guiDetail.components
-          })
+          });
         }
       }
       // Set the Empty
       else {
-        this.detailGuiSetups = _.assign({
-          [metaId]: {}
-        }, this.detailGuiSetups)
+        this.detailGuiSetups = _.assign(
+          {
+            [metaId]: {}
+          },
+          this.detailGuiSetups
+        );
       }
       this.$nextTick(() => {
-        this.isLoadingGui = false
-      })
+        this.isLoadingGui = false;
+      });
     },
     //------------------------------------------------
     // Delegates
     //------------------------------------------------
     async doCreate() {
-      let $a = this.getObjAdaptor()
-      return await $a.doCreate()
+      let $a = this.getObjAdaptor();
+      return await $a.doCreate();
     },
     async doRename() {
-      let $a = this.getObjAdaptor()
-      return await $a.doRename()
-    },
+      let $a = this.getObjAdaptor();
+      return await $a.doRename();
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -368,4 +375,4 @@ export default {
     }
   }
   ////////////////////////////////////////////////////
-}
+};

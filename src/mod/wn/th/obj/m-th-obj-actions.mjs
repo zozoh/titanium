@@ -195,7 +195,7 @@ const _M = {
       commit("joinMethodPaths", schema.methods);
     }
 
-    if (schema.localBehaviorKeepAt) {
+    if (!_.isUndefined(schema.localBehaviorKeepAt)) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt);
     }
 
@@ -490,7 +490,7 @@ const _M = {
     state.LOG = () => {};
 
     // if ("casetasks" == state.moduleName) {
-    //state.LOG = console.log;
+    // state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard

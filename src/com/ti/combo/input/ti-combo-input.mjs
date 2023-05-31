@@ -175,6 +175,9 @@ const _M = {
       if (this.loading) {
         return "zmdi-settings zmdi-hc-spin";
       }
+      if (!this.prefixIconForClean) {
+        return this.prefixIcon;
+      }
       let icon = this.prefixIcon;
       if (this.myItem && this.Dict) {
         icon = this.Dict.getIcon(this.myItem) || icon;
@@ -432,6 +435,28 @@ const _M = {
     //-----------------------------------------------
     async reloadMyOptionData(force = false) {
       //console.log("reloadMyOptionData")
+      let options = [];
+      if (this.showCleanOption) {
+        options.push({
+          _is_clean: true,
+          _row_display: [
+            {
+              key: "icon",
+              defaultAs: "zmdi-close",
+              comType: "TiIcon"
+            },
+            {
+              key: "text",
+              comType: "TiLabel",
+              comConf: {
+                className: "as-tip"
+              }
+            }
+          ],
+          text: "i18n:clear",
+          value: null
+        });
+      }
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
@@ -450,10 +475,9 @@ const _M = {
           }
           list = list2;
         }
-        this.myOptionsData = list;
-      } else {
-        this.myOptionsData = [];
+        options.push(...list);
       }
+      this.myOptionsData = options;
       return this.myOptionsData;
     },
     //-----------------------------------------------
