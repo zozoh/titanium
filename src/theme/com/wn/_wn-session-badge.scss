@@ -23,6 +23,7 @@
     z-index: $z-menu;
     visibility: hidden;
     text-align: center;
+    border-radius: SZ(6);
     //--------------------------------------
     .as-avatar {
       @include border(1px, solid, shallow, bottom);
@@ -57,6 +58,7 @@
         min-width: SZ(70);
         cursor: pointer;
         opacity: 0.4;
+        border-radius: SZ(10);
         //----------------------------------
         img {
           @include border(1px, solid, shallow);
@@ -89,7 +91,15 @@
       @include color($color-func, r, c);
       @include border(1px, solid, highlight, top);
       @include flex-align-nowrap($jc: space-around);
-      padding: SZ(10);
+      padding: SZ(20) SZ(10);
+    }
+    //--------------------------------------
+    .as-version {
+      @include color($color-primary, r, c);
+      @include font-fixed;
+      text-align: center;
+      padding: 1em;
+      font-size: SZ(10);
     }
     //--------------------------------------
   }

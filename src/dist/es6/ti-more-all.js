@@ -1,4 +1,4 @@
-// Pack At: 2023-06-01 02:24:42
+// Pack At: 2023-06-03 00:41:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1053,57 +1053,62 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "name": "detail",
             "size": "stretch",
             "body": "detail"
-          }]
-      }
+          }
+        ]
+      };
     },
     //------------------------------------------------
     GuiSchemaFilter() {
       return {
         comType: "TiFilterbar",
-        comConf: _.assign({
-          className: "is-nowrap",
-          placeholder: "ID/标题",
-          filter: "=filter",
-          sorter: "=sorter",
-          dialog: {
-            "icon": "fas-search",
-            "title": "i18n:search-adv",
-            "position": "top",
-            "width": "6.4rem",
-            "height": "90%"
-          },
-          majors: [],
-          matchKeywords: [
-            {
-              "test": "^[\\d\\w:]{26,}$",
-              "key": "id"
+        comConf: _.assign(
+          {
+            className: "is-nowrap",
+            placeholder: "ID/标题",
+            filter: "=filter",
+            sorter: "=sorter",
+            dialog: {
+              "icon": "fas-search",
+              "title": "i18n:search-adv",
+              "position": "top",
+              "width": "6.4rem",
+              "height": "90%"
             },
-            {
-              "test": "^[a-zA-Z0-9._-]+$",
-              "key": "nm",
-              "mode": ":=~"
+            majors: [],
+            matchKeywords: [
+              {
+                "test": "^[\\d\\w:]{26,}$",
+                "key": "id"
+              },
+              {
+                "test": "^[a-zA-Z0-9._-]+$",
+                "key": "nm",
+                "mode": ":=~"
+              },
+              {
+                "key": "title",
+                "mode": "~~"
+              }
+            ],
+            filterTags: {
+              "id": ":->ID【${val}】",
+              "nm": ":=val",
+              "title": ":=val"
             },
-            {
-              "key": "title",
-              "mode": "~~"
+            sorterConf: {
+              dropWidth: "1.6rem",
+              options: [
+                { "value": "nm", "text": "i18n:wn-key-nm" },
+                { "value": "title", "text": "i18n:wn-key-title" },
+                { "value": "sort", "text": "i18n:sort" },
+                { "value": "ct", "text": "i18n:wn-key-ct" },
+                { "value": "lm", "text": "i18n:wn-key-lm" }
+              ]
             }
-          ],
-          filterTags: {
-            "id": ":->ID【${val}】",
-            "nm": ":=val",
-            "title": ":=val"
           },
-          sorterConf: {
-            dropWidth: "1.6rem",
-            options: [
-              { "value": "nm", "text": "i18n:wn-key-nm" },
-              { "value": "title", "text": "i18n:wn-key-title" },
-              { "value": "ct", "text": "i18n:wn-key-ct" },
-              { "value": "lm", "text": "i18n:wn-key-lm" },
-            ]
-          }
-        }, this.filterConf)
-      }
+          this.filterConf
+        )
+      };
     }, // The Filter
     //------------------------------------------------
     GuiSchemaDetail() {
@@ -1116,7 +1121,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
             text: "i18n:loading-gui",
             icon: "fas-cog fa-spin"
           }
-        }
+        };
       }
       if (!this.currentId) {
         return {
@@ -1126,25 +1131,24 @@ const __TI_MOD_EXPORT_VAR_NM = {
             text: "i18n:nil-detail",
             icon: "zmdi-arrow-left"
           }
-        }
+        };
       }
       // Load from configuration
-      let gui = this.detailGuiSetups[this.currentId]
-        || this.defaultDetail
+      let gui = this.detailGuiSetups[this.currentId] || this.defaultDetail;
       if (!_.isEmpty(gui)) {
-        return Ti.Util.explainObj(this, gui)
+        return Ti.Util.explainObj(this, gui);
       }
 
       // Show default detail
-      return Ti.Util.explainObj(this, this.schemaDetail)
+      return Ti.Util.explainObj(this, this.schemaDetail);
     },
     //------------------------------------------------
     WallItemBadges() {
       return {
-        "NW": o => {
-          return this.getFileIcon(o)
+        "NW": (o) => {
+          return this.getFileIcon(o);
         }
-      }
+      };
     },
     //------------------------------------------------
     TableHeadDisplay() {
@@ -1152,11 +1156,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
         {
           key: "..",
           transformer: ({ rawData } = {}) => {
-            return this.getFileIcon(rawData)
+            return this.getFileIcon(rawData);
           },
           comType: "TiIcon"
         }
-      ]
+      ];
     },
     //------------------------------------------------
     TableFields() {
@@ -1206,11 +1210,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
             transformer: "Ti.Types.formatDate('yy年MM月dd日 HH:mm')"
           }
         }
-      ]
+      ];
     },
     //------------------------------------------------
     CurrentOfficialDoc() {
-      return this.meta
+      return this.meta;
     },
     //------------------------------------------------
     GuiSchema() {
@@ -1222,22 +1226,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
             tableFields: this.TableFields,
             tableViewConf: {
               headDisplay: this.TableHeadDisplay
-            },
-
+            }
           }
         },
-        detail: this.GuiSchemaDetail,
-      }
+        detail: this.GuiSchemaDetail
+      };
     },
     //------------------------------------------------
     GuiEvents() {
       return {
         "detail::change": (payload) => {
-          //console.log("OnDetailChange", payload)    
-          let $a = this.getObjAdaptor()
-          $a.dispatch("changeContent", payload)
+          //console.log("OnDetailChange", payload)
+          let $a = this.getObjAdaptor();
+          $a.dispatch("changeContent", payload);
         }
-      }
+      };
     }
     //------------------------------------------------
   },
@@ -1251,7 +1254,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     // },
     //------------------------------------------------
     getFileIcon(o, dft = "fas-cog") {
-      return Ti.Icons.get(o, dft)
+      return Ti.Icons.get(o, dft);
     },
     //------------------------------------------------
     //
@@ -1259,90 +1262,94 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //
     //------------------------------------------------
     getObjAdaptor() {
-      return this.findComBy($com => {
-        return "WnObjAdaptor" == $com.tiComType
-      })
+      return this.findComBy(($com) => {
+        return "WnObjAdaptor" == $com.tiComType;
+      });
     },
     //------------------------------------------------
     async reloadDetailGuiSetup() {
       //console.log("reloadDetailGuiSetup")
       if (this.isLoadingGui) {
-        return
+        return;
       }
       // Guard
       if (!this.meta) {
-        return
+        return;
       }
       // Reload meta GUI
-      let metaId = this.meta.id
+      let metaId = this.meta.id;
 
       // Match cache
       if (this.detailGuiSetups[metaId]) {
-        return
+        return;
       }
 
       // Prepare the vars
       let vars = {
-        ... this.meta,
+        ...this.meta,
         major: Ti.Util.getMajorName(this.meta.nm)
-      }
+      };
 
-      this.isLoadingGui = true
+      this.isLoadingGui = true;
       // Get gui path
       let oGuiDetail;
-      let guiPath = this.meta.gui_path
-        || _.get(this.oDir, "gui_path")
-        || this.guiPath
+      let guiPath =
+        this.meta.gui_path || _.get(this.oDir, "gui_path") || this.guiPath;
       if (guiPath) {
-        let ph = Ti.S.renderBy(guiPath, vars)
-        oGuiDetail = await Wn.Io.loadMeta(ph)
+        let ph = Ti.S.renderBy(guiPath, vars);
+        oGuiDetail = await Wn.Io.loadMeta(ph);
       }
 
       // Use the default GUI Path
       if (!oGuiDetail) {
-        guiPath = _.get(this.oDir, "gui_path_dft")
-          || this.guiPathDefault
+        guiPath = _.get(this.oDir, "gui_path_dft") || this.guiPathDefault;
         if (guiPath) {
-          let ph = Ti.S.renderBy(guiPath, vars)
-          oGuiDetail = await Wn.Io.loadMeta(ph)
+          let ph = Ti.S.renderBy(guiPath, vars);
+          oGuiDetail = await Wn.Io.loadMeta(ph);
         }
       }
 
       // Load GUI Detail Content
       if (oGuiDetail) {
-        let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" })
-        guiDetail = guiDetail || {}
-        this.detailGuiSetups = _.assign({
-          [metaId]: guiDetail
-        }, this.detailGuiSetups)
+        let guiDetail = await Wn.Io.loadContent(oGuiDetail, { as: "json" });
+        guiDetail = guiDetail || {};
+        this.detailGuiSetups = _.assign(
+          {
+            [metaId]: guiDetail
+          },
+          this.detailGuiSetups
+        );
         // Load components ...
         if (!_.isEmpty(guiDetail.components)) {
           await Ti.App(this).loadView({
             components: guiDetail.components
-          })
+          });
         }
       }
       // Set the Empty
       else {
-        this.detailGuiSetups = _.assign({
-          [metaId]: {}
-        }, this.detailGuiSetups)
+        this.detailGuiSetups = _.assign(
+          {
+            [metaId]: {}
+          },
+          this.detailGuiSetups
+        );
       }
       this.$nextTick(() => {
-        this.isLoadingGui = false
-      })
+        this.isLoadingGui = false;
+      });
     },
     //------------------------------------------------
     // Delegates
     //------------------------------------------------
     async doCreate() {
-      let $a = this.getObjAdaptor()
-      return await $a.doCreate()
+      let $a = this.getObjAdaptor();
+      return await $a.doCreate();
     },
     async doRename() {
-      let $a = this.getObjAdaptor()
-      return await $a.doRename()
-    },
+      let $a = this.getObjAdaptor();
+      return await $a.doRename();
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -1353,7 +1360,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     }
   }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -15574,16 +15581,19 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //-----------------------------------------------
     TopClass() {
-      return this.getListItemClass({
-        "is-group": this.asGroupTitle,
-        "is-selectable": !this.asGroupTitle && this.selectable,
-        "is-checkable": !this.asGroupTitle && this.checkable,
-        "is-openable": !this.asGroupTitle && this.openable,
-      }, `row-indent-${this.indent}`)
+      return this.getListItemClass(
+        {
+          "is-group": this.asGroupTitle,
+          "is-selectable": !this.asGroupTitle && this.selectable,
+          "is-checkable": !this.asGroupTitle && this.checkable,
+          "is-openable": !this.asGroupTitle && this.openable
+        },
+        `row-indent-${this.indent}`
+      );
     },
     //-----------------------------------------------
     hasRealIcon() {
-      return this.icon && _.isString(this.icon)
+      return this.icon && _.isString(this.icon);
     }
     //-----------------------------------------------
   },
@@ -15591,15 +15601,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //-----------------------------------------------
     async evalMyDisplayItems() {
-      let items = []
+      let items = [];
       // if(this.data && this.data.title && this.data.type) {
       //   console.log("evalCellDisplayItems", this.data)
       // }
       // Eval each items
-      let diss = this.asGroupTitle
-        ? this.groupTitleDisplay
-        : this.display
-      diss = diss || this.display || []
+      let diss = this.asGroupTitle ? this.groupTitleDisplay : this.display;
+      // Override by current row data
+      if (this.data && this.data._row_display) {
+        diss = this.data._row_display;
+      }
+
+      diss = diss || this.display || [];
       for (let displayItem of diss) {
         let it = await this.evalDataForFieldDisplayItem({
           itemData: this.data,
@@ -15610,40 +15623,41 @@ const __TI_MOD_EXPORT_VAR_NM = {
             "isChanged": this.isChanged,
             "isActived": this.isActived,
             "rowId": this.rowId
-          },
+          }
           // autoIgnoreNil: !this.asGroupTitle,
           // autoIgnoreBlank: !this.asGroupTitle
-        })
+        });
         if (it) {
-          items.push(it)
+          items.push(it);
         }
       }
       // Update and return
-      this.myDisplayItems = items
+      this.myDisplayItems = items;
     },
     //-----------------------------------------------
     onItemChanged({ name, value } = {}) {
       this.$notify("item:changed", {
-        name, value,
+        name,
+        value,
         rowId: this.rowId,
         data: this.data
-      })
+      });
     },
     //-----------------------------------------------
     OnClickIcon($event) {
       this.$notify("icon", {
         rowId: this.rowId,
         shift: $event.shiftKey,
-        toggle: ($event.ctrlKey || $event.metaKey)
-      })
+        toggle: $event.ctrlKey || $event.metaKey
+      });
     },
     //--------------------------------------
     __ti_shortcut(uniqKey) {
       //console.log("ti-list-row", uniqKey)
       if (!_.isEmpty(this.rowToggleKey)) {
         if (this.isRowToggleKey(uniqKey)) {
-          this.onClickChecker({})
-          return { prevent: true, stop: true, quit: true }
+          this.onClickChecker({});
+          return { prevent: true, stop: true, quit: true };
         }
       }
     }
@@ -15652,25 +15666,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////
   watch: {
     "display": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "data": function () {
       //console.log("data changed")
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "isCurrent": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     },
     "isChecked": function () {
-      this.evalMyDisplayItems()
+      this.evalMyDisplayItems();
     }
   },
   ///////////////////////////////////////////////////
   mounted: function () {
-    this.evalMyDisplayItems()
+    this.evalMyDisplayItems();
   }
   ///////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -16325,6 +16339,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-combo-input-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/combo/input/ti-combo-input-props.mjs'] = (function(){
+const COM_TYPE = "TiComboInput";
 const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
@@ -16340,6 +16355,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "optionFilter": {
     type : [Function, Object, Array],
     default: undefined
+  },
+  "showCleanOption": {
+    type:Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "showCleanOption", false)
+  },
+  "prefixIconForClean": {
+    type: Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", false)
   },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,
@@ -23609,12 +23632,21 @@ const _M = {
             trimed: this.trimed
           });
         }
-        // Trim
-        else if (this.trimed) {
-          val = _.trim(val);
+        // Keep value as string
+        else {
+          // Trim
+          if (this.trimed) {
+            val = _.trim(val);
+          }
+          // emptyAsNull
+          if (this.emptyAsNull && !val) {
+            val = null;
+          }
         }
         // case
-        val = Ti.S.toCase(val, this.valueCase);
+        if (this.valueCase) {
+          val = Ti.S.toCase(val, this.valueCase);
+        }
 
         // notify
         return val;
@@ -43706,6 +43738,9 @@ const _M = {
       if (this.loading) {
         return "zmdi-settings zmdi-hc-spin";
       }
+      if (!this.prefixIconForClean) {
+        return this.prefixIcon;
+      }
       let icon = this.prefixIcon;
       if (this.myItem && this.Dict) {
         icon = this.Dict.getIcon(this.myItem) || icon;
@@ -43963,6 +43998,28 @@ const _M = {
     //-----------------------------------------------
     async reloadMyOptionData(force = false) {
       //console.log("reloadMyOptionData")
+      let options = [];
+      if (this.showCleanOption) {
+        options.push({
+          _is_clean: true,
+          _row_display: [
+            {
+              key: "icon",
+              defaultAs: "zmdi-close",
+              comType: "TiIcon"
+            },
+            {
+              key: "text",
+              comType: "TiLabel",
+              comConf: {
+                className: "as-tip"
+              }
+            }
+          ],
+          text: "i18n:clear",
+          value: null
+        });
+      }
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
@@ -43981,10 +44038,9 @@ const _M = {
           }
           list = list2;
         }
-        this.myOptionsData = list;
-      } else {
-        this.myOptionsData = [];
+        options.push(...list);
       }
+      this.myOptionsData = options;
       return this.myOptionsData;
     },
     //-----------------------------------------------
@@ -76571,7 +76627,7 @@ const _M = {
       commit("joinMethodPaths", schema.methods);
     }
 
-    if (schema.localBehaviorKeepAt) {
+    if (!_.isUndefined(schema.localBehaviorKeepAt)) {
       commit("setLocalBehaviorKeepAt", schema.localBehaviorKeepAt);
     }
 
@@ -76866,7 +76922,7 @@ const _M = {
     state.LOG = () => {};
 
     // if ("casetasks" == state.moduleName) {
-    //state.LOG = console.log;
+    // state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard
@@ -80492,7 +80548,12 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     collapse: true,
-    dropReady: false
+    dropReady: false,
+    /*{
+      core: "Unkown",
+      app: "???"
+    } */
+    version: undefined
   }),
   /////////////////////////////////////////
   props: {
@@ -80521,7 +80582,7 @@ const _M = {
     },
     //--------------------------------------
     MyAvatarSrc() {
-      return "/o/content?str=${thumb}"
+      return "/o/content?str=${thumb}";
     },
     //--------------------------------------
     hasSession() {
@@ -80581,6 +80642,14 @@ const _M = {
           "visibility": "visible"
         };
       }
+    },
+    //--------------------------------------
+    VersionInfo() {
+      let info = this.version || {
+        core: "Unkown",
+        app: "???"
+      };
+      return [`Core:[${info.core}]`, `App:[${info.app}]`].join(" ");
     }
     //--------------------------------------
   },
@@ -80610,7 +80679,7 @@ const _M = {
       // Change session
       let { ticket } = se;
       let re = await Ti.Http.get("/u/ajax/chse", { params: { seid: ticket } });
-      console.log(re)
+      console.log(re);
 
       // Login Ok : Redirect
       Ti.Be.Open("/", { target: "_self" });
@@ -80623,6 +80692,23 @@ const _M = {
     //--------------------------------------
     OnShowMore() {
       this.collapse = false;
+      this.tryLoadVersion();
+    },
+    //--------------------------------------
+    async tryLoadVersion() {
+      if (!this.version) {
+        this.version = {core:"Loading"}
+        let sysInfo = await Wn.Sys.exec2("sys -runtime -cqn", { as: "json" });
+        let core = sysInfo.nodeVersion;
+
+        let oV = await Wn.Io.loadMeta("~/.ti/version.json");
+        let app = "???";
+        if (oV) {
+          let ver = await Wn.Io.loadContent(oV, { as: "json" });
+          app = Ti.Tmpl.exec("${name}-${version}", ver);
+        }
+        this.version = { core, app };
+      }
     },
     //--------------------------------------
     async OnChangeLang(lang) {
@@ -82358,6 +82444,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-input-picker.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/picker/ti-input-picker.mjs'] = (function(){
+const COM_TYPE = "TiInputPicker";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -82420,7 +82507,7 @@ const _M = {
     },
     "mustInList": {
       type: Boolean,
-      default: false
+      default: Ti.Config.getComProp(COM_TYPE, "mustInList", false)
     },
     //-----------------------------------
     // Aspect
@@ -82451,7 +82538,7 @@ const _M = {
     // only for single box-mode
     "boxMode": {
       type: String,
-      default: "auto",
+      default: Ti.Config.getComProp(COM_TYPE, "boxMode", "auto"),
       validator: (v) => /^(auto|value-text|text-value|text|value)$/.test(v)
     },
     "canInput": {
@@ -82563,7 +82650,7 @@ const _M = {
   methods: {
     //------------------------------------------------
     async OnInputChange(value) {
-      //console.log("OnInputChange")
+      console.log("OnInputChange");
       // Guard: only check with dict
       if (!this.Dict) {
         this.tryNotifyChange(value);
@@ -82579,8 +82666,9 @@ const _M = {
         let vals = [];
         for (let val of value) {
           if (this.mustInList) {
-            if (await this.Dict.hasItem(val)) {
-              vals.push(val);
+            let it = await this.findItem(val);
+            if (it) {
+              vals.push(this.Dict.getValue(it));
             }
           } else {
             vals.push(val);
@@ -82590,14 +82678,33 @@ const _M = {
       }
       // Single check
       else if (this.mustInList) {
-        if (await this.Dict.hasItem(value)) {
-          this.tryNotifyChange(value);
+        let it = await this.findItem(value);
+        if (it) {
+          let v2 = this.Dict.getValue(it);
+          this.tryNotifyChange(v2);
         } else {
           this.tryNotifyChange(null);
         }
       } else {
         this.tryNotifyChange(value);
       }
+    },
+    //------------------------------------------------
+    async findItem(str) {
+      if (!this.Dict) {
+        return;
+      }
+      let it = await this.Dict.getItem(str);
+      if (_.isEmpty(it)) {
+        it = null;
+      }
+      if (!it) {
+        let cans = await this.Dict.queryData(str);
+        if (!_.isEmpty(cans)) {
+          it = _.first(cans);
+        }
+      }
+      return it;
     },
     //------------------------------------------------
     async OnClickSuffixIcon() {
@@ -84804,6 +84911,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-input-props.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/ti-input-props.mjs'] = (function(){
+const COM_TYPE = "TiInput";
 const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
@@ -84833,6 +84941,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "emptyAsNull": {
+    type: Boolean,
+    default: Ti.Config.getComProp(COM_TYPE, "emptyAsNull", true)
+  },
   "readonly": {
     type: Boolean,
     default: false
@@ -99823,6 +99935,10 @@ Ti.Preload("ti/com/wn/session/badge/wn-session-badge.html", `<div class="wn-sess
         >
         <a @click.left="$notify('do:logout')">{{'logout' | i18n}}</a>
       </div>
+      <!--
+        As version
+      -->
+      <div class="as-version">{{VersionInfo}}</div>
     </div>
   </template>
 </div>`);
@@ -101243,7 +101359,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "checkedIds": {},
   "pager": {
     "pn": 1,
-    "pgsz": 50,
+    "pgsz": 20,
     "pgc": 0,
     "sum": 0,
     "skip": 0,

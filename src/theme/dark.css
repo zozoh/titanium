@@ -14160,7 +14160,8 @@ article.ti-article.is-theme-wiki {
     border: 1px solid #F48;
     z-index: 10000;
     visibility: hidden;
-    text-align: center; }
+    text-align: center;
+    border-radius: 0.06rem; }
     .wn-session-badge > .as-drop .as-avatar {
       border-bottom: 1px solid rgba(210, 210, 210, 0.1);
       padding: 0.3rem 0.2rem 0.2rem 0.2rem; }
@@ -14191,7 +14192,8 @@ article.ti-article.is-theme-wiki {
         font-size: 0.12rem;
         min-width: 0.7rem;
         cursor: pointer;
-        opacity: 0.4; }
+        opacity: 0.4;
+        border-radius: 0.1rem; }
         .wn-session-badge > .as-drop .as-lang > .lang-item img {
           border: 1px solid rgba(210, 210, 210, 0.1);
           width: 0.32rem;
@@ -14218,7 +14220,14 @@ article.ti-article.is-theme-wiki {
       align-items: center;
       align-content: center;
       flex-wrap: nowrap;
-      padding: 0.1rem; }
+      padding: 0.2rem 0.1rem; }
+    .wn-session-badge > .as-drop .as-version {
+      color: #222;
+      background-color: #FC4;
+      font-family: Monaco, Consolas, Courier New;
+      text-align: center;
+      padding: 1em;
+      font-size: 0.1rem; }
 
 .wn-thing-filter {
   display: flex;

@@ -2,7 +2,12 @@ const _M = {
   /////////////////////////////////////////
   data: () => ({
     collapse: true,
-    dropReady: false
+    dropReady: false,
+    /*{
+      core: "Unkown",
+      app: "???"
+    } */
+    version: undefined
   }),
   /////////////////////////////////////////
   props: {
@@ -31,7 +36,7 @@ const _M = {
     },
     //--------------------------------------
     MyAvatarSrc() {
-      return "/o/content?str=${thumb}"
+      return "/o/content?str=${thumb}";
     },
     //--------------------------------------
     hasSession() {
@@ -91,6 +96,14 @@ const _M = {
           "visibility": "visible"
         };
       }
+    },
+    //--------------------------------------
+    VersionInfo() {
+      let info = this.version || {
+        core: "Unkown",
+        app: "???"
+      };
+      return [`Core:[${info.core}]`, `App:[${info.app}]`].join(" ");
     }
     //--------------------------------------
   },
@@ -120,7 +133,7 @@ const _M = {
       // Change session
       let { ticket } = se;
       let re = await Ti.Http.get("/u/ajax/chse", { params: { seid: ticket } });
-      console.log(re)
+      console.log(re);
 
       // Login Ok : Redirect
       Ti.Be.Open("/", { target: "_self" });
@@ -133,6 +146,23 @@ const _M = {
     //--------------------------------------
     OnShowMore() {
       this.collapse = false;
+      this.tryLoadVersion();
+    },
+    //--------------------------------------
+    async tryLoadVersion() {
+      if (!this.version) {
+        this.version = {core:"Loading"}
+        let sysInfo = await Wn.Sys.exec2("sys -runtime -cqn", { as: "json" });
+        let core = sysInfo.nodeVersion;
+
+        let oV = await Wn.Io.loadMeta("~/.ti/version.json");
+        let app = "???";
+        if (oV) {
+          let ver = await Wn.Io.loadContent(oV, { as: "json" });
+          app = Ti.Tmpl.exec("${name}-${version}", ver);
+        }
+        this.version = { core, app };
+      }
     },
     //--------------------------------------
     async OnChangeLang(lang) {
