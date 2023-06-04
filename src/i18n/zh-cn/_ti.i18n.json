@@ -137,7 +137,7 @@
   "e-data-InvalidScope": "你声明的数据范围格式不正确，正确的格式类似：1-20 但是你却输入了：",
   "e-export_data-ConfirmBigLimit": "你要导出很多数据，这可能需要一些时间，要继续吗?",
   "e-export_data-UnknownMode": "未知的导出模式",
-  "e-form-incomplete": "表单缺失必要字段: 【${title|name}】 ${tip?}",
+  "e-form-incomplete": "表单缺失必要字段: 【${title}:${name}】 ${tip?}",
   "e-io-forbidden": "禁止写入",
   "e-io-obj-BlankName": "对象名称不能为空",
   "e-io-obj-InvalidName": "对象名称非法",

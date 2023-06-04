@@ -383,8 +383,16 @@ const _M = {
     },
     //--------------------------------------------------
     OnFormConfirm() {
-      //console.log("OnFormConfirm")
+      //console.log("OnFormConfirm");
+      // Check Required
       let data = this.getData();
+      let formData = _.assign(_.cloneDeep(this.myData), data);
+      let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
+      if (errMsg) {
+        Ti.Alert(errMsg, { type: "error" });
+        return;
+      }
+
       this.$notify("change", data);
       this.myReadonly = this.readonly;
     },
@@ -396,6 +404,13 @@ const _M = {
     //--------------------------------------------------
     OnFormSubmit() {
       let data = this.getData();
+      let formData = _.assign(_.cloneDeep(this.myData), data);
+      let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
+      if (errMsg) {
+        Ti.Alert(errMsg, { type: "error" });
+        return;
+      }
+
       this.$notify("submit", data);
     },
     //--------------------------------------------------

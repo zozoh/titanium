@@ -137,7 +137,7 @@
   "e-data-InvalidScope": "Invalid data range! The valid format is similar to: 1-20 but you entered:",
   "e-export_data-ConfirmBigLimit": "You want to export a lot of data, it may take a while, should we continue?",
   "e-export_data-UnknownMode": "Unknown Export Mode",
-  "e-form-incomplete": "Form Incomplete : [${title}]  ${tip}",
+  "e-form-incomplete": "Form Incomplete : [${title}:${name}]  ${tip}",
   "e-io-forbidden": "IO Forbidden",
   "e-io-obj-BlankName": "The object name CANNOT be empty",
   "e-io-obj-InvalidName": "Invalid object name",
