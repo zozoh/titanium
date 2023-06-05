@@ -103,7 +103,7 @@ const _M = {
         core: "Unkown",
         app: "???"
       };
-      return [`Core:[${info.core}]`, `App:[${info.app}]`].join(" ");
+      return [`Core: ${info.core}`, `App: ${info.app}`].join(" ");
     }
     //--------------------------------------
   },

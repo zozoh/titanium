@@ -17,7 +17,7 @@
     position: fixed;
     padding: 0;
     top: SZ(50);
-    width: SZ(320);
+    width: SZ(360);
     box-shadow: SZ(4) SZ(6) SZ(10) map-get($color-shadow, c);
     border: 1px solid map-get($color-line, highlight);
     z-index: $z-menu;
