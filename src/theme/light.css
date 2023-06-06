@@ -7130,7 +7130,8 @@ div.ti-input-tags {
   display: block;
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: #4caf50;
-  background-color: #CFC; }
+  background-color: #CFC;
+  overflow: hidden; }
 .ti-progress-bar .bar-inner {
   display: block;
   background: #4caf50;
@@ -7141,9 +7142,9 @@ div.ti-input-tags {
 .ti-progress-bar.tip-shadow .bar-tip {
   text-shadow: 1px 1px 0 rgba(20, 20, 20, 0.5); }
 .ti-progress-bar.fs-xs .bar-tip {
-  font-size: .6em; }
+  font-size: 0.6em; }
 .ti-progress-bar.fs-sm .bar-tip {
-  font-size: .8em; }
+  font-size: 0.8em; }
 .ti-progress-bar.fs-md .bar-tip {
   font-size: 1em; }
 .ti-progress-bar.fs-lg .bar-tip {

@@ -1,4 +1,4 @@
-// Pack At: 2023-06-06 00:22:50
+// Pack At: 2023-06-07 01:49:44
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -44027,6 +44027,7 @@ const _M = {
               key: "text",
               comType: "TiLabel",
               comConf: {
+                hoverCopy: false,
                 className: "as-tip"
               }
             }
@@ -53904,6 +53905,10 @@ const _M = {
       this.$notify("open", it)
     },
     //--------------------------------------
+    OnDownloadItem(it) {
+      this.$notify("download", it)
+    },
+    //--------------------------------------
     OnClean() {
       this.$notify("clean")
     },
@@ -55147,6 +55152,13 @@ const _M = {
       }
     },
     //--------------------------------------
+    async OnDownload({ id } = {}) {
+      if (id) {
+        let link = Wn.Util.getDownloadLink({ id });
+        await Ti.Be.Open(link);
+      }
+    },
+    //--------------------------------------
     async OnRemove({ index, id } = {}) {
       //console.log("remove", index, id)
       // The value should obey the `valueType` prop
@@ -55171,14 +55183,14 @@ const _M = {
     },
     //--------------------------------------
     async OnClean() {
-      console.log("Do onclean");
+      //console.log("Do onclean");
       let cmds = [];
       _.forEach(this.FileItems, ({ id, value } = {}) => {
         if (value) {
           cmds.push(`rm id:${id}`);
         }
       });
-      console.log(cmds);
+      //console.log(cmds);
       if (_.isEmpty(cmds)) {
         return;
       }
@@ -55204,7 +55216,7 @@ const _M = {
     //--------------------------------------
     setUploadProgress(id, progress = 0) {
       let pr = _.cloneDeep(this.myUploadProgress);
-      pr[id] = progress;
+      pr[id] = Math.min(1, progress);
       this.myUploadProgress = pr;
     },
     //--------------------------------------
@@ -94446,6 +94458,11 @@ Ti.Preload("ti/com/ti/upload/multi-files/ti-upload-multi-files.html", `<div
                 <i class="zmdi zmdi-open-in-new"></i>
                 <span>{{'i18n:open'|i18n}}</span>
               </li>
+              <!--Action:Download-->
+              <li @click.left="OnDownloadItem(it)" v-if="it.id">
+                <i class="zmdi zmdi-download"></i>
+                <span>{{'i18n:download'|i18n}}</span>
+              </li>
           </ul>
         </div>
     </div>
@@ -100594,6 +100611,7 @@ Ti.Preload("ti/com/wn/upload/multi-files/wn-upload-multi-files.html", `<TiUpload
   @upload="OnUploadFiles"
   @remove="OnRemove"
   @open="OnOpen"
+  @download="OnDownload"
   @clean="OnClean"
 />`);
 //========================================

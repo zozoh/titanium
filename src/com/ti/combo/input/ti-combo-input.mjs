@@ -449,6 +449,7 @@ const _M = {
               key: "text",
               comType: "TiLabel",
               comConf: {
+                hoverCopy: false,
                 className: "as-tip"
               }
             }

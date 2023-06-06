@@ -237,6 +237,10 @@ const _M = {
       this.$notify("open", it)
     },
     //--------------------------------------
+    OnDownloadItem(it) {
+      this.$notify("download", it)
+    },
+    //--------------------------------------
     OnClean() {
       this.$notify("clean")
     },

@@ -259,6 +259,13 @@ const _M = {
       }
     },
     //--------------------------------------
+    async OnDownload({ id } = {}) {
+      if (id) {
+        let link = Wn.Util.getDownloadLink({ id });
+        await Ti.Be.Open(link);
+      }
+    },
+    //--------------------------------------
     async OnRemove({ index, id } = {}) {
       //console.log("remove", index, id)
       // The value should obey the `valueType` prop
@@ -283,14 +290,14 @@ const _M = {
     },
     //--------------------------------------
     async OnClean() {
-      console.log("Do onclean");
+      //console.log("Do onclean");
       let cmds = [];
       _.forEach(this.FileItems, ({ id, value } = {}) => {
         if (value) {
           cmds.push(`rm id:${id}`);
         }
       });
-      console.log(cmds);
+      //console.log(cmds);
       if (_.isEmpty(cmds)) {
         return;
       }
@@ -316,7 +323,7 @@ const _M = {
     //--------------------------------------
     setUploadProgress(id, progress = 0) {
       let pr = _.cloneDeep(this.myUploadProgress);
-      pr[id] = progress;
+      pr[id] = Math.min(1, progress);
       this.myUploadProgress = pr;
     },
     //--------------------------------------
