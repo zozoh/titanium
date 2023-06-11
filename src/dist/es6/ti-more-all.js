@@ -1,4 +1,4 @@
-// Pack At: 2023-06-07 01:49:44
+// Pack At: 2023-06-12 02:23:08
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11773,6 +11773,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 newTab,
                 href,
                 dict,
+                dictVars,
                 format,
                 placeholder,
                 autoLoadDictIcon = Ti.Config.getComProp(
@@ -11788,7 +11789,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
-              if (!editable && !enterNotifyName && !leaveNotifyName) {
+              if (
+                !editable &&
+                !enterNotifyName &&
+                !leaveNotifyName &&
+                _.isEmpty(dictVars)
+              ) {
                 let text = value;
                 let icon = prefixIcon;
                 let isBlank = false;
@@ -16757,7 +16763,7 @@ const _M = {
           return this.dict;
         }
         // Get back
-        let dictInput = /^(@Dict:|#)$/.test(this.dict)
+        let dictInput = /^(@Dict:|#)/.test(this.dict)
           ? this.dict
           : `#${this.dict}`;
         return Ti.DictFactory.CreateDictBy(dictInput, {
@@ -44039,6 +44045,7 @@ const _M = {
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
+          //console.log("do filter")
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];

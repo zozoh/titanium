@@ -461,6 +461,7 @@ const _M = {
       if (force || this.isExtended) {
         let list = await this.Dict.queryData(this.myFilterValue);
         if (this.FnOptionFilter) {
+          //console.log("do filter")
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];

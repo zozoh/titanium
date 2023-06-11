@@ -64,6 +64,7 @@ export default {
                 newTab,
                 href,
                 dict,
+                dictVars,
                 format,
                 placeholder,
                 autoLoadDictIcon = Ti.Config.getComProp(
@@ -79,7 +80,12 @@ export default {
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
-              if (!editable && !enterNotifyName && !leaveNotifyName) {
+              if (
+                !editable &&
+                !enterNotifyName &&
+                !leaveNotifyName &&
+                _.isEmpty(dictVars)
+              ) {
                 let text = value;
                 let icon = prefixIcon;
                 let isBlank = false;

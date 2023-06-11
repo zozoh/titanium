@@ -40,6 +40,10 @@ function DoAutoMatch(input) {
   if (_.isNumber(input)) {
     return NumberMatch(input);
   }
+  // function
+  if (_.isFunction(input)) {
+    return input;
+  }
   // Array
   if (_.isArray(input)) {
     let ms = [];

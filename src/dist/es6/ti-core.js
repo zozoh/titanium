@@ -1,4 +1,4 @@
-// Pack At: 2023-06-07 01:49:44
+// Pack At: 2023-06-12 02:23:08
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -8794,6 +8794,10 @@ const { AutoMatch } = (function(){
     // Number
     if (_.isNumber(input)) {
       return NumberMatch(input);
+    }
+    // function
+    if (_.isFunction(input)) {
+      return input;
     }
     // Array
     if (_.isArray(input)) {
@@ -20460,7 +20464,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230607.014944",
+  "version": "1.6-20230612.022308",
   "dev": false,
   "appName": null,
   "session": {},

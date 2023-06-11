@@ -281,7 +281,7 @@ const _M = {
           return this.dict;
         }
         // Get back
-        let dictInput = /^(@Dict:|#)$/.test(this.dict)
+        let dictInput = /^(@Dict:|#)/.test(this.dict)
           ? this.dict
           : `#${this.dict}`;
         return Ti.DictFactory.CreateDictBy(dictInput, {
