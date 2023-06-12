@@ -1,4 +1,4 @@
-// Pack At: 2023-06-12 23:08:35
+// Pack At: 2023-06-13 00:30:18
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -16368,7 +16368,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "prefixIconForClean": {
     type: Boolean,
-    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", false)
+    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", true)
   },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,

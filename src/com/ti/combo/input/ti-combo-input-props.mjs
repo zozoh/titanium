@@ -21,7 +21,7 @@ export default {
   },
   "prefixIconForClean": {
     type: Boolean,
-    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", false)
+    default: Ti.Config.getComProp(COM_TYPE, "prefixIconForClean", true)
   },
   // If dynamic dictionary: options = '#DickName(=varName)'
   // it will use Ti.DictFactory.CheckDynamicDict,
