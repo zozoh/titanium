@@ -206,7 +206,9 @@ const _M = {
       if (this.prefixIconForClean) {
         this.$notify("change", null);
       }
-      if (this.prefixIconNotifyName) this.$notify(this.prefixIconNotifyName);
+      if (this.prefixIconNotifyName) {
+        this.$notify(this.prefixIconNotifyName);
+      }
     },
     //------------------------------------------------
     OnClickPrefixText() {
