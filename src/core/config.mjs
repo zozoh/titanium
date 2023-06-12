@@ -145,7 +145,7 @@ const TiConfig = {
     let url2 = url
 
     // try type by prefix
-    let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
+    let type, m = /^(!(m?js|json|css|text|asyncjs):)?(.+)$/.exec(url)
     if (m) {
       type = m[2]
       url2 = m[3]

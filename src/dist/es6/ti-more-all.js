@@ -1,4 +1,4 @@
-// Pack At: 2023-06-12 02:23:08
+// Pack At: 2023-06-12 23:08:35
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23597,7 +23597,9 @@ const _M = {
       if (this.prefixIconForClean) {
         this.$notify("change", null);
       }
-      if (this.prefixIconNotifyName) this.$notify(this.prefixIconNotifyName);
+      if (this.prefixIconNotifyName) {
+        this.$notify(this.prefixIconNotifyName);
+      }
     },
     //------------------------------------------------
     OnClickPrefixText() {
@@ -88238,7 +88240,7 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
       :hide-border="hideBorder"
       :prefix-icon="prefixIcon"
       :prefix-hover-icon="prefixHoverIcon"
-      :prefix-icon-for-clean="prefixIconForClean"
+      :prefix-icon-for-clean="true"
       :prefix-text="prefixText"
       :suffix-icon="TheSuffixIcon"
       :suffix-text="suffixText"

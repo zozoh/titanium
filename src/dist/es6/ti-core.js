@@ -1,4 +1,4 @@
-// Pack At: 2023-06-12 02:23:08
+// Pack At: 2023-06-12 23:08:35
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -5101,7 +5101,7 @@ const { Config } = (function(){
       let url2 = url
   
       // try type by prefix
-      let type, m = /^(!(m?js|json|css|text):)?(.+)$/.exec(url)
+      let type, m = /^(!(m?js|json|css|text|asyncjs):)?(.+)$/.exec(url)
       if (m) {
         type = m[2]
         url2 = m[3]
@@ -7275,6 +7275,34 @@ const { Load } = (function(){
               //charset : "stylesheet",
               src     : url,
               //async   : true
+            }
+          })
+          $script.addEventListener("load", function(event){
+            resolve($script)
+          }, {once:true})
+          $script.addEventListener("error", function(event){
+            reject(event)
+          }, {once:true})
+          Ti.Dom.appendToHead($script)
+        }
+      })  // ~ Promise
+    },
+    // async js lib
+    asyncjs(url) {
+      return new Promise((resolve, reject)=>{
+        // Already Loaded
+        let $script = Ti.Dom.find(`script[src="${url}"]`)
+        if($script) {
+          _.defer(resolve, $script)
+        }
+        // Load it now
+        else {
+          $script = Ti.Dom.createElement({
+            tagName : "script",
+            props : {
+              //charset : "stylesheet",
+              src     : url,
+              async   : true
             }
           })
           $script.addEventListener("load", function(event){
@@ -20464,7 +20492,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230612.022308",
+  "version": "1.6-20230612.230835",
   "dev": false,
   "appName": null,
   "session": {},

@@ -109,6 +109,34 @@ const LoadModes = {
       }
     })  // ~ Promise
   },
+  // async js lib
+  asyncjs(url) {
+    return new Promise((resolve, reject)=>{
+      // Already Loaded
+      let $script = Ti.Dom.find(`script[src="${url}"]`)
+      if($script) {
+        _.defer(resolve, $script)
+      }
+      // Load it now
+      else {
+        $script = Ti.Dom.createElement({
+          tagName : "script",
+          props : {
+            //charset : "stylesheet",
+            src     : url,
+            async   : true
+          }
+        })
+        $script.addEventListener("load", function(event){
+          resolve($script)
+        }, {once:true})
+        $script.addEventListener("error", function(event){
+          reject(event)
+        }, {once:true})
+        Ti.Dom.appendToHead($script)
+      }
+    })  // ~ Promise
+  },
   // official js module
   mjs(url) {
     return new Promise((resolve, reject)=>{
