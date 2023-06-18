@@ -4912,14 +4912,16 @@ div.ti-input-tags {
   .ti-label.is-break-word {
     flex: 1 1 auto;
     width: 10px; }
-    .ti-label.is-break-word > .as-value > a, .ti-label.is-break-word > .as-value > span {
+    .ti-label.is-break-word > .as-value > a,
+    .ti-label.is-break-word > .as-value > span {
       width: 100%;
       word-break: break-all;
       overflow: hidden; }
   .ti-label.is-nowrap {
     flex: 1 1 auto;
     width: 10px; }
-    .ti-label.is-nowrap > .as-value > a, .ti-label.is-nowrap > .as-value > span {
+    .ti-label.is-nowrap > .as-value > a,
+    .ti-label.is-nowrap > .as-value > span {
       width: 100%;
       white-space: nowrap;
       overflow: hidden;
@@ -4943,8 +4945,8 @@ div.ti-input-tags {
       color: #e9e3d7;
       background-color: #ca9f54; }
     .ti-label > .as-icon.at-prefix > .ti-icon {
-      transition: .5s;
-      opacity: .6; }
+      transition: 0.5s;
+      opacity: 0.6; }
       .ti-label > .as-icon.at-prefix > .ti-icon img {
         width: 100%;
         transition: 5s;
@@ -4976,7 +4978,8 @@ div.ti-input-tags {
     flex-wrap: nowrap;
     padding: 0 0.04rem;
     width: 100%; }
-    .ti-label > .as-value a, .ti-label > .as-value span {
+    .ti-label > .as-value a,
+    .ti-label > .as-value span {
       display: block;
       flex: 1 1 auto; }
     .ti-label > .as-value a.as-value-edit {
@@ -4987,10 +4990,18 @@ div.ti-input-tags {
   .ti-label.as-tip {
     font-size: 0.9em;
     opacity: 0.7; }
+  .ti-label.r-2 {
+    border-radius: 0.02rem; }
+  .ti-label.r-4 {
+    border-radius: 0.04rem; }
+  .ti-label.r-6 {
+    border-radius: 0.06rem; }
+  .ti-label.r-8 {
+    border-radius: 0.08rem; }
   .ti-label.as-tip-block {
     font-size: 0.9em;
     opacity: 0.7;
-    padding: .5em; }
+    padding: 0.5em; }
   .ti-label.align-left > .as-value span {
     text-align: left; }
   .ti-label.align-center > .as-value span {
@@ -5015,6 +5026,11 @@ div.ti-input-tags {
     text-transform: capitalize; }
   .ti-label.is-del {
     text-decoration: line-through; }
+  .ti-label.as-badge {
+    font-size: 0.1rem;
+    line-height: 1.2em;
+    min-height: unset;
+    margin: 0.04rem 0.02rem; }
   .ti-label.is-success {
     color: #3fad00; }
   .ti-label.is-warn {

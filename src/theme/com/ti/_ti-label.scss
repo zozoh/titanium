@@ -1,27 +1,31 @@
 .ti-label {
-  @include flex-align-nowrap($ai:stretch);
-  line-height: 1.5em;  min-height: 2em;
+  @include flex-align-nowrap($ai: stretch);
+  line-height: 1.5em;
+  min-height: 2em;
   position: relative;
   //-----------------------------------------
   &.is-hover-copy {
     cursor: pointer;
     > .as-hover-copy {
-      @include pos-abs($t:0,$r:0);
+      @include pos-abs($t: 0, $r: 0);
       @include color($color-weaktip, r, c);
       border-radius: 0 0 0 SZ(6);
-      padding:SZ(4);
+      padding: SZ(4);
       opacity: 0;
       transition: opacity 0.3s;
-      line-height: SZ(9); font-size: SZ(9);
+      line-height: SZ(9);
+      font-size: SZ(9);
     }
-    &:hover > .as-hover-copy {opacity: 0.38;}
+    &:hover > .as-hover-copy {
+      opacity: 0.38;
+    }
   }
   //-----------------------------------------
   &.is-blank {
     @include noselect;
     opacity: 0.4;
     &.hide-blank {
-      display: none; 
+      display: none;
     }
   }
   //-----------------------------------------
@@ -32,28 +36,34 @@
   }
   //-----------------------------------------
   &.is-break-line {
-    > .as-value {white-space: pre;}
+    > .as-value {
+      white-space: pre;
+    }
   }
   //-----------------------------------------
   &.is-break-word {
-    flex:1 1 auto; width:10px;
+    flex: 1 1 auto;
+    width: 10px;
     > .as-value {
-      > a, > span {
-        width:100%;
+      > a,
+      > span {
+        width: 100%;
         word-break: break-all;
         overflow: hidden;
       }
     }
   }
   //-----------------------------------------
-   &.is-nowrap {
-    flex:1 1 auto; width:10px; 
+  &.is-nowrap {
+    flex: 1 1 auto;
+    width: 10px;
     > .as-value {
-      > a, > span {
-        width:100%;
+      > a,
+      > span {
+        width: 100%;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis;      
+        text-overflow: ellipsis;
       }
     }
   }
@@ -61,30 +71,36 @@
   > .as-icon {
     @include noselect;
     @include flex-center;
-    flex:0 0 auto; 
+    flex: 0 0 auto;
     > .ti-icon {
       &.is-image {
-        width:SZ(36);
-        padding:SZ(2);
+        width: SZ(36);
+        padding: SZ(2);
       }
       &.is-font {
-        width:SZ(26);
+        width: SZ(26);
       }
     }
     //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
+    &.can-hover {
+      cursor: pointer;
+    }
+    &.can-hover:hover {
+      @include color($color-primary, r, c);
+    }
     //---------------------------------------
     &.at-prefix {
       > .ti-icon {
-        transition: .5s; opacity: .6;
+        transition: 0.5s;
+        opacity: 0.6;
         img {
-          width:100%; transition: 5s;
+          width: 100%;
+          transition: 5s;
           border-radius: 2px;
         }
       }
       &.can-hover:hover > .ti-icon {
-        transform:scale(1.1) rotate(180deg);
+        transform: scale(1.1) rotate(180deg);
         opacity: 1;
       }
     }
@@ -95,11 +111,15 @@
     @include noselect;
     @include flex-center;
     white-space: nowrap;
-    padding:0 SZ(4);
+    padding: 0 SZ(4);
     opacity: 0.6;
     //---------------------------------------
-    &.can-hover{cursor: pointer;}
-    &.can-hover:hover{@include color($color-primary,r,c);}
+    &.can-hover {
+      cursor: pointer;
+    }
+    &.can-hover:hover {
+      @include color($color-primary, r, c);
+    }
     //---------------------------------------
   }
   //-----------------------------------------
@@ -107,51 +127,139 @@
     @include font-fixed;
     @include flex-align-nowrap;
     padding: 0 SZ(4);
-    width:100%;
-    a, span {display: block; flex:1 1 auto;}
-    a.as-value-edit {flex:0 0 auto; width:SZ(24);}
-    a:hover {text-decoration: underline;}
+    width: 100%;
+    a,
+    span {
+      display: block;
+      flex: 1 1 auto;
+    }
+    a.as-value-edit {
+      flex: 0 0 auto;
+      width: SZ(24);
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   }
   //-----------------------------------------
   &.as-tip {
-    font-size: 0.9em; opacity: 0.7;
+    font-size: 0.9em;
+    opacity: 0.7;
+  }
+  //-----------------------------------------
+  &.r-2 {
+    border-radius: SZ(2);
+  }
+  &.r-4 {
+    border-radius: SZ(4);
+  }
+  &.r-6 {
+    border-radius: SZ(6);
+  }
+  &.r-8 {
+    border-radius: SZ(8);
   }
   //-----------------------------------------
   &.as-tip-block {
-    font-size: 0.9em; opacity: 0.7; padding: .5em;
+    font-size: 0.9em;
+    opacity: 0.7;
+    padding: 0.5em;
   }
   //-----------------------------------------
-  &.align-left   > .as-value span {text-align: left;}
-  &.align-center > .as-value span {text-align: center;}
-  &.align-right  > .as-value span {text-align: right;}
+  &.align-left > .as-value span {
+    text-align: left;
+  }
+  &.align-center > .as-value span {
+    text-align: center;
+  }
+  &.align-right > .as-value span {
+    text-align: right;
+  }
   //-----------------------------------------
-  &.flex-grow   {flex:1 0 auto;}
-  &.flex-shrink {flex:0 1 auto; width:unset;}
-  &.flex-auto   {flex:1 1 auto;}
-  &.flex-none   {flex:0 0 auto; width:unset;}
+  &.flex-grow {
+    flex: 1 0 auto;
+  }
+  &.flex-shrink {
+    flex: 0 1 auto;
+    width: unset;
+  }
+  &.flex-auto {
+    flex: 1 1 auto;
+  }
+  &.flex-none {
+    flex: 0 0 auto;
+    width: unset;
+  }
   //-----------------------------------------
-  &.as-uppercase  {text-transform: uppercase;}
-  &.as-lowercase  {text-transform: lowercase;}
-  &.as-capitalize {text-transform: capitalize;}
+  &.as-uppercase {
+    text-transform: uppercase;
+  }
+  &.as-lowercase {
+    text-transform: lowercase;
+  }
+  &.as-capitalize {
+    text-transform: capitalize;
+  }
   //------------------------------------------
-  &.is-del   {text-decoration: line-through;}
+  &.is-del {
+    text-decoration: line-through;
+  }
   //------------------------------------------
-  &.is-success {color: map-get($color-success, c);}
-  &.is-warn    {color: map-get($color-warn, c);}
-  &.is-info    {color: map-get($color-info, c);} 
-  &.is-error   {color: map-get($color-error, c);}
-  &.is-track   {color: map-get($color-track, c);}
-  &.is-disable {color: map-get($color-disable, c);}
-  &.is-text    {color: map-get($color-text, c);}
-  &.is-number  {color: map-get($color-number, c);}
+  &.as-badge {
+    font-size: SZ(10);
+    line-height: 1.2em;
+    min-height: unset;
+    margin: SZ(4) SZ(2);
+  }
   //------------------------------------------
-  &.is-success-tag {@include color($color-success, r, c);}
-  &.is-warn-tag    {@include color($color-warn, r, c);}
-  &.is-info-tag    {@include color($color-info, r, c);} 
-  &.is-error-tag   {@include color($color-error, r, c);}
-  &.is-track-tag   {@include color($color-track, r, c);}
-  &.is-disable-tag {@include color($color-disable, r, c);}
-  &.is-text-tag    {@include color($color-text, r, c);}
-  &.is-number-tag  {@include color($color-number, r, c);}
+  &.is-success {
+    color: map-get($color-success, c);
+  }
+  &.is-warn {
+    color: map-get($color-warn, c);
+  }
+  &.is-info {
+    color: map-get($color-info, c);
+  }
+  &.is-error {
+    color: map-get($color-error, c);
+  }
+  &.is-track {
+    color: map-get($color-track, c);
+  }
+  &.is-disable {
+    color: map-get($color-disable, c);
+  }
+  &.is-text {
+    color: map-get($color-text, c);
+  }
+  &.is-number {
+    color: map-get($color-number, c);
+  }
+  //------------------------------------------
+  &.is-success-tag {
+    @include color($color-success, r, c);
+  }
+  &.is-warn-tag {
+    @include color($color-warn, r, c);
+  }
+  &.is-info-tag {
+    @include color($color-info, r, c);
+  }
+  &.is-error-tag {
+    @include color($color-error, r, c);
+  }
+  &.is-track-tag {
+    @include color($color-track, r, c);
+  }
+  &.is-disable-tag {
+    @include color($color-disable, r, c);
+  }
+  &.is-text-tag {
+    @include color($color-text, r, c);
+  }
+  &.is-number-tag {
+    @include color($color-number, r, c);
+  }
   //-----------------------------------------
 }
