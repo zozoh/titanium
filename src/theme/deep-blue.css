@@ -7690,7 +7690,7 @@ div.ti-input-tags {
       flex-wrap: wrap;
       flex-wrap: nowrap;
       cursor: pointer;
-      padding: .5em;
+      padding: 0.5em;
       min-width: 2.4em;
       line-height: 1em;
       text-align: center;
@@ -7711,6 +7711,10 @@ div.ti-input-tags {
     justify-content: center; }
   .ti-switcher.align-right {
     justify-content: flex-end; }
+  .ti-switcher.wrap-items > .switcher-con ul {
+    flex-wrap: wrap; }
+    .ti-switcher.wrap-items > .switcher-con ul li {
+      flex-grow: 1; }
 
 .ti-table.as-quick > table > tbody td > .cell-wrapper > .cell-con {
   align-items: center;

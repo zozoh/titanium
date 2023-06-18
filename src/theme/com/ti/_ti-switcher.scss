@@ -9,19 +9,23 @@
     //------------------------------------------------
     ul {
       @include raw-list;
-      @include flex-align($wp:nowrap);
+      @include flex-align($wp: nowrap);
       @include border(1px, solid, shallow);
     }
     //------------------------------------------------
     li {
       @include color($color-disable, c, r);
       @include border(1px, solid, shallow, left);
-      @include flex-align-center($jc:center);
-      flex-wrap:nowrap;
-      &:first-child{border-left:0;}
-      cursor:pointer;
-      padding:.5em; min-width:2.4em;
-      line-height:1em; text-align:center;
+      @include flex-align-center($jc: center);
+      flex-wrap: nowrap;
+      &:first-child {
+        border-left: 0;
+      }
+      cursor: pointer;
+      padding: 0.5em;
+      min-width: 2.4em;
+      line-height: 1em;
+      text-align: center;
       white-space: nowrap;
       &.is-selected {
         @include color($color-primary, r, c);
@@ -29,13 +33,28 @@
       &.is-focused {
         @include color($color-weaktip, r, c);
       }
-      > .it-text {padding:0 SZ(4);}
+      > .it-text {
+        padding: 0 SZ(4);
+      }
     }
     //------------------------------------------------
   }
   //--------------------------------------------------
-  &.align-left { justify-content: flex-start;}
-  &.align-center { justify-content: center;}
-  &.align-right { justify-content: flex-end;}
+  &.align-left {
+    justify-content: flex-start;
+  }
+  &.align-center {
+    justify-content: center;
+  }
+  &.align-right {
+    justify-content: flex-end;
+  }
+  //--------------------------------------------------
+  &.wrap-items > .switcher-con ul {
+    flex-wrap: wrap;
+    li {
+      flex-grow: 1;
+    }
+  }
   //--------------------------------------------------
 }

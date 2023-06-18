@@ -300,7 +300,10 @@ const _M = {
   // Import Data
   //
   //----------------------------------------
-  async importData({ state, commit, dispatch, getters }) {
+  async importData(
+    { state, commit, dispatch, getters },
+    { moreFields = [], fixedDefaults = {} } = {}
+  ) {
     // Guard
     if (!getters.isCanUpdate) {
       return await Ti.Alert("i18n:e-pvg-fobidden", { type: "warn" });
@@ -320,16 +323,17 @@ const _M = {
     let reo = await Ti.App.Open({
       icon: "fas-file-import",
       title: "i18n:import-data",
-      position: "top",
+      position: "left",
       minWidth: "90%",
-      height: "90%",
+      height: "100%",
       result: _.cloneDeep(state.importSettings) || {},
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
         "mappingPath": mappingPath || `id:${state.thingSetId}/import/`,
         "defaultMappingName": defaultMappingName,
-        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`
+        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`,
+        moreFields
       },
       components: ["@com:wn/data/importer-form"]
     });
@@ -344,6 +348,22 @@ const _M = {
     if (!fileId) {
       return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
     }
+
+    // 获取默认字段元数据
+    let dftMetas = _.assign(
+      {},
+      fixedDefaults,
+      _.omit(reo, [
+        "fileId",
+        "mode",
+        "scope",
+        "fields",
+        "mapping",
+        "expi",
+        "defaultMappingName",
+        "process"
+      ])
+    );
 
     // Check data Scope
     let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
@@ -372,11 +392,16 @@ const _M = {
     // Generate import commands
     var cmds = [
       "ooml id:" + fileId,
-      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`,
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`
+    ];
+    if (!_.isEmpty(dftMetas)) {
+      cmds.push(`-defaults '${JSON.stringify(dftMetas)}'`);
+    }
+    cmds.push(
       "@beans -limit " + limit + " -skip " + skip,
       `| thing 'id:${state.thingSetId}' create -fields ${unique} ${nohook} `,
       `-process '${process || "<auto>"}'`
-    ];
+    );
     let cmdText = cmds.join(" ");
     //console.log(cmdText);
 

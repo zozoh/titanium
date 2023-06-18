@@ -1,4 +1,4 @@
-// Pack At: 2023-06-16 23:31:20
+// Pack At: 2023-06-19 00:05:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13490,7 +13490,10 @@ const _M = {
   // Import Data
   //
   //----------------------------------------
-  async importData({ state, commit, dispatch, getters }) {
+  async importData(
+    { state, commit, dispatch, getters },
+    { moreFields = [], fixedDefaults = {} } = {}
+  ) {
     // Guard
     if (!getters.isCanUpdate) {
       return await Ti.Alert("i18n:e-pvg-fobidden", { type: "warn" });
@@ -13510,16 +13513,17 @@ const _M = {
     let reo = await Ti.App.Open({
       icon: "fas-file-import",
       title: "i18n:import-data",
-      position: "top",
+      position: "left",
       minWidth: "90%",
-      height: "90%",
+      height: "100%",
       result: _.cloneDeep(state.importSettings) || {},
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
         "mappingPath": mappingPath || `id:${state.thingSetId}/import/`,
         "defaultMappingName": defaultMappingName,
-        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`
+        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`,
+        moreFields
       },
       components: ["@com:wn/data/importer-form"]
     });
@@ -13534,6 +13538,22 @@ const _M = {
     if (!fileId) {
       return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
     }
+
+    // 获取默认字段元数据
+    let dftMetas = _.assign(
+      {},
+      fixedDefaults,
+      _.omit(reo, [
+        "fileId",
+        "mode",
+        "scope",
+        "fields",
+        "mapping",
+        "expi",
+        "defaultMappingName",
+        "process"
+      ])
+    );
 
     // Check data Scope
     let { skip, limit } = Ti.Num.scopeToLimit(scope, { skip: 0, limit: 0 });
@@ -13562,11 +13582,16 @@ const _M = {
     // Generate import commands
     var cmds = [
       "ooml id:" + fileId,
-      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`,
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`
+    ];
+    if (!_.isEmpty(dftMetas)) {
+      cmds.push(`-defaults '${JSON.stringify(dftMetas)}'`);
+    }
+    cmds.push(
       "@beans -limit " + limit + " -skip " + skip,
       `| thing 'id:${state.thingSetId}' create -fields ${unique} ${nohook} `,
       `-process '${process || "<auto>"}'`
-    ];
+    );
     let cmdText = cmds.join(" ");
     //console.log(cmdText);
 
@@ -54155,7 +54180,7 @@ const _M = {
     myMappingFiles: [],
     myCanFields: {
       /*mappingName : []*/
-    },
+    }
   }),
   ///////////////////////////////////////////////////////
   props: {
@@ -54168,75 +54193,78 @@ const _M = {
     // Anyway, it need a mapping file, to get all avaliable fields.
     // [required]
     mappingPath: {
-      type: [String, Array],
+      type: [String, Array]
     },
     // If multi mapping paths, the first one(order by name) will
     // be used defaultly. But you can indicate it in this prop.
     // [optional]
     defaultMappingName: {
-      type: String,
+      type: String
     },
     // TODO: Maybe allow user to choose the output folder in futrue
     uploadTarget: {
-      type: [String, Function],
+      type: [String, Function]
       // sunc as "~/tmp/${name}"
     },
     // additional render vars for output target
     vars: {
       type: Object,
-      default: () => ({}),
+      default: () => ({})
     },
     data: {
-      type: Object,
+      type: Object
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
     outputMode: {
       type: String,
-      default: "all",
+      default: "all"
     },
     outputModeOptions: {
       type: Array,
-      default: () => ["all", "scope"],
+      default: () => ["all", "scope"]
     },
     // Auto remove target when expired.
     // null, never expired
     targetExpi: {
       type: String,
-      default: "6h",
+      default: "6h"
     },
     targetExpiOptions: {
       type: Array,
-      default: () => ["1h", "6h", "1d"],
+      default: () => ["1h", "6h", "1d"]
     },
     uploadTip: {
       type: [String, Object],
-      default: "i18n:wn-import-upload-xlsx-tip",
+      default: "i18n:wn-import-upload-xlsx-tip"
     },
     uploadValueType: {
       type: String,
-      default: "id",
+      default: "id"
     },
     uploadSupportTypes: {
       type: Array,
-      default: () => ["xlsx"],
+      default: () => ["xlsx"]
+    },
+    moreFields: {
+      type: Array
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     title: {
       type: String,
-      default: undefined,
+      default: undefined
     },
     gridColumnHint: {
       type: [String, Array],
-      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]",
+      default: "[[5,1500],[4,1200],[3,900],[2,600],[1,300],0]"
     },
     fieldsGridColumnHint: {
       type: [String, Array],
-      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]",
-    },
+      default: "[[6,1500],[5,1250],[4,1000],[3,750],[2,500],1]"
+    }
   },
   ///////////////////////////////////////////////////////
   computed: {
@@ -54283,9 +54311,9 @@ const _M = {
           comConf: {
             valueType: this.uploadValueType,
             target: this.FormUploadTarget,
-            supportTypes: this.uploadSupportTypes,
-          },
-        },
+            supportTypes: this.uploadSupportTypes
+          }
+        }
       ];
 
       //
@@ -54297,7 +54325,7 @@ const _M = {
           name: "mapping",
           tip: {
             text: "i18n:wn-import-c-mapping-tip",
-            size: "normal",
+            size: "normal"
           },
           comType: "TiDroplist",
           comConf: {
@@ -54306,8 +54334,8 @@ const _M = {
             iconBy: "icon",
             valueBy: "id",
             textBy: "title|nm",
-            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
-          },
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"]
+          }
         });
       }
 
@@ -54320,22 +54348,22 @@ const _M = {
           type: "Array",
           colSpan: 10,
           visible: {
-            mapping: "![BLANK]",
+            mapping: "![BLANK]"
           },
           enabled: {
-            fileId: "![BLANK]",
+            fileId: "![BLANK]"
           },
           comType: "TiBulletCheckbox",
           comConf: {
             title: "i18n:wn-export-choose-fields",
             options: this.MappingFields,
             gridColumnHint: this.fieldsGridColumnHint,
-            autoI18n: true,
-          },
+            autoI18n: true
+          }
         },
         {
           icon: "zmdi-settings",
-          title: "i18n:wn-import-setup",
+          title: "i18n:wn-import-setup"
         }
       );
 
@@ -54352,8 +54380,8 @@ const _M = {
             this.TargetExpiOptions.length > 3 ? "TiDroplist" : "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.TargetExpiOptions,
-          },
+            options: this.TargetExpiOptions
+          }
         });
       }
 
@@ -54365,26 +54393,40 @@ const _M = {
           comType: "TiSwitcher",
           comConf: {
             allowEmpty: false,
-            options: this.OutputModeOptions,
-          },
+            options: this.OutputModeOptions
+          }
         });
       }
-      fields.push({
-        title: "i18n:wn-data-scope",
-        name: "scope",
-        tip: "[small]i18n:wn-data-scope-tip",
-        visible: {
-          mode: "scope",
+      fields.push(
+        {
+          title: "i18n:wn-data-scope",
+          name: "scope",
+          tip: "[small]i18n:wn-data-scope-tip",
+          visible: {
+            mode: "scope"
+          },
+          comType: "TiInput",
+          comConf: {
+            placeholder: "i18n:wn-data-scope-phd",
+            width: "2rem"
+          }
         },
-        comType: "TiInput",
-        comConf: {
-          placeholder: "i18n:wn-data-scope-phd",
-          width: "2rem",
-        },
-      });
+        {
+          title: "i18n:wn-import-c-tags",
+          name: "lbls",
+          tip: "i18n:wn-import-c-tags-tip",
+          type: "Array",
+          comType: "TiInputTags"
+        }
+      );
+
+      // Add more customized fields
+      if (!_.isEmpty(this.moreFields)) {
+        fields.push(...this.moreFields);
+      }
 
       return fields;
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
@@ -54420,7 +54462,7 @@ const _M = {
       if (_.isString(it)) {
         return {
           "scope": { value: "scope", text: "i18n:wn-data-scope" },
-          "all": { value: "all", text: "i18n:wn-import-c-mode-all" },
+          "all": { value: "all", text: "i18n:wn-import-c-mode-all" }
         }[it];
       }
       return it;
@@ -54441,7 +54483,7 @@ const _M = {
             "14d": { value: "14d", text: "i18n:wn-expi-14d" },
             "30d": { value: "30d", text: "i18n:wn-expi-30d" },
 
-            "never": { value: null, text: "i18n:wn-expi-never" },
+            "never": { value: null, text: "i18n:wn-expi-never" }
           }[it] || { text: it, value: it }
         );
       }
@@ -54466,7 +54508,7 @@ const _M = {
             else if (_.isString(li)) {
               cans.push({
                 text: key,
-                value: li,
+                value: li
               });
             }
             // Complex: "race": {...}
@@ -54474,13 +54516,13 @@ const _M = {
               cans.push({
                 text: key,
                 value: li.name,
-                asDefault: li.asDefault,
+                asDefault: li.asDefault
               });
             }
           });
         }
         this.myCanFields = _.assign({}, this.myCanFields, {
-          [this.MappingFileId]: cans,
+          [this.MappingFileId]: cans
         });
       }
     },
@@ -54496,7 +54538,7 @@ const _M = {
           continue;
         }
         let oF = await Wn.Sys.exec2(`o '${path}' @name @json '${fld}' -cqn`, {
-          as: "json",
+          as: "json"
         });
         if (oF && oF.id) {
           if ("DIR" == oF.race) {
@@ -54534,7 +54576,7 @@ const _M = {
       let data = {
         type: this.outputType,
         mode: this.outputMode,
-        mapping: mappingId,
+        mapping: mappingId
       };
       if (this.targetExpi) {
         data.expi = `${this.targetExpi}`;
@@ -54556,14 +54598,14 @@ const _M = {
       if (!_.isEqual(this.data, data)) {
         this.$notify("change", data);
       }
-    },
+    }
     //---------------------------------------------------
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {
     //console.log("mouned")
     await this.reload();
-  },
+  }
   ///////////////////////////////////////////////////////
 };
 return _M;;
@@ -106879,6 +106921,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-import-c-mapping-phd": "选择一种字段映射规则",
   "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
   "wn-import-c-mode-all": "全部数据",
+  "wn-import-c-tags": "数据标签",
+  "wn-import-c-tags-tip": "为你导入的数据统一打上一个数据标签，有助于你在之后统一搜索到它们",
   "wn-import-confirm-many": "你要导入的数据很多，这个操作可能会需要花一些时间，你确定要继续导入吗？",
   "wn-import-setup": "导入设置",
   "wn-import-upload": "上传文件",
@@ -106908,6 +106952,7 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-key-id": "ID",
   "wn-key-len": "大小",
   "wn-key-lm": "最后修改",
+  "wn-key-lbls": "标签",
   "wn-key-m": "修改者",
   "wn-key-md": "基本权限",
   "wn-key-mime": "内容类型",
