@@ -4419,6 +4419,22 @@ i.im {
   .ti-input-dval > .as-main {
     flex: 1 1 auto; }
 
+.ti-input-group {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: center;
+  flex-wrap: nowrap; }
+  .ti-input-group > .as-sep {
+    font-family: Monaco, Consolas, Courier New;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    color: #888888;
+    padding: 0 0.06rem; }
+
 .ti-input-icon {
   display: flex;
   justify-content: flex-start;

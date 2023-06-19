@@ -361,7 +361,9 @@ const _M = {
         "mapping",
         "expi",
         "defaultMappingName",
-        "process"
+        "process",
+        "uniqKey",
+        "withHook"
       ])
     );
 
@@ -386,6 +388,8 @@ const _M = {
     let fnames = fldReg ? `-names '${fldReg}'` : "";
 
     // From settings
+    uniqKey = Ti.Util.fallback(reo.uniqKey, uniqKey);
+    withHook = Ti.Util.fallback(reo.withHook, withHook);
     let unique = uniqKey ? `-unique ${uniqKey}` : "";
     let nohook = withHook ? "" : "-nohook";
 

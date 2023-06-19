@@ -245,6 +245,26 @@ const _M = {
         }
       );
 
+      // Unique key
+      fields.push({
+        title: "i18n:wn-import-c-uniqkey",
+        name: "uniqKey",
+        tip: "i18n:wn-import-c-uniqkey-tip",
+        comType:"TiInput",
+        comConf: {
+          placeholder:"i18n:wn-import-c-uniqkey-nil"
+        }
+      });
+
+      // With Hook
+      fields.push({
+        title: "i18n:wn-import-c-withhook",
+        name: "withHook",
+        type:"Boolean",
+        tip: "i18n:wn-import-c-withhook-tip",
+        comType:"TiToggle"
+      });
+
       // Add more customized fields
       if (!_.isEmpty(this.moreFields)) {
         fields.push(...this.moreFields);

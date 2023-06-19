@@ -1,0 +1,11 @@
+.ti-input-group {
+  @include flex-align-nowrap($ai: stretch);
+  //----------------------------------------------
+  > .as-sep {
+    @include font-fixed;
+    @include flex-center;
+    @include color($color-track, c);
+    padding: 0 SZ(6);
+  }
+  //----------------------------------------------
+}

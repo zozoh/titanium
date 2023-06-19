@@ -1,0 +1,6 @@
+{
+  "name": "ti-input-group",
+  "globally": true,
+  "template": "./ti-input-group.html",
+  "mixins": "./ti-input-group.mjs"
+}

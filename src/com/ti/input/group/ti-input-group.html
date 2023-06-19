@@ -1,0 +1,14 @@
+<div class="ti-input-group full-field" :class="TopClass">
+  <!----------------------------------------->
+  <template v-for="fld in GroupFields">
+    <div v-if="fld.sepChar" class="as-sep">
+      <span>{{fld.sepChar}}</span>
+    </div>
+    <TiInput
+      v-bind="fld.input"
+      :value="fld.value"
+      @change="OnInputChange(fld,$event)"
+    />
+  </template>
+  <!----------------------------------------->
+</div>
