@@ -276,6 +276,9 @@ const _M = {
         if (test) {
           let am = Ti.AutoMatch.parse(test);
           return (v) => {
+            if (Ti.Util.isNil(v)) {
+              return true;
+            }
             if (!am(v)) {
               Ti.Toast.Open(message || "i18n:invalid-val", "warn");
               return false;

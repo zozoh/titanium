@@ -1,4 +1,4 @@
-// Pack At: 2023-06-19 12:49:16
+// Pack At: 2023-06-19 23:12:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23696,6 +23696,9 @@ const _M = {
         if (test) {
           let am = Ti.AutoMatch.parse(test);
           return (v) => {
+            if (Ti.Util.isNil(v)) {
+              return true;
+            }
             if (!am(v)) {
               Ti.Toast.Open(message || "i18n:invalid-val", "warn");
               return false;
