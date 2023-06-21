@@ -414,7 +414,7 @@ export class TiAppModal {
         },
         //--------------------------------------
         OnEvent(key, payload) {
-          console.log(key, payload)
+          //console.log(key, payload);
           let fn = _.get(AppModalEvents, key);
           fn.apply(this, [payload]);
         },

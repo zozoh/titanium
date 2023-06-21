@@ -1,4 +1,4 @@
-// Pack At: 2023-06-19 23:12:13
+// Pack At: 2023-06-22 01:10:27
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -4276,7 +4276,7 @@ const { App } = (function(){
             },
             //--------------------------------------
             OnEvent(key, payload) {
-              console.log(key, payload)
+              //console.log(key, payload);
               let fn = _.get(AppModalEvents, key);
               fn.apply(this, [payload]);
             },
@@ -20492,7 +20492,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230619.231213",
+  "version": "1.6-20230622.011027",
   "dev": false,
   "appName": null,
   "session": {},
