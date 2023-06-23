@@ -1,4 +1,4 @@
-// Pack At: 2023-06-22 01:10:27
+// Pack At: 2023-06-24 02:22:11
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -12776,8 +12776,14 @@ const { Util } = (function(){
                 m_dft = Ti.S.toJsValue(s);
               }
               // starts with "!=" or "==" auto covert to Boolean
-              else if (/^[!=]=/.test(m_type)) {
+              else if ("==" == m_type) {
                 m_dft = Ti.S.toJsValue(m_dft);
+                m_dft = m_dft ? true : false;
+              }
+              // starts with "!=" or "==" auto covert to Boolean
+              else if ("!=" == m_type) {
+                m_dft = Ti.S.toJsValue(m_dft);
+                m_dft = m_dft ? false : true;
               }
               // Others, just trim the value
               else if (m_dft) {
@@ -20492,7 +20498,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.6-20230622.011027",
+  "version": "1.6-20230624.022211",
   "dev": false,
   "appName": null,
   "session": {},

@@ -763,8 +763,14 @@ const TiUtil = {
               m_dft = Ti.S.toJsValue(s);
             }
             // starts with "!=" or "==" auto covert to Boolean
-            else if (/^[!=]=/.test(m_type)) {
+            else if ("==" == m_type) {
               m_dft = Ti.S.toJsValue(m_dft);
+              m_dft = m_dft ? true : false;
+            }
+            // starts with "!=" or "==" auto covert to Boolean
+            else if ("!=" == m_type) {
+              m_dft = Ti.S.toJsValue(m_dft);
+              m_dft = m_dft ? false : true;
             }
             // Others, just trim the value
             else if (m_dft) {

@@ -1,27 +1,28 @@
 {
-  "paths" : {
+  "paths": {
+    "~/.domain/top-privilege.json": "view-top-privilege",
     "~/.domain/history/": "view-history",
     "~/.mail/": "fileset-config-email",
     "~/.sms/": "fileset-config-sms",
     "~/.io/": "hmaker-config-io"
   },
-  "types" : {
-    "thing_set"   : "thing-manager",
-    "thing_view"  : "thing-manager",
-    "comt"        : "com-test",
-    "charts"      : "fileset-charts",
-    "hmaker_site" : "hmaker-site",
-    "aliyun_vod"  : "aliyun-vod-manager",
-    "youtube"     : "file-preview"
+  "types": {
+    "thing_set": "thing-manager",
+    "thing_view": "thing-manager",
+    "comt": "com-test",
+    "charts": "fileset-charts",
+    "hmaker_site": "hmaker-site",
+    "aliyun_vod": "aliyun-vod-manager",
+    "youtube": "file-preview"
   },
-  "mimes" : {
-    "text/json" : "json-editor",
-    "application/json" : "json-editor",
-    "application/x-javascript" : "js-editor",
-    "text/*" : "text-editor"
+  "mimes": {
+    "text/json": "json-editor",
+    "application/json": "json-editor",
+    "application/x-javascript": "js-editor",
+    "text/*": "text-editor"
   },
-  "races" : {
-    "DIR"  : "dir-explorer",
-    "FILE" : "file-preview"
+  "races": {
+    "DIR": "dir-explorer",
+    "FILE": "file-preview"
   }
 }
