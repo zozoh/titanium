@@ -31,6 +31,58 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
+  applyViewBeforeLoad({ state, commit }) {
+    // Guard
+    if (!state.view) {
+      return;
+    }
+    state.LOG("applyViewBeforeLoad", state.view);
+    // Update to state
+    _.forEach(state.view, (v, k) => {
+      // Only set the paths
+      if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
+        let by = _.camelCase("set-" + k);
+        state.LOG("  > ", by, v);
+        commit(by, v);
+      }
+    });
+  },
+  //--------------------------------------------
+  applyViewAfterLoad({ state, commit }) {
+    // Guard
+    if (!state.view) {
+      return;
+    }
+    state.LOG("applyViewAfterLoad", state.view);
+    // Update to state
+    _.forEach(state.view, (v, k) => {
+      // Ignore
+      if (/^((actions|layout|schema|method)Paths?)$/.test(k)) {
+        return;
+      }
+      if (
+        /^(events|view|path|lbkOff|dirId|oDir|meta|(__saved_)?content)$/.test(k)
+      ) {
+        return;
+      }
+      // Schema merged in "loadSchema" already
+      if (/^(schema|components)$/.test(k)) {
+        return;
+      }
+      let by;
+      // Assign
+      if (/^(pager)$/.test(k)) {
+        by = _.camelCase("assign-" + k);
+      }
+      // Others set
+      else {
+        by = _.camelCase("set-" + k);
+      }
+      // Update state by view
+      commit(by, v);
+    });
+  },
+  //--------------------------------------------
   async loadContent(
     { state, commit, dispatch, getters },
     { quiet = false } = {}
@@ -245,7 +297,7 @@ const _M = {
     }
     // Load local setting
     let be = Ti.Storage.local.getObject(state.lbkAt);
-  if (!_.isEmpty(be)) {
+    if (!_.isEmpty(be)) {
       dispatch("applyBehavior", be);
     }
   },
@@ -308,6 +360,16 @@ const _M = {
       commit("setDir", meta);
       commit("setDirId", meta.id);
     }
+    // Take the file as GUI View
+    else if ("gui_view" == meta.tp && "FILE" == meta.race) {
+      let view = await Wn.Io.loadContent(meta, { as: "json" });
+      commit("setView", view);
+      if (view.path) {
+        let oDir = await Wn.Io.loadMeta(view.path);
+        commit("setDir", oDir);
+        commit("setDirId", oDir.id);
+      }
+    }
     // Then meta should be a File
     else {
       // CheckThingSet ID
@@ -324,12 +386,14 @@ const _M = {
 
     // Reload Configurations
     state.LOG("<-------- Reload Config -------->");
+    dispatch("applyViewBeforeLoad");
     await dispatch("loadSchema");
     await Promise.all([
       dispatch("loadLayout"),
       dispatch("loadObjActions"),
       dispatch("loadObjMethods")
     ]);
+    dispatch("applyViewAfterLoad");
     state.LOG("<-------- Config Loaded-------->");
 
     // Behavior

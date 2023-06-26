@@ -1,50 +1,58 @@
 ////////////////////////////////////////////////
 function saveLocalBehavior(state, key, val) {
   if (state.lbkAt && !state.lbkOff) {
-    // Ignore ? 
+    // Ignore ?
     if (state.lbkIgnore && state.lbkIgnore(key)) {
-      return
+      return;
     }
     // Save to local
-    let be = Ti.Storage.local.getObject(state.lbkAt)
-    be[key] = val
-    Ti.Storage.local.setObject(state.lbkAt, be)
+    let be = Ti.Storage.local.getObject(state.lbkAt);
+    be[key] = val;
+    Ti.Storage.local.setObject(state.lbkAt, be);
   }
 }
 ////////////////////////////////////////////////
 const _M = {
   //----------------------------------------
   setModuleName(state, moduleName) {
-    state.moduleName = moduleName
+    state.moduleName = moduleName;
   },
   //----------------------------------------
   setPvg(state, pvg) {
-    state.pvg = pvg
+    state.pvg = pvg;
   },
   //----------------------------------------
   assignPvg(state, pvg) {
-    let po = _.cloneDeep(state.pvg || {})
-    _.assign(po, pvg)
-    state.pvg = po
+    let po = _.cloneDeep(state.pvg || {});
+    _.assign(po, pvg);
+    state.pvg = po;
+  },
+  //----------------------------------------
+  setView(state, view) {
+    state.view = view;
   },
   //----------------------------------------
   setLocalBehaviorKeepAt(state, keyAt) {
-    state.localBehaviorKeepAt = keyAt
+    state.localBehaviorKeepAt = keyAt;
   },
   //----------------------------------------
   explainLocalBehaviorKeepAt(state) {
     let keyAt = state.localBehaviorKeepAt;
-    state.lbkAt = Ti.Util.explainObj(state, keyAt)
-    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore)
+    state.lbkAt = Ti.Util.explainObj(state, keyAt);
+    state.lbkIgnore = Ti.AutoMatch.parse(state.localBehaviorIgnore);
   },
   //----------------------------------------
-  setLbkOff(state, off = true) { state.lbkOff = off },
-  setLbkOn(state, on = true) { state.lbkOff = !on },
+  setLbkOff(state, off = true) {
+    state.lbkOff = off;
+  },
+  setLbkOn(state, on = true) {
+    state.lbkOff = !on;
+  },
   //----------------------------------------
   setGuiShown(state, shown) {
-    let guiShown = _.pickBy(shown, v => v)
-    state.guiShown = guiShown
-    saveLocalBehavior(state, "guiShown", guiShown)
+    let guiShown = _.pickBy(shown, (v) => v);
+    state.guiShown = guiShown;
+    saveLocalBehavior(state, "guiShown", guiShown);
   },
   //----------------------------------------
   //
@@ -52,15 +60,15 @@ const _M = {
   //
   //----------------------------------------
   setDirId(state, dirId) {
-    state.dirId = dirId
+    state.dirId = dirId;
   },
   //----------------------------------------
   setDir(state, oDir) {
-    state.oDir = oDir
+    state.oDir = oDir;
   },
   //----------------------------------------
   setMappingDirPath(state, dirPath) {
-    state.mappingDirPath = dirPath
+    state.mappingDirPath = dirPath;
   },
   //----------------------------------------
   //
@@ -68,100 +76,100 @@ const _M = {
   //
   //----------------------------------------
   setFixedMatch(state, fm) {
-    state.fixedMatch = _.cloneDeep(fm)
+    state.fixedMatch = _.cloneDeep(fm);
   },
   //----------------------------------------
   setFilter(state, filter) {
     state.filter = _.omitBy(filter, (v) => Ti.Util.isNil(v));
-    saveLocalBehavior(state, "filter", filter)
+    saveLocalBehavior(state, "filter", filter);
   },
   //----------------------------------------
   setSorter(state, sorter) {
-    state.sorter = sorter
-    saveLocalBehavior(state, "sorter", sorter)
+    state.sorter = sorter;
+    saveLocalBehavior(state, "sorter", sorter);
   },
   //----------------------------------------
   setObjKeys(state, objKeys) {
-    state.objKeys = objKeys
+    state.objKeys = objKeys;
   },
   //----------------------------------------
   setList(state, list) {
-    state.list = list
+    state.list = list;
   },
   //----------------------------------------
   prependListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, -1, "..");
   },
   //----------------------------------------
   appendListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 1, "..");
   },
   //----------------------------------------
   setListItem(state, newItem) {
-    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..")
+    Ti.Util.UpsertStateDataItemAt(state, newItem, 0, "..");
     if (newItem && newItem.id == state.currentId) {
-      state.meta = newItem
+      state.meta = newItem;
     }
   },
   //----------------------------------------
   mergeListItem(state, theItem) {
-    Ti.Util.MergeStateDataItem(state, theItem, "..")
+    Ti.Util.MergeStateDataItem(state, theItem, "..");
   },
   //----------------------------------------
   removeListItems(state, items = []) {
-    Ti.Util.RemoveStateDataItems(state, items, "..")
+    Ti.Util.RemoveStateDataItems(state, items, "..");
   },
   //----------------------------------------
   listCheckAll(state) {
-    let ids = {}
-    _.forEach(state.list, li => ids[li.id] = true)
-    state.checkedIds = ids
+    let ids = {};
+    _.forEach(state.list, (li) => (ids[li.id] = true));
+    state.checkedIds = ids;
   },
   //----------------------------------------
   listCancelAll(state) {
-    state.currentId = null
-    state.checkedIds = {}
+    state.currentId = null;
+    state.checkedIds = {};
   },
   //----------------------------------------
   setCurrentId(state, currentId) {
-    state.currentId = currentId
+    state.currentId = currentId;
     state.status = _.assign({}, state.status, {
       hasCurrent: !Ti.Util.isNil(currentId)
-    })
-    saveLocalBehavior(state, "currentId", currentId)
+    });
+    saveLocalBehavior(state, "currentId", currentId);
   },
   //----------------------------------------
   setCheckedIds(state, checkedIds) {
-    let ids
+    let ids;
     if (_.isArray(checkedIds)) {
-      ids = {}
-      _.forEach(checkedIds, v => ids[v] = true)
+      ids = {};
+      _.forEach(checkedIds, (v) => (ids[v] = true));
     } else {
-      ids = _.pickBy(checkedIds, v => v)
+      ids = _.pickBy(checkedIds, (v) => v);
     }
-    state.checkedIds = ids
+    state.checkedIds = ids;
     state.status = _.assign({}, state.status, {
       hasChecked: !_.isEmpty(ids)
-    })
-    saveLocalBehavior(state, "checkedIds", ids)
+    });
+    saveLocalBehavior(state, "checkedIds", ids);
   },
   //----------------------------------------
   setPager(state, pager) {
-    state.pager = pager
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    state.pager = pager;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   assignPager(state, pager) {
-    let pg = _.cloneDeep(state.pager || {})
+    let pg = _.cloneDeep(state.pager || {});
     _.forEach(pager, (v, k) => {
       if (!Ti.Util.isNil(v)) {
-        pg[k] = v
+        pg[k] = v;
       }
-    })
-    state.pager = pg
-    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0
-    saveLocalBehavior(state, "pageSize", pageSize)
+    });
+    state.pager = pg;
+    let pageSize = Ti.Util.getValue(state.pager, "pageSize", "pgsz") || 0;
+    saveLocalBehavior(state, "pageSize", pageSize);
   },
   //----------------------------------------
   //
@@ -169,42 +177,42 @@ const _M = {
   //
   //----------------------------------------
   setCurrentMeta(state) {
-    let currentId = state.currentId
-    state.LOG("setCurrentMeta", currentId)
-    let hasCurrent = true
+    let currentId = state.currentId;
+    state.LOG("setCurrentMeta", currentId);
+    let hasCurrent = true;
     // Clear current meta
     if (Ti.Util.isNil(currentId) || _.isEmpty(state.list)) {
-      hasCurrent = false
+      hasCurrent = false;
     }
     // Find current meta
     else {
-      hasCurrent = false
+      hasCurrent = false;
       for (let it of state.list) {
         if (it.id == currentId) {
-          state.meta = it
-          hasCurrent = true
-          break
+          state.meta = it;
+          hasCurrent = true;
+          break;
         }
       }
     }
     // Reset current/checkedIds
     if (!hasCurrent) {
-      state.meta = null
-      state.currentId = null
+      state.meta = null;
+      state.currentId = null;
     }
     // Update status
     state.status = _.assign({}, state.status, {
       "hasMeta": state.meta ? true : false,
       "hasCurrent": hasCurrent,
       "hasChecked": !_.isEmpty(state.checkedIds)
-    })
+    });
   },
   //----------------------------------------
   setMeta(state, meta) {
-    state.meta = meta
+    state.meta = meta;
     state.status = _.assign({}, state.status, {
       hasMeta: meta ? true : false
-    })
+    });
   },
   //--------------------------------------------
   assignMeta(state, meta) {
@@ -217,77 +225,77 @@ const _M = {
   //----------------------------------------
   setContent(state, content) {
     if (content && !_.isString(content)) {
-      content = JSON.stringify(content, null, '   ')
+      content = JSON.stringify(content, null, "   ");
     }
-    state.content = content
+    state.content = content;
   },
   //----------------------------------------
   setSavedContent(state, content) {
-    state.__saved_content = content
+    state.__saved_content = content;
   },
   //----------------------------------------
   setContentPath(state, contentPath) {
-    state.contentPath = contentPath
+    state.contentPath = contentPath;
   },
   //----------------------------------------
   setContentType(state, contentType) {
-    state.contentType = contentType
+    state.contentType = contentType;
   },
   //----------------------------------------
   setContentData(state, contentData) {
-    state.contentData = contentData
+    state.contentData = contentData;
   },
   //----------------------------------------
   setContentQuietParse(state, quietParse) {
-    state.contentQuietParse = quietParse
+    state.contentQuietParse = quietParse;
   },
   //----------------------------------------
   setStatus(state, status) {
-    state.status = _.assign({}, state.status, status)
+    state.status = _.assign({}, state.status, status);
   },
   //----------------------------------------
   clearStatus(state) {
-    state.status = {}
+    state.status = {};
   },
   //----------------------------------------
   syncStatusChanged(state) {
     if (Ti.Util.isNil(state.content) && Ti.Util.isNil(state.__saved_content)) {
-      state.status.changed = false
+      state.status.changed = false;
     } else {
-      state.status.changed = !_.isEqual(state.content, state.__saved_content)
+      state.status.changed = !_.isEqual(state.content, state.__saved_content);
     }
   },
   //----------------------------------------
   setItemStatus(state, status = {}) {
-    state.itemStatus = _.assign({}, state.itemStatus, status)
+    state.itemStatus = _.assign({}, state.itemStatus, status);
   },
   //----------------------------------------
   clearItemStatus(state, names = []) {
     // Clean All
     if (_.isEmpty(names)) {
-      state.itemStatus = {}
+      state.itemStatus = {};
     }
     // Clear one
     else {
-      state.itemStatus = _.omit(state.itemStatus, names)
+      state.itemStatus = _.omit(state.itemStatus, names);
     }
   },
   //----------------------------------------
   setFieldStatus(state, { name, type, text } = {}) {
     if (name) {
-      let ukey = Ti.Util.anyKey(name)
-      Vue.set(state.fieldStatus, ukey, { type, text })
+      let ukey = Ti.Util.anyKey(name);
+      Vue.set(state.fieldStatus, ukey, { type, text });
     }
   },
   //----------------------------------------
   clearFieldStatus(state, names = []) {
     // Clean All
     if (_.isEmpty(names)) {
-      state.fieldStatus = {}
+      state.fieldStatus = {};
     }
     // Clear one
     else {
-      state.fieldStatus = _.omit(state.fieldStatus, names)
+      state.fieldStatus = _.omit(state.fieldStatus, names);
     }
   },
   //----------------------------------------
@@ -296,39 +304,39 @@ const _M = {
   //
   //----------------------------------------
   setActionsPath(state, actionsPath) {
-    state.actionsPath = actionsPath
+    state.actionsPath = actionsPath;
   },
   setLayoutPath(state, layoutPath) {
-    state.layoutPath = layoutPath
+    state.layoutPath = layoutPath;
   },
   setSchemaPath(state, schemaPath) {
-    state.schemaPath = schemaPath
+    state.schemaPath = schemaPath;
   },
   setMethodPaths(state, methodPaths) {
-    state.methodPaths = methodPaths
+    state.methodPaths = methodPaths;
   },
   //----------------------------------------
   setObjActions(state, objActions = {}) {
-    state.objActions = objActions
+    state.objActions = objActions;
   },
   setLayout(state, layout = {}) {
-    state.layout = layout
+    state.layout = layout;
   },
   setSchema(state, schema = {}) {
-    state.schema = schema
+    state.schema = schema;
   },
   assignSchema(state, schema = {}) {
-    state.schema = _.assign({}, state.schema, schema)
+    state.schema = _.assign({}, state.schema, schema);
   },
   mergeSchema(state, schema = {}) {
-    let sc = _.cloneDeep(state.schema)
-    state.schema = _.merge(sc, schema)
+    let sc = _.cloneDeep(state.schema);
+    state.schema = _.merge(sc, schema);
   },
   setObjMethods(state, objMethods = {}) {
-    state.objMethods = objMethods
+    state.objMethods = objMethods;
   },
   assignObjMethods(state, objMethods = {}) {
-    state.objMethods = _.assign({}, state.objMethods, objMethods)
+    state.objMethods = _.assign({}, state.objMethods, objMethods);
   },
   //----------------------------------------
   resetState(state) {
@@ -377,8 +385,8 @@ const _M = {
       "layout": {},
       "schema": {},
       "objMethods": {}
-    })
-  },
+    });
+  }
   //----------------------------------------
-}
-export default _M
+};
+export default _M;

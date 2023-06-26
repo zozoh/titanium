@@ -16,6 +16,9 @@ const _M = {
       type: Array,
       default: "TiInput"
     },
+    "readonly": {
+      type: Boolean
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -36,7 +39,10 @@ const _M = {
       _.forEach(this.fields, (fld, index) => {
         let val = _.get(this.value, fld.key);
         val = Ti.Util.fallback(val, fld.defaultAs, null);
-        let inputConfig = _.omit(fld, "key");
+        let inputConfig = _.assign(
+          { readonly: this.readonly },
+          _.omit(fld, "key")
+        );
         re.push({
           index,
           key: fld.key,

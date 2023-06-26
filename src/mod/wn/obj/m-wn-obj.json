@@ -6,6 +6,7 @@
     "update":null,
     "save":null
   },
+  "view": null,
   "localBehaviorKeepAt": "->WnObj-State-${dirId}",
   "localBehaviorIgnore": null,
   "lbkAt": null,

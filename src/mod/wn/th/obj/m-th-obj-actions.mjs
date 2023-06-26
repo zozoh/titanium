@@ -25,12 +25,12 @@ async function loadConfigJson(state, key, dft) {
 ////////////////////////////////////////////////
 const _M = {
   //--------------------------------------------
-  applyViewBeforeLoad({ state, commit }, view) {
-    state.LOG("applyViewBeforeLoad", view);
+  applyViewBeforeLoad({ state, commit }) {
     // Guard
     if (!state.view) {
       return;
     }
+    state.LOG("applyViewBeforeLoad", state.view);
     // Update to state
     _.forEach(state.view, (v, k) => {
       // Only set the paths
@@ -42,11 +42,12 @@ const _M = {
     });
   },
   //--------------------------------------------
-  applyViewAfterLoad({ state, commit }, view) {
+  applyViewAfterLoad({ state, commit }) {
     // Guard
     if (!state.view) {
       return;
     }
+    state.LOG("applyViewAfterLoad", state.view);
     // Update to state
     _.forEach(state.view, (v, k) => {
       // Ignore
@@ -262,6 +263,7 @@ const _M = {
     }
   },
   //--------------------------------------------
+  // load static data to "load", then dynamic explain can use it
   async applyLoad({ state, commit }) {
     let results = {};
     //
