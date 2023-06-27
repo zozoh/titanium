@@ -3041,6 +3041,8 @@ i.im {
     .ti-form-grid[mode="tab"] > main > section.tab-body {
       flex: 1 1 auto;
       overflow: auto; }
+  .ti-form-grid[mode="tab"].auto-height > main {
+    height: unset; }
   .ti-form-grid.is-paper {
     color: #000;
     background-color: #F0F0F0; }
