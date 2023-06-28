@@ -814,8 +814,7 @@ const _M = {
     },
     //--------------------------------------------------
     async tryEvalFormFieldList(newVal, oldVal) {
-      let aa = [_.get(this.data, "name"), this.fields[0].fields.length];
-      //console.log("tryEvalFormFieldList", aa);
+      //console.log("tryEvalFormFieldList");
       if (!_.isEqual(newVal, oldVal)) {
         // get the finger of curent form for sorting field evaluation
         let finger = Ti.Alg.sha1([
@@ -825,7 +824,7 @@ const _M = {
           this.myActivedFieldKey,
           this.batchHint
         ]);
-        //console.log(" - get finger=>", aa, finger);
+        //console.log(" - get finger=>", finger);
         // already is in process
         if (this.eval_current_finger === finger) {
           //console.log("== Match current finger", finger);
@@ -842,7 +841,7 @@ const _M = {
         // mark current finger
         this.eval_current_finger = finger;
 
-        //console.log(" - evalFormFieldList() >>>>>>", aa, finger);
+        //console.log(" - evalFormFieldList() >>>>>>", finger);
         this.evalBatchEditableFields();
         await this.evalFormFieldList();
 
