@@ -94,9 +94,9 @@ export default {
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "gap": {
-      type: Object
-    },
+    // "gap": {
+    //   type: Object
+    // },
     "hideTitle": {
       type: Boolean,
       default: false
@@ -141,12 +141,14 @@ export default {
   computed: {
     //--------------------------------------
     TopClass() {
+      let fillParent =
+        /^(tabs|panel)$/.test(this.embedIn) && "auto" != this.size;
       return this.getTopClass(
         {
           [`gui-block-${this.name}`]: this.name ? true : false,
           "is-show-header": this.isShowHeader,
           "is-hide-header": !this.isShowHeader,
-          "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn),
+          "ti-fill-parent":fillParent,
           "inside-nocard": this.card ? false : true
         },
         `is-flex-${this.FlexName}`

@@ -1,4 +1,4 @@
-// Pack At: 2023-06-28 14:11:21
+// Pack At: 2023-06-28 17:10:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5202,9 +5202,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "gap": {
-      type: Object
-    },
+    // "gap": {
+    //   type: Object
+    // },
     "hideTitle": {
       type: Boolean,
       default: false
@@ -5249,12 +5249,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //--------------------------------------
     TopClass() {
+      let fillParent =
+        /^(tabs|panel)$/.test(this.embedIn) && "auto" != this.size;
       return this.getTopClass(
         {
           [`gui-block-${this.name}`]: this.name ? true : false,
           "is-show-header": this.isShowHeader,
           "is-hide-header": !this.isShowHeader,
-          "ti-fill-parent": /^(tabs|panel)$/.test(this.embedIn),
+          "ti-fill-parent":fillParent,
           "inside-nocard": this.card ? false : true
         },
         `is-flex-${this.FlexName}`
