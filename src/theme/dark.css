@@ -2823,16 +2823,17 @@ i.im {
     .ti-form-grid-con .field-value-com > .full-field.has-width {
       flex: 0 0 auto; }
 
-.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label,
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label {
+  padding: 0.06rem 0.08rem; }
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name {
   padding: 0.03rem 0.06rem; }
-  .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label .field-icon,
-  .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name .field-icon {
-    margin-right: 0.03rem; }
-  .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label .field-pop-tip,
-  .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name .field-pop-tip {
-    display: block;
-    padding: 0.04rem; }
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label .field-icon,
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name .field-icon {
+  margin-right: 0.03rem; }
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-label .field-pop-tip,
+.ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-name .field-pop-tip {
+  display: block;
+  padding: 0.04rem; }
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con > .field-value {
   padding: 0.02rem; }
 

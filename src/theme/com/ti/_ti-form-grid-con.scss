@@ -330,9 +330,14 @@
 //
 //----------------------------------------
 .ti-form-grid[spacing="tiny"] > main > section > .ti-form-grid-con {
-  > .field-label,
+  > .field-label {
+    padding: SZ(6) SZ(8);
+  }
   > .field-name {
     padding: SZ(3) SZ(6);
+  }
+  > .field-label,
+  > .field-name {
     .field-icon {
       margin-right: SZ(3);
     }
