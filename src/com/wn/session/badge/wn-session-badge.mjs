@@ -101,9 +101,14 @@ const _M = {
     VersionInfo() {
       let info = this.version || {
         core: "Unkown",
+        titanium: Ti.Version(),
         app: "???"
       };
-      return [`Core: ${info.core}`, `App: ${info.app}`].join(" ");
+      return [
+        `Core: ${info.core}`,
+        `Ti: ${info.titanium}`,
+        `App: ${info.app}`
+      ].join(" ");
     }
     //--------------------------------------
   },
@@ -151,9 +156,9 @@ const _M = {
     //--------------------------------------
     async tryLoadVersion() {
       if (!this.version) {
-        this.version = {core:"Loading"}
+        this.version = { core: "Loading" };
         let sysInfo = await Wn.Sys.exec2("sys -runtime -cqn", { as: "json" });
-        let core = sysInfo.nodeVersion;
+        let core = sysInfo.nodeVersionNumber;
 
         let oV = await Wn.Io.loadMeta("~/.ti/version.json");
         let app = "???";
@@ -161,7 +166,7 @@ const _M = {
           let ver = await Wn.Io.loadContent(oV, { as: "json" });
           app = Ti.Tmpl.exec("${name}-${version}", ver);
         }
-        this.version = { core, app };
+        this.version = { core, titanium: Ti.Version(), app };
       }
     },
     //--------------------------------------

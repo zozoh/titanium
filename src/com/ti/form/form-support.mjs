@@ -21,7 +21,18 @@ const _M = {
 
     /*auto conclude batch mode editable fields*/
     myBatchEditableFields: {},
-    myForceEditableFields: {}
+    myForceEditableFields: {},
+
+    /*
+    Field evaluation
+    // mark curetn evaluation: assemble the watcher fields finger
+    - current_finger : "xxx"
+    // if current evaluation still processing, join the finger to wating list
+    // It will be invoke the last finger after current processing done
+    - waiting_list : ["Another finger"]
+    */
+    eval_current_finger: undefined,
+    eval_waitings: []
   }),
   //////////////////////////////////////////////////////
   computed: {
@@ -802,12 +813,57 @@ const _M = {
       };
     },
     //--------------------------------------------------
-    tryEvalFormFieldList(newVal, oldVal) {
-      //console.log("tryEvalFormFieldList")
+    async tryEvalFormFieldList(newVal, oldVal) {
+      let aa = [_.get(this.data, "name"), this.fields[0].fields.length];
+      //console.log("tryEvalFormFieldList", aa);
       if (!_.isEqual(newVal, oldVal)) {
-        //console.log("  !! do this.evalFormFieldList()")
+        // get the finger of curent form for sorting field evaluation
+        let finger = Ti.Alg.sha1([
+          this.fields,
+          this.myData,
+          this.isReadonly,
+          this.myActivedFieldKey,
+          this.batchHint
+        ]);
+        //console.log(" - get finger=>", aa, finger);
+        // already is in process
+        if (this.eval_current_finger === finger) {
+          //console.log("== Match current finger", finger);
+          return;
+        }
+
+        // another finger is in process,join current one to wating list
+        if (this.eval_current_finger) {
+          this.eval_waitings.push(finger);
+          //console.log("== Join waitings", this.eval_waitings);
+          return;
+        }
+
+        // mark current finger
+        this.eval_current_finger = finger;
+
+        //console.log(" - evalFormFieldList() >>>>>>", aa, finger);
         this.evalBatchEditableFields();
-        this.evalFormFieldList();
+        await this.evalFormFieldList();
+
+        // Then process the last element in  waiting list
+        while (true) {
+          let next = _.last(this.eval_waitings);
+          if (!next) {
+            break;
+          }
+          //console.log(" - <<<<<< PROCESS NEXT >>>>>>>", aa, next);
+          this.eval_current_finger = next;
+          this.eval_waitings = [];
+
+          this.evalBatchEditableFields();
+          await this.evalFormFieldList();
+        }
+
+        // Clean marker
+        this.eval_current_finger = undefined;
+        this.eval_waitings = [];
+        //console.log(" - <<<<<< OK this.evalFormFieldList()", aa, finger);
       }
     },
     //--------------------------------------------------
