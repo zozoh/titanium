@@ -296,7 +296,7 @@ const _M = {
         {
           result,
           model: { prop: "data", event: "change" },
-          comType: "TiForm",
+          comType: this.formType,
           comConf: form
         }
       );
@@ -309,7 +309,7 @@ const _M = {
         position: "bottom",
         width: "73%",
         height: "96%",
-        clickMaskToClose: true,
+        clickMaskToClose: false,
         result: json,
         comType: "TiInputText",
         comConf: {

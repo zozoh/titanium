@@ -9,7 +9,7 @@ export default {
   "valueType": {
     type: String,
     default: "Array",
-    validator: v => /^(Array|String)$/.test(v)
+    validator: (v) => /^(Array|String)$/.test(v)
   },
   "vars": {
     type: Object,
@@ -24,6 +24,10 @@ export default {
   "form": {
     type: [Object, Array],
     default: () => ({})
+  },
+  "formType": {
+    type: String,
+    default: "TiForm"
   },
   "quickTable": {
     type: [Boolean, String, Function, Object, Array],
@@ -51,7 +55,7 @@ export default {
   "onAddNewItem": {
     type: [String, Function]
   },
-  "moreActions":{
+  "moreActions": {
     type: Array
   },
   //-----------------------------------
@@ -87,4 +91,4 @@ export default {
     type: [Number, String],
     default: undefined
   }
-}
+};

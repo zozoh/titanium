@@ -1,4 +1,4 @@
-// Pack At: 2023-06-28 17:10:01
+// Pack At: 2023-06-29 10:26:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -26645,7 +26645,7 @@ const _M = {
         {
           result,
           model: { prop: "data", event: "change" },
-          comType: "TiForm",
+          comType: this.formType,
           comConf: form
         }
       );
@@ -26658,7 +26658,7 @@ const _M = {
         position: "bottom",
         width: "73%",
         height: "96%",
-        clickMaskToClose: true,
+        clickMaskToClose: false,
         result: json,
         comType: "TiInputText",
         comConf: {
@@ -49109,7 +49109,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "valueType": {
     type: String,
     default: "Array",
-    validator: v => /^(Array|String)$/.test(v)
+    validator: (v) => /^(Array|String)$/.test(v)
   },
   "vars": {
     type: Object,
@@ -49124,6 +49124,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "form": {
     type: [Object, Array],
     default: () => ({})
+  },
+  "formType": {
+    type: String,
+    default: "TiForm"
   },
   "quickTable": {
     type: [Boolean, String, Function, Object, Array],
@@ -49151,7 +49155,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "onAddNewItem": {
     type: [String, Function]
   },
-  "moreActions":{
+  "moreActions": {
     type: Array
   },
   //-----------------------------------
@@ -49187,7 +49191,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Number, String],
     default: undefined
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
