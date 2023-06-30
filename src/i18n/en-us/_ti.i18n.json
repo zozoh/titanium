@@ -469,6 +469,8 @@
   "unknown": "Unknown",
   "unzip": "Unzip",
   "unzipping": "Unzipping...",
+  "unzip-current": "Unzip Current ...",
+  "unzip-target-name": "Unzip target directory name",
   "upload": "Upload",
   "upload-done": "Done for upload",
   "upload-file": "Uploading files ...",
@@ -503,5 +505,7 @@
   "www-title": "Website",
   "yes": "Yes",
   "zip": "Zip",
+  "zip-checked": "Zip Checked...",
+  "zip-target-name": "Zip Target Name",
   "zipping": "Zipping..."
 }

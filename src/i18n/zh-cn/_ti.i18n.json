@@ -469,6 +469,8 @@
   "unknown": "未知",
   "unzip": "解压缩",
   "unzipping": "正在解压缩...",
+  "unzip-current": "解压当前项目...",
+  "unzip-target-name": "解压目标目录名称",
   "upload": "上传",
   "upload-done": "文件上传已完成",
   "upload-file": "上传文件...",
@@ -503,5 +505,7 @@
   "www-title": "前端网站",
   "yes": "是",
   "zip": "压缩",
+  "zip-checked": "压缩选中项目...",
+  "zip-target-name": "目标压缩包名称",
   "zipping": "正在压缩..."
 }
