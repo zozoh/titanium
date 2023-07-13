@@ -2730,7 +2730,7 @@ i.im {
     .ti-form-grid-con > .field-value.is-track {
       color: #888; }
     .ti-form-grid-con > .field-value.is-disabled {
-      opacity: 0.2;
+      opacity: 0.4;
       filter: grayscale(100%); }
       .ti-form-grid-con > .field-value.is-disabled.is-batch-disabled {
         filter: grayscale(100%); }

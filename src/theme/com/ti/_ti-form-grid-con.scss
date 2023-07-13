@@ -204,7 +204,7 @@
     position: relative;
     //----------------------------------
     &.is-disabled {
-      opacity: 0.2;
+      opacity: 0.4;
       filter: grayscale(100%);
       &.is-batch-disabled {
         filter: grayscale(100%) /*blur(1px)*/;
