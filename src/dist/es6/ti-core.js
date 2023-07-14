@@ -1,4 +1,4 @@
-// Pack At: 2023-07-01 01:32:30
+// Pack At: 2023-07-14 16:27:06
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -5739,7 +5739,14 @@ const { Dom } = (function(){
     //----------------------------------------------------
     isTouchDevice() {
       let UA = window.navigator.userAgent || "";
-      return /^.+(\((ipad|iphone);|linux;\s*android).+$/.test(UA.toLowerCase());
+      if (/^.+(\((ipad|iphone);|linux;\s*android).+$/i.test(UA)) {
+        return true;
+      }
+      // For iPad 13
+      if (/macintosh/i.test(UA) && window.navigator.maxTouchPoints > 1) {
+        return true;
+      }
+      return false;
     },
     //----------------------------------------------------
     autoRootFontSize({
