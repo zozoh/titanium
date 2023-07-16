@@ -119,7 +119,15 @@ const TiDateTime = {
         ];
         if (m[18]) list.push(m[18]);
         let dateStr = list.join("");
-        return new Date(dateStr);
+        let date = new Date(dateStr);
+
+        // Compare TimeZone with remote
+        let tzDiff = Ti.Env("TIMEZONE_DIFF");
+        if (_.isNumber(tzDiff) && tzDiff !== 0) {
+          date = new Date(date.getTime() - tzDiff);
+        }
+
+        return date;
       }
     }
     // Invalid date
@@ -205,7 +213,15 @@ const TiDateTime = {
       date = TiDateTime.parse(date);
     }
     // Guard it
-    if (!date) return null;
+    if (!date) {
+      return null;
+    }
+
+    // Compare TimeZone with remote
+    let tzDiff = Ti.Env("TIMEZONE_DIFF");
+    if (_.isNumber(tzDiff) && tzDiff !== 0) {
+      date = new Date(date.getTime() + tzDiff);
+    }
 
     let _c = TiDateTime.genFormatContext(date);
     let regex = /(y{2,4}|M{1,4}|dd?|HH?|mm?|ss?|S{1,3}|E{1,4}|'([^']+)')/g;

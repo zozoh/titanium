@@ -1,4 +1,4 @@
-// Pack At: 2023-07-14 16:29:44
+// Pack At: 2023-07-16 19:24:15
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -1645,11 +1645,27 @@ const Session = (function(){
         by_val
       });
       WnSession.env(envs);
-  
-      let offsetInMs = await Wn.Sys.timeOffsetInMs();
-  
       Ti.Env("theme", envs.THEME);
-      Ti.Env("REMOTE_TIME_OFFSET_IN_MS", offsetInMs);
+  
+      //let offsetInMs = await Wn.Sys.timeOffsetInMs();
+      //Ti.Env("REMOTE_TIME_OFFSET_IN_MS", offsetInMs);
+      Ti.Env("REMOTE_TIME_OFFSET_IN_MS", 0);
+  
+      // Get TimeZone
+      let re = _.trim(await Wn.Sys.exec2("date -zone"));
+      //console.log("!!!!!!!!!!!!!!!!!!", re);
+      let m = /^(GMT)([+-][\d:]+)\/(\d+)$/.exec(re);
+      if (m) {
+        let tzOff_remote = m[3] * 1;
+        Ti.Env("TIMEZONE_OFFSET_REMOTE", tzOff_remote);
+  
+        // The Js standard return -480 when GMT+8
+        let tzOff_local = new Date().getTimezoneOffset() * -60000;
+        Ti.Env("TIMEZONE_OFFSET_LOCAL", tzOff_local);
+  
+        // Get the diff value of rmote - local.
+        Ti.Env("TIMEZONE_DIFF", tzOff_remote - tzOff_local);
+      }
     },
     //----------------------------------------
     env(vars) {
@@ -4600,7 +4616,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230714.162945"
+const WALNUT_VERSION = "1.2-20230716.192416"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

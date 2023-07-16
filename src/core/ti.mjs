@@ -181,16 +181,6 @@ const Ti = {
     return Ti.Util.geset(ENV, key, val);
   },
   //-----------------------------------------------------
-  RemoteTimeOffsetInMs() {
-    return ENV.REMOTE_TIME_OFFSET_IN_MS || 0;
-  },
-  //-----------------------------------------------------
-  RemoteTimeInMs() {
-    let off = ENV.REMOTE_TIME_OFFSET_IN_MS || 0;
-    let ms = Date.now();
-    return ms + off;
-  },
-  //-----------------------------------------------------
   Version() {
     return Ti.Env("version");
   },
