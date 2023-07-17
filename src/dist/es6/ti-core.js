@@ -1,4 +1,4 @@
-// Pack At: 2023-07-16 19:24:15
+// Pack At: 2023-07-17 16:34:56
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -9378,7 +9378,7 @@ const { AutoMatch } = (function(){
     }) {
       let k = not ? notMatchOf : matchOf;
       let s = Ti.I18n.text(k);
-      return Ti.S.renderBy(s, { val: wildcard });
+      return Ti.S.renderBy(s, { val: P });
     };
     //...............................
     return re;
@@ -20521,7 +20521,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.68",
+  "version": "1.72",
   "dev": false,
   "appName": null,
   "session": {},

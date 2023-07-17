@@ -588,7 +588,7 @@ function RegexMatch(regex) {
   }) {
     let k = not ? notMatchOf : matchOf;
     let s = Ti.I18n.text(k);
-    return Ti.S.renderBy(s, { val: wildcard });
+    return Ti.S.renderBy(s, { val: P });
   };
   //...............................
   return re;
