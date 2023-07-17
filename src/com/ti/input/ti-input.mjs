@@ -15,6 +15,10 @@ const _M = {
   props: {
     "focusValue": {
       type: [String, Number]
+    },
+    "suffixIconForEdit": {
+      type: Boolean,
+      default: false
     }
   },
   ////////////////////////////////////////////////////
@@ -95,6 +99,15 @@ const _M = {
     TheSuffixText() {
       return Ti.Util.explainObj(this, this.suffixText);
     },
+    //--------------------------------------
+    TheSuffixIcon() {
+      if (this.suffixIcon) {
+        return this.suffixIcon;
+      }
+      if (this.suffixIconForEdit) {
+        return "fas-edit";
+      }
+    },
     //------------------------------------------------
     TheHover() {
       let map = {};
@@ -159,14 +172,9 @@ const _M = {
     OnInputChanged() {
       //console.log("OnInputChanged");
       let val = this.getInputValue(this.autoJsValue);
-      // validate
-      let checker = this.genValidating();
-      if (!checker(val)) {
-        this.$notify("invalid", val);
-        return;
-      }
-      //console.log("OnInputChange", JSON.stringify(val))
-      this.$notify("change", val);
+
+      this.tryNotifyChange(val);
+
       _.delay(() => {
         this.inputingValue = undefined;
       }, 100);
@@ -215,8 +223,27 @@ const _M = {
       if (this.prefixTextNotifyName) this.$notify(this.prefixTextNotifyName);
     },
     //------------------------------------------------
-    OnClickSuffixIcon() {
-      if (this.suffixIconNotifyName) {
+    async OnClickSuffixIcon() {
+      // Just for edit
+      if (this.suffixIconForEdit) {
+        let str = await Ti.App.Open({
+          title: "i18n:edit",
+          position: "top",
+          width: "6.4rem",
+          height: "90%",
+          result: this.value,
+          comType: "TiInputText",
+          comConf: {
+            height: "100%"
+          }
+        });
+        if (!_.isUndefined(str)) {
+          let val = this.formatValue(str);
+          this.tryNotifyChange(val);
+        }
+      }
+      // Notify event
+      else if (this.suffixIconNotifyName) {
         this.$notify(this.suffixIconNotifyName);
       }
     },
@@ -241,33 +268,37 @@ const _M = {
       if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value;
-        // Auto js value
-        if (autoJsValue) {
-          val = Ti.S.toJsValue(val, {
-            autoNil: true,
-            autoDate: false,
-            trimed: this.trimed
-          });
-        }
-        // Keep value as string
-        else {
-          // Trim
-          if (this.trimed) {
-            val = _.trim(val);
-          }
-          // emptyAsNull
-          if (this.emptyAsNull && !val) {
-            val = null;
-          }
-        }
-        // case
-        if (this.valueCase) {
-          val = Ti.S.toCase(val, this.valueCase);
-        }
-
-        // notify
-        return val;
+        return this.formatValue(val, autoJsValue);
       }
+    },
+    //------------------------------------------------
+    formatValue(val, autoJsValue = this.autoJsValue) {
+      // Auto js value
+      if (autoJsValue) {
+        val = Ti.S.toJsValue(val, {
+          autoNil: true,
+          autoDate: false,
+          trimed: this.trimed
+        });
+      }
+      // Keep value as string
+      else {
+        // Trim
+        if (this.trimed) {
+          val = _.trim(val);
+        }
+        // emptyAsNull
+        if (this.emptyAsNull && !val) {
+          val = null;
+        }
+      }
+      // case
+      if (this.valueCase) {
+        val = Ti.S.toCase(val, this.valueCase);
+      }
+
+      // notify
+      return val;
     },
     //------------------------------------------------
     genValidating() {
@@ -288,6 +319,19 @@ const _M = {
         }
       }
       return (v) => true;
+    },
+    //------------------------------------------------
+    tryNotifyChange(val) {
+      // validate
+      let checker = this.genValidating();
+      if (!checker(val)) {
+        this.$notify("invalid", val);
+        return;
+      }
+      //console.log("OnInputChange", JSON.stringify(val))
+      if (val != this.value) {
+        this.$notify("change", val);
+      }
     },
     //------------------------------------------------
     doAutoFocus() {
