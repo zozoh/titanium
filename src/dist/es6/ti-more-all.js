@@ -1,4 +1,4 @@
-// Pack At: 2023-07-17 22:41:56
+// Pack At: 2023-07-18 21:39:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13628,7 +13628,7 @@ const _M = {
       return;
     }
 
-    let { fileId, mode, scope, fields, mapping } = reo;
+    let { fileId, mode, scope, fields, mapping, fieldsOnly } = reo;
     // Check Import File
     if (!fileId) {
       return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
@@ -13648,7 +13648,8 @@ const _M = {
         "defaultMappingName",
         "process",
         "uniqKey",
-        "withHook"
+        "withHook",
+        "fieldsOnly"
       ])
     );
 
@@ -13681,8 +13682,11 @@ const _M = {
     // Generate import commands
     var cmds = [
       "ooml id:" + fileId,
-      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames}`
     ];
+    if (fieldsOnly) {
+      cmds.push("-only");
+    }
     if (!_.isEmpty(dftMetas)) {
       cmds.push(`-defaults '${JSON.stringify(dftMetas)}'`);
     }
@@ -47751,6 +47755,12 @@ const _M = {
       type: Boolean,
       default: true
     },
+    "newItemDialog": {
+      type: Object,
+      default: () => ({
+        mode: "prompt"
+      })
+    },
     //------------------------------------------------
     // Aspect
     //------------------------------------------------
@@ -47770,68 +47780,70 @@ const _M = {
       return this.getTopClass({
         "is-empty": this.isEmpty,
         "no-empty": !this.isEmpty
-      })
+      });
     },
     //------------------------------------------------
     isEmpty() {
-      return _.isEmpty(this.ListItems)
+      return _.isEmpty(this.ListItems);
     },
     //------------------------------------------------
     TheValue() {
       if (_.isEmpty(this.value)) {
-        return []
+        return [];
       }
       if (_.isString(this.value)) {
         if (/^\[([^\]]*)\]$/.test(this.value)) {
-          return JSON.parse(this.value)
+          return JSON.parse(this.value);
         }
-        return Ti.S.splitIgnoreBlank(this.value, this.valueSep)
+        return Ti.S.splitIgnoreBlank(this.value, this.valueSep);
       }
-      return _.concat(this.value)
+      return _.concat(this.value);
     },
     //------------------------------------------------
     getEleComType() {
       if (_.isString(this.eleComType)) {
-        return () => this.eleComType
+        return () => this.eleComType;
       }
       if (_.isFunction(this.eleComType)) {
-        return this.eleComType
+        return this.eleComType;
       }
       if (_.isObject(this.eleComType)) {
         return (val) => {
-          return _.get(this.eleComType[val])
-        }
+          return _.get(this.eleComType[val]);
+        };
       }
       if (_.isArray(this.eleComType)) {
         return (val, index) => {
-          return _.nth(this.eleComType, index)
-        }
+          return _.nth(this.eleComType, index);
+        };
       }
-      return "TiInput"
+      return "TiInput";
     },
     //------------------------------------------------
     getEleComConf() {
       let conf;
       if (_.isFunction(this.eleComConf)) {
-        conf = this.eleComConf
-      }
-      else {
-        conf = this.eleComConf
+        conf = this.eleComConf;
+      } else {
+        conf = this.eleComConf;
       }
       return (value, index) => {
-        return Ti.Util.explainObj({ value, index }, conf)
-      }
+        return Ti.Util.explainObj({ value, index }, conf);
+      };
     },
     //------------------------------------------------
     ListItems() {
-      let items = []
+      let items = [];
       _.forEach(this.TheValue, (value, index) => {
-        let comType = this.getEleComType(value, index)
-        let comConf = this.getEleComConf(value, index)
+        let comType = this.getEleComType(value, index);
+        let comConf = this.getEleComConf(value, index);
         items.push({
-          index, value, comType, comConf
-        })
-      })
+          index,
+          value,
+          comType,
+          comConf
+        });
+      });
       return items;
     }
     //------------------------------------------------
@@ -47841,46 +47853,105 @@ const _M = {
     //------------------------------------------------
     OnValueChange({ index, value }, newVal) {
       if (!_.isEqual(value, newVal)) {
-        let val = newVal
+        let val = newVal;
         if (this.autoJsValue) {
           val = Ti.S.toJsValue(val, {
             autoNil: true,
             autoDate: false,
             trimed: true
-          })
+          });
         }
-        let list = _.cloneDeep(this.TheValue) || {}
-        list[index] = val
-        this.tryNotifyChange(list)
+        let list = _.cloneDeep(this.TheValue) || {};
+        list[index] = val;
+        this.tryNotifyChange(list);
       }
     },
     //------------------------------------------------
     OnDeleteItem({ index }) {
-      let list = []
+      let list = [];
       _.forEach(this.TheValue, (v, i) => {
         if (i != index) {
-          list.push(v)
+          list.push(v);
         }
-      })
-      this.tryNotifyChange(list)
+      });
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
-    OnAddNewItem() {
-      let list = _.cloneDeep(this.TheValue) || {}
-      let newItem = _.cloneDeep(this.dftNewItem)
-      list.push(newItem)
-      this.tryNotifyChange(list)
+    async OnAddNewItem() {
+      let list = _.cloneDeep(this.TheValue) || {};
+      let newItem = _.cloneDeep(this.dftNewItem);
+      if (this.newItemDialog) {
+        let dia = _.cloneDeep(this.newItemDialog);
+        let re;
+        if ("prompt" == dia.mode) {
+          let msg = dia.msg || "i18n:add-item";
+          dia = _.omit(dia, "prompt", "mode");
+          _.defaults(dia, {
+            placeholder: msg
+          });
+          re = await Ti.Prompt(msg, dia);
+        }
+        // Cutomized dialog
+        else {
+          _.defaults(dia, {
+            title: "i18n:new",
+            position: "center",
+            width: "6.4rem",
+            height: "2rem",
+            result: newItem,
+            comType: "TiInput",
+            comConf: {
+              style: {
+                padding: "1em",
+                height: "unset"
+              },
+              placeholder: "i18n:new-item"
+            }
+          });
+          re = await Ti.App.Open(dia);
+        }
+
+        if (!re) {
+          return;
+        }
+        newItem = re;
+      }
+      list.push(newItem);
+      this.tryNotifyChange(list);
+    },
+    //------------------------------------------------
+    OnClear() {
+      this.tryNotifyChange(null);
+    },
+    //------------------------------------------------
+    async OnEditCode() {
+      let json = JSON.stringify(this.value, null, "    ");
+      let re = await Ti.EditCode(json, {
+        mode: "json",
+        textOk: "i18n:ok",
+        textCancel: "i18n:cancel"
+      });
+      if (Ti.Util.isNil(re)) {
+        return;
+      }
+      try {
+        re = _.trim(re) || "[]";
+        let val = JSON.parse(re);
+        this.tryNotifyChange(val);
+      } catch (err) {
+        await Ti.Alert("i18n:invalid-format", { type: "error" });
+      }
     },
     //------------------------------------------------
     tryNotifyChange(list) {
       if (!_.isEqual(list, this.TheValue)) {
-        this.$notify("change", list)
+        this.$notify("change", list);
       }
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -54731,6 +54802,15 @@ const _M = {
         name: "withHook",
         type:"Boolean",
         tip: "i18n:wn-import-c-withhook-tip",
+        comType:"TiToggle"
+      });
+
+      // Only Field
+      fields.push({
+        title: "i18n:wn-import-c-fieldsonly",
+        name: "fieldsOnly",
+        type:"Boolean",
+        tip: "i18n:wn-import-c-fieldsonly-tip",
         comType:"TiToggle"
       });
 
@@ -91092,37 +91172,42 @@ Ti.Preload("ti/com/ti/input/langs/_com.json", {
 //========================================
 Ti.Preload("ti/com/ti/input/list/ti-input-list.html", `<div class="ti-input-list full-field" :class="TopClass">
   <!----------------------------------------->
-  <div
-    v-if="!isEmpty"
-      class="as-list">
+  <div v-if="!isEmpty" class="as-list">
+    <div v-for="it in ListItems" class="as-item">
       <div
-        v-for="it in ListItems"
-          class="as-item">
-            <div 
-              v-if="canRemoveItem"
-                class="as-deleter as-index"
-                @click.left="OnDeleteItem(it)">
-                <i class="zmdi zmdi-close"></i>
-                <span>{{it.index}}</span>
-            </div>
-            <div 
-              v-else
-                class="as-index">
-                <span>{{it.index}}</span>
-            </div>
-            <component 
-              :is="it.comType"
-              class="as-com"
-              v-bind="it.comConf"
-              :value="it.value"
-              @change="OnValueChange(it, $event)"/>
-      </div> <!--.as-item-->
-  </div> <!--.as-list-->
+        v-if="canRemoveItem"
+        class="as-deleter as-index"
+        @click.left="OnDeleteItem(it)"
+      >
+        <i class="zmdi zmdi-close"></i>
+        <span>{{it.index + 1}}</span>
+      </div>
+      <div v-else class="as-index">
+        <span>{{it.index}}</span>
+      </div>
+      <component
+        :is="it.comType"
+        class="as-com"
+        v-bind="it.comConf"
+        :value="it.value"
+        @change="OnValueChange(it, $event)"
+      />
+    </div>
+    <!--.as-item-->
+  </div>
+  <!--.as-list-->
   <!----------------------------------------->
-  <div class="as-adder" v-if="canAddNewItem">
-    <div class="adder-btn" @click.left="OnAddNewItem">
+  <div class="as-actions" v-if="canAddNewItem">
+    <div class="as-btn" @click.left="OnAddNewItem">
       <i class="zmdi zmdi-plus"></i>
       <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+    <div v-if="!isEmpty" class="as-btn" @click.left="OnClear">
+      <i class="zmdi zmdi-delete"></i>
+      <span>{{'i18n:clear'|i18n}}</span>
+    </div>
+    <div class="as-btn" @click.left="OnEditCode">
+      <i class="zmdi zmdi-code"></i>
     </div>
   </div>
   <!----------------------------------------->
@@ -107001,6 +107086,7 @@ Ti.Preload("ti/i18n/zh-cn/_ti.i18n.json", {
   "input": "输入",
   "input-tags": "输入标签",
   "invalid": "不正确的",
+  "invalid-format": "错误的格式",
   "invalid-val": "不正确的值",
   "java-type-Boolean": "布尔",
   "java-type-Double": "双精度浮点",
@@ -107368,6 +107454,8 @@ Ti.Preload("ti/i18n/zh-cn/_wn.i18n.json", {
   "wn-import-WithoutInput": "请上传要导入的数据文件",
   "wn-import-c-expi": "暂存时间",
   "wn-import-c-expi-tip": "上传的临时文件将在服务器端保留多久",
+  "wn-import-c-fieldsonly":"仅映射",
+  "wn-import-c-fieldsonly-tip":"仅导入映射字段",
   "wn-import-c-mapping": "映射规则",
   "wn-import-c-mapping-phd": "选择一种字段映射规则",
   "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",
