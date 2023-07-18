@@ -7,6 +7,7 @@
       @include flex-align-nowrap($ai: stretch);
       @include color($color-input, c, r);
       @include border(1px, solid, shallow, top);
+      border-radius: SZ(4);
       //---------------------------------------------
       &:first-child {
         border: 0;
@@ -58,23 +59,25 @@
     //-----------------------------------------------
   } // table
   //-------------------------------------------------
-  .as-adder {
+  .as-actions {
     @include flex-center($wp: nowrap);
     padding: SZ(4);
-    .adder-btn {
+    .as-btn {
       @include border(1px, dashed, shallow);
       cursor: pointer;
+      border-radius: SZ(4);
       text-align: center;
       white-space: nowrap;
-      padding: SZ(8);
-      min-width: SZ(120);
+      padding: SZ(6) SZ(8);
+      min-width: SZ(40);
+      margin: 0 1px;
       &:hover {
         @include color($color-secondary, r, c);
       }
     }
   }
   //-------------------------------------------------
-  &.is-empty > .as-adder {
+  &.is-empty > .as-actions {
     justify-content: flex-start;
   }
   //-------------------------------------------------

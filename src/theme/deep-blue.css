@@ -4553,7 +4553,8 @@ i.im {
     flex-wrap: nowrap;
     color: #444;
     background-color: #FFF;
-    border-top: 1px solid rgba(20, 20, 20, 0.1); }
+    border-top: 1px solid rgba(20, 20, 20, 0.1);
+    border-radius: 0.04rem; }
     .ti-input-list > .as-list > .as-item:first-child {
       border: 0; }
     .ti-input-list > .as-list > .as-item > .as-deleter > i {
@@ -4595,24 +4596,26 @@ i.im {
     .ti-input-list > .as-list > .as-item > .as-com {
       width: 100%;
       flex: 1 1 auto; }
-.ti-input-list .as-adder {
+.ti-input-list .as-actions {
   display: flex;
   justify-content: center;
   align-items: center;
   align-content: center;
   flex-wrap: nowrap;
   padding: 0.04rem; }
-  .ti-input-list .as-adder .adder-btn {
+  .ti-input-list .as-actions .as-btn {
     border: 1px dashed rgba(20, 20, 20, 0.1);
     cursor: pointer;
+    border-radius: 0.04rem;
     text-align: center;
     white-space: nowrap;
-    padding: 0.08rem;
-    min-width: 1.2rem; }
-    .ti-input-list .as-adder .adder-btn:hover {
+    padding: 0.06rem 0.08rem;
+    min-width: 0.4rem;
+    margin: 0 1px; }
+    .ti-input-list .as-actions .as-btn:hover {
       color: #FFF;
       background-color: #ff4081; }
-.ti-input-list.is-empty > .as-adder {
+.ti-input-list.is-empty > .as-actions {
   justify-content: flex-start; }
 
 .ti-input-num {

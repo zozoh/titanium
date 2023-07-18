@@ -78,6 +78,8 @@
   "wn-import-WithoutInput": "请上传要导入的数据文件",
   "wn-import-c-expi": "暂存时间",
   "wn-import-c-expi-tip": "上传的临时文件将在服务器端保留多久",
+  "wn-import-c-fieldsonly":"仅映射",
+  "wn-import-c-fieldsonly-tip":"仅导入映射字段",
   "wn-import-c-mapping": "映射规则",
   "wn-import-c-mapping-phd": "选择一种字段映射规则",
   "wn-import-c-mapping-tip": "所谓映射规则，就是字段输出时的转换的规则，包括如何指定字段名称，字段值如何转换等",

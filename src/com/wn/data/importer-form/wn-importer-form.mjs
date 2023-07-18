@@ -265,6 +265,15 @@ const _M = {
         comType:"TiToggle"
       });
 
+      // Only Field
+      fields.push({
+        title: "i18n:wn-import-c-fieldsonly",
+        name: "fieldsOnly",
+        type:"Boolean",
+        tip: "i18n:wn-import-c-fieldsonly-tip",
+        comType:"TiToggle"
+      });
+
       // Add more customized fields
       if (!_.isEmpty(this.moreFields)) {
         fields.push(...this.moreFields);

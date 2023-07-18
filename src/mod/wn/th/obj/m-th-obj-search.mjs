@@ -343,7 +343,7 @@ const _M = {
       return;
     }
 
-    let { fileId, mode, scope, fields, mapping } = reo;
+    let { fileId, mode, scope, fields, mapping, fieldsOnly } = reo;
     // Check Import File
     if (!fileId) {
       return await Ti.Alert("i18n:wn-import-WithoutInput", { type: "warn" });
@@ -363,7 +363,8 @@ const _M = {
         "defaultMappingName",
         "process",
         "uniqKey",
-        "withHook"
+        "withHook",
+        "fieldsOnly"
       ])
     );
 
@@ -396,8 +397,11 @@ const _M = {
     // Generate import commands
     var cmds = [
       "ooml id:" + fileId,
-      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames} -only`
+      `@xlsx @sheet @mapping -f 'id:${mapping}' ${fnames}`
     ];
+    if (fieldsOnly) {
+      cmds.push("-only");
+    }
     if (!_.isEmpty(dftMetas)) {
       cmds.push(`-defaults '${JSON.stringify(dftMetas)}'`);
     }

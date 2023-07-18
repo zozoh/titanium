@@ -225,6 +225,7 @@
   "input": "输入",
   "input-tags": "输入标签",
   "invalid": "不正确的",
+  "invalid-format": "错误的格式",
   "invalid-val": "不正确的值",
   "java-type-Boolean": "布尔",
   "java-type-Double": "双精度浮点",

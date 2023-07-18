@@ -1,36 +1,41 @@
 <div class="ti-input-list full-field" :class="TopClass">
   <!----------------------------------------->
-  <div
-    v-if="!isEmpty"
-      class="as-list">
+  <div v-if="!isEmpty" class="as-list">
+    <div v-for="it in ListItems" class="as-item">
       <div
-        v-for="it in ListItems"
-          class="as-item">
-            <div 
-              v-if="canRemoveItem"
-                class="as-deleter as-index"
-                @click.left="OnDeleteItem(it)">
-                <i class="zmdi zmdi-close"></i>
-                <span>{{it.index}}</span>
-            </div>
-            <div 
-              v-else
-                class="as-index">
-                <span>{{it.index}}</span>
-            </div>
-            <component 
-              :is="it.comType"
-              class="as-com"
-              v-bind="it.comConf"
-              :value="it.value"
-              @change="OnValueChange(it, $event)"/>
-      </div> <!--.as-item-->
-  </div> <!--.as-list-->
+        v-if="canRemoveItem"
+        class="as-deleter as-index"
+        @click.left="OnDeleteItem(it)"
+      >
+        <i class="zmdi zmdi-close"></i>
+        <span>{{it.index + 1}}</span>
+      </div>
+      <div v-else class="as-index">
+        <span>{{it.index}}</span>
+      </div>
+      <component
+        :is="it.comType"
+        class="as-com"
+        v-bind="it.comConf"
+        :value="it.value"
+        @change="OnValueChange(it, $event)"
+      />
+    </div>
+    <!--.as-item-->
+  </div>
+  <!--.as-list-->
   <!----------------------------------------->
-  <div class="as-adder" v-if="canAddNewItem">
-    <div class="adder-btn" @click.left="OnAddNewItem">
+  <div class="as-actions" v-if="canAddNewItem">
+    <div class="as-btn" @click.left="OnAddNewItem">
       <i class="zmdi zmdi-plus"></i>
       <span>{{'i18n:add-item'|i18n}}</span>
+    </div>
+    <div v-if="!isEmpty" class="as-btn" @click.left="OnClear">
+      <i class="zmdi zmdi-delete"></i>
+      <span>{{'i18n:clear'|i18n}}</span>
+    </div>
+    <div class="as-btn" @click.left="OnEditCode">
+      <i class="zmdi zmdi-code"></i>
     </div>
   </div>
   <!----------------------------------------->
