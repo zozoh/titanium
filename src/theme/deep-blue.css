@@ -8181,9 +8181,6 @@ div.ti-input-tags {
             font-size: 0.1rem;
             opacity: 0.6;
             padding: 0 0.06rem 0 0.03rem; }
-            .ti-table > table > tbody td > .cell-wrapper .table-row-head .row-number::after {
-              display: inline;
-              content: "."; }
           .ti-table > table > tbody td > .cell-wrapper .table-row-head .row-checker {
             padding: 0.06rem;
             cursor: pointer; }

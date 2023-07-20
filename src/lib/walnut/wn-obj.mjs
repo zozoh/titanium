@@ -1,9 +1,14 @@
 ////////////////////////////////////////////////////
 const TABLE_FIELDS = {
   //---------------------------------------------
+  thumb: () => ({
+    title: "i18n:wn-key-icon",
+    display: Wn.Obj.getObjThumbDisplay("rawData")
+  }),
+  //---------------------------------------------
   title: () => ({
     title: "i18n:wn-key-title",
-    display: [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
+    display: "title|nm"
   }),
   //---------------------------------------------
   nm: () => ({
@@ -741,8 +746,8 @@ const WnObj = {
                 display: {
                   key: k,
                   transformer: "Ti.DateTime.format",
-                  comConf:{
-                    className:"ass-tip"
+                  comConf: {
+                    className: "ass-tip"
                   }
                 },
                 comType: "TiInputDatetime"

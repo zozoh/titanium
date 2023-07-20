@@ -1,4 +1,4 @@
-// Pack At: 2023-07-18 21:39:43
+// Pack At: 2023-07-20 12:51:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1000,9 +1000,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "guiPath": {
       type: String
     },
-    //-----------------------------------
-    // GUI
-    //-----------------------------------
     "filterConf": {
       type: Object,
       default: () => ({})
@@ -1015,6 +1012,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
           value: "=content"
         }
       })
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "fileIcon": {
+      type: [String, Boolean, Object],
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -1152,15 +1156,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     TableHeadDisplay() {
-      return [
-        {
-          key: "..",
-          transformer: ({ rawData } = {}) => {
-            return this.getFileIcon(rawData);
-          },
-          comType: "TiIcon"
+      if (_.isBoolean(this.fileIcon)) {
+        if (this.fileIcon) {
+          return [
+            {
+              key: "..",
+              transformer: ({ rawData } = {}) => {
+                return this.getFileIcon(rawData);
+              },
+              comType: "TiIcon"
+            }
+          ];
         }
-      ];
+      } else {
+        return _.concat([], this.fileIcon);
+      }
     },
     //------------------------------------------------
     TableFields() {

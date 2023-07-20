@@ -15,9 +15,6 @@ export default {
     "guiPath": {
       type: String
     },
-    //-----------------------------------
-    // GUI
-    //-----------------------------------
     "filterConf": {
       type: Object,
       default: () => ({})
@@ -30,6 +27,13 @@ export default {
           value: "=content"
         }
       })
+    },
+    //-----------------------------------
+    // Aspect
+    //-----------------------------------
+    "fileIcon": {
+      type: [String, Boolean, Object],
+      default: true
     }
   },
   ////////////////////////////////////////////////////
@@ -167,15 +171,21 @@ export default {
     },
     //------------------------------------------------
     TableHeadDisplay() {
-      return [
-        {
-          key: "..",
-          transformer: ({ rawData } = {}) => {
-            return this.getFileIcon(rawData);
-          },
-          comType: "TiIcon"
+      if (_.isBoolean(this.fileIcon)) {
+        if (this.fileIcon) {
+          return [
+            {
+              key: "..",
+              transformer: ({ rawData } = {}) => {
+                return this.getFileIcon(rawData);
+              },
+              comType: "TiIcon"
+            }
+          ];
         }
-      ];
+      } else {
+        return _.concat([], this.fileIcon);
+      }
     },
     //------------------------------------------------
     TableFields() {

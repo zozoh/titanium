@@ -1,4 +1,4 @@
-// Pack At: 2023-07-18 21:39:43
+// Pack At: 2023-07-20 12:51:47
 //##################################################
 // # import Io from "./wn-io.mjs"
 const Io = (function(){
@@ -596,9 +596,14 @@ const Obj = (function(){
   ////////////////////////////////////////////////////
   const TABLE_FIELDS = {
     //---------------------------------------------
+    thumb: () => ({
+      title: "i18n:wn-key-icon",
+      display: Wn.Obj.getObjThumbDisplay("rawData")
+    }),
+    //---------------------------------------------
     title: () => ({
       title: "i18n:wn-key-title",
-      display: [Wn.Obj.getObjThumbDisplay("rawData"), "title|nm"]
+      display: "title|nm"
     }),
     //---------------------------------------------
     nm: () => ({
@@ -1336,8 +1341,8 @@ const Obj = (function(){
                   display: {
                     key: k,
                     transformer: "Ti.DateTime.format",
-                    comConf:{
-                      className:"ass-tip"
+                    comConf: {
+                      className: "ass-tip"
                     }
                   },
                   comType: "TiInputDatetime"
@@ -4616,7 +4621,7 @@ const FbAlbum = (function(){
 })();
 
 //---------------------------------------
-const WALNUT_VERSION = "1.2-20230718.213944"
+const WALNUT_VERSION = "1.2-20230720.125148"
 //---------------------------------------
 // For Wn.Sys.exec command result callback
 const HOOKs = {

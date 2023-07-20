@@ -516,10 +516,10 @@
               opacity: 0.6;
               padding: 0 SZ(6) 0 SZ(3);
 
-              &::after {
-                display: inline;
-                content: ".";
-              }
+              // &::after {
+              //   display: inline;
+              //   content: ".";
+              // }
             }
 
             //-----------------------------------------
