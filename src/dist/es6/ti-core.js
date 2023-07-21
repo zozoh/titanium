@@ -1,4 +1,4 @@
-// Pack At: 2023-07-20 12:51:47
+// Pack At: 2023-07-21 21:48:24
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -10838,7 +10838,10 @@ const { Types } = (function(){
       // For String
       if (_.isString(val)) {
         // Parse JSON
-        if (/^\{.*\}$/.test(val) || /^\[.*\]$/.test(val)) {
+        if (
+          (/^\{/.test(val) && /\}$/.test(val)) ||
+          (/^\[/.test(val) && /\]$/.test(val))
+        ) {
           try {
             return JSON.parse(val);
           } catch (err) {
@@ -20521,7 +20524,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.73",
+  "version": "1.75",
   "dev": false,
   "appName": null,
   "session": {},

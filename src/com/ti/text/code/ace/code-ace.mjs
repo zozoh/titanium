@@ -107,13 +107,18 @@ const _M = {
   methods: {
     //-----------------------------------------------
     initEditor() {
+      let val = this.value
+      if(val && !_.isString(val)){
+        val = JSON.stringify(val, null, '    ')
+      }
+
       // Create editor
       let editor = ace.edit(this.$refs.edit);
       editor.setTheme(`ace/theme/${this.EditorTheme}`);
       //console.log(this.EditorOption)
       editor.setOptions(this.EditorOption);
       editor.session.setMode(`ace/mode/${this.ContentMode}`);
-      editor.session.setValue(this.value || "");
+      editor.session.setValue(val || "");
 
       // Readonly Mode
       if (this.readonly) {

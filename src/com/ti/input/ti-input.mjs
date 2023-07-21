@@ -19,6 +19,15 @@ const _M = {
     "suffixIconForEdit": {
       type: Boolean,
       default: false
+    },
+    "suffixIconEditDialog": {
+      type: Object,
+      default: () => ({
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -226,17 +235,22 @@ const _M = {
     async OnClickSuffixIcon() {
       // Just for edit
       if (this.suffixIconForEdit) {
-        let str = await Ti.App.Open({
-          title: "i18n:edit",
-          position: "top",
-          width: "6.4rem",
-          height: "90%",
-          result: this.value,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
-        });
+        var dia = _.assign(
+          {
+            title: "i18n:edit",
+            position: "top",
+            width: "6.4rem",
+            height: "90%",
+            result: this.value,
+            comType: "TiInputText",
+            comConf: {
+              height: "100%"
+            }
+          },
+          this.suffixIconEditDialog
+        );
+        console.log(dia)
+        let str = await Ti.App.Open(dia);
         if (!_.isUndefined(str)) {
           let val = this.formatValue(str);
           this.tryNotifyChange(val);

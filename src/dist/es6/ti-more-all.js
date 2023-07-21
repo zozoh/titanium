@@ -1,4 +1,4 @@
-// Pack At: 2023-07-20 12:51:47
+// Pack At: 2023-07-21 21:48:24
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23603,6 +23603,15 @@ const _M = {
     "suffixIconForEdit": {
       type: Boolean,
       default: false
+    },
+    "suffixIconEditDialog": {
+      type: Object,
+      default: () => ({
+        comType: "TiInputText",
+        comConf: {
+          height: "100%"
+        }
+      })
     }
   },
   ////////////////////////////////////////////////////
@@ -23810,17 +23819,22 @@ const _M = {
     async OnClickSuffixIcon() {
       // Just for edit
       if (this.suffixIconForEdit) {
-        let str = await Ti.App.Open({
-          title: "i18n:edit",
-          position: "top",
-          width: "6.4rem",
-          height: "90%",
-          result: this.value,
-          comType: "TiInputText",
-          comConf: {
-            height: "100%"
-          }
-        });
+        var dia = _.assign(
+          {
+            title: "i18n:edit",
+            position: "top",
+            width: "6.4rem",
+            height: "90%",
+            result: this.value,
+            comType: "TiInputText",
+            comConf: {
+              height: "100%"
+            }
+          },
+          this.suffixIconEditDialog
+        );
+        console.log(dia)
+        let str = await Ti.App.Open(dia);
         if (!_.isUndefined(str)) {
           let val = this.formatValue(str);
           this.tryNotifyChange(val);
@@ -27314,13 +27328,18 @@ const _M = {
   methods: {
     //-----------------------------------------------
     initEditor() {
+      let val = this.value
+      if(val && !_.isString(val)){
+        val = JSON.stringify(val, null, '    ')
+      }
+
       // Create editor
       let editor = ace.edit(this.$refs.edit);
       editor.setTheme(`ace/theme/${this.EditorTheme}`);
       //console.log(this.EditorOption)
       editor.setOptions(this.EditorOption);
       editor.session.setMode(`ace/mode/${this.ContentMode}`);
-      editor.session.setValue(this.value || "");
+      editor.session.setValue(val || "");
 
       // Readonly Mode
       if (this.readonly) {
@@ -28582,7 +28601,7 @@ const _M = {
   // Data
   //...............................................
   "value": {
-    type: String,
+    type: [String, Object, Array],
     default: undefined
   },
   "blank": {

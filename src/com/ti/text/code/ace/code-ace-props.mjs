@@ -3,7 +3,7 @@ const _M = {
   // Data
   //...............................................
   "value": {
-    type: String,
+    type: [String, Object, Array],
     default: undefined
   },
   "blank": {

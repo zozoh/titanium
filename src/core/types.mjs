@@ -865,7 +865,10 @@ const TiTypes = {
     // For String
     if (_.isString(val)) {
       // Parse JSON
-      if (/^\{.*\}$/.test(val) || /^\[.*\]$/.test(val)) {
+      if (
+        (/^\{/.test(val) && /\}$/.test(val)) ||
+        (/^\[/.test(val) && /\]$/.test(val))
+      ) {
         try {
           return JSON.parse(val);
         } catch (err) {

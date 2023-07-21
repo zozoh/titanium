@@ -134,7 +134,7 @@
         position: relative;
         //------------------------------------------
         .as-cell-editor {
-          @include pos-abs($t: -1px, $r: -1px, $b: -1px, $l: -1px);
+          @include pos-abs($t: -1px, $b: -1px, $l: -1px);
           min-height: SZ(28);
           z-index: $z-above;
           //----------------------------------------
