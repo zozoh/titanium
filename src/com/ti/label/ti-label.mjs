@@ -370,7 +370,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
-      console.log(evt);
+      //console.log(evt);
       if (this.editable || !this.navigable) {
         evt.preventDefault();
       }

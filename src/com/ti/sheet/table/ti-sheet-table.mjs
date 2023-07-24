@@ -106,7 +106,11 @@ export default {
             comConf: this.cellComConf || {
               autoSelect: true,
               focused: true,
-              value: "=@CellValue"
+              value: "=@CellValue",
+              style: {
+                width: "100%",
+                "min-width": "1rem"
+              }
             }
           }
           list.push(col)
@@ -128,7 +132,11 @@ export default {
             let conf = _.cloneDeep(this.cellComConf) || {
               autoSelect: true,
               focused: true,
-              value: "=@CellValue"
+              value: "=@CellValue",
+              style: {
+                width: "100%",
+                "min-width": "1rem"
+              }
             }
             comConf = _.merge(conf, comConf)
           }

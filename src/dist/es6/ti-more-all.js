@@ -1,4 +1,4 @@
-// Pack At: 2023-07-21 21:48:24
+// Pack At: 2023-07-24 22:05:38
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -17045,7 +17045,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickLink(evt) {
-      console.log(evt);
+      //console.log(evt);
       if (this.editable || !this.navigable) {
         evt.preventDefault();
       }
@@ -38498,7 +38498,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
             comConf: this.cellComConf || {
               autoSelect: true,
               focused: true,
-              value: "=@CellValue"
+              value: "=@CellValue",
+              style: {
+                width: "100%",
+                "min-width": "1rem"
+              }
             }
           }
           list.push(col)
@@ -38520,7 +38524,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
             let conf = _.cloneDeep(this.cellComConf) || {
               autoSelect: true,
               focused: true,
-              value: "=@CellValue"
+              value: "=@CellValue",
+              style: {
+                width: "100%",
+                "min-width": "1rem"
+              }
             }
             comConf = _.merge(conf, comConf)
           }
