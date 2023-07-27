@@ -1,4 +1,4 @@
-// Pack At: 2023-07-24 22:05:38
+// Pack At: 2023-07-27 20:41:43
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13597,7 +13597,7 @@ const _M = {
   //----------------------------------------
   async importData(
     { state, commit, dispatch, getters },
-    { moreFields = [], fixedDefaults = {} } = {}
+    { moreFields = [], fixedDefaults = {}, settings = {} } = {}
   ) {
     // Guard
     if (!getters.isCanUpdate) {
@@ -13606,6 +13606,9 @@ const _M = {
     if (!state.thingSetId) {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
+    let result = _.cloneDeep(state.importSettings || {});
+    _.assign(result, settings, fixedDefaults);
+
     let {
       defaultMappingName,
       mappingPath,
@@ -13613,7 +13616,7 @@ const _M = {
       uniqKey,
       withHook,
       process
-    } = state.importSettings || {};
+    } = result;
 
     let reo = await Ti.App.Open({
       icon: "fas-file-import",
@@ -13621,7 +13624,7 @@ const _M = {
       position: "left",
       minWidth: "90%",
       height: "100%",
-      result: _.cloneDeep(state.importSettings) || {},
+      result,
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
@@ -43328,8 +43331,9 @@ const _M = {
     //--------------------------------------
     // For Event Bubble Dispatching
     __on_events(name, payload) {
-      // if (/change$/.test(name))
-      // console.log("WnThAdaptor.__on_events", name, payload)
+      // if (/change$/.test(name)) {
+      //   console.log("WnThAdaptor.__on_events", name, payload);
+      // }
 
       // ByPass
       if (/^(indicate)$/.test(name)) {
@@ -77496,8 +77500,8 @@ const _M = {
     }
     state.LOG = () => {};
 
-    // if ("casetasks" == state.moduleName) {
-    // state.LOG = console.log;
+    // if ("main" == state.moduleName) {
+    //  state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // Guard

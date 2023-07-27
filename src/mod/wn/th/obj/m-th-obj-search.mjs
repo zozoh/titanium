@@ -302,7 +302,7 @@ const _M = {
   //----------------------------------------
   async importData(
     { state, commit, dispatch, getters },
-    { moreFields = [], fixedDefaults = {} } = {}
+    { moreFields = [], fixedDefaults = {}, settings = {} } = {}
   ) {
     // Guard
     if (!getters.isCanUpdate) {
@@ -311,6 +311,9 @@ const _M = {
     if (!state.thingSetId) {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
+    let result = _.cloneDeep(state.importSettings || {});
+    _.assign(result, settings, fixedDefaults);
+
     let {
       defaultMappingName,
       mappingPath,
@@ -318,7 +321,7 @@ const _M = {
       uniqKey,
       withHook,
       process
-    } = state.importSettings || {};
+    } = result;
 
     let reo = await Ti.App.Open({
       icon: "fas-file-import",
@@ -326,7 +329,7 @@ const _M = {
       position: "left",
       minWidth: "90%",
       height: "100%",
-      result: _.cloneDeep(state.importSettings) || {},
+      result,
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
