@@ -348,6 +348,22 @@ const FieldDisplay = {
         return;
       }
     }
+    // Ignore empty
+    if (dis.ignoreEmpty) {
+      if (_.isEmpty(value)) {
+        return;
+      }
+      let allEmpty = true;
+      for (let k in value) {
+        if (!_.isEmpty(value[k])) {
+          allEmpty = false;
+          break;
+        }
+      }
+      if (allEmpty) {
+        return;
+      }
+    }
     //.....................................
     // Visibility
     if (_.isFunction(dis.visibleFn)) {

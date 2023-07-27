@@ -144,6 +144,12 @@ export default {
                 if (format) {
                   if (_.isFunction(format)) {
                     text = format(text);
+                  } else if (_.isString(format)) {
+                    let tc = text;
+                    if (!_.isObject(tc)) {
+                      tc = { val: tc };
+                    }
+                    text = Ti.Tmpl.exec(format, tc);
                   }
                 }
                 // I18n ...

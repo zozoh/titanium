@@ -4,11 +4,16 @@
     <div v-if="fld.sepChar" class="as-sep">
       <span>{{fld.sepChar}}</span>
     </div>
-    <TiInput
-      v-bind="fld.input"
+    <component
+      :is="fld.comType"
+      v-bind="fld.comConf"
       :value="fld.value"
       @change="OnInputChange(fld,$event)"
     />
   </template>
+  <!----------------------------------------->
+  <div class="as-clear" v-if="showCleaner && hasFields">
+    <a @click="OnClear"><i class="zmdi zmdi-close"></i></a>
+  </div>
   <!----------------------------------------->
 </div>

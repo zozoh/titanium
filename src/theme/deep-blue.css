@@ -4428,6 +4428,30 @@ i.im {
   align-items: stretch;
   align-content: center;
   flex-wrap: nowrap; }
+  .ti-input-group > .as-clear {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-wrap: wrap;
+    padding: 0 0.04rem; }
+    .ti-input-group > .as-clear > a {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      cursor: pointer;
+      width: 0.24rem;
+      height: 0.24rem;
+      border-radius: 50%; }
+      .ti-input-group > .as-clear > a > i {
+        transition: 0.3s; }
+      .ti-input-group > .as-clear > a:hover {
+        color: #FFF;
+        background-color: #ff4081; }
+        .ti-input-group > .as-clear > a:hover > i {
+          transform: rotate(180deg) scale(1.2); }
   .ti-input-group > .as-sep {
     font-family: Monaco, Consolas, Courier New;
     display: flex;

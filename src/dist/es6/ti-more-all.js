@@ -1,4 +1,4 @@
-// Pack At: 2023-07-27 20:41:43
+// Pack At: 2023-07-28 00:08:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -11958,6 +11958,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 if (format) {
                   if (_.isFunction(format)) {
                     text = format(text);
+                  } else if (_.isString(format)) {
+                    let tc = text;
+                    if (!_.isObject(tc)) {
+                      tc = { val: tc };
+                    }
+                    text = Ti.Tmpl.exec(format, tc);
                   }
                 }
                 // I18n ...
@@ -27111,13 +27117,25 @@ const _M = {
     //------------------------------------------------
     // Behaviors
     //------------------------------------------------
-    // [{placeholder:"xxx", toCase:"upper",key:"abc",width:".5rem"}]
+    // [
+    //  {key:"abc", comType:"TiInput", comConf:{...}}
+    //  {key:"abc", placeholder:"..."}
+    // ]
     "fields": {
       type: Array,
-      default: "TiInput"
+      default: () => [
+        {
+          comType: "TiInput",
+          comConf: {}
+        }
+      ]
     },
     "readonly": {
       type: Boolean
+    },
+    "showCleaner": {
+      type: Boolean,
+      default: false
     },
     //------------------------------------------------
     // Aspect
@@ -27134,20 +27152,33 @@ const _M = {
       return this.getTopClass();
     },
     //------------------------------------------------
+    hasFields() {
+      return this.GroupFields.length > 0;
+    },
+    //------------------------------------------------
     GroupFields() {
       let re = [];
       _.forEach(this.fields, (fld, index) => {
         let val = _.get(this.value, fld.key);
         val = Ti.Util.fallback(val, fld.defaultAs, null);
-        let inputConfig = _.assign(
-          { readonly: this.readonly },
-          _.omit(fld, "key")
-        );
+        let field = _.omit(fld, "key");
+        let comType = "TiInput";
+        let comConf = {};
+        if (field.comType || field.comConf) {
+          comType = field.comType || comType;
+          _.assign(comConf, field.comConf);
+        } else {
+          _.assign(comConf, field);
+        }
+        if (this.readonly) {
+          comConf.readonly = readonly;
+        }
         re.push({
           index,
           key: fld.key,
-          input: inputConfig,
           value: val,
+          comType,
+          comConf,
           sepChar: index > 0 ? this.sepChar : null
         });
       });
@@ -27162,6 +27193,14 @@ const _M = {
       console.log(key, val);
       let data = _.cloneDeep(this.value || {});
       _.set(data, key, val);
+      this.tryNotifyChange(data);
+    },
+    //------------------------------------------------
+    OnClear() {
+      let data = {};
+      _.forEach(this.GroupFields, ({ key }) => {
+        data[key] = null;
+      });
       this.tryNotifyChange(data);
     },
     //------------------------------------------------
@@ -50307,6 +50346,22 @@ const FieldDisplay = {
     // Ignore the undefined/null
     if (autoIgnoreNil && Ti.Util.isNil(value)) {
       if (Ti.Util.fallback(dis.ignoreNil, true)) {
+        return;
+      }
+    }
+    // Ignore empty
+    if (dis.ignoreEmpty) {
+      if (_.isEmpty(value)) {
+        return;
+      }
+      let allEmpty = true;
+      for (let k in value) {
+        if (!_.isEmpty(value[k])) {
+          allEmpty = false;
+          break;
+        }
+      }
+      if (allEmpty) {
         return;
       }
     }
@@ -91076,12 +91131,17 @@ Ti.Preload("ti/com/ti/input/group/ti-input-group.html", `<div class="ti-input-gr
     <div v-if="fld.sepChar" class="as-sep">
       <span>{{fld.sepChar}}</span>
     </div>
-    <TiInput
-      v-bind="fld.input"
+    <component
+      :is="fld.comType"
+      v-bind="fld.comConf"
       :value="fld.value"
       @change="OnInputChange(fld,$event)"
     />
   </template>
+  <!----------------------------------------->
+  <div class="as-clear" v-if="showCleaner && hasFields">
+    <a @click="OnClear"><i class="zmdi zmdi-close"></i></a>
+  </div>
   <!----------------------------------------->
 </div>`);
 //========================================

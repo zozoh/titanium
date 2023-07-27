@@ -11,13 +11,25 @@ const _M = {
     //------------------------------------------------
     // Behaviors
     //------------------------------------------------
-    // [{placeholder:"xxx", toCase:"upper",key:"abc",width:".5rem"}]
+    // [
+    //  {key:"abc", comType:"TiInput", comConf:{...}}
+    //  {key:"abc", placeholder:"..."}
+    // ]
     "fields": {
       type: Array,
-      default: "TiInput"
+      default: () => [
+        {
+          comType: "TiInput",
+          comConf: {}
+        }
+      ]
     },
     "readonly": {
       type: Boolean
+    },
+    "showCleaner": {
+      type: Boolean,
+      default: false
     },
     //------------------------------------------------
     // Aspect
@@ -34,20 +46,33 @@ const _M = {
       return this.getTopClass();
     },
     //------------------------------------------------
+    hasFields() {
+      return this.GroupFields.length > 0;
+    },
+    //------------------------------------------------
     GroupFields() {
       let re = [];
       _.forEach(this.fields, (fld, index) => {
         let val = _.get(this.value, fld.key);
         val = Ti.Util.fallback(val, fld.defaultAs, null);
-        let inputConfig = _.assign(
-          { readonly: this.readonly },
-          _.omit(fld, "key")
-        );
+        let field = _.omit(fld, "key");
+        let comType = "TiInput";
+        let comConf = {};
+        if (field.comType || field.comConf) {
+          comType = field.comType || comType;
+          _.assign(comConf, field.comConf);
+        } else {
+          _.assign(comConf, field);
+        }
+        if (this.readonly) {
+          comConf.readonly = readonly;
+        }
         re.push({
           index,
           key: fld.key,
-          input: inputConfig,
           value: val,
+          comType,
+          comConf,
           sepChar: index > 0 ? this.sepChar : null
         });
       });
@@ -62,6 +87,14 @@ const _M = {
       console.log(key, val);
       let data = _.cloneDeep(this.value || {});
       _.set(data, key, val);
+      this.tryNotifyChange(data);
+    },
+    //------------------------------------------------
+    OnClear() {
+      let data = {};
+      _.forEach(this.GroupFields, ({ key }) => {
+        data[key] = null;
+      });
       this.tryNotifyChange(data);
     },
     //------------------------------------------------

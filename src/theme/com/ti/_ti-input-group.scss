@@ -1,6 +1,27 @@
 .ti-input-group {
   @include flex-align-nowrap($ai: stretch);
   //----------------------------------------------
+  > .as-clear {
+    @include flex-center;
+    padding: 0 SZ(4);
+    > a {
+      @include flex-center;
+      cursor: pointer;
+      width: SZ(24);
+      height: SZ(24);
+      border-radius: 50%;
+      > i {
+        transition: 0.3s;
+      }
+      &:hover {
+        @include color($color-secondary, r, c);
+        > i {
+          transform: rotate(180deg) scale(1.2);
+        }
+      }
+    }
+  }
+  //----------------------------------------------
   > .as-sep {
     @include font-fixed;
     @include flex-center;
