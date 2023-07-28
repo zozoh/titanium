@@ -81,7 +81,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.78",
+  "version": "1.79",
   "dev": false,
   "appName": null,
   "session": {},

@@ -1,4 +1,4 @@
-// Pack At: 2023-07-28 00:08:31
+// Pack At: 2023-07-28 23:04:37
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -1064,6 +1064,7 @@ const { EditCode } = (function(){
       height = "62%",
       textOk,
       textCancel,
+      readonly
     } = {}
   ) {
     return await Ti.App.Open({
@@ -1077,6 +1078,7 @@ const { EditCode } = (function(){
       comType: "TiTextCodeAce",
       comConf: {
         mode,
+        readonly
       },
       components: ["@com:ti/text/code/ace"],
     });
@@ -20524,7 +20526,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.78",
+  "version": "1.79",
   "dev": false,
   "appName": null,
   "session": {},

@@ -9,6 +9,7 @@ async function TiEditCode(
     height = "62%",
     textOk,
     textCancel,
+    readonly
   } = {}
 ) {
   return await Ti.App.Open({
@@ -22,6 +23,7 @@ async function TiEditCode(
     comType: "TiTextCodeAce",
     comConf: {
       mode,
+      readonly
     },
     components: ["@com:ti/text/code/ace"],
   });
