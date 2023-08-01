@@ -190,17 +190,29 @@ const TiBank = {
   },
   //-----------------------------------
   toYuanText(cent = 0.0, precise = 2) {
-    cent = Math.round(cent);
-    let n = Math.round(cent);
-    let y = Math.floor(n / 100);
-    let c = cent - y * 100;
-    if (precise > 0 || c > 0) {
-      return `${y}.${_.padStart(c, precise, "0")}`;
-    }
-    return `${y}`;
+    // cent = Math.round(cent);
+    // let n = Math.round(cent);
+    // let y = Math.floor(n / 100);
+    // let c = cent - y * 100;
+    // if (precise > 0 || c > 0) {
+    //   return `${y}.${_.padStart(c, precise, "0")}`;
+    // }
+    // return `${y}`;
+    return TiBank.autoYuanTokenText(cent, {
+      currency: null,
+      precise,
+      auto: true
+    });
   },
   //-----------------------------------
   toYuanTokenText(cent = 0.0, currency = "RMB", precise = 2) {
+    return TiBank.autoYuanTokenText(cent, { currency, precise, auto: true });
+  },
+  //-----------------------------------
+  autoYuanTokenText(
+    cent = 0.0,
+    { currency = "RMB", precise = 2, auto = true } = {}
+  ) {
     cent = Math.round(cent);
     let neg = cent < 0 ? "-" : "";
     cent = Math.abs(cent);
@@ -211,7 +223,7 @@ const TiBank = {
 
     // amount text
     let s;
-    if (precise > 0 || c > 0) {
+    if (c > 0 || (precise > 0 && !auto)) {
       s = `${y}.${_.padStart(c, precise, "0")}`;
     } else {
       s = `${y}`;
