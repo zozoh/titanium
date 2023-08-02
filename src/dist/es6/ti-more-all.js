@@ -1,4 +1,4 @@
-// Pack At: 2023-07-28 23:04:37
+// Pack At: 2023-08-02 22:10:36
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -77379,6 +77379,7 @@ const _M = {
       load,
       filter,
       sorter,
+      matchMergeMode = "reset",
       match,
       exportSettings,
       importSettings,
@@ -77435,7 +77436,21 @@ const _M = {
 
     // Apply fixed match
     if (!_.isEmpty(match)) {
-      commit("setFixedMatch", match);
+      let _gen_match = {
+        "reset": (match) => match,
+        "merge": (match) => {
+          let re = _.cloneDeep(state.fixedMatch || {});
+          _.merge(re, match);
+          return re;
+        },
+        "assign": (match) => {
+          let re = _.cloneDeep(state.fixedMatch || {});
+          _.assign(re, match);
+          return re;
+        }
+      }[matchMergeMode];
+      let ma = _gen_match(match);
+      commit("setFixedMatch", ma);
     }
 
     // Checked and current
@@ -77628,6 +77643,7 @@ const _M = {
     // Behavior
     commit("explainLocalBehaviorKeepAt");
     dispatch("updateSchemaBehavior");
+    // 这里也会调用 applyBehavior
     dispatch("restoreLocalBehavior");
 
     // Load more fixed data
