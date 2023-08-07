@@ -8350,8 +8350,8 @@ div.ti-input-tags {
     padding: 0 0.04rem;
     cursor: pointer; }
     .ti-tags-item > .as-del .icon-icon {
-      transition: .3s;
-      opacity: .6; }
+      transition: 0.3s;
+      opacity: 0.6; }
   .ti-tags-item > .as-icon {
     padding: 0 0.06rem; }
     .ti-tags-item > .as-icon.ti-icon img {
@@ -8383,6 +8383,11 @@ div.ti-input-tags {
     padding: 0 0.02rem; }
   .ti-tags-item > .as-status {
     padding: 0 0.06rem; }
+  .ti-tags-item.has-max-width > .as-text {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; }
   .ti-tags-item.is-enter-top {
     color: #EEE;
     background-color: #010101; }

@@ -5,6 +5,7 @@ export default {
   //-----------------------------------
   "value": undefined,
   "format": undefined,
+  "tidyBy": Function,
   "valueCase": {
     type: String,
     default: undefined,

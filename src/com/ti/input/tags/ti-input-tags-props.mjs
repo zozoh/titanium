@@ -58,5 +58,9 @@ export default {
   "tagOptionDefaultIcon": {
     type: String,
     default: undefined
-  }
+  },
+  "tagItemMaxWidth": {
+    type: [String, Number],
+    default: undefined
+  },
 };

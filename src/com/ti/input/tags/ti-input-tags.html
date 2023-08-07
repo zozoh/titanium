@@ -4,12 +4,10 @@
   :value="inputValue"
   :value-case="valueCase"
   :trimed="trimed"
-
   :readonly="!canInput || readonly"
   :focused="focused"
   :hover="hover"
   :autoSelect="autoSelect"
-
   :placeholder="thePlaceholder"
   :autoI18n="autoI18n"
   :hideBorder="hideBorder"
@@ -19,42 +17,40 @@
   :prefixText="prefixText"
   :suffixIcon="suffixIcon"
   :suffixText="suffixText"
-
   :prefixIconNotifyName="prefixIconNotifyName"
   :prefixTextNotifyName="prefixTextNotifyName"
   :suffixIconNotifyName="suffixIconNotifyName"
   :suffixTextNotifyName="suffixTextNotifyName"
   :enterKeyNotifyName="enterKeyNotifyName"
-  
   :width="width"
   :height="height"
-
   :on-init="onInputInit"
-  
   @inputing="onInputInputing"
   @change="onInputChanged"
   @input:focus="$notify('input:focus')"
   @prefix:icon="$notify('prefix:icon')"
   @input:blur="$notify('input:blur')"
-  @suffix:icon="$notify('suffix:icon')">
+  @suffix:icon="$notify('suffix:icon')"
+>
   <!--
     Tag List
   -->
-  <div v-if="hasTags"
-    class="as-tags">
+  <div v-if="hasTags" class="as-tags">
     <ti-tags
       :value="theTags"
       :dict="dict"
       :removable="true"
       :readonly="readonly"
-      :item-options="tagOptions"
-      :item-icon-by="tagItemIconBy"
+      :itemOptions="tagOptions"
+      :itemIconBy="tagItemIconBy"
+      :itemMaxWidth="tagItemMaxWidth"
       :keyBy="tagKeyBy"
       :item-default-icon="tagItemDefaultIcon"
       :option-default-icon="tagOptionDefaultIcon"
       :mapping="tagMapping"
       :explainMapping="tagExplainMapping"
       :cancel-item-bubble="cancelTagBubble"
-      @change="$notify('change', $event)"/>
+      @change="$notify('change', $event)"
+    />
   </div>
 </ti-input>

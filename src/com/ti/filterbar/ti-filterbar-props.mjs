@@ -62,6 +62,10 @@ export default {
     type: Object,
     default: () => ({})
   },
+  "filterTagItemMaxWidth": {
+    type: [String, Number],
+    default: "2rem"
+  },
   /* 
   Advance search dialog form. If declared, show the [Suffix Icon]
   */
@@ -96,8 +100,8 @@ export default {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
-  },
+  }
   //-----------------------------------
   // Measure
   //-----------------------------------
-}
+};

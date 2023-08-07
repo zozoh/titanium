@@ -1,15 +1,16 @@
 .ti-input .ti-tags.nil-items {
-  padding-left: 0
+  padding-left: 0;
 }
 .ti-tags {
   @include noselect;
-  @include flex-align($ai:stretch,$ac:stretch);
-  padding:SZ(2);
+  @include flex-align($ai: stretch, $ac: stretch);
+  padding: SZ(2);
   //-------------------------------------------
   &.nil-items {
-    @include flex-center($jc:flex-start);
-    padding-left:SZ(8); font-size: 0.9em;
-    opacity: 0.4; 
+    @include flex-center($jc: flex-start);
+    padding-left: SZ(8);
+    font-size: 0.9em;
+    opacity: 0.4;
   }
   //-------------------------------------------
   &.is-nowrap {
@@ -20,12 +21,14 @@
 }
 //---------------------------------------------
 .ti-tags-item {
-  @include flex-align-nowrap($ai:stretch);
+  @include flex-align-nowrap($ai: stretch);
   @include color($color-primary, r, c);
-  flex:0 0 auto;
-  overflow: hidden; padding: 0; 
-  border-radius: 6px; margin:SZ(2);
-  line-height: 2em; 
+  flex: 0 0 auto;
+  overflow: hidden;
+  padding: 0;
+  border-radius: 6px;
+  margin: SZ(2);
+  line-height: 2em;
   white-space: nowrap;
   //-------------------------------------------
   &.has-options {
@@ -33,39 +36,58 @@
   }
   //-------------------------------------------
   > .as-del {
-    padding:0 SZ(4); cursor: pointer;
+    padding: 0 SZ(4);
+    cursor: pointer;
     .icon-icon {
-      transition: .3s; opacity: .6;
+      transition: 0.3s;
+      opacity: 0.6;
     }
   }
   //-------------------------------------------
   > .as-icon {
-    padding:0 SZ(6);
+    padding: 0 SZ(6);
     &.ti-icon {
       img {
-        height: SZ(20); border-radius: 50%;
+        height: SZ(20);
+        border-radius: 50%;
       }
     }
   }
   //-------------------------------------------
   > .as-text {
     @include flex-align-nowrap;
-    color: inherit; text-decoration: inherit;
-    padding:0;
-    &:hover {text-decoration: inherit;}
-    &.without-icon    {padding-left:SZ(8);}
-    &.without-options {padding-right:SZ(8);}
+    color: inherit;
+    text-decoration: inherit;
+    padding: 0;
+    &:hover {
+      text-decoration: inherit;
+    }
+    &.without-icon {
+      padding-left: SZ(8);
+    }
+    &.without-options {
+      padding-right: SZ(8);
+    }
   }
   //-------------------------------------------
   > .as-mark {
     @include color($color-secondary, c);
     @include flex-center;
     font-weight: bold;
-    padding:0 SZ(2);
+    padding: 0 SZ(2);
   }
   //-------------------------------------------
   > .as-status {
-    padding:0 SZ(6);
+    padding: 0 SZ(6);
+  }
+  //-------------------------------------------
+  &.has-max-width {
+    > .as-text {
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   //-------------------------------------------
   &.is-enter-top {
@@ -81,19 +103,23 @@
   //-------------------------------------------
   > .as-mask {
     @include pos-fixed-full;
-    z-index:$z-mask + 2;
+    z-index: $z-mask + 2;
   }
   //-------------------------------------------
   > .as-drop {
     @include color($color-chip, r, c);
-    position: fixed; z-index:$z-mask + 3;
-    padding:1px; overflow: hidden;
-    border-radius: 6px; 
+    position: fixed;
+    z-index: $z-mask + 3;
+    padding: 1px;
+    overflow: hidden;
+    border-radius: 6px;
     //-----------------------------------------
     > .ti-icon-text {
       @include border(1px, solid, shallow, top);
-      &:first-child {border-top:0}
-      padding:SZ(4) SZ(10);
+      &:first-child {
+        border-top: 0;
+      }
+      padding: SZ(4) SZ(10);
       cursor: pointer;
       &:hover {
         @include color($color-secondary, r, c);

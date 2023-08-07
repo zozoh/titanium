@@ -35,7 +35,7 @@ export default {
     },
     /***
      * Show drop list for changing the piece value
-     * 
+     *
      * ```js
      * [{
      *   icon  : "zmdi-card-giftcard",
@@ -82,54 +82,70 @@ export default {
         collapse: "zmdi-chevron-down",
         extended: "zmdi-chevron-up"
       })
+    },
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "has-options": this.hasOptions,
-        "is-enter-top": 'top' == this.mouseEnter && this.hasOptions,
-        "is-enter-del": 'del' == this.mouseEnter
-      }, this.className)
+    TopClass() {
+      return Ti.Css.mergeClassName(
+        {
+          "has-options": this.hasOptions,
+          "is-enter-top": "top" == this.mouseEnter && this.hasOptions,
+          "is-enter-del": "del" == this.mouseEnter,
+          "has-max-width": this.maxWidth ? true : false
+        },
+        this.className
+      );
     },
     //------------------------------------------------
-    textClass() {
+    TopStyle() {
+      let css = {};
+      if (this.maxWidth) {
+        css.maxWidth = Ti.Css.toSize(this.maxWidth);
+      }
+      return css;
+    },
+    //------------------------------------------------
+    TextClass() {
       return {
         "without-icon": !this.hasIcon && !this.removable,
         "without-options": !this.hasOptions
-      }
+      };
     },
     //------------------------------------------------
     hasIcon() {
-      return this.icon ? true : false
+      return this.icon ? true : false;
     },
     //------------------------------------------------
     hasOptions() {
-      return _.isArray(this.options) && this.options.length > 0
+      return _.isArray(this.options) && this.options.length > 0;
     },
     //------------------------------------------------
     /***
      * @return The objects list like:
-     * 
+     *
      * ```js
      * [{
-      *   icon  : "zmdi-phone",
-      *   text  : "i18n:xxx",
-      *   value : 100,
-      *   options : [{icon,text,value}...]
-      * }]
-      * ```
-      */
+     *   icon  : "zmdi-phone",
+     *   text  : "i18n:xxx",
+     *   value : 100,
+     *   options : [{icon,text,value}...]
+     * }]
+     * ```
+     */
     theOptions() {
-      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v))
-      let tags = []
+      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v));
+      let tags = [];
       _.forEach(list, (li, index) => {
-        let tag
+        let tag;
         // Object
         if (_.isPlainObject(li)) {
-          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index })
+          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index });
         }
         // String or simple value
         else {
@@ -138,18 +154,18 @@ export default {
             icon: this.optionDefaultIcon,
             text: Ti.Types.toStr(li),
             value: li
-          }
+          };
         }
         // Join to
         if (!_.isEqual(tag.value, this.value)) {
-          tags.push(tag)
+          tags.push(tag);
         }
-      })
-      return tags
+      });
+      return tags;
     },
     //------------------------------------------------
     theStatusIcon() {
-      return this.statusIcons[this.status]
+      return this.statusIcons[this.status];
     },
     //------------------------------------------------
     theData() {
@@ -161,7 +177,7 @@ export default {
         href: this.href,
         atLast: this.atLast,
         asterisk: this.asterisk
-      }
+      };
     }
     //------------------------------------------------
   },
@@ -170,76 +186,79 @@ export default {
     //------------------------------------------------
     OnClickDel() {
       if (this.readonly || !this.removable) {
-        return
+        return;
       }
-      this.$notify("remove", this.theData)
+      this.$notify("remove", this.theData);
     },
     //------------------------------------------------
     OnClickOption({ value, text, icon } = {}) {
       if (this.readonly) {
-        return
+        return;
       }
       this.$notify("change", {
-        value, text, icon,
+        value,
+        text,
+        icon,
         index: this.index
-      })
-      this.closeDrop()
+      });
+      this.closeDrop();
     },
     //------------------------------------------------
     OnClickTop($event) {
       if (this.readonly) {
-        return
+        return;
       }
       // Show Drop Down
       if (this.hasOptions) {
-        $event.stopPropagation()
-        this.openDrop()
+        $event.stopPropagation();
+        this.openDrop();
       }
       // Stop Bubble Up
       else if (this.cancelBubble) {
-        $event.stopPropagation()
+        $event.stopPropagation();
       }
       // Emit event
       if (this.href) {
-        this.$notify("fire", this.theData)
+        this.$notify("fire", this.theData);
       }
     },
     //------------------------------------------------
     openDrop() {
       if (this.hasOptions) {
-        this.status = "extended"
+        this.status = "extended";
         this.$nextTick(() => {
-          this.dockDrop()
-        })
+          this.dockDrop();
+        });
       }
     },
     //------------------------------------------------
     closeDrop() {
-      this.status = "collapse"
-      this.mouseEnter = null
+      this.status = "collapse";
+      this.mouseEnter = null;
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop = this.$refs.drop
-      let $box = this.$el
+      let $drop = this.$refs.drop;
+      let $box = this.$el;
       // Guard the elements
       if (!_.isElement($drop) || !_.isElement($box)) {
-        return
+        return;
       }
       // If drop opened, make the box position fixed
       // to at the top of mask
       if ("extended" == this.status) {
-        let r_box = Ti.Rects.createBy($box)
+        let r_box = Ti.Rects.createBy($box);
         //..........................................
         // Make drop same width with box
         Ti.Dom.setStyle($drop, {
           "min-width": `${r_box.width}px`
-        })
+        });
         //..........................................
         // Dock drop to box
         Ti.Dom.dockTo($drop, $box, {
-          space: { y: 2 }, posListX: ["left", "right"]
-        })
+          space: { y: 2 },
+          posListX: ["left", "right"]
+        });
         //..........................................
       }
     }
@@ -247,7 +266,7 @@ export default {
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.dockDrop()
+    this.dockDrop();
   }
   ////////////////////////////////////////////////////
-}
+};

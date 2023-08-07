@@ -76,7 +76,8 @@ export default {
     FilterTagConf() {
       return {
         placeholder: null,
-        removable: true
+        removable: true,
+        itemMaxWidth: this.filterTagItemMaxWidth
       };
     },
     //-------------------------------------

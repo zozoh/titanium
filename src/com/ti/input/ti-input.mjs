@@ -249,10 +249,10 @@ const _M = {
           },
           this.suffixIconEditDialog
         );
-        console.log(dia)
+        console.log(dia);
         let str = await Ti.App.Open(dia);
         if (!_.isUndefined(str)) {
-          let val = this.formatValue(str);
+          let val = this.tidyValue(str);
           this.tryNotifyChange(val);
         }
       }
@@ -282,11 +282,11 @@ const _M = {
       if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value;
-        return this.formatValue(val, autoJsValue);
+        return this.tidyValue(val, autoJsValue);
       }
     },
     //------------------------------------------------
-    formatValue(val, autoJsValue = this.autoJsValue) {
+    tidyValue(val, autoJsValue = this.autoJsValue) {
       // Auto js value
       if (autoJsValue) {
         val = Ti.S.toJsValue(val, {
@@ -309,6 +309,10 @@ const _M = {
       // case
       if (this.valueCase) {
         val = Ti.S.toCase(val, this.valueCase);
+      }
+
+      if (_.isFunction(this.tidyBy)) {
+        val = this.tidyBy(val);
       }
 
       // notify

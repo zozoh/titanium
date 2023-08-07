@@ -1,5 +1,6 @@
 <div class="ti-tags-item" 
-  :class="topClass"
+  :class="TopClass"
+  :style="TopStyle"
   @mouseenter="mouseEnter='top'"
   @mouseleave="mouseEnter=null"
   @click.left="OnClickTop">
@@ -26,10 +27,10 @@
       class="as-text"
       @click.prevent
       :href="href"
-      :class="textClass">{{text|i18n}}</a>
+      :class="TextClass">{{text|i18n}}</a>
     <span v-else
       class="as-text"
-      :class="textClass">{{text|i18n}}</span>
+      :class="TextClass">{{text|i18n}}</span>
   </template>
   <!--
     Status Icon
