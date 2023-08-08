@@ -1,4 +1,4 @@
-// Pack At: 2023-08-02 22:10:36
+// Pack At: 2023-08-08 12:49:03
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1924,7 +1924,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     /***
      * Show drop list for changing the piece value
-     * 
+     *
      * ```js
      * [{
      *   icon  : "zmdi-card-giftcard",
@@ -1971,54 +1971,70 @@ const __TI_MOD_EXPORT_VAR_NM = {
         collapse: "zmdi-chevron-down",
         extended: "zmdi-chevron-up"
       })
+    },
+    "maxWidth": {
+      type: [String, Number],
+      default: undefined
     }
   },
   ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
-    topClass() {
-      return Ti.Css.mergeClassName({
-        "has-options": this.hasOptions,
-        "is-enter-top": 'top' == this.mouseEnter && this.hasOptions,
-        "is-enter-del": 'del' == this.mouseEnter
-      }, this.className)
+    TopClass() {
+      return Ti.Css.mergeClassName(
+        {
+          "has-options": this.hasOptions,
+          "is-enter-top": "top" == this.mouseEnter && this.hasOptions,
+          "is-enter-del": "del" == this.mouseEnter,
+          "has-max-width": this.maxWidth ? true : false
+        },
+        this.className
+      );
     },
     //------------------------------------------------
-    textClass() {
+    TopStyle() {
+      let css = {};
+      if (this.maxWidth) {
+        css.maxWidth = Ti.Css.toSize(this.maxWidth);
+      }
+      return css;
+    },
+    //------------------------------------------------
+    TextClass() {
       return {
         "without-icon": !this.hasIcon && !this.removable,
         "without-options": !this.hasOptions
-      }
+      };
     },
     //------------------------------------------------
     hasIcon() {
-      return this.icon ? true : false
+      return this.icon ? true : false;
     },
     //------------------------------------------------
     hasOptions() {
-      return _.isArray(this.options) && this.options.length > 0
+      return _.isArray(this.options) && this.options.length > 0;
     },
     //------------------------------------------------
     /***
      * @return The objects list like:
-     * 
+     *
      * ```js
      * [{
-      *   icon  : "zmdi-phone",
-      *   text  : "i18n:xxx",
-      *   value : 100,
-      *   options : [{icon,text,value}...]
-      * }]
-      * ```
-      */
+     *   icon  : "zmdi-phone",
+     *   text  : "i18n:xxx",
+     *   value : 100,
+     *   options : [{icon,text,value}...]
+     * }]
+     * ```
+     */
     theOptions() {
-      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v))
-      let tags = []
+      let list = _.filter(_.concat(this.options), (v) => !Ti.Util.isNil(v));
+      let tags = [];
       _.forEach(list, (li, index) => {
-        let tag
+        let tag;
         // Object
         if (_.isPlainObject(li)) {
-          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index })
+          tag = _.assign({ icon: this.optionDefaultIcon }, li, { index });
         }
         // String or simple value
         else {
@@ -2027,18 +2043,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
             icon: this.optionDefaultIcon,
             text: Ti.Types.toStr(li),
             value: li
-          }
+          };
         }
         // Join to
         if (!_.isEqual(tag.value, this.value)) {
-          tags.push(tag)
+          tags.push(tag);
         }
-      })
-      return tags
+      });
+      return tags;
     },
     //------------------------------------------------
     theStatusIcon() {
-      return this.statusIcons[this.status]
+      return this.statusIcons[this.status];
     },
     //------------------------------------------------
     theData() {
@@ -2050,7 +2066,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
         href: this.href,
         atLast: this.atLast,
         asterisk: this.asterisk
-      }
+      };
     }
     //------------------------------------------------
   },
@@ -2059,76 +2075,79 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     OnClickDel() {
       if (this.readonly || !this.removable) {
-        return
+        return;
       }
-      this.$notify("remove", this.theData)
+      this.$notify("remove", this.theData);
     },
     //------------------------------------------------
     OnClickOption({ value, text, icon } = {}) {
       if (this.readonly) {
-        return
+        return;
       }
       this.$notify("change", {
-        value, text, icon,
+        value,
+        text,
+        icon,
         index: this.index
-      })
-      this.closeDrop()
+      });
+      this.closeDrop();
     },
     //------------------------------------------------
     OnClickTop($event) {
       if (this.readonly) {
-        return
+        return;
       }
       // Show Drop Down
       if (this.hasOptions) {
-        $event.stopPropagation()
-        this.openDrop()
+        $event.stopPropagation();
+        this.openDrop();
       }
       // Stop Bubble Up
       else if (this.cancelBubble) {
-        $event.stopPropagation()
+        $event.stopPropagation();
       }
       // Emit event
       if (this.href) {
-        this.$notify("fire", this.theData)
+        this.$notify("fire", this.theData);
       }
     },
     //------------------------------------------------
     openDrop() {
       if (this.hasOptions) {
-        this.status = "extended"
+        this.status = "extended";
         this.$nextTick(() => {
-          this.dockDrop()
-        })
+          this.dockDrop();
+        });
       }
     },
     //------------------------------------------------
     closeDrop() {
-      this.status = "collapse"
-      this.mouseEnter = null
+      this.status = "collapse";
+      this.mouseEnter = null;
     },
     //------------------------------------------------
     dockDrop() {
-      let $drop = this.$refs.drop
-      let $box = this.$el
+      let $drop = this.$refs.drop;
+      let $box = this.$el;
       // Guard the elements
       if (!_.isElement($drop) || !_.isElement($box)) {
-        return
+        return;
       }
       // If drop opened, make the box position fixed
       // to at the top of mask
       if ("extended" == this.status) {
-        let r_box = Ti.Rects.createBy($box)
+        let r_box = Ti.Rects.createBy($box);
         //..........................................
         // Make drop same width with box
         Ti.Dom.setStyle($drop, {
           "min-width": `${r_box.width}px`
-        })
+        });
         //..........................................
         // Dock drop to box
         Ti.Dom.dockTo($drop, $box, {
-          space: { y: 2 }, posListX: ["left", "right"]
-        })
+          space: { y: 2 },
+          posListX: ["left", "right"]
+        });
         //..........................................
       }
     }
@@ -2136,10 +2155,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.dockDrop()
+    this.dockDrop();
   }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -3580,6 +3599,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: () => ({})
   },
+  "filterTagItemMaxWidth": {
+    type: [String, Number],
+    default: "2rem"
+  },
   /* 
   Advance search dialog form. If declared, show the [Suffix Icon]
   */
@@ -3614,11 +3637,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
-  },
+  }
   //-----------------------------------
   // Measure
   //-----------------------------------
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -9030,7 +9053,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
     FilterTagConf() {
       return {
         placeholder: null,
-        removable: true
+        removable: true,
+        itemMaxWidth: this.filterTagItemMaxWidth
       };
     },
     //-------------------------------------
@@ -23842,10 +23866,10 @@ const _M = {
           },
           this.suffixIconEditDialog
         );
-        console.log(dia)
+        console.log(dia);
         let str = await Ti.App.Open(dia);
         if (!_.isUndefined(str)) {
-          let val = this.formatValue(str);
+          let val = this.tidyValue(str);
           this.tryNotifyChange(val);
         }
       }
@@ -23875,11 +23899,11 @@ const _M = {
       if (_.isElement(this.$refs.input)) {
         //console.log("doWhenInput", emitName)
         let val = this.$refs.input.value;
-        return this.formatValue(val, autoJsValue);
+        return this.tidyValue(val, autoJsValue);
       }
     },
     //------------------------------------------------
-    formatValue(val, autoJsValue = this.autoJsValue) {
+    tidyValue(val, autoJsValue = this.autoJsValue) {
       // Auto js value
       if (autoJsValue) {
         val = Ti.S.toJsValue(val, {
@@ -23902,6 +23926,10 @@ const _M = {
       // case
       if (this.valueCase) {
         val = Ti.S.toCase(val, this.valueCase);
+      }
+
+      if (_.isFunction(this.tidyBy)) {
+        val = this.tidyBy(val);
       }
 
       // notify
@@ -36173,7 +36201,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "tagOptionDefaultIcon": {
     type: String,
     default: undefined
-  }
+  },
+  "tagItemMaxWidth": {
+    type: [String, Number],
+    default: undefined
+  },
 };
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
@@ -58843,6 +58875,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: String,
       default: undefined
     },
+    "itemMaxWidth": {
+      type: [String, Number],
+      default: undefined
+    },
     "removeIcon": {
       type: String,
       default: "zmdi-close"
@@ -58862,54 +58898,54 @@ const __TI_MOD_EXPORT_VAR_NM = {
       return this.getTopClass({
         "has-items": this.hasItems,
         "nil-items": !this.hasItems
-      })
+      });
     },
     //------------------------------------------------
     hasItems() {
-      return !_.isEmpty(this.myTags)
+      return !_.isEmpty(this.myTags);
     },
     //------------------------------------------------
     getTagItemKey() {
       if (_.isFunction(this.keyBy)) {
-        return this.keyBy
+        return this.keyBy;
       }
       if (_.isString(this.keyBy)) {
         return (tag, index) => {
-          let val = Ti.Util.getOrPick(tag, this.keyBy)
+          let val = Ti.Util.getOrPick(tag, this.keyBy);
           if (_.isObject(val)) {
-            return JSON.stringify(val).replace(/\s+/g, '')
+            return JSON.stringify(val).replace(/\s+/g, "");
           }
           // Simple value
           if (!Ti.Util.isNil(val)) {
-            return val
+            return val;
           }
-          return `T${index}`
-        }
+          return `T${index}`;
+        };
       }
       return (tag, index) => {
-        return `T${index}`
-      }
+        return `T${index}`;
+      };
     },
     //------------------------------------------------
     getTagItemIcon() {
       if (_.isFunction(this.itemIconBy)) {
-        return it => this.itemIconBy(it)
+        return (it) => this.itemIconBy(it);
       }
       if (_.isString(this.itemIconBy)) {
-        return it => _.get(it, this.itemIconBy)
+        return (it) => _.get(it, this.itemIconBy);
       }
-      return it => null
+      return (it) => null;
     },
     //--------------------------------------
     Dict() {
       if (this.dict) {
         // Already Dict
         if (this.dict instanceof Ti.Dict) {
-          return this.dict
+          return this.dict;
         }
         // Get back
-        let { name } = Ti.DictFactory.explainDictName(this.dict)
-        return Ti.DictFactory.CheckDict(name)
+        let { name } = Ti.DictFactory.explainDictName(this.dict);
+        return Ti.DictFactory.CheckDict(name);
       }
     }
     //------------------------------------------------
@@ -58919,77 +58955,77 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //------------------------------------------------
     OnItemChanged({ index, value } = {}) {
       if (index >= 0) {
-        let values = this.getMyValues()
-        values[index] = Ti.Util.fallback(value, null)
-        this.$notify("change", values)
+        let values = this.getMyValues();
+        values[index] = Ti.Util.fallback(value, null);
+        this.$notify("change", values);
       }
     },
     //------------------------------------------------
     OnItemRemoved({ index } = {}) {
       if (index >= 0) {
-        let values = this.getMyValues()
-        _.pullAt(values, index)
-        this.$notify("change", values)
+        let values = this.getMyValues();
+        _.pullAt(values, index);
+        this.$notify("change", values);
       }
     },
     //------------------------------------------------
     OnItemFired({ index = -1 } = {}) {
       if (index >= 0) {
-        let it = _.nth(this.theData, index)
+        let it = _.nth(this.theData, index);
         if (it) {
-          this.$notify("item:actived", it)
+          this.$notify("item:actived", it);
         }
       }
     },
     //------------------------------------------------
     async evalMyData() {
-      const tags = []
+      const tags = [];
       let list;
       if (_.isArray(this.value)) {
-        list = this.value
+        list = this.value;
       } else if (_.isString(this.value)) {
-        list = _.without(this.value.split(","), "")
+        list = _.without(this.value.split(","), "");
       } else {
-        list = []
+        list = [];
       }
       if (!_.isEmpty(list)) {
-        const lastIndex = list.length - 1
+        const lastIndex = list.length - 1;
         for (let index = 0; index < list.length; index++) {
-          let val = list[index]
+          let val = list[index];
           let tag;
 
           // Auto mapping plain object
           if (_.isPlainObject(val)) {
             if (this.mapping) {
               if (this.explainMapping) {
-                tag = Ti.Util.explainObj(val, this.mapping)
+                tag = Ti.Util.explainObj(val, this.mapping);
               } else {
-                tag = Ti.Util.translate(val, this.mapping)
+                tag = Ti.Util.translate(val, this.mapping);
               }
             } else {
-              tag = _.cloneDeep(val)
+              tag = _.cloneDeep(val);
             }
             // Customized the icon
             if (!tag.icon) {
-              tag.icon = this.getTagItemIcon(val)
+              tag.icon = this.getTagItemIcon(val);
             }
           }
           // Lookup Dict
           else if (this.Dict) {
-            let it = await this.Dict.getItem(val)
+            let it = await this.Dict.getItem(val);
             tag = _.defaults({
               icon: this.Dict.getIcon(it),
               text: this.Dict.getText(it) || val,
               value: val
-            })
+            });
           }
           // Auto gen object for simple value
           else {
-            tag = { text: val, value: val }
+            tag = { text: val, value: val };
           }
 
           // Complex value
-          tag.key = this.getTagItemKey(tag, index)
+          tag.key = this.getTagItemKey(tag, index);
 
           // Join default value
           _.defaults(tag, {
@@ -58997,28 +59033,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
             icon: this.itemDefaultIcon,
             options: this.itemOptions,
             atLast: index == lastIndex
-          })
+          });
           // Join to tags
-          tags.push(tag)
-        }; // _.forEach
+          tags.push(tag);
+        } // _.forEach
       }
       // assign the tags
-      this.myTags = tags
+      this.myTags = tags;
     },
     //------------------------------------------------
     getMyValues() {
-      const vals = []
+      const vals = [];
       for (let tag of this.myTags) {
-        vals.push(Ti.Util.fallback(tag.value, null))
+        vals.push(Ti.Util.fallback(tag.value, null));
       }
-      return vals
+      return vals;
     },
     //--------------------------------------
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
-        let values = this.getMyValues()
-        Ti.Util.moveInArray(values, fromIndex, toIndex)
-        this.$notify("change", values)
+        let values = this.getMyValues();
+        Ti.Util.moveInArray(values, fromIndex, toIndex);
+        this.$notify("change", values);
       }
     },
     //--------------------------------------
@@ -59027,28 +59063,28 @@ const __TI_MOD_EXPORT_VAR_NM = {
         animation: 300,
         filter: ".as-nil-tip",
         onStart: () => {
-          this.dragging = true
+          this.dragging = true;
         },
         onEnd: ({ oldIndex, newIndex }) => {
-          this.switchItem(oldIndex, newIndex)
+          this.switchItem(oldIndex, newIndex);
           _.delay(() => {
-            this.dragging = false
-          }, 100)
+            this.dragging = false;
+          }, 100);
         }
-      })
+      });
     },
     //------------------------------------------------
     tryInitSortable() {
       if (!this.readonly && this.removable && _.isElement(this.$el)) {
         if (!this.$sortable) {
-          this.initSortable()
+          this.initSortable();
         }
       }
-      // Destroy sortable: (com reused) 
+      // Destroy sortable: (com reused)
       else {
         if (this.$sortable) {
-          this.$sortable.destroy()
-          this.$sortable = undefined
+          this.$sortable.destroy();
+          this.$sortable = undefined;
         }
       }
     }
@@ -59066,17 +59102,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.tryInitSortable()
+    this.tryInitSortable();
   },
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
     if (this.$sortable) {
-      this.$sortable.destroy()
-      this.$sortable = undefined
+      this.$sortable.destroy();
+      this.$sortable = undefined;
     }
   }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -85573,6 +85609,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   "value": undefined,
   "format": undefined,
+  "tidyBy": Function,
   "valueCase": {
     type: String,
     default: undefined,
@@ -91553,12 +91590,10 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
   :value="inputValue"
   :value-case="valueCase"
   :trimed="trimed"
-
   :readonly="!canInput || readonly"
   :focused="focused"
   :hover="hover"
   :autoSelect="autoSelect"
-
   :placeholder="thePlaceholder"
   :autoI18n="autoI18n"
   :hideBorder="hideBorder"
@@ -91568,43 +91603,41 @@ Ti.Preload("ti/com/ti/input/tags/ti-input-tags.html", `<ti-input
   :prefixText="prefixText"
   :suffixIcon="suffixIcon"
   :suffixText="suffixText"
-
   :prefixIconNotifyName="prefixIconNotifyName"
   :prefixTextNotifyName="prefixTextNotifyName"
   :suffixIconNotifyName="suffixIconNotifyName"
   :suffixTextNotifyName="suffixTextNotifyName"
   :enterKeyNotifyName="enterKeyNotifyName"
-  
   :width="width"
   :height="height"
-
   :on-init="onInputInit"
-  
   @inputing="onInputInputing"
   @change="onInputChanged"
   @input:focus="$notify('input:focus')"
   @prefix:icon="$notify('prefix:icon')"
   @input:blur="$notify('input:blur')"
-  @suffix:icon="$notify('suffix:icon')">
+  @suffix:icon="$notify('suffix:icon')"
+>
   <!--
     Tag List
   -->
-  <div v-if="hasTags"
-    class="as-tags">
+  <div v-if="hasTags" class="as-tags">
     <ti-tags
       :value="theTags"
       :dict="dict"
       :removable="true"
       :readonly="readonly"
-      :item-options="tagOptions"
-      :item-icon-by="tagItemIconBy"
+      :itemOptions="tagOptions"
+      :itemIconBy="tagItemIconBy"
+      :itemMaxWidth="tagItemMaxWidth"
       :keyBy="tagKeyBy"
       :item-default-icon="tagItemDefaultIcon"
       :option-default-icon="tagOptionDefaultIcon"
       :mapping="tagMapping"
       :explainMapping="tagExplainMapping"
       :cancel-item-bubble="cancelTagBubble"
-      @change="$notify('change', $event)"/>
+      @change="$notify('change', $event)"
+    />
   </div>
 </ti-input>`);
 //========================================
@@ -94278,7 +94311,8 @@ Ti.Preload("ti/com/ti/table_old/_com.json", {
 // JOIN <tags-item.html> ti/com/ti/tags/com/tags-item/tags-item.html
 //========================================
 Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-item" 
-  :class="topClass"
+  :class="TopClass"
+  :style="TopStyle"
   @mouseenter="mouseEnter='top'"
   @mouseleave="mouseEnter=null"
   @click.left="OnClickTop">
@@ -94305,10 +94339,10 @@ Ti.Preload("ti/com/ti/tags/com/tags-item/tags-item.html", `<div class="ti-tags-i
       class="as-text"
       @click.prevent
       :href="href"
-      :class="textClass">{{text|i18n}}</a>
+      :class="TextClass">{{text|i18n}}</a>
     <span v-else
       class="as-text"
-      :class="textClass">{{text|i18n}}</span>
+      :class="TextClass">{{text|i18n}}</span>
   </template>
   <!--
     Status Icon
@@ -94369,6 +94403,7 @@ Ti.Preload("ti/com/ti/tags/ti-tags.html", `<div class="ti-tags"
         :remove-icon="removeIcon"
         :readonly="readonly"
         :status-icons="statusIcons"
+        :maxWidth="itemMaxWidth"
         @change="OnItemChanged"
         @remove="OnItemRemoved"
         @fire="OnItemFired"/>
