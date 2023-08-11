@@ -264,7 +264,16 @@ const _M = {
       this.doExtend();
     },
     //------------------------------------------------
-    onChanged(val) {
+    OnRangeBeginChange(dBegin){
+
+    },
+    //------------------------------------------------
+    OnRangeEndChange(dEnd){
+      console.log(dEnd)
+    },
+    //------------------------------------------------
+    OnInputChange(val) {
+      console.log("onChanged", val);
       let rg = this.parseDateRange(val);
       // Empty Range
       if (_.isEmpty(rg)) {

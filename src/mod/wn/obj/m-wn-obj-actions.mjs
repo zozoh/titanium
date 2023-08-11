@@ -336,7 +336,7 @@ const _M = {
     }
     state.LOG = () => {};
     // if ("casedocs" == state.moduleName) {
-       state.LOG = console.log;
+    //   state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // If meta like : {path: "/path/to", quiet:true}

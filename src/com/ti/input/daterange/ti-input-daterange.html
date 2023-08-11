@@ -1,4 +1,4 @@
-<ti-combo-box class="as-daterange"
+<TiComboBox class="as-daterange"
   :class="topClass"
   :drop-width="dropWidth"
   :status="status"
@@ -7,7 +7,7 @@
     Box
   -->
   <template v-slot:box>
-    <ti-input 
+    <TiInput 
       :readonly="!canInput"
       :hide-border="hideBorder"
       :placeholder="placeholder|i18n"
@@ -17,7 +17,7 @@
       :width="width"
       :height="height"
       :focus="isExtended"
-      @change="onChanged"
+      @change="OnInputChange"
       @input:focus="onInputFocused"
       @suffix:icon="onClickStatusIcon"/>
   </template>
@@ -25,6 +25,14 @@
     Drop
   -->
   <template v-slot:drop>
+    <div class="as-range-pairs">
+      <div class="as-range-begin">
+        <TiInputDate @change="OnRangeBeginChange"/>
+      </div>
+      <div class="as-range-end">
+        <TiInputDate @change="OnRangeEndChange"/>
+      </div>
+    </div>
     <ti-calendar
       :value="theDropRange"
       :range="true"
@@ -34,4 +42,4 @@
       :end-year="endYear"
       @change="onDateRangeChanged"/>
   </template>
-</ti-combo-box>
+</TiComboBox>

@@ -75,13 +75,13 @@ const TiDateTime = {
     }
     // String
     if (_.isString(d)) {
-      let str = d;
+      let str = _.trim(d);
       // MS
       if (/\d{13,}/.test(str)) {
         return new Date(str * 1);
       }
       // Try to tidy string
-      let m = P_DATE.exec(d);
+      let m = P_DATE.exec(str);
       if (m) {
         let _int = (m, index, dft) => {
           let s = m[index];
