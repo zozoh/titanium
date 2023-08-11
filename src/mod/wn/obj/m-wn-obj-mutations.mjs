@@ -49,6 +49,54 @@ const _M = {
     state.lbkOff = !on;
   },
   //----------------------------------------
+  assignExportSettings(state, settings) {
+    let se = _.cloneDeep(state.exportSettings || {});
+    _.assign(se, settings);
+    state.exportSettings = se;
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Export Settings", lse);
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
+  setExportSettings(state, settings) {
+    state.exportSettings = settings;
+    let lse = _.pick(
+      settings,
+      "mapping",
+      "fields",
+      "type",
+      "mode",
+      "scope",
+      "expi"
+    );
+    state.LOG("Keep Export Settings", lse);
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
+  assignImportSettings(state, settings) {
+    let se = _.cloneDeep(state.importSettings || {});
+    _.assign(se, settings);
+    state.importSettings = se;
+    let lse = _.pick(se, "mapping", "fields", "type", "mode", "scope", "expi");
+    state.LOG("Keep Import Settings", lse);
+    saveLocalBehavior(state, "exportSettings", lse);
+  },
+  //----------------------------------------
+  setImportSettings(state, settings) {
+    state.importSettings = settings;
+    let lse = _.pick(
+      settings,
+      "mapping",
+      "fields",
+      "type",
+      "mode",
+      "scope",
+      "expi"
+    );
+    state.LOG("Keep Import Settings", lse);
+    saveLocalBehavior(state, "importSettings", lse);
+  },
+  //----------------------------------------
   setGuiShown(state, shown) {
     let guiShown = _.pickBy(shown, (v) => v);
     state.guiShown = guiShown;

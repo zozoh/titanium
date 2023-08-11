@@ -138,7 +138,7 @@ const _M = {
     },
     //---------------------------------------------------
     MappingFields() {
-      return _.get(this.myCanFields, this.MappingFileId) || [];
+      return (this.myCanFields || {})[this.MappingFileId] || [];
     },
     //---------------------------------------------------
     OutputModeOptions() {
@@ -184,7 +184,10 @@ const _M = {
             iconBy: "icon",
             valueBy: "id",
             textBy: "title|nm",
-            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"]
+            dropDisplay: ["<icon:fas-exchange-alt>", "title|nm"],
+            style: {
+              maxWidth: "3rem"
+            }
           }
         });
       }
@@ -419,7 +422,7 @@ const _M = {
           });
         }
         this.myCanFields = _.assign({}, this.myCanFields, {
-          [this.MappingFileId]: cans
+          [mappingId]: cans
         });
       }
     },
@@ -454,8 +457,10 @@ const _M = {
         }
       }
       // Found the default
+      console.log("Found the default");
       let mappingId = _.get(this.data, "mapping");
-      if (!_.isEmpty(list) && !mappingId && _.isEmpty(this.MappingFields)) {
+      let exists = _.findIndex(list, (li) => li.id == mappingId) > 0;
+      if (!exists && !_.isEmpty(list)) {
         mappingId = _.first(list).id;
         if (this.defaultMappingName) {
           for (let li of list) {
@@ -467,7 +472,7 @@ const _M = {
         }
       }
       // Try reload mapping fields
-      this.reloadMappingFields(mappingId);
+      await this.reloadMappingFields(mappingId);
 
       // Notify change
       let data = {
@@ -503,7 +508,7 @@ const _M = {
   },
   ///////////////////////////////////////////////////////
   watch: {
-    "data.mapping" : "reloadMappingFields"
+    "data.mapping": "reloadMappingFields"
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {

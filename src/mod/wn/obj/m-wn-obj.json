@@ -9,6 +9,8 @@
   "view": null,
   "localBehaviorKeepAt": "->WnObj-State-${dirId}",
   "localBehaviorIgnore": null,
+  "exportSettings": {},
+  "importSettings": {},
   "lbkAt": null,
   "lbkIgnore": null,
   "lbkOff": false,

@@ -232,6 +232,8 @@ const _M = {
       filter,
       sorter,
       match,
+      exportSettings,
+      importSettings,
       currentId,
       checkedIds,
       pageSize,
@@ -251,6 +253,14 @@ const _M = {
     // Apply sorter
     if (!_.isEmpty(sorter)) {
       commit("setSorter", sorter);
+    }
+
+    // Import/export
+    if (exportSettings) {
+      commit("assignExportSettings", exportSettings);
+    }
+    if (importSettings) {
+      commit("assignImportSettings", importSettings);
     }
 
     // Apply fixed match
@@ -326,7 +336,7 @@ const _M = {
     }
     state.LOG = () => {};
     // if ("casedocs" == state.moduleName) {
-    //   state.LOG = console.log;
+       state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // If meta like : {path: "/path/to", quiet:true}
