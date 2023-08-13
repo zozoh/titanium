@@ -1,4 +1,4 @@
-// Pack At: 2023-08-11 12:36:36
+// Pack At: 2023-08-14 01:39:27
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -41180,7 +41180,16 @@ const _M = {
       this.doExtend();
     },
     //------------------------------------------------
-    onChanged(val) {
+    OnRangeBeginChange(dBegin){
+
+    },
+    //------------------------------------------------
+    OnRangeEndChange(dEnd){
+      console.log(dEnd)
+    },
+    //------------------------------------------------
+    OnInputChange(val) {
+      console.log("onChanged", val);
       let rg = this.parseDateRange(val);
       // Empty Range
       if (_.isEmpty(rg)) {
@@ -60131,7 +60140,7 @@ const _M = {
     }
     state.LOG = () => {};
     // if ("casedocs" == state.moduleName) {
-       state.LOG = console.log;
+    //   state.LOG = console.log;
     // }
     state.LOG(">>>>>>>>>>>>>> reload", meta, state.status.reloading);
     // If meta like : {path: "/path/to", quiet:true}
@@ -91348,7 +91357,7 @@ Ti.Preload("ti/com/ti/input/date/_com.json", {
 //========================================
 // JOIN <ti-input-daterange.html> ti/com/ti/input/daterange/ti-input-daterange.html
 //========================================
-Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box class="as-daterange"
+Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox class="as-daterange"
   :class="topClass"
   :drop-width="dropWidth"
   :status="status"
@@ -91357,7 +91366,7 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
     Box
   -->
   <template v-slot:box>
-    <ti-input 
+    <TiInput 
       :readonly="!canInput"
       :hide-border="hideBorder"
       :placeholder="placeholder|i18n"
@@ -91367,7 +91376,7 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
       :width="width"
       :height="height"
       :focus="isExtended"
-      @change="onChanged"
+      @change="OnInputChange"
       @input:focus="onInputFocused"
       @suffix:icon="onClickStatusIcon"/>
   </template>
@@ -91375,6 +91384,14 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
     Drop
   -->
   <template v-slot:drop>
+    <div class="as-range-pairs">
+      <div class="as-range-begin">
+        <TiInputDate @change="OnRangeBeginChange"/>
+      </div>
+      <div class="as-range-end">
+        <TiInputDate @change="OnRangeEndChange"/>
+      </div>
+    </div>
     <ti-calendar
       :value="theDropRange"
       :range="true"
@@ -91384,7 +91401,7 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<ti-combo-box c
       :end-year="endYear"
       @change="onDateRangeChanged"/>
   </template>
-</ti-combo-box>`);
+</TiComboBox>`);
 //========================================
 // JOIN <ti-input-daterange.mjs> ti/com/ti/input/daterange/ti-input-daterange.mjs
 //========================================
