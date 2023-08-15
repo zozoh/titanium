@@ -595,6 +595,25 @@ const _M = {
     commit("setStatus", { reloading: false });
   },
   //----------------------------------------
+  async reloadCheckedItems({ commit, state }) {
+    let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds);
+    if (_.isEmpty(ids)) {
+      return;
+    }
+    let cmds = ["o"];
+    for (let id of _.keys(ids)) {
+      cmds.push(`@get ${id}`);
+    }
+    cmds.push("@json -cqnl");
+    let cmdText = cmds.join(" ");
+    let oItems = await Wn.Sys.exec2(cmdText, { as: "json" });
+    if (!_.isEmpty(oItems)) {
+      for (let it of oItems) {
+        commit("setListItem", it);
+      }
+    }
+  },
+  //----------------------------------------
   async reloadList({ dispatch }) {
     return await dispatch("queryList");
   },

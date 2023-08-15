@@ -1,4 +1,4 @@
-// Pack At: 2023-08-14 01:39:27
+// Pack At: 2023-08-16 00:03:57
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -363,6 +363,28 @@ const _M = {
   // Query
   //
   //----------------------------------------
+  async reloadCheckedItems({ commit, state }) {
+    let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds);
+    if (_.isEmpty(ids)) {
+      return;
+    }
+    let cmds = ["o"];
+    for (let id of _.keys(ids)) {
+      cmds.push(`@get ${id}`);
+    }
+    cmds.push("@json -cqnl");
+    let cmdText = cmds.join(" ");
+    let oItems = await Wn.Sys.exec2(cmdText, { as: "json" });
+    if (!_.isEmpty(oItems)) {
+      for (let it of oItems) {
+        commit("setListItem", it);
+      }
+    }
+  },
+  //----------------------------------------
+  async reloadList({ dispatch }) {
+    return await dispatch("queryList");
+  },
   async queryList({ state, commit, getters, rootState }) {
     let { dirId, filter, fixedMatch, sorter, objKeys } = state;
     // Query
@@ -14199,6 +14221,25 @@ const _M = {
     commit("setAggResult", { key: aggName, result: reo });
     // Done
     commit("setStatus", { reloading: false });
+  },
+  //----------------------------------------
+  async reloadCheckedItems({ commit, state }) {
+    let ids = Ti.Util.getTruthyKeyInMap(state.checkedIds);
+    if (_.isEmpty(ids)) {
+      return;
+    }
+    let cmds = ["o"];
+    for (let id of _.keys(ids)) {
+      cmds.push(`@get ${id}`);
+    }
+    cmds.push("@json -cqnl");
+    let cmdText = cmds.join(" ");
+    let oItems = await Wn.Sys.exec2(cmdText, { as: "json" });
+    if (!_.isEmpty(oItems)) {
+      for (let it of oItems) {
+        commit("setListItem", it);
+      }
+    }
   },
   //----------------------------------------
   async reloadList({ dispatch }) {
