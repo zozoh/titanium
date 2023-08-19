@@ -730,6 +730,9 @@ const _M = {
         };
       }
       // Explain field com
+      // if ("case_type" == fld.name) {
+      //   console.log("explain field", fld);
+      // }
       let com = await this.evalDataForFieldDisplayItem({
         itemData: this.myData,
         displayItem,
@@ -738,6 +741,9 @@ const _M = {
         autoIgnoreBlank: false,
         autoValue: fld.autoValue || "value"
       });
+      // if ("case_type" == fld.name) {
+      //   console.log(com);
+      // }
       // force set readonly
       if (this.isReadonly || fld.disabled) {
         _.assign(com.comConf, {
