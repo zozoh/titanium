@@ -68,7 +68,6 @@ const _M = {
       type: [String, Number],
       default: "1.2rem"
     }
-
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -77,28 +76,28 @@ const _M = {
       return this.getTopClass({
         "is-empty": this.isEmpty,
         "no-empty": !this.isEmpty
-      })
+      });
     },
     //------------------------------------------------
     isEmpty() {
-      return _.isEmpty(this.PairFields)
+      return _.isEmpty(this.PairFields);
     },
     //------------------------------------------------
     NameStyle() {
       return {
         width: Ti.Css.toSize(this.nameWidth)
-      }
+      };
     },
     //------------------------------------------------
     PairFields() {
-      let re = []
+      let re = [];
       _.forEach(this.value, (v, k) => {
         re.push({
           name: k,
           value: v
-        })
-      })
-      return re
+        });
+      });
+      return re;
     },
     //------------------------------------------------
     ActionSetup() {
@@ -108,17 +107,17 @@ const _M = {
           icon: "zmdi-plus",
           className: "min-width-8",
           handler: () => {
-            this.OnAddNewPair()
+            this.OnAddNewPair();
           }
         },
         {
           icon: "zmdi-code",
           className: "is-chip",
           handler: () => {
-            this.OnViewSourceCode()
+            this.OnViewSourceCode();
           }
         }
-      ]
+      ];
     }
     //------------------------------------------------
   },
@@ -127,84 +126,91 @@ const _M = {
     //------------------------------------------------
     OnNameChange({ name }, newName) {
       if (!_.isEqual(name, newName)) {
-        let data = {}
+        let data = {};
         // To keep the original key order
         _.forEach(this.value, (v, k) => {
           if (k == name) {
-            data[newName] = v
+            data[newName] = v;
           } else {
-            data[k] = v
+            data[k] = v;
           }
-        })
-        this.tryNotifyChange(data)
+        });
+        this.tryNotifyChange(data);
       }
     },
     //------------------------------------------------
     OnValueChange({ name, value }, newVal) {
       if (!_.isEqual(value, newVal)) {
-        let data = _.cloneDeep(this.value) || {}
-        data[name] = newVal
-        this.tryNotifyChange(data)
+        let data = _.cloneDeep(this.value) || {};
+        data[name] = newVal;
+        this.tryNotifyChange(data);
       }
     },
     //------------------------------------------------
     OnDeleteFld({ name }) {
-      let data = {}
+      let data = {};
       _.forEach(this.value, (v, k) => {
         if (k != name) {
-          data[k] = v
+          data[k] = v;
         }
-      })
-      this.tryNotifyChange(data)
+      });
+      this.tryNotifyChange(data);
     },
     //------------------------------------------------
     OnAddNewPair() {
-      let data = _.cloneDeep(this.value) || {}
-      let newName = this.dftNewItemName
-      let val = _.get(data, newName)
-      let N = 1
+      let data = _.cloneDeep(this.value) || {};
+      let newName = this.dftNewItemName;
+      let val = _.get(data, newName);
+      let N = 1;
       while (!_.isUndefined(val)) {
-        newName = `${this.dftNewItemName}${N++}`
-        val = _.get(data, newName)
+        newName = `${this.dftNewItemName}${N++}`;
+        val = _.get(data, newName);
       }
-      data[newName] = null
-      this.tryNotifyChange(data)
+      data[newName] = null;
+      this.tryNotifyChange(data);
     },
     //------------------------------------------------
     async OnViewSourceCode() {
-      let json = JSON.stringify(this.value || {}, null, '   ')
-      let re = await Ti.App.Open({
-        title: "i18n:edit",
-        position: "top",
+      let json = JSON.stringify(this.value || {}, null, "   ");
+      // let re = await Ti.App.Open({
+      //   title: "i18n:edit",
+      //   position: "top",
+      //   width: "6.4rem",
+      //   height: "90%",
+      //   result: json,
+      //   mainStyle: {
+      //     padding: "2px"
+      //   },
+      //   comType: "TiInputText",
+      //   comConf: {
+      //     height: "100%"
+      //   }
+      // })
+      let re = await Ti.EditCode(json, {
+        mode: "json",
         width: "6.4rem",
         height: "90%",
-        result: json,
-        mainStyle: {
-          padding: "2px"
-        },
-        comType: "TiInputText",
-        comConf: {
-          height: "100%"
-        }
-      })
+        textOk: "i18n:ok",
+        textCancel: "i18n:cancel"
+      });
 
       // User Cancel
       if (_.isUndefined(re)) {
-        return
+        return;
       }
 
       // Parse JSON
-      let data = JSON.parse(_.trim(re) || "null")
-      this.tryNotifyChange(data)
+      let data = JSON.parse(_.trim(re) || "null");
+      this.tryNotifyChange(data);
     },
     //------------------------------------------------
     tryNotifyChange(data) {
       if (!_.isEqual(data, this.value)) {
-        this.$notify("change", data)
+        this.$notify("change", data);
       }
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 export default _M;

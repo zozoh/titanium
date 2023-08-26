@@ -1,6 +1,6 @@
 .ti-input-pair {
   //-------------------------------------------------
-  > .pair-grid-con {
+  > main > .pair-grid-con {
     @include border(1px, solid, shallow);
     background-color: map-get($color-line, shallow);
     display: grid;
@@ -47,6 +47,7 @@
       //-----------------------------------------
       > .as-com {
         width: 100%;
+        border-radius: 0;
       }
       //-----------------------------------------
     } // > .cell-con
@@ -61,7 +62,21 @@
     @include border(1px, dashed, shallow);
     @include color($color-bar, r, c);
     padding: 1em;
-    border-radius: .5em;
+    border-radius: 0.5em;
+  }
+  //-------------------------------------------------
+  &.flex-full {
+    @include flex-align-v-nowrap;
+    > main {
+      height: 100px;
+      flex: 1 1 auto;
+      overflow: auto;
+    }
+    > .ti-button {
+      @include border(1px, solid, shallow, top);
+      flex: 0 0 auto;
+      padding: SZ(6);
+    }
   }
   //-------------------------------------------------
 }

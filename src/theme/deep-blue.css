@@ -4697,7 +4697,7 @@ i.im {
       .ti-input-num > .as-input input:focus {
         border-color: #272e48; }
 
-.ti-input-pair > .pair-grid-con {
+.ti-input-pair > main > .pair-grid-con {
   border: 1px solid rgba(20, 20, 20, 0.1);
   background-color: rgba(20, 20, 20, 0.1);
   display: grid;
@@ -4708,26 +4708,26 @@ i.im {
   justify-items: stretch;
   align-items: stretch;
   grid-gap: 1px; }
-  .ti-input-pair > .pair-grid-con .pair-grid-item {
+  .ti-input-pair > main > .pair-grid-con .pair-grid-item {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-content: center;
     flex-wrap: nowrap; }
-    .ti-input-pair > .pair-grid-con .pair-grid-item.as-name {
+    .ti-input-pair > main > .pair-grid-con .pair-grid-item.as-name {
       color: #666;
       background-color: #e8e8e8; }
-    .ti-input-pair > .pair-grid-con .pair-grid-item.as-value {
+    .ti-input-pair > main > .pair-grid-con .pair-grid-item.as-value {
       color: #444;
       background-color: #FFF; }
-  .ti-input-pair > .pair-grid-con .cell-con {
+  .ti-input-pair > main > .pair-grid-con .cell-con {
     display: flex;
     justify-content: flex-start;
     align-items: stretch;
     align-content: center;
     flex-wrap: nowrap;
     flex: 1 1 auto; }
-    .ti-input-pair > .pair-grid-con .cell-con > .as-deleter {
+    .ti-input-pair > main > .pair-grid-con .cell-con > .as-deleter {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -4738,17 +4738,18 @@ i.im {
       width: 0.24rem;
       font-size: 0.1rem;
       cursor: pointer; }
-      .ti-input-pair > .pair-grid-con .cell-con > .as-deleter > i {
+      .ti-input-pair > main > .pair-grid-con .cell-con > .as-deleter > i {
         transition: transform 0.3s;
         opacity: 0.4; }
-      .ti-input-pair > .pair-grid-con .cell-con > .as-deleter:hover {
+      .ti-input-pair > main > .pair-grid-con .cell-con > .as-deleter:hover {
         color: #FFF;
         background-color: #ff4081; }
-        .ti-input-pair > .pair-grid-con .cell-con > .as-deleter:hover > i {
+        .ti-input-pair > main > .pair-grid-con .cell-con > .as-deleter:hover > i {
           transform: rotate(180deg) scale(1.2);
           opacity: 1; }
-    .ti-input-pair > .pair-grid-con .cell-con > .as-com {
-      width: 100%; }
+    .ti-input-pair > main > .pair-grid-con .cell-con > .as-com {
+      width: 100%;
+      border-radius: 0; }
 .ti-input-pair > .ti-button {
   padding-top: 0.06rem; }
 .ti-input-pair.is-empty > .ti-button {
@@ -4756,7 +4757,22 @@ i.im {
   color: #888;
   background-color: #F0F0F0;
   padding: 1em;
-  border-radius: .5em; }
+  border-radius: 0.5em; }
+.ti-input-pair.flex-full {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  align-content: stretch;
+  flex-wrap: nowrap;
+  flex-direction: column; }
+  .ti-input-pair.flex-full > main {
+    height: 100px;
+    flex: 1 1 auto;
+    overflow: auto; }
+  .ti-input-pair.flex-full > .ti-button {
+    border-top: 1px solid rgba(20, 20, 20, 0.1);
+    flex: 0 0 auto;
+    padding: 0.06rem; }
 
 div.ti-input-tags {
   flex-wrap: wrap; }
