@@ -187,6 +187,7 @@ const _M = {
       this.myDropStatus = "collapse";
       this.myOptionsData = [];
       this.myOldValue = undefined;
+      this.myFilterValue = undefined;
     },
     //-----------------------------------------------
     tryNotifyChanged(escaped = false) {

@@ -1,4 +1,4 @@
-// Pack At: 2023-08-26 19:20:29
+// Pack At: 2023-08-28 22:58:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -65621,6 +65621,7 @@ const _M = {
       this.myDropStatus = "collapse";
       this.myOptionsData = [];
       this.myOldValue = undefined;
+      this.myFilterValue = undefined;
     },
     //-----------------------------------------------
     tryNotifyChanged(escaped = false) {
