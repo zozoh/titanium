@@ -1,4 +1,4 @@
-// Pack At: 2023-08-28 22:58:39
+// Pack At: 2023-09-05 02:23:27
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16251,6 +16251,20 @@ const { Bank } = (function(){
       return dft;
     },
     //-----------------------------------
+    // @pararm exKey{String} :  `USD_RMB`
+    // @return {from:"USD",to:"RMB", fromName:"美元", toName:"人民币"}
+    parseExchangeKey(exKey) {
+      let m = /^([A-Z]{3})_([A-Z]{3})$/.exec(exKey);
+      if (!m) {
+        return;
+      }
+      let from = m[1];
+      let to = m[2];
+      let fromName = Ti.I18n.text(Ti.Bank.getCurrencyText(from));
+      let toName = Ti.I18n.text(Ti.Bank.getCurrencyText(to));
+      return { from, to, fromName, toName };
+    },
+    //-----------------------------------
     getCurrencyChar(cur = "RMB") {
       return _.get(CURRENCIES[cur], "token");
     },
@@ -20538,7 +20552,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.87",
+  "version": "1.88",
   "dev": false,
   "appName": null,
   "session": {},

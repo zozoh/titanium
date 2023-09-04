@@ -100,6 +100,20 @@ const TiBank = {
     return dft;
   },
   //-----------------------------------
+  // @pararm exKey{String} :  `USD_RMB`
+  // @return {from:"USD",to:"RMB", fromName:"美元", toName:"人民币"}
+  parseExchangeKey(exKey) {
+    let m = /^([A-Z]{3})_([A-Z]{3})$/.exec(exKey);
+    if (!m) {
+      return;
+    }
+    let from = m[1];
+    let to = m[2];
+    let fromName = Ti.I18n.text(Ti.Bank.getCurrencyText(from));
+    let toName = Ti.I18n.text(Ti.Bank.getCurrencyText(to));
+    return { from, to, fromName, toName };
+  },
+  //-----------------------------------
   getCurrencyChar(cur = "RMB") {
     return _.get(CURRENCIES[cur], "token");
   },
