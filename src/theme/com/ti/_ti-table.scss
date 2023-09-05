@@ -335,13 +335,14 @@
           @include color($color, r, c);
           &.is-checked {
             font-weight: bold;
-            @include color($color-boldtip, r, c);
+            background-color: map-get($color-page, r);
+            color: map-get($color, c);
           }
         }
         @mixin row-status-color2($color: null) {
           @include color($color, r);
           &.is-checked {
-            @include color($color, c, r);
+            @include color($color-page, c, r);
             > td {
               border-color: map-get($color, c);
             }
@@ -371,7 +372,7 @@
         }
         &.is-success-r {
           @include row-status-color-r($color-success);
-        } 
+        }
         //-----------------------------------------
         &.is-warn {
           @include row-status-color($color-warn);

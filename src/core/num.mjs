@@ -50,7 +50,6 @@ const TiNum = {
     return ary;
   },
   /***
-   * Clamp the number in range.
    *
    * ```
    * scrollIndex( 3, 5) => 3
