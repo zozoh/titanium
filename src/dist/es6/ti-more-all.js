@@ -1,4 +1,4 @@
-// Pack At: 2023-09-05 23:04:53
+// Pack At: 2023-09-07 21:27:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -83741,7 +83741,7 @@ const _M = {
         {
           readonly: this.readonly || this.isPicking || !this.canInput,
           focused: this.focused,
-          placeholder: this.placeholder
+          placeholder: this.value || this.placeholder
         },
         this.input
       );
@@ -83958,7 +83958,7 @@ const _M = {
     },
     //------------------------------------------------
     async evalValue() {
-      //console.log("evalValue", this.value)
+      //console.log("evalValue", this.value);
       let it = await this.Dict.getItem(this.value);
       if (it) {
         this.myValueIcon = this.Dict.getIcon(it);
@@ -83970,7 +83970,7 @@ const _M = {
     },
     //------------------------------------------------
     createDict() {
-      //console.log("createDict in combo-input")
+      //console.log("createDict in combo-input");
       // Customized
       return Ti.DictFactory.CreateDictBy(this.options, {
         valueBy: this.valueBy,
