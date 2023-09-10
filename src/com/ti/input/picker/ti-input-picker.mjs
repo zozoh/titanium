@@ -137,11 +137,15 @@ const _M = {
     },
     //------------------------------------------------
     ComConf() {
+      let placeholder = this.placeholder;
+      if (this.value) {
+        placeholder = _.concat(this.value).join(", ");
+      }
       let conf = _.assign(
         {
           readonly: this.readonly || this.isPicking || !this.canInput,
           focused: this.focused,
-          placeholder: this.value || this.placeholder
+          placeholder
         },
         this.input
       );

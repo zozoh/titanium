@@ -1,4 +1,4 @@
-// Pack At: 2023-09-07 21:27:31
+// Pack At: 2023-09-11 01:49:48
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -41227,12 +41227,17 @@ const _M = {
       this.doExtend();
     },
     //------------------------------------------------
-    OnRangeBeginChange(dBegin){
-
+    OnRangeBeginChange(dBegin) {
+      let rg = _.cloneDeep(this.theDropRange);
+      rg[0] = dBegin;
+      this.runtime = rg;
     },
     //------------------------------------------------
-    OnRangeEndChange(dEnd){
-      console.log(dEnd)
+    OnRangeEndChange(dEnd) {
+      let rg = _.cloneDeep(this.theDropRange);
+      rg[0] = rg[0] || dEnd;
+      rg[1] = dEnd;
+      this.runtime = rg;
     },
     //------------------------------------------------
     OnInputChange(val) {
@@ -52567,7 +52572,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //------------------------------------------------
     isEmpty() {
-      return _.isEmpty(this.value)
+      return _.isEmpty(this.value);
     },
     //------------------------------------------------
     ReactTypes() {
@@ -52582,21 +52587,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
         "obj_clear",
         "exec",
         "jsc"
-      ]
-      let re = []
+      ];
+      let re = [];
       for (let value of types) {
         re.push({
           value,
           text: `i18n:hmr-t-${value}`
-        })
+        });
       }
-      return re
+      return re;
     },
     //------------------------------------------------
     FormFields() {
       return [
         {
-          title: 'i18n:type',
+          title: "i18n:type",
           name: "type",
           comType: "TiDroplist",
           comConf: {
@@ -52604,21 +52609,21 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         },
         {
-          title: 'i18n:path',
+          title: "i18n:path",
           name: "path",
           comType: "TiInput"
         },
         {
-          title: 'i18n:batch-update',
+          title: "i18n:batch-update",
           name: "batch",
           type: "Boolean",
           visible: {
-            type: "^(obj|thing)_update$",
+            type: "^(obj|thing)_update$"
           },
           comType: "TiToggle"
         },
         {
-          title: 'i18n:target-id',
+          title: "i18n:target-id",
           name: "targetId",
           visible: {
             type: "^thing_(delete|update)$"
@@ -52630,14 +52635,15 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInput"
         },
         {
-          title: 'i18n:query',
+          title: "i18n:query",
           name: "query",
           type: "Object",
-          nameVAlign:"top",
+          nameVAlign: "top",
           visible: [
             {
               type: "^(obj|thing)_clear$"
-            }, {
+            },
+            {
               type: "^(obj|thing)_update$",
               batch: true
             }
@@ -52645,27 +52651,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInputPair"
         },
         {
-          title: 'i18n:meta',
+          title: "i18n:meta",
           name: "meta",
           type: "Object",
-          nameVAlign:"top",
+          nameVAlign: "top",
           visible: {
             type: "^((obj|thing)_(create|update))$"
           },
           comType: "TiInputPair"
         },
         {
-          title: 'i18n:params',
+          title: "i18n:params",
           name: "params",
           type: "Object",
-          nameVAlign:"top",
+          nameVAlign: "top",
           visible: {
             type: "^(jsc|thing_(create|delete|update|clear))$"
           },
-          comType: "TiInputPair"
+          comType: "TiInputPair",
+          comConf: {
+            hideBorder: true,
+            autoJsValue: true,
+            autoSelect: true,
+            suffixIconForEdit: true
+          }
         },
         {
-          title: 'i18n:sort',
+          title: "i18n:sort",
           name: "sort",
           type: "Object",
           visible: {
@@ -52674,7 +52686,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInputPair"
         },
         {
-          title: 'i18n:input',
+          title: "i18n:input",
           name: "input",
           visible: {
             type: "^(exec)$"
@@ -52685,7 +52697,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           }
         },
         {
-          title: 'i18n:skip',
+          title: "i18n:skip",
           name: "skip",
           type: "Integer",
           visible: {
@@ -52694,7 +52706,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           comType: "TiInputNum"
         },
         {
-          title: 'i18n:limit',
+          title: "i18n:limit",
           name: "limit",
           type: "Integer",
           visible: {
@@ -52702,7 +52714,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           },
           comType: "TiInputNum"
         }
-      ]
+      ];
     },
     //------------------------------------------------
     ActionSetup() {
@@ -52712,17 +52724,17 @@ const __TI_MOD_EXPORT_VAR_NM = {
           icon: "zmdi-plus",
           className: "min-width-8",
           handler: () => {
-            this.OnAddAction()
+            this.OnAddAction();
           }
         },
         {
           icon: "zmdi-code",
           className: "is-chip",
           handler: () => {
-            this.OnViewSourceCode()
+            this.OnViewSourceCode();
           }
         }
-      ]
+      ];
     }
     //------------------------------------------------
   },
@@ -52730,60 +52742,62 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //------------------------------------------------
     async OnEditAction({ index, data, icon }) {
-      let reo = await this.OpenEditForm({ data, icon })
+      let reo = await this.OpenEditForm({ data, icon });
 
       // User cancel
       if (!reo) {
-        return
+        return;
       }
 
       // Put the new item
-      let list = _.cloneDeep(this.value)
-      list[index] = reo
-      this.tryNotifyChange(list)
+      let list = _.cloneDeep(this.value);
+      list[index] = reo;
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
     async OnAddAction() {
       let reo = await this.OpenEditForm({
         data: { type: "jsc" },
-        icon: 'zmdi-plus'
-      })
+        icon: "zmdi-plus"
+      });
 
       // User cancel
       if (!reo) {
-        return
+        return;
       }
 
       // Put the new item
-      let list = _.cloneDeep(this.value)
-      list.push(reo)
-      this.tryNotifyChange(list)
+      let list = _.cloneDeep(this.value);
+      list.push(reo);
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
-      return await Ti.App.Open(_.assign(
-        {
-          icon,
-          title: 'i18n:edit',
-          width: "6.4rem",
-          height: "96%",
-        },
-        this.dialog,
-        {
-          model: { event: "change", prop: "data" },
-          result: data,
-          comType: "TiForm",
-          comConf: {
-            spacing: "comfy",
-            gridColumnHint: 1,
-            fields: this.FormFields
+      return await Ti.App.Open(
+        _.assign(
+          {
+            icon,
+            title: "i18n:edit",
+            width: "6.4rem",
+            height: "96%"
+          },
+          this.dialog,
+          {
+            model: { event: "change", prop: "data" },
+            result: data,
+            comType: "TiForm",
+            comConf: {
+              spacing: "comfy",
+              gridColumnHint: 1,
+              fields: this.FormFields
+            }
           }
-        }
-      ))
+        )
+      );
     },
     //------------------------------------------------
     async OnViewSourceCode() {
-      let json = JSON.stringify(this.value, null, '   ')
+      let json = JSON.stringify(this.value, null, "   ");
       let re = await Ti.App.Open({
         title: "i18n:edit",
         position: "top",
@@ -52797,47 +52811,47 @@ const __TI_MOD_EXPORT_VAR_NM = {
         comConf: {
           height: "100%"
         }
-      })
+      });
 
       // User Cancel
       if (_.isUndefined(re)) {
-        return
+        return;
       }
 
       // Parse JSON
-      let data = JSON.parse(_.trim(re) || "{}")
-      this.tryNotifyChange(data)
+      let data = JSON.parse(_.trim(re) || "{}");
+      this.tryNotifyChange(data);
     },
     //------------------------------------------------
     OnRemoveAction({ index }) {
-      let list = _.cloneDeep(this.value)
-      list = _.filter(list, (_, i) => i != index)
-      this.tryNotifyChange(list)
+      let list = _.cloneDeep(this.value);
+      list = _.filter(list, (_, i) => i != index);
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
     OnMovePrev({ index }) {
       // Guard
       if (index <= 0) {
-        return
+        return;
       }
-      let list = _.cloneDeep(this.value)
+      let list = _.cloneDeep(this.value);
       Ti.Util.moveInArray(list, index, index - 1);
-      this.tryNotifyChange(list)
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
     OnMoveNext({ index }) {
       // Guard
-      if (_.isArray(this.value) && index >= (this.value.length - 1)) {
-        return
+      if (_.isArray(this.value) && index >= this.value.length - 1) {
+        return;
       }
-      let list = _.cloneDeep(this.value)
+      let list = _.cloneDeep(this.value);
       Ti.Util.moveInArray(list, index, index + 1);
-      this.tryNotifyChange(list)
+      this.tryNotifyChange(list);
     },
     //------------------------------------------------
     tryNotifyChange(data) {
       if (!_.isEqual(data, this.value)) {
-        this.$notify("change", data)
+        this.$notify("change", data);
       }
     },
     //------------------------------------------------
@@ -52846,60 +52860,61 @@ const __TI_MOD_EXPORT_VAR_NM = {
       const explain_val = (val) => {
         // Nil
         if (Ti.Util.isNil(val)) {
-          return
+          return;
         }
         // String || Boolean
         if (_.isString(val) || _.isNumber(val)) {
-          return val
+          return val;
         }
         // Boolean
         if (_.isBoolean(val)) {
-          return ['i18n:no', 'i18n:yes'][val]
+          return ["i18n:no", "i18n:yes"][val];
         }
         // Array
         if (_.isArray(val)) {
-          let re = []
+          let re = [];
           for (let v of val) {
-            let v2 = explain_val(v)
-            re.push(v2)
+            let v2 = explain_val(v);
+            re.push(v2);
           }
-          return re.join(", ")
+          return re.join(", ");
         }
         // Object
         if (_.isPlainObject(val)) {
-          let re = []
+          let re = [];
           _.forEach(val, (v, k) => {
-            re.push(`${k}(${v || '<null>'})`)
-          })
-          return re.join("; ")
+            re.push(`${k}(${v || "<null>"})`);
+          });
+          return re.join("; ");
         }
         // Other just to String
-        return Ti.Types.toStr(val)
-      }
+        return Ti.Types.toStr(val);
+      };
       //....................................
       const try_join_text = (it, fields, name) => {
-        let val = _.get(it, name)
+        let val = _.get(it, name);
         if (Ti.Util.isNil(val)) {
-          return
+          return;
         }
         let text = explain_val(val);
         if (Ti.Util.isNil(text)) {
-          return
+          return;
         }
 
         fields.push({
-          name: `i18n:${_.kebabCase(name)}`, text
-        })
-      }
+          name: `i18n:${_.kebabCase(name)}`,
+          text
+        });
+      };
       //....................................
-      let list = []
+      let list = [];
       if (_.isArray(this.value)) {
-        let len = this.value.length
-        let lastI = len - 1
+        let len = this.value.length;
+        let lastI = len - 1;
         for (let i = 0; i < len; i++) {
-          let it = this.value[i]
-          let atFirst = 0 == i
-          let atLast = lastI == i
+          let it = this.value[i];
+          let atFirst = 0 == i;
+          let atLast = lastI == i;
           let li = {
             index: i,
             atFirst,
@@ -52913,20 +52928,20 @@ const __TI_MOD_EXPORT_VAR_NM = {
             typeText: `i18n:hmr-t-${it.type}`,
             fields: [],
             data: it
-          }
-          try_join_text(it, li.fields, "path")
-          try_join_text(it, li.fields, "query")
-          try_join_text(it, li.fields, "params")
-          try_join_text(it, li.fields, "targetId")
-          try_join_text(it, li.fields, "meta")
-          try_join_text(it, li.fields, "input")
-          try_join_text(it, li.fields, "skip")
-          try_join_text(it, li.fields, "limit")
-          list.push(li)
+          };
+          try_join_text(it, li.fields, "path");
+          try_join_text(it, li.fields, "query");
+          try_join_text(it, li.fields, "params");
+          try_join_text(it, li.fields, "targetId");
+          try_join_text(it, li.fields, "meta");
+          try_join_text(it, li.fields, "input");
+          try_join_text(it, li.fields, "skip");
+          try_join_text(it, li.fields, "limit");
+          list.push(li);
         }
       }
       //....................................
-      this.myDisplayList = list
+      this.myDisplayList = list;
     }
     //------------------------------------------------
   },
@@ -52936,10 +52951,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   ////////////////////////////////////////////////////
   mounted: function () {
-    this.evalDisplayList()
+    this.evalDisplayList();
   }
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -83737,11 +83752,15 @@ const _M = {
     },
     //------------------------------------------------
     ComConf() {
+      let placeholder = this.placeholder;
+      if (this.value) {
+        placeholder = _.concat(this.value).join(", ");
+      }
       let conf = _.assign(
         {
           readonly: this.readonly || this.isPicking || !this.canInput,
           focused: this.focused,
-          placeholder: this.value || this.placeholder
+          placeholder
         },
         this.input
       );
@@ -91451,16 +91470,18 @@ Ti.Preload("ti/com/ti/input/date/_com.json", {
 //========================================
 // JOIN <ti-input-daterange.html> ti/com/ti/input/daterange/ti-input-daterange.html
 //========================================
-Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox class="as-daterange"
+Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox
+  class="as-daterange"
   :class="topClass"
   :drop-width="dropWidth"
   :status="status"
-  @collapse="doCollapse">
+  @collapse="doCollapse"
+>
   <!--
     Box
   -->
   <template v-slot:box>
-    <TiInput 
+    <TiInput
       :readonly="!canInput"
       :hide-border="hideBorder"
       :placeholder="placeholder|i18n"
@@ -91472,7 +91493,8 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox cla
       :focus="isExtended"
       @change="OnInputChange"
       @input:focus="onInputFocused"
-      @suffix:icon="onClickStatusIcon"/>
+      @suffix:icon="onClickStatusIcon"
+    />
   </template>
   <!--
     Drop
@@ -91480,10 +91502,20 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox cla
   <template v-slot:drop>
     <div class="as-range-pairs">
       <div class="as-range-begin">
-        <TiInputDate @change="OnRangeBeginChange"/>
+        <h4>{{'i18n:dt-range-from' | i18n}}</h4>
+        <TiInputDate
+          @change="OnRangeBeginChange"
+          valueType="date"
+          :value="theDropRange[0]"
+        />
       </div>
       <div class="as-range-end">
-        <TiInputDate @change="OnRangeEndChange"/>
+        <h4>{{'i18n:dt-range-to' | i18n}}</h4>
+        <TiInputDate
+          @change="OnRangeEndChange"
+          valueType="date"
+          :value="theDropRange[1]"
+        />
       </div>
     </div>
     <ti-calendar
@@ -91493,7 +91525,8 @@ Ti.Preload("ti/com/ti/input/daterange/ti-input-daterange.html", `<TiComboBox cla
       :month-format="monthFormat"
       :begin-year="beginYear"
       :end-year="endYear"
-      @change="onDateRangeChanged"/>
+      @change="onDateRangeChanged"
+    />
   </template>
 </TiComboBox>`);
 //========================================

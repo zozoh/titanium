@@ -264,12 +264,17 @@ const _M = {
       this.doExtend();
     },
     //------------------------------------------------
-    OnRangeBeginChange(dBegin){
-
+    OnRangeBeginChange(dBegin) {
+      let rg = _.cloneDeep(this.theDropRange);
+      rg[0] = dBegin;
+      this.runtime = rg;
     },
     //------------------------------------------------
-    OnRangeEndChange(dEnd){
-      console.log(dEnd)
+    OnRangeEndChange(dEnd) {
+      let rg = _.cloneDeep(this.theDropRange);
+      rg[0] = rg[0] || dEnd;
+      rg[1] = dEnd;
+      this.runtime = rg;
     },
     //------------------------------------------------
     OnInputChange(val) {

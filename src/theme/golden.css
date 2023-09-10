@@ -2211,6 +2211,35 @@ i.im {
     overflow: auto;
     border-radius: 0.06rem; }
 
+.ti-combo-box.as-daterange {
+  color: red; }
+  .ti-combo-box.as-daterange > .as-drop > .as-range-pairs {
+    color: #888;
+    background-color: #F0F0F0;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    flex-wrap: nowrap;
+    border-bottom: 1px solid rgba(20, 20, 20, 0.1);
+    padding-bottom: 0.08rem; }
+    .ti-combo-box.as-daterange > .as-drop > .as-range-pairs > div {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      align-content: center;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
+      padding: 0.06rem;
+      width: 50%; }
+      .ti-combo-box.as-daterange > .as-drop > .as-range-pairs > div h4 {
+        text-align: center;
+        width: 100%;
+        flex: 0 0 auto;
+        font-size: 1em;
+        padding: 0.06rem;
+        margin: 0; }
+
 .ti-combo-filter {
   display: flex;
   justify-content: flex-start;
