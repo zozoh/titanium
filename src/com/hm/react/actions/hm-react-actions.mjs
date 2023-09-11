@@ -136,10 +136,12 @@ export default {
           },
           comType: "TiInputPair",
           comConf: {
-            hideBorder: true,
-            autoJsValue: true,
-            autoSelect: true,
-            suffixIconForEdit: true
+            valueComConf: {
+              hideBorder: true,
+              autoJsValue: true,
+              autoSelect: true,
+              suffixIconForEdit: true
+            }
           }
         },
         {
@@ -239,6 +241,7 @@ export default {
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
+      console.log("hahahah");
       return await Ti.App.Open(
         _.assign(
           {

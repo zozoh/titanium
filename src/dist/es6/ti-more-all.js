@@ -1,4 +1,4 @@
-// Pack At: 2023-09-11 01:49:48
+// Pack At: 2023-09-11 12:04:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -52670,10 +52670,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
           },
           comType: "TiInputPair",
           comConf: {
-            hideBorder: true,
-            autoJsValue: true,
-            autoSelect: true,
-            suffixIconForEdit: true
+            valueComConf: {
+              hideBorder: true,
+              autoJsValue: true,
+              autoSelect: true,
+              suffixIconForEdit: true
+            }
           }
         },
         {
@@ -52773,6 +52775,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //------------------------------------------------
     async OpenEditForm({ data, icon }) {
+      console.log("hahahah");
       return await Ti.App.Open(
         _.assign(
           {
