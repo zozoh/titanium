@@ -1,4 +1,4 @@
-// Pack At: 2023-09-13 00:37:12
+// Pack At: 2023-09-13 22:07:22
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -53326,6 +53326,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!this.isCanChangeCurrency) {
         return;
       }
+
+      // Get currency options
+      let optionData;
+      if (this.options) {
+        let $d = Ti.DictFactory.CreateDictBy(this.options);
+        optionData = await $d.getData();
+      }
+      // BuiltIn Options
+      else {
+        optionData = Ti.Bank.getCurrencyList();
+      }
+
       // Open the dialog
       let reo = await Ti.App.Open({
         title: "i18n:currency",
@@ -53346,7 +53358,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
           },
           list: {
             idBy: "value",
-            data: Ti.Bank.getCurrencyList(),
+            data: optionData,
             currentId: this.ValCurrency,
             cancelable: false,
             display: [

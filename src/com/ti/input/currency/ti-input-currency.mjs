@@ -158,6 +158,18 @@ export default {
       if (!this.isCanChangeCurrency) {
         return;
       }
+
+      // Get currency options
+      let optionData;
+      if (this.options) {
+        let $d = Ti.DictFactory.CreateDictBy(this.options);
+        optionData = await $d.getData();
+      }
+      // BuiltIn Options
+      else {
+        optionData = Ti.Bank.getCurrencyList();
+      }
+
       // Open the dialog
       let reo = await Ti.App.Open({
         title: "i18n:currency",
@@ -178,7 +190,7 @@ export default {
           },
           list: {
             idBy: "value",
-            data: Ti.Bank.getCurrencyList(),
+            data: optionData,
             currentId: this.ValCurrency,
             cancelable: false,
             display: [
