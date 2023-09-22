@@ -1,0 +1,9 @@
+.wn-th-creator {
+  @include color($color-body, r, c);
+  &.is-creating {
+    > .main-com {
+      background-color: map-get($color-body, r);
+      opacity: 0.4;
+    }
+  }
+}

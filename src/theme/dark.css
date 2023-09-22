@@ -368,6 +368,9 @@ i.im {
     .ti-box-relative .ti-box-mask.as-thin {
       color: #AAA;
       background-color: rgba(50, 50, 50, 0.4); }
+    .ti-box-relative .ti-box-mask.as-weak {
+      color: #AAA;
+      background-color: rgba(100, 100, 100, 0.4); }
 
 .ti-num {
   font-family: Arial, Helvetica, sans-serif;
@@ -14359,6 +14362,13 @@ article.ti-article.is-theme-wiki {
       text-align: center;
       padding: 1em;
       font-size: 0.1rem; }
+
+.wn-th-creator {
+  color: #E0E0E0;
+  background-color: #444; }
+  .wn-th-creator.is-creating > .main-com {
+    background-color: #E0E0E0;
+    opacity: 0.4; }
 
 .wn-thing-filter {
   display: flex;

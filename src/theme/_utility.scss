@@ -111,6 +111,9 @@
     &.as-thin {
       @include color($color-mask, r, thin);
     }
+    &.as-weak {
+      @include color($color-mask, r, weak);
+    }
   }
 }
 //...................................................

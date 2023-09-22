@@ -1,14 +1,15 @@
-<div class="wn-th-creator ti-box-relative">
+<div class="wn-th-creator ti-box-relative" :class="TopClass">
   <component
+    class="main-com"
     :is="formType"
-      v-bind="TheForm"
-      :data="TheData"
-      :on-init="OnFormInit"
-      @field:change="OnFormFieldChange"
-      @change="OnFormChange"
-      @submit="OnSubmit"/>
-  <div v-if="creating"
-    class="ti-box-mask as-thin ti-flex-center">
-    <ti-loading text="i18n:creating"/>
+    v-bind="TheForm"
+    :data="TheData"
+    :on-init="OnFormInit"
+    @field:change="OnFormFieldChange"
+    @change="OnFormChange"
+    @submit="OnSubmit"
+  />
+  <div v-if="creating" class="ti-box-mask as-weak ti-flex-center">
+    <ti-loading text="i18n:creating" />
   </div>
 </div>

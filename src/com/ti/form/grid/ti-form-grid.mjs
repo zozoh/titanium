@@ -403,6 +403,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFormSubmit() {
+      //console.log("OnFormSubmit")
       let data = this.getData();
       let formData = _.assign(_.cloneDeep(this.myData), data);
       let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
