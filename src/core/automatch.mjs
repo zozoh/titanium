@@ -445,11 +445,10 @@ function NilMatch(input) {
   //...............................
   re.explainText = function (
     payload = {
-      "nil`": "i18n:am-nil",
-      "nil`Of": "i18n:am-nilOf"
+      "nil": "i18n:am-nil",
+      "nilOf": "i18n:am-nilOf"
     }
   ) {
-    _.de;
     if (!input) {
       return Ti.I18n.textf(payload["nil"]);
     }
@@ -535,7 +534,7 @@ function TypeMatch(input) {
   //...............................
   re.explainText = function ({ equalsType = "i18n:am-equalsType" } = {}) {
     let s = Ti.I18n.text(equalsType);
-    return Ti.S.renderBy(s, { val: wildcard });
+    return Ti.S.renderBy(s, { val: expectType });
   };
   //...............................
   return re;
