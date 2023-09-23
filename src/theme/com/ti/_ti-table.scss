@@ -333,6 +333,9 @@
         }
         @mixin row-status-color-r($color: null) {
           @include color($color, r, c);
+          td a {
+            color: inherit; 
+          }
           &.is-checked {
             font-weight: bold;
             background-color: map-get($color-page, r);

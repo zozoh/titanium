@@ -8042,6 +8042,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-primary-r {
         color: #d0e7fc;
         background-color: #2196f3; }
+        .ti-table > table > tbody > tr.is-primary-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-primary-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8056,6 +8058,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-secondary-r {
         color: #FFF;
         background-color: #ff4081; }
+        .ti-table > table > tbody > tr.is-secondary-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-secondary-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8070,6 +8074,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-success-r {
         color: #CFC;
         background-color: #4caf50; }
+        .ti-table > table > tbody > tr.is-success-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-success-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8084,6 +8090,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-warn-r {
         color: #FFC;
         background-color: #FF8800; }
+        .ti-table > table > tbody > tr.is-warn-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-warn-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8098,6 +8106,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-info-r {
         color: #FFF;
         background-color: #2196f3; }
+        .ti-table > table > tbody > tr.is-info-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-info-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8112,6 +8122,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-error-r {
         color: #FCC;
         background-color: #f44336; }
+        .ti-table > table > tbody > tr.is-error-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-error-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8126,6 +8138,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-track-r {
         color: #FFF;
         background-color: #888; }
+        .ti-table > table > tbody > tr.is-track-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-track-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8140,6 +8154,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-disable-r {
         color: #CCC;
         background-color: #999; }
+        .ti-table > table > tbody > tr.is-disable-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-disable-r.is-checked {
           font-weight: bold;
           background-color: #000;
@@ -8179,6 +8195,8 @@ div.ti-input-tags {
       .ti-table > table > tbody > tr.is-boldtip-r {
         color: #000;
         background-color: #EECC00; }
+        .ti-table > table > tbody > tr.is-boldtip-r td a {
+          color: inherit; }
         .ti-table > table > tbody > tr.is-boldtip-r.is-checked {
           font-weight: bold;
           background-color: #000;
