@@ -1717,7 +1717,7 @@ i.im {
     .ti-bullet-list .as-group-title > .as-grp-text {
       font-weight: bold;
       line-height: 2em;
-      padding: .2em; }
+      padding: 0.2em; }
     .ti-bullet-list .as-group-title > .as-grp-checker {
       display: flex;
       justify-content: center;
@@ -1743,7 +1743,7 @@ i.im {
       padding: 1px; }
       .ti-bullet-list .as-bullet-item.as-label > .as-text {
         line-height: 2em;
-        padding: .2em 1em; }
+        padding: 0.2em 1em; }
       .ti-bullet-list .as-bullet-item.as-label > .as-checker {
         display: flex;
         justify-content: center;
@@ -1758,16 +1758,21 @@ i.im {
           color: #FFF;
           background-color: #F48; }
     .ti-bullet-list .as-bullet-item.as-option {
-      cursor: pointer;
       line-height: 1.8em;
       padding: 0.3em 0.6em;
       opacity: 0.8; }
-      .ti-bullet-list .as-bullet-item.as-option:hover {
+      .ti-bullet-list .as-bullet-item.as-option[clickable] {
+        cursor: pointer; }
+      .ti-bullet-list .as-bullet-item.as-option[clickable]:hover {
         color: #DA2;
         background-color: rgba(100, 100, 100, 0.8);
         opacity: 1; }
-        .ti-bullet-list .as-bullet-item.as-option:hover .ti-icon.as-bullet i {
+        .ti-bullet-list .as-bullet-item.as-option[clickable]:hover .ti-icon.as-bullet i {
           transform: scale(1.2); }
+      .ti-bullet-list .as-bullet-item.as-option[readonly] {
+        color: rgba(160, 160, 160, 0.6);
+        opacity: 0.6;
+        cursor: default; }
       .ti-bullet-list .as-bullet-item.as-option.is-checked {
         font-weight: bold;
         opacity: 1; }

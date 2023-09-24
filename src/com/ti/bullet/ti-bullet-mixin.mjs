@@ -6,7 +6,7 @@ const _M = {
     myDict: undefined,
     myOptionsData: [],
     myOptionsMap: {},
-    loading: false,
+    loading: false
   }),
   ////////////////////////////////////////////////////
   props: {
@@ -16,15 +16,15 @@ const _M = {
     "value": undefined,
     "options": {
       type: [String, Array, Function, Ti.Dict],
-      default: () => [],
+      default: () => []
     },
     "optionMapping": {
       type: [Function, Object],
-      default: undefined,
+      default: undefined
     },
     "optionFilter": {
       type: [Function, Object, Array],
-      default: undefined,
+      default: undefined
     },
     // Item ignore by the AutoMatch
     "ignoreBy": undefined,
@@ -37,83 +37,83 @@ const _M = {
      */
     "groupBy": {
       type: [Object, Function, Boolean],
-      default: undefined,
+      default: undefined
     },
     "valueBy": {
       type: [String, Function],
-      default: "value|id",
+      default: "value|id"
     },
     "textBy": {
       type: [String, Function],
-      default: "text|name|title",
+      default: "text|name|title"
     },
     "iconeBy": {
       type: [String, Function],
-      default: "icon",
+      default: "icon"
     },
     //-----------------------------------
     // Behaviors
     //-----------------------------------
     // Default group title
     "title": {
-      type: String,
+      type: String
     },
     "isBlank": {
       type: Boolean,
-      default: false,
+      default: false
     },
     "otherEnabled": {
       type: Boolean,
-      default: false,
+      default: false
     },
     "otherText": {
       type: String,
-      default: "i18n:others",
+      default: "i18n:others"
     },
     "otherPlaceholder": {
       type: String,
-      default: "i18n:no-set",
+      default: "i18n:no-set"
     },
     "otherInputWidth": {
-      type: [String, Number],
+      type: [String, Number]
     },
     "otherDefaultValue": {
       type: String,
-      default: "",
+      default: ""
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "groupStyle": {
-      type: Object,
+      type: Object
     },
     "itemsStyle": {
-      type: Object,
+      type: Object
     },
     "bulletIconOn": {
       type: String,
-      default: "fas-check-circle",
+      default: "fas-check-circle"
     },
     "bulletIconOff": {
       type: String,
-      default: "far-circle",
+      default: "far-circle"
     },
     "autoI18n": {
       type: Boolean,
-      default: true,
+      default: true
     },
     "defualItemIcon": {
       type: [Object, String],
-      default: undefined,
+      default: undefined
     },
     "blankAs": {
-      type: Object,
+      type: Object
     },
     "gridColumnHint": {
       type: [Number, String, Array],
       // [[4,1200],[3,900],[2,600],1]
-      default: 1,
-    },
+      default: 1
+    }
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -121,7 +121,7 @@ const _M = {
     TopClass() {
       return this.getTopClass(
         {
-          "as-grid": this.GridColumnCount > 1,
+          "as-grid": this.GridColumnCount > 1
         },
         this.myTypeName
       );
@@ -134,7 +134,7 @@ const _M = {
         {
           className: "nil-data as-big-mask",
           icon: "far-list-alt",
-          text: "empty-data",
+          text: "empty-data"
         },
         this.blankAs
       );
@@ -149,7 +149,7 @@ const _M = {
       let style = _.assign({}, this.itemsStyle);
       if (this.GridColumnCount > 1) {
         _.assign(style, {
-          "grid-template-columns": _.repeat("1fr ", this.GridColumnCount),
+          "grid-template-columns": _.repeat("1fr ", this.GridColumnCount)
         });
       }
       return style;
@@ -255,7 +255,7 @@ const _M = {
             index: i,
             title,
             checkMode: this.getItemsCheckMode(items),
-            items,
+            items
           });
         }
         return list;
@@ -270,8 +270,8 @@ const _M = {
             index: 0,
             title: this.autoI18n ? Ti.I18n.text(this.title) : this.title,
             checkMode: this.getItemsCheckMode(items),
-            items,
-          },
+            items
+          }
         ];
       }
     },
@@ -301,7 +301,7 @@ const _M = {
     //------------------------------------------------
     OtherClassName() {
       return {
-        "is-checked": this.isOtherValue,
+        "is-checked": this.isOtherValue
       };
     },
     //------------------------------------------------
@@ -314,13 +314,13 @@ const _M = {
     //------------------------------------------------
     OtherInputStyle() {
       return {
-        width: Ti.Css.toSize(this.otherInputWidth),
+        width: Ti.Css.toSize(this.otherInputWidth)
       };
     },
     //--------------------------------------------------
     GridColumnCount() {
       return this.evalGridColumnCount(this.gridColumnHint);
-    },
+    }
     //------------------------------------------------
   },
 
@@ -346,6 +346,9 @@ const _M = {
     },
     //------------------------------------------------
     OnClickItem(it = {}) {
+      if (it.readonly) {
+        return;
+      }
       if ("Option" == it.type) {
         this.OnClickOptionItem(it);
       }
@@ -371,11 +374,11 @@ const _M = {
           if (!m || m == screen || width >= m) {
             return v;
           }
-        },
+        }
       });
     },
     //------------------------------------------------
-    evalItems(items = [], groupIndex=0) {
+    evalItems(items = [], groupIndex = 0) {
       let itMap = {};
       let list = [];
       _.forEach(items, (li, index) => {
@@ -387,7 +390,7 @@ const _M = {
             groupIndex,
             index,
             text: li,
-            value: li,
+            value: li
           };
         }
         // Object
@@ -397,13 +400,13 @@ const _M = {
             index,
             icon: this.getItemIcon(li),
             text: this.getItemText(li),
-            value: this.getItemValue(li),
+            value: this.getItemValue(li)
           };
         }
         // Mapping
         it = this.FnOptionMapping(it);
         _.defaults(it, {
-          icon: this.defualItemIcon,
+          icon: this.defualItemIcon
         });
 
         // Join value mapping
@@ -501,7 +504,7 @@ const _M = {
       this.$nextTick(() => {
         this.loading = false;
       });
-    },
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -512,15 +515,15 @@ const _M = {
           await this.reloadMyOptionData();
         }
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   //////////////////////////////////////////////////////
   mounted: async function () {
     Ti.Viewport.watch(this, {
       resize: () => {
         this.OnResize();
-      },
+      }
     });
     this.$nextTick(() => {
       this.OnResize();
@@ -529,7 +532,7 @@ const _M = {
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
     Ti.Viewport.unwatch(this);
-  },
+  }
   ////////////////////////////////////////////////////
 };
 export default _M;

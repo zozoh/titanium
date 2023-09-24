@@ -30,7 +30,7 @@
     > .as-grp-text {
       font-weight: bold;
       line-height: 2em;
-      padding: .2em;
+      padding: 0.2em;
     }
     > .as-grp-checker {
       @include flex-center;
@@ -52,7 +52,7 @@
       padding: 1px;
       > .as-text {
         line-height: 2em;
-        padding: .2em 1em;
+        padding: 0.2em 1em;
       }
       > .as-checker {
         @include flex-center;
@@ -67,17 +67,25 @@
     }
     //-----------------------------------
     &.as-option {
-      cursor: pointer;
       line-height: 1.8em;
       padding: 0.3em 0.6em;
       opacity: 0.8;
       //---------------------------------
-      &:hover {
+      &[clickable] {
+        cursor: pointer;
+      }
+      &[clickable]:hover {
         @include color($color-weaktip, r, c);
         opacity: 1;
         .ti-icon.as-bullet i {
           transform: scale(1.2);
         }
+      }
+      //---------------------------------
+      &[readonly] {
+        @include color($color-disable, c);
+        opacity: 0.6;
+        cursor: default;
       }
       //---------------------------------
       &.is-checked {

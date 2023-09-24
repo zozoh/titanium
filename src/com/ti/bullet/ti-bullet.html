@@ -37,6 +37,8 @@
           v-for="it of grp.items"
           class="as-bullet-item"
           :class="it.className"
+          :readonly="it.readonly"
+          :clickable="!it.readonly"
           @click.left="OnClickItem(it)"
         >
           <!--

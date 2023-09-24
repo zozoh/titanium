@@ -1,4 +1,4 @@
-// Pack At: 2023-09-18 00:30:07
+// Pack At: 2023-09-25 00:45:25
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -24900,6 +24900,7 @@ const _M = {
     },
     //--------------------------------------------------
     OnFormSubmit() {
+      //console.log("OnFormSubmit")
       let data = this.getData();
       let formData = _.assign(_.cloneDeep(this.myData), data);
       let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
@@ -48969,27 +48970,32 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////
   computed: {
     //--------------------------------------
+    TopClass() {
+      return {
+        "is-creating": this.creating
+      };
+    },
+    //--------------------------------------
     TheData() {
-      return this.myData || this.data
+      return this.myData || this.data;
     },
     //--------------------------------------
     TheForm() {
-      return _.assign({
-        className: "ti-fill-parent",
-        onlyFields: false,
-        adjustDelay: 1,
-        fields: this.fields,
-        fixed: this.fixed,
-        actionButtonSetup: [
-          {
+      return _.assign(
+        {
+          className: "ti-fill-parent",
+          onlyFields: false,
+          adjustDelay: 1,
+          fields: this.fields,
+          fixed: this.fixed,
+          canSubmit: true,
+          submitButton: {
             className: "btn-r8 is-big",
-            text: "i18n:create-now",
-            handler: () => {
-              this.OnCreate()
-            }
+            text: "i18n:create-now"
           }
-        ]
-      }, this.form)
+        },
+        this.form
+      );
     }
     //--------------------------------------
   },
@@ -48997,48 +49003,48 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //--------------------------------------
     OnFormInit($form) {
-      this.$form = $form
+      this.$form = $form;
     },
     //--------------------------------------
     OnFormFieldChange({ name, value } = {}) {
       //console.log("OnFormFieldChange", pair)
-      let data = Ti.Types.toObjByPair({ name, value })
-      this.myData = _.assign({}, this.myData, data)
+      let data = Ti.Types.toObjByPair({ name, value });
+      this.myData = _.assign({}, this.myData, data);
     },
     //--------------------------------------
     OnFormChange(data) {
       //console.log("OnFormChange", data)
-      this.myData = data
+      this.myData = data;
     },
     //--------------------------------------
     // Can be use in WnThAdaptor or the old [WnThingManager]
     async OnCreate() {
-      this.creating = true
+      this.creating = true;
       let reo;
-      let $ThP = this.tiParentCom("WnThAdaptor")
+      let $ThP = this.tiParentCom("WnThAdaptor");
       if (!$ThP) {
-        $ThP = this.tiParentCom("WnThingManager")
+        $ThP = this.tiParentCom("WnThingManager");
       }
-      reo = await $ThP.dispatch("create", this.myData)
-      this.creating = false
+      reo = await $ThP.dispatch("create", this.myData);
+      this.creating = false;
       if (reo && !(reo instanceof Error)) {
-        this.$notify("block:hide", "creator")
+        this.$notify("block:hide", "creator");
       }
     },
     //--------------------------------------
     async OnSubmit() {
       this.$nextTick(() => {
-        this.OnCreate()
-      })
+        this.OnCreate();
+      });
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   mounted() {
-    this.myData = _.cloneDeep(this.data)
+    this.myData = _.cloneDeep(this.data);
   }
   ///////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -69622,7 +69628,7 @@ const _M = {
     myDict: undefined,
     myOptionsData: [],
     myOptionsMap: {},
-    loading: false,
+    loading: false
   }),
   ////////////////////////////////////////////////////
   props: {
@@ -69632,15 +69638,15 @@ const _M = {
     "value": undefined,
     "options": {
       type: [String, Array, Function, Ti.Dict],
-      default: () => [],
+      default: () => []
     },
     "optionMapping": {
       type: [Function, Object],
-      default: undefined,
+      default: undefined
     },
     "optionFilter": {
       type: [Function, Object, Array],
-      default: undefined,
+      default: undefined
     },
     // Item ignore by the AutoMatch
     "ignoreBy": undefined,
@@ -69653,83 +69659,83 @@ const _M = {
      */
     "groupBy": {
       type: [Object, Function, Boolean],
-      default: undefined,
+      default: undefined
     },
     "valueBy": {
       type: [String, Function],
-      default: "value|id",
+      default: "value|id"
     },
     "textBy": {
       type: [String, Function],
-      default: "text|name|title",
+      default: "text|name|title"
     },
     "iconeBy": {
       type: [String, Function],
-      default: "icon",
+      default: "icon"
     },
     //-----------------------------------
     // Behaviors
     //-----------------------------------
     // Default group title
     "title": {
-      type: String,
+      type: String
     },
     "isBlank": {
       type: Boolean,
-      default: false,
+      default: false
     },
     "otherEnabled": {
       type: Boolean,
-      default: false,
+      default: false
     },
     "otherText": {
       type: String,
-      default: "i18n:others",
+      default: "i18n:others"
     },
     "otherPlaceholder": {
       type: String,
-      default: "i18n:no-set",
+      default: "i18n:no-set"
     },
     "otherInputWidth": {
-      type: [String, Number],
+      type: [String, Number]
     },
     "otherDefaultValue": {
       type: String,
-      default: "",
+      default: ""
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
     "groupStyle": {
-      type: Object,
+      type: Object
     },
     "itemsStyle": {
-      type: Object,
+      type: Object
     },
     "bulletIconOn": {
       type: String,
-      default: "fas-check-circle",
+      default: "fas-check-circle"
     },
     "bulletIconOff": {
       type: String,
-      default: "far-circle",
+      default: "far-circle"
     },
     "autoI18n": {
       type: Boolean,
-      default: true,
+      default: true
     },
     "defualItemIcon": {
       type: [Object, String],
-      default: undefined,
+      default: undefined
     },
     "blankAs": {
-      type: Object,
+      type: Object
     },
     "gridColumnHint": {
       type: [Number, String, Array],
       // [[4,1200],[3,900],[2,600],1]
-      default: 1,
-    },
+      default: 1
+    }
   },
   ////////////////////////////////////////////////////
   computed: {
@@ -69737,7 +69743,7 @@ const _M = {
     TopClass() {
       return this.getTopClass(
         {
-          "as-grid": this.GridColumnCount > 1,
+          "as-grid": this.GridColumnCount > 1
         },
         this.myTypeName
       );
@@ -69750,7 +69756,7 @@ const _M = {
         {
           className: "nil-data as-big-mask",
           icon: "far-list-alt",
-          text: "empty-data",
+          text: "empty-data"
         },
         this.blankAs
       );
@@ -69765,7 +69771,7 @@ const _M = {
       let style = _.assign({}, this.itemsStyle);
       if (this.GridColumnCount > 1) {
         _.assign(style, {
-          "grid-template-columns": _.repeat("1fr ", this.GridColumnCount),
+          "grid-template-columns": _.repeat("1fr ", this.GridColumnCount)
         });
       }
       return style;
@@ -69871,7 +69877,7 @@ const _M = {
             index: i,
             title,
             checkMode: this.getItemsCheckMode(items),
-            items,
+            items
           });
         }
         return list;
@@ -69886,8 +69892,8 @@ const _M = {
             index: 0,
             title: this.autoI18n ? Ti.I18n.text(this.title) : this.title,
             checkMode: this.getItemsCheckMode(items),
-            items,
-          },
+            items
+          }
         ];
       }
     },
@@ -69917,7 +69923,7 @@ const _M = {
     //------------------------------------------------
     OtherClassName() {
       return {
-        "is-checked": this.isOtherValue,
+        "is-checked": this.isOtherValue
       };
     },
     //------------------------------------------------
@@ -69930,13 +69936,13 @@ const _M = {
     //------------------------------------------------
     OtherInputStyle() {
       return {
-        width: Ti.Css.toSize(this.otherInputWidth),
+        width: Ti.Css.toSize(this.otherInputWidth)
       };
     },
     //--------------------------------------------------
     GridColumnCount() {
       return this.evalGridColumnCount(this.gridColumnHint);
-    },
+    }
     //------------------------------------------------
   },
 
@@ -69962,6 +69968,9 @@ const _M = {
     },
     //------------------------------------------------
     OnClickItem(it = {}) {
+      if (it.readonly) {
+        return;
+      }
       if ("Option" == it.type) {
         this.OnClickOptionItem(it);
       }
@@ -69987,11 +69996,11 @@ const _M = {
           if (!m || m == screen || width >= m) {
             return v;
           }
-        },
+        }
       });
     },
     //------------------------------------------------
-    evalItems(items = [], groupIndex=0) {
+    evalItems(items = [], groupIndex = 0) {
       let itMap = {};
       let list = [];
       _.forEach(items, (li, index) => {
@@ -70003,7 +70012,7 @@ const _M = {
             groupIndex,
             index,
             text: li,
-            value: li,
+            value: li
           };
         }
         // Object
@@ -70013,13 +70022,13 @@ const _M = {
             index,
             icon: this.getItemIcon(li),
             text: this.getItemText(li),
-            value: this.getItemValue(li),
+            value: this.getItemValue(li)
           };
         }
         // Mapping
         it = this.FnOptionMapping(it);
         _.defaults(it, {
-          icon: this.defualItemIcon,
+          icon: this.defualItemIcon
         });
 
         // Join value mapping
@@ -70117,7 +70126,7 @@ const _M = {
       this.$nextTick(() => {
         this.loading = false;
       });
-    },
+    }
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
@@ -70128,15 +70137,15 @@ const _M = {
           await this.reloadMyOptionData();
         }
       },
-      immediate: true,
-    },
+      immediate: true
+    }
   },
   //////////////////////////////////////////////////////
   mounted: async function () {
     Ti.Viewport.watch(this, {
       resize: () => {
         this.OnResize();
-      },
+      }
     });
     this.$nextTick(() => {
       this.OnResize();
@@ -70145,7 +70154,7 @@ const _M = {
   ///////////////////////////////////////////////////
   beforeDestroy: function () {
     Ti.Viewport.unwatch(this);
-  },
+  }
   ////////////////////////////////////////////////////
 };
 return _M;;
@@ -88673,6 +88682,8 @@ Ti.Preload("ti/com/ti/bullet/ti-bullet.html", `<div class="ti-bullet-list" :clas
           v-for="it of grp.items"
           class="as-bullet-item"
           :class="it.className"
+          :readonly="it.readonly"
+          :clickable="!it.readonly"
           @click.left="OnClickItem(it)"
         >
           <!--
@@ -101344,18 +101355,19 @@ Ti.Preload("ti/com/wn/th/adaptor/_com.json", {
 //========================================
 // JOIN <wn-th-creator.html> ti/com/wn/th/creator/wn-th-creator.html
 //========================================
-Ti.Preload("ti/com/wn/th/creator/wn-th-creator.html", `<div class="wn-th-creator ti-box-relative">
+Ti.Preload("ti/com/wn/th/creator/wn-th-creator.html", `<div class="wn-th-creator ti-box-relative" :class="TopClass">
   <component
+    class="main-com"
     :is="formType"
-      v-bind="TheForm"
-      :data="TheData"
-      :on-init="OnFormInit"
-      @field:change="OnFormFieldChange"
-      @change="OnFormChange"
-      @submit="OnSubmit"/>
-  <div v-if="creating"
-    class="ti-box-mask as-thin ti-flex-center">
-    <ti-loading text="i18n:creating"/>
+    v-bind="TheForm"
+    :data="TheData"
+    :on-init="OnFormInit"
+    @field:change="OnFormFieldChange"
+    @change="OnFormChange"
+    @submit="OnSubmit"
+  />
+  <div v-if="creating" class="ti-box-mask as-weak ti-flex-center">
+    <ti-loading text="i18n:creating" />
   </div>
 </div>`);
 //========================================

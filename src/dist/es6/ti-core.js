@@ -1,4 +1,4 @@
-// Pack At: 2023-09-18 00:30:07
+// Pack At: 2023-09-25 00:45:25
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -9237,11 +9237,10 @@ const { AutoMatch } = (function(){
     //...............................
     re.explainText = function (
       payload = {
-        "nil`": "i18n:am-nil",
-        "nil`Of": "i18n:am-nilOf"
+        "nil": "i18n:am-nil",
+        "nilOf": "i18n:am-nilOf"
       }
     ) {
-      _.de;
       if (!input) {
         return Ti.I18n.textf(payload["nil"]);
       }
@@ -9327,7 +9326,7 @@ const { AutoMatch } = (function(){
     //...............................
     re.explainText = function ({ equalsType = "i18n:am-equalsType" } = {}) {
       let s = Ti.I18n.text(equalsType);
-      return Ti.S.renderBy(s, { val: wildcard });
+      return Ti.S.renderBy(s, { val: expectType });
     };
     //...............................
     return re;
@@ -20551,7 +20550,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.94",
+  "version": "1.95",
   "dev": false,
   "appName": null,
   "session": {},
