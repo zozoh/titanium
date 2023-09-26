@@ -36,6 +36,10 @@ const _M = {
       */
       })
     },
+    "validQuery": {
+      type: [Object, Array, Function, Boolean],
+      default: true
+    },
     // Auto append the extra-meta after file been uploaded
     "fileMeta": {
       type: Object
@@ -145,6 +149,10 @@ const _M = {
     ImageFilter() {
       if (!this.filter) return [];
       return [].concat(this.filter);
+    },
+    //--------------------------------------
+    isQueryValid() {
+      return Ti.AutoMatch.parse(this.validQuery);
     },
     //--------------------------------------
     isQueryMode() {
@@ -531,6 +539,10 @@ const _M = {
     },
     //--------------------------------------
     async reloadByQuery() {
+      if (!this.isQueryValid(this.query)) {
+        //console.log("reloadByQuery ! Invalid - Skip", this.query);
+        return;
+      }
       //console.log("reloadByQuery", this.query);
       let {
         path = this.target,
