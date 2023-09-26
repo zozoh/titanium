@@ -1,8 +1,10 @@
 <TiUploadMultiFiles
   :readonly="readonly"
+  :reloadable="isQueryMode"
   :items="FileItems"
   :sortable="!isQueryMode &&sortable"
   :removable="removable"
+  :cleanable="!isQueryMode"
   :progress="myUploadProgress"
   :showItemText="showItemText"
   :limit="limit"
@@ -15,4 +17,5 @@
   @open="OnOpen"
   @download="OnDownload"
   @clean="OnClean"
+  @reload="reload"
 />

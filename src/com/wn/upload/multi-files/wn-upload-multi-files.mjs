@@ -593,6 +593,11 @@ const _M = {
   },
   //////////////////////////////////////////
   watch: {
+    "query": function (newVal, oldVal) {
+      if (!_.isEqual(newVal, oldVal)) {
+        this.reload();
+      }
+    },
     "value": function () {
       this.reload();
     }

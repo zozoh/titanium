@@ -11,7 +11,7 @@ const _M = {
     //-------------------------------------
     /**
      * Each item as :
-     * 
+     *
      * ```js
      * {
      *    id: "xxx",              // Unique key
@@ -28,7 +28,7 @@ const _M = {
     },
     /**
      * Show the process `0.0-1.0` during the uploading
-     * 
+     *
      * ```js
      * {
      *    itemId: 0,              // `0.0-1.0` during the uploading
@@ -63,6 +63,14 @@ const _M = {
       type: Boolean,
       default: false
     },
+    "reloadable": {
+      type: Boolean,
+      default: false
+    },
+    "cleanable": {
+      type: Boolean,
+      default: true
+    },
     //-----------------------------------
     // Aspect
     //-----------------------------------
@@ -72,7 +80,7 @@ const _M = {
     },
     "blankAs": {
       type: Object,
-      default:()=>({
+      default: () => ({
         className: "as-small-tip align-left",
         icon: "zmdi-attachment-alt",
         text: "i18n:empty-data"
@@ -102,69 +110,76 @@ const _M = {
         "no-dragging": !this.dragging,
         "is-show-text": this.showItemText,
         "no-show-text": !this.showItemText
-      })
+      });
     },
     //--------------------------------------
     ItemStyle() {
       return Ti.Css.toStyle({
         width: this.itemWidth,
         height: this.itemHeight
-      })
+      });
     },
     //--------------------------------------
     ItemPreviewStyle() {
-      return Ti.Css.toStyle(this.previewStyle)
+      return Ti.Css.toStyle(this.previewStyle);
     },
     //--------------------------------------
     PreviewItems() {
-      let list = []
+      let list = [];
       _.forEach(this.items, (it, index) => {
-        let { id, src, icon, file, value, link, text } = it
+        let { id, src, icon, file, value, link, text } = it;
         let type = value ? "obj" : "local";
         let thumb;
         // Show local file
         if (file) {
-          thumb = { type: "localFile", value: file }
+          thumb = { type: "localFile", value: file };
         }
         // Show icon
         else if (icon) {
-          thumb = icon
+          thumb = icon;
         }
         // Show image
         else {
-          thumb = { type: "image", value: src }
+          thumb = { type: "image", value: src };
         }
         // Get progress
-        let progress = _.get(this.progress, id)
+        let progress = _.get(this.progress, id);
         // Join item
         list.push({
           index,
-          id, src, file, value, link, text,
-          type, thumb, progress,
+          id,
+          src,
+          file,
+          value,
+          link,
+          text,
+          type,
+          thumb,
+          progress,
           className: `is-${type}`
-        })
-      })
-      return list
+        });
+      });
+      return list;
     },
     //--------------------------------------
     Values() {
-      let list = []
+      let list = [];
       _.forEach(this.items, ({ value }) => {
-        list.push(value)
-      })
-      return list
+        list.push(value);
+      });
+      return list;
     },
     //--------------------------------------
     hasItems() {
-      return !_.isEmpty(this.items)
+      return !_.isEmpty(this.items);
     },
     //--------------------------------------
     isShowItemRemoveBtn() {
-      return this.removable && !this.readonly
+      return this.removable && !this.readonly;
     },
     //--------------------------------------
     isShowAddBtn() {
-      return !this.readonly && this.AvaCapCount != 0
+      return !this.readonly && this.AvaCapCount != 0;
     },
     //--------------------------------------
     AvaCapCount() {
@@ -172,15 +187,19 @@ const _M = {
         return 0;
       }
       if (this.limit > 0) {
-        return this.limit - this.Values.length
+        return this.limit - this.Values.length;
       }
-      return -1
+      return -1;
+    },
+    //--------------------------------------
+    isShowDelete() {
+      return (
+        this.cleanable && this.removable && !this.readonly && this.hasItems
+      );
     },
     //--------------------------------------
     isShowActions() {
-      return this.removable
-             && !this.readonly
-             && this.hasItems
+      return this.reloadable || this.isShowDelete;
     }
     //--------------------------------------
   },
@@ -188,7 +207,7 @@ const _M = {
   methods: {
     //--------------------------------------
     async OnClickAdd() {
-      this.$refs.file.click()
+      this.$refs.file.click();
     },
     //--------------------------------------
     async OnDropFiles(files) {
@@ -196,61 +215,65 @@ const _M = {
         let fs;
         // Do Filter
         if (_.isFunction(this.fileFilter)) {
-          fs = []
+          fs = [];
           for (let f of files) {
-            let re = this.fileFilter(f)
+            let re = this.fileFilter(f);
             if (re.ok) {
-              fs.push(f)
+              fs.push(f);
             }
             // Show Error
             else {
-              return await Ti.Alert(re.msg, { type: "warn" })
+              return await Ti.Alert(re.msg, { type: "warn" });
             }
           }
         } else {
-          fs = files
+          fs = files;
         }
 
         // Guard
         if (_.isEmpty(fs)) {
-          return
+          return;
         }
 
         // Auto match the limit
         if (this.AvaCapCount > 0 && fs.length > this.AvaCapCount) {
-          fs = _.slice(fs, 0, this.AvaCapCount)
+          fs = _.slice(fs, 0, this.AvaCapCount);
         }
-        this.$notify("upload", fs)
+        this.$notify("upload", fs);
       }
     },
     //--------------------------------------
     async OnSelectLocalFilesToUpload(evt) {
-      await this.OnDropFiles(evt.target.files)
-      this.$refs.file.value = ""
+      await this.OnDropFiles(evt.target.files);
+      this.$refs.file.value = "";
     },
     //--------------------------------------
     OnRemoveItem(it) {
-      this.$notify("remove", it)
+      this.$notify("remove", it);
     },
     //--------------------------------------
     OnOpenItem(it) {
-      this.$notify("open", it)
+      this.$notify("open", it);
     },
     //--------------------------------------
     OnDownloadItem(it) {
-      this.$notify("download", it)
+      this.$notify("download", it);
     },
     //--------------------------------------
     OnClean() {
-      this.$notify("clean")
+      this.$notify("clean");
+    },
+    //--------------------------------------
+    OnReload() {
+      this.$notify("reload");
     },
     //--------------------------------------
     switchItem(fromIndex, toIndex) {
       if (fromIndex != toIndex) {
         //console.log("switch item", { fromIndex, toIndex })
-        let values = _.map(this.PreviewItems, it => it.value)
-        Ti.Util.moveInArray(values, fromIndex, toIndex)
-        this.$notify("change", values)
+        let values = _.map(this.PreviewItems, (it) => it.value);
+        Ti.Util.moveInArray(values, fromIndex, toIndex);
+        this.$notify("change", values);
       }
     },
     //--------------------------------------
@@ -260,17 +283,17 @@ const _M = {
           animation: 300,
           filter: ".as-new, .as-local",
           onStart: () => {
-            this.$refs.itemsCon.turnOffTiDropFile = true
-            this.dragging = true
+            this.$refs.itemsCon.turnOffTiDropFile = true;
+            this.dragging = true;
           },
           onEnd: ({ oldIndex, newIndex }) => {
-            this.$refs.itemsCon.turnOffTiDropFile = false
-            this.switchItem(oldIndex, newIndex)
+            this.$refs.itemsCon.turnOffTiDropFile = false;
+            this.switchItem(oldIndex, newIndex);
             _.delay(() => {
-              this.dragging = false
-            }, 100)
+              this.dragging = false;
+            }, 100);
           }
-        })
+        });
       }
     }
     //--------------------------------------
@@ -279,14 +302,14 @@ const _M = {
   watch: {
     "isShowAddBtn": function (newVal) {
       if (this.$refs.itemsCon) {
-        this.$refs.itemsCon.turnOffTiDropFile = !newVal
+        this.$refs.itemsCon.turnOffTiDropFile = !newVal;
       }
     }
   },
   //////////////////////////////////////////
   mounted: function () {
-    this.initSortable()
+    this.initSortable();
   }
   //////////////////////////////////////////
-}
+};
 export default _M;

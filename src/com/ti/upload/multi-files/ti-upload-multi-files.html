@@ -72,8 +72,13 @@
   <div
     v-if="isShowActions"
       class="as-actions">
+      <!--Reload-->
+      <div v-if="reloadable" class="action-item" @click.left="OnReload">
+        <i class="zmdi zmdi-refresh"></i>
+        <span>{{'i18n:refresh'|i18n}}</span>
+      </div>
       <!--Clean-->
-      <div class="action-item" @click.left="OnClean">
+      <div v-if="isShowDelete" class="action-item" @click.left="OnClean">
         <i class="fas fa-trash-alt"></i>
         <span>{{'i18n:clean'|i18n}}</span>
       </div>
