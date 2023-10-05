@@ -42,6 +42,9 @@ const _M = {
     },
     //--------------------------------------------------
     isBatchMode() {
+      if (this.batchMode) {
+        return true;
+      }
       return _.isArray(this.batchHint) && this.batchHint.length > 1;
     },
     //--------------------------------------------------
@@ -230,7 +233,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
-      //console.log("OnFieldChange", name, value)
+      //console.log("OnFieldChange", name, value);
       //
       // Confirm, store the change to temp-data at first
       // whatever `confirm` or `immediate` we need the `myData`
@@ -282,7 +285,7 @@ const _M = {
         ) {
           this.$nextTick(() => {
             let nd = this.getData(data);
-            //console.log("notify data", nd)
+            //console.log("notify data", nd);
             this.$notify("change", nd);
           });
         }
@@ -296,8 +299,31 @@ const _M = {
       } else {
         ids[fld.uniqKey] = true;
       }
-      this.myForceEditableFields = ids;
-      await this.evalFormFieldList();
+      // 外部控制强制编辑字段，会通过 batchEnableFields 指定哪些字段要强制编辑
+      // 那么 batchEnableFields 变化的时候会触发字段计算函数更新显示字段
+      // 这里就没必要多此一举了
+      if (this.batchEnableWatch) {
+        let fields = {};
+        let ukeys = _.keys(ids);
+        for (let ukey of ukeys) {
+          fields[ukey] = this.myFormFieldMap[ukey];
+        }
+        let payload = {
+          toggle: {
+            uniqKey: fld.uniqKey,
+            name: fld.name,
+            field: fld,
+            result: ids[fld.uniqKey] || false
+          },
+          fields
+        };
+        this.$notify("field:edit", payload);
+      }
+      // 自己记录
+      else {
+        this.myForceEditableFields = ids;
+        await this.evalFormFieldList();
+      }
     },
     //--------------------------------------------------
     //
@@ -604,9 +630,15 @@ const _M = {
             field.disabled = true;
           }
 
+          let not_batch_editable_fields =
+            false === this.myBatchEditableFields[field.uniqKey];
+          let is_force_batch_mode = _.isEmpty(this.batchHint) && this.batchMode;
+
+          // 用户指定整个表单为批量编辑模式
+          // 或者根据 batchHint 自动计算出那个字段是可以批量编辑
           if (
-            false === this.myBatchEditableFields[field.uniqKey] &&
-            !field.disabled
+            is_force_batch_mode ||
+            (not_batch_editable_fields && !field.disabled)
           ) {
             field.disabled = this.myForceEditableFields[field.uniqKey]
               ? false
@@ -828,7 +860,9 @@ const _M = {
           this.myData,
           this.isReadonly,
           this.myActivedFieldKey,
-          this.batchHint
+          this.batchHint,
+          this.batchEnableWatch,
+          this.batchEnableFields
         ]);
         //console.log(" - get finger=>", finger);
         // already is in process
@@ -873,11 +907,21 @@ const _M = {
     },
     //--------------------------------------------------
     evalBatchEditableFields() {
+      // 用户指定了正在编辑的字段
+      if (this.batchEnableWatch && _.isArray(this.batchEnableFields)) {
+        let ids = {};
+        for (let ukey of this.batchEnableFields) {
+          ids[ukey] = true;
+        }
+        this.myForceEditableFields = ids;
+      }
+
       // conclude each key hint
       let editables = {};
       let vals = {}; // Store the first appeared value
       let keys = {}; // Key of obj is equal
-      if (this.isBatchMode) {
+      if (this.isBatchMode && _.isArray(this.batchHint)) {
+        // 根据线索判断
         for (let it of this.batchHint) {
           _.forEach(it, (v, k) => {
             // Already no equals

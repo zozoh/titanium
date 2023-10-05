@@ -1,4 +1,4 @@
-// Pack At: 2023-09-27 01:53:27
+// Pack At: 2023-10-05 16:43:56
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -9551,8 +9551,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let v2 = {
             "==": (v) => v,
             "~=": (v) => `^.*${v}$`,
-            "=~": (v) => `^${v}`,
-            "~~": (v) => `^.*${v}`
+            "=~": (v) => (v && !/^\^/.test(v) ? `^${v}` : v),
+            "~~": (v) => (v && !/^\^/.test(v) ? `^.*${v}` : v)
           }[mode](v);
           // Set to result
           flt[k] = v2;
@@ -15221,6 +15221,9 @@ const _M = {
     },
     //--------------------------------------------------
     isBatchMode() {
+      if (this.batchMode) {
+        return true;
+      }
       return _.isArray(this.batchHint) && this.batchHint.length > 1;
     },
     //--------------------------------------------------
@@ -15409,7 +15412,7 @@ const _M = {
   methods: {
     //--------------------------------------------------
     async OnFieldChange({ name, value } = {}) {
-      //console.log("OnFieldChange", name, value)
+      //console.log("OnFieldChange", name, value);
       //
       // Confirm, store the change to temp-data at first
       // whatever `confirm` or `immediate` we need the `myData`
@@ -15461,7 +15464,7 @@ const _M = {
         ) {
           this.$nextTick(() => {
             let nd = this.getData(data);
-            //console.log("notify data", nd)
+            //console.log("notify data", nd);
             this.$notify("change", nd);
           });
         }
@@ -15475,8 +15478,31 @@ const _M = {
       } else {
         ids[fld.uniqKey] = true;
       }
-      this.myForceEditableFields = ids;
-      await this.evalFormFieldList();
+      // 外部控制强制编辑字段，会通过 batchEnableFields 指定哪些字段要强制编辑
+      // 那么 batchEnableFields 变化的时候会触发字段计算函数更新显示字段
+      // 这里就没必要多此一举了
+      if (this.batchEnableWatch) {
+        let fields = {};
+        let ukeys = _.keys(ids);
+        for (let ukey of ukeys) {
+          fields[ukey] = this.myFormFieldMap[ukey];
+        }
+        let payload = {
+          toggle: {
+            uniqKey: fld.uniqKey,
+            name: fld.name,
+            field: fld,
+            result: ids[fld.uniqKey] || false
+          },
+          fields
+        };
+        this.$notify("field:edit", payload);
+      }
+      // 自己记录
+      else {
+        this.myForceEditableFields = ids;
+        await this.evalFormFieldList();
+      }
     },
     //--------------------------------------------------
     //
@@ -15783,9 +15809,15 @@ const _M = {
             field.disabled = true;
           }
 
+          let not_batch_editable_fields =
+            false === this.myBatchEditableFields[field.uniqKey];
+          let is_force_batch_mode = _.isEmpty(this.batchHint) && this.batchMode;
+
+          // 用户指定整个表单为批量编辑模式
+          // 或者根据 batchHint 自动计算出那个字段是可以批量编辑
           if (
-            false === this.myBatchEditableFields[field.uniqKey] &&
-            !field.disabled
+            is_force_batch_mode ||
+            (not_batch_editable_fields && !field.disabled)
           ) {
             field.disabled = this.myForceEditableFields[field.uniqKey]
               ? false
@@ -16007,7 +16039,9 @@ const _M = {
           this.myData,
           this.isReadonly,
           this.myActivedFieldKey,
-          this.batchHint
+          this.batchHint,
+          this.batchEnableWatch,
+          this.batchEnableFields
         ]);
         //console.log(" - get finger=>", finger);
         // already is in process
@@ -16052,11 +16086,21 @@ const _M = {
     },
     //--------------------------------------------------
     evalBatchEditableFields() {
+      // 用户指定了正在编辑的字段
+      if (this.batchEnableWatch && _.isArray(this.batchEnableFields)) {
+        let ids = {};
+        for (let ukey of this.batchEnableFields) {
+          ids[ukey] = true;
+        }
+        this.myForceEditableFields = ids;
+      }
+
       // conclude each key hint
       let editables = {};
       let vals = {}; // Store the first appeared value
       let keys = {}; // Key of obj is equal
-      if (this.isBatchMode) {
+      if (this.isBatchMode && _.isArray(this.batchHint)) {
+        // 根据线索判断
         for (let it of this.batchHint) {
           _.forEach(it, (v, k) => {
             // Already no equals
@@ -25045,7 +25089,8 @@ const _M = {
     "myData": "tryEvalFormFieldList",
     "isReadonly": "tryEvalFormFieldList",
     "myActivedFieldKey": "tryEvalFormFieldList",
-    "batchHint": "tryEvalFormFieldList"
+    "batchHint": "tryEvalFormFieldList",
+    "batchEnableFields": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
   created: function () {
@@ -32644,6 +32689,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "batchMode": {
+    type: Boolean,
+    default: false
+  },
   "readonly": {
     type: Boolean,
     default: false
@@ -32658,7 +32707,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "dataMode": {
     type: String,
     default: "auto",
-    validator: v => /^(all|diff|auto)$/.test(v)
+    validator: (v) => /^(all|diff|auto)$/.test(v)
   },
   "onlyFields": {
     type: Boolean,
@@ -32674,19 +32723,29 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // - `field` : notify immediately only field
   // - `confirm` : show confirm button, and to confirm change
   // - `none` : never notify
-    // - `auto` : `none` if readonly, else as `immediate`
+  // - `auto` : `none` if readonly, else as `immediate`
   "notifyMode": {
     type: String,
     default: "auto",
-    validator: v => /^(immediate|data|field|confirm|none|auto)$/.test(v)
+    validator: (v) => /^(immediate|data|field|confirm|none|auto)$/.test(v)
   },
   "batchNotifyMode": {
     type: String,
     default: "confirm",
-    validator: v => /^(immediate|confirm|none)$/.test(v)
+    validator: (v) => /^(immediate|data|field|confirm|none)$/.test(v)
+  },
+  // 启动这个选择，再批量编辑模式，启用一个字段强制编辑，会通知父控件，让父控件
+  // 来决定哪些字段可以启用（通过 batchEnableFields）
+  // 默认的会由表单自动决定
+  "batchEnableWatch": {
+    type: Boolean,
+    default: false
+  },
+  "batchEnableFields": {
+    type: Array
   },
   // If notifyMode=="immediate", when field change,
-  // notify the data change 
+  // notify the data change
   "notifyDataImmediate": {
     type: Boolean,
     default: true
@@ -32737,18 +32796,18 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   // Only those fields will be shown
   "whiteFields": {
-    type: Array,
+    type: Array
   },
   // Those fields will be ignore
   "blackFields": {
-    type: Array,
+    type: Array
   },
   "canSubmit": {
     type: Boolean,
     default: false
   },
   // More customized actions
-  // TiButton.setup 
+  // TiButton.setup
   // <BuiltIn actions>
   //  - "form:setup:open"
   //  - "form:setup:clean"
@@ -32765,7 +32824,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Array,
     default: () => []
   },
-  // If use form in GuiPanel, should delay a while 
+  // If use form in GuiPanel, should delay a while
   // for waiting the transision done
   "adjustDelay": {
     type: Number,
@@ -32785,7 +32844,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   }
   */
   "autoFieldNameTip": {
-    type: [Boolean,String,Object],
+    type: [Boolean, String, Object],
     default: true
   },
   //-----------------------------------
@@ -32877,16 +32936,16 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "statusIcons": {
     type: Object,
     default: () => ({
-      spinning: 'fas-spinner fa-spin',
-      error: 'zmdi-alert-polygon',
-      warn: 'zmdi-alert-triangle',
-      ok: 'zmdi-check-circle',
+      spinning: "fas-spinner fa-spin",
+      error: "zmdi-alert-polygon",
+      warn: "zmdi-alert-triangle",
+      ok: "zmdi-check-circle"
     })
   },
   "spacing": {
     type: String,
     default: "comfy",
-    validator: v => /^(comfy|tiny)$/.test(v)
+    validator: (v) => /^(comfy|tiny)$/.test(v)
   },
   //......................................
   // Setup Menu
@@ -32959,19 +33018,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // Measure
   //-----------------------------------
   "fieldNameMaxWidth": {
-    type: [Number, String, Array],
+    type: [Number, String, Array]
   },
   "gridColumnHint": {
     type: [Number, String, Array],
-    default: () => [
-      [4, 1280],
-      [3, 960],
-      [2, 640],
-      [1, 320],
-      0
-    ]
+    default: () => [[4, 1280], [3, 960], [2, 640], [1, 320], 0]
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================

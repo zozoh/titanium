@@ -548,7 +548,8 @@ const _M = {
     "myData": "tryEvalFormFieldList",
     "isReadonly": "tryEvalFormFieldList",
     "myActivedFieldKey": "tryEvalFormFieldList",
-    "batchHint": "tryEvalFormFieldList"
+    "batchHint": "tryEvalFormFieldList",
+    "batchEnableFields": "tryEvalFormFieldList"
   },
   //////////////////////////////////////////////////////
   created: function () {

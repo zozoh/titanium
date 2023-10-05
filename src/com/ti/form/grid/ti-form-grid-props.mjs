@@ -27,6 +27,10 @@ export default {
   //-----------------------------------
   // Behavior
   //-----------------------------------
+  "batchMode": {
+    type: Boolean,
+    default: false
+  },
   "readonly": {
     type: Boolean,
     default: false
@@ -41,7 +45,7 @@ export default {
   "dataMode": {
     type: String,
     default: "auto",
-    validator: v => /^(all|diff|auto)$/.test(v)
+    validator: (v) => /^(all|diff|auto)$/.test(v)
   },
   "onlyFields": {
     type: Boolean,
@@ -57,19 +61,29 @@ export default {
   // - `field` : notify immediately only field
   // - `confirm` : show confirm button, and to confirm change
   // - `none` : never notify
-    // - `auto` : `none` if readonly, else as `immediate`
+  // - `auto` : `none` if readonly, else as `immediate`
   "notifyMode": {
     type: String,
     default: "auto",
-    validator: v => /^(immediate|data|field|confirm|none|auto)$/.test(v)
+    validator: (v) => /^(immediate|data|field|confirm|none|auto)$/.test(v)
   },
   "batchNotifyMode": {
     type: String,
     default: "confirm",
-    validator: v => /^(immediate|confirm|none)$/.test(v)
+    validator: (v) => /^(immediate|data|field|confirm|none)$/.test(v)
+  },
+  // 启动这个选择，再批量编辑模式，启用一个字段强制编辑，会通知父控件，让父控件
+  // 来决定哪些字段可以启用（通过 batchEnableFields）
+  // 默认的会由表单自动决定
+  "batchEnableWatch": {
+    type: Boolean,
+    default: false
+  },
+  "batchEnableFields": {
+    type: Array
   },
   // If notifyMode=="immediate", when field change,
-  // notify the data change 
+  // notify the data change
   "notifyDataImmediate": {
     type: Boolean,
     default: true
@@ -120,18 +134,18 @@ export default {
   },
   // Only those fields will be shown
   "whiteFields": {
-    type: Array,
+    type: Array
   },
   // Those fields will be ignore
   "blackFields": {
-    type: Array,
+    type: Array
   },
   "canSubmit": {
     type: Boolean,
     default: false
   },
   // More customized actions
-  // TiButton.setup 
+  // TiButton.setup
   // <BuiltIn actions>
   //  - "form:setup:open"
   //  - "form:setup:clean"
@@ -148,7 +162,7 @@ export default {
     type: Array,
     default: () => []
   },
-  // If use form in GuiPanel, should delay a while 
+  // If use form in GuiPanel, should delay a while
   // for waiting the transision done
   "adjustDelay": {
     type: Number,
@@ -168,7 +182,7 @@ export default {
   }
   */
   "autoFieldNameTip": {
-    type: [Boolean,String,Object],
+    type: [Boolean, String, Object],
     default: true
   },
   //-----------------------------------
@@ -260,16 +274,16 @@ export default {
   "statusIcons": {
     type: Object,
     default: () => ({
-      spinning: 'fas-spinner fa-spin',
-      error: 'zmdi-alert-polygon',
-      warn: 'zmdi-alert-triangle',
-      ok: 'zmdi-check-circle',
+      spinning: "fas-spinner fa-spin",
+      error: "zmdi-alert-polygon",
+      warn: "zmdi-alert-triangle",
+      ok: "zmdi-check-circle"
     })
   },
   "spacing": {
     type: String,
     default: "comfy",
-    validator: v => /^(comfy|tiny)$/.test(v)
+    validator: (v) => /^(comfy|tiny)$/.test(v)
   },
   //......................................
   // Setup Menu
@@ -342,16 +356,10 @@ export default {
   // Measure
   //-----------------------------------
   "fieldNameMaxWidth": {
-    type: [Number, String, Array],
+    type: [Number, String, Array]
   },
   "gridColumnHint": {
     type: [Number, String, Array],
-    default: () => [
-      [4, 1280],
-      [3, 960],
-      [2, 640],
-      [1, 320],
-      0
-    ]
+    default: () => [[4, 1280], [3, 960], [2, 640], [1, 320], 0]
   }
-}
+};
