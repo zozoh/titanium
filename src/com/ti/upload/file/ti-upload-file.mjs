@@ -107,7 +107,10 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass(`is-area-${this.AreaType}`);
+      return this.getTopClass(`is-area-${this.AreaType}`, {
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly
+      });
     },
     //--------------------------------------
     AreaType() {

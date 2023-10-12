@@ -9341,8 +9341,7 @@ div.ti-input-tags {
     color: #222;
     background-color: #e8e8e8;
     width: 1.2rem;
-    height: 1.2rem;
-    cursor: pointer; }
+    height: 1.2rem; }
     .ti-upload-file > .thumb-con[ti-is-drag] > .ti-drag-mask {
       font-size: 12px;
       border-width: 2px; }
@@ -9360,7 +9359,7 @@ div.ti-input-tags {
           width: 100%;
           height: 100%; }
           .ti-upload-file > .thumb-con .ti-obj-thumb > header .as-preview .ti-icon .tii-con {
-            transition: transform .3s; }
+            transition: transform 0.3s; }
     .ti-upload-file > .thumb-con .as-preview-type {
       position: absolute;
       left: 0;
@@ -9369,13 +9368,6 @@ div.ti-input-tags {
       font-size: 0.16rem;
       opacity: 0.6;
       transition: 0.8s; }
-    .ti-upload-file > .thumb-con:hover {
-      border: 2px dashed #ff4081;
-      color: #ff4081; }
-      .ti-upload-file > .thumb-con:hover .ti-obj-thumb .as-preview .ti-icon .tii-con {
-        transform: scale(1.5) rotate(180deg); }
-      .ti-upload-file > .thumb-con:hover .as-preview-type {
-        opacity: 1; }
   .ti-upload-file > .thumb-con > .thumb-actions {
     position: absolute;
     top: 0;
@@ -9402,7 +9394,16 @@ div.ti-input-tags {
     .ti-upload-file > .thumb-con .thumb-opt .it-text {
       margin-left: 0.06rem;
       white-space: nowrap; }
-    .ti-upload-file > .thumb-con .thumb-opt:hover {
+  .ti-upload-file.no-readonly > .thumb-con {
+    cursor: pointer; }
+    .ti-upload-file.no-readonly > .thumb-con:hover {
+      border: 2px dashed #ff4081;
+      color: #ff4081; }
+      .ti-upload-file.no-readonly > .thumb-con:hover .ti-obj-thumb .as-preview .ti-icon .tii-con {
+        transform: scale(1.5) rotate(180deg); }
+      .ti-upload-file.no-readonly > .thumb-con:hover .as-preview-type {
+        opacity: 1; }
+    .ti-upload-file.no-readonly > .thumb-con .thumb-opt:hover {
       color: #FFF;
       background-color: #ff4081; }
 

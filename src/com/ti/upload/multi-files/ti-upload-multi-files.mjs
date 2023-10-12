@@ -109,7 +109,9 @@ const _M = {
         "is-dragging": this.dragging,
         "no-dragging": !this.dragging,
         "is-show-text": this.showItemText,
-        "no-show-text": !this.showItemText
+        "no-show-text": !this.showItemText,
+        "is-readonly": this.readonly,
+        "no-readonly": !this.readonly
       });
     },
     //--------------------------------------

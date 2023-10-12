@@ -249,9 +249,13 @@ const _M = {
           },
           this.suffixIconEditDialog
         );
-        console.log(dia);
+        if (this.readonly) {
+          dia.textOk = null;
+          dia.textCancel = "i18n:close";
+          dia.comConf.readonly = true;
+        }
         let str = await Ti.App.Open(dia);
-        if (!_.isUndefined(str)) {
+        if (!this.readonly && !_.isUndefined(str)) {
           let val = this.tidyValue(str);
           this.tryNotifyChange(val);
         }
