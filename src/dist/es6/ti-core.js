@@ -1,4 +1,4 @@
-// Pack At: 2023-10-15 22:14:09
+// Pack At: 2023-10-18 00:15:43
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16314,7 +16314,7 @@ const { Bank } = (function(){
         if (Ti.Util.isNil(cent)) {
           if (Ti.Util.isNil(yuan)) {
             cent = input.value * unit;
-            yuan = cent * 100;
+            yuan = cent / 100;
           } else {
             cent = yuan * 100;
           }
@@ -16333,7 +16333,7 @@ const { Bank } = (function(){
           // Indicate the current, then the number part should be yuan
           if (m[2]) {
             currency = m[2];
-            cent = Math.round(m[1] * 100);
+            cent = Math.round(m[1] * unit);
           }
           // Take it as number
           else {
@@ -16353,7 +16353,7 @@ const { Bank } = (function(){
       return { cent, yuan, currency };
     },
     //-----------------------------------
-    toYuanText(cent = 0.0, precise = 2) {
+    toYuanText(cent = 0.0, precision = 2) {
       // cent = Math.round(cent);
       // let n = Math.round(cent);
       // let y = Math.floor(n / 100);
@@ -16364,34 +16364,49 @@ const { Bank } = (function(){
       // return `${y}`;
       return TiBank.autoYuanTokenText(cent, {
         currency: null,
-        precise,
+        precision,
         auto: true
       });
     },
     //-----------------------------------
-    toYuanTokenText(cent = 0.0, currency = "RMB", precise = 2) {
-      return TiBank.autoYuanTokenText(cent, { currency, precise, auto: true });
+    toYuanTokenText(cent = 0.0, currency = "RMB", precision = 2) {
+      return TiBank.autoYuanTokenText(cent, { currency, precision, auto: true });
     },
     //-----------------------------------
     autoYuanTokenText(
       cent = 0.0,
-      { currency = "RMB", precise = 2, auto = true } = {}
+      { currency = "RMB", precision = 2, auto = true } = {}
     ) {
       cent = Math.round(cent);
       let neg = cent < 0 ? "-" : "";
       cent = Math.abs(cent);
       let t = TiBank.getCurrencyToken(currency) || "";
-      let n = Math.round(cent);
-      let y = Math.floor(n / 100);
-      let c = cent - y * 100;
+      // let n = Math.round(cent);
+      // let y = Math.floor(n / 100);
+      // let c = cent - y * 100;
+      let n = _.round(cent / 100, precision);
   
       // amount text
-      let s;
-      if (c > 0 || (precise > 0 && !auto)) {
-        s = `${y}.${_.padStart(c, precise, "0")}`;
-      } else {
-        s = `${y}`;
+      let s = `${n}`;
+      if (precision > 0 && !auto) {
+        let pos = s.lastIndexOf(".");
+        if (pos < 0) {
+          s = s + "." + _.repeat("0", precision);
+        }
+        // 补零
+        else {
+          let sub = s.substring(pos + 1);
+          if (sub.length < precision) {
+            sub = _.padEnd(sub, precision, "0");
+            s = s.substring(0, pos + 1) + sub;
+          }
+        }
       }
+      // if (c > 0 || (precise > 0 && !auto)) {
+      //   s = `${y}.${_.padStart(c, precise, "0")}`;
+      // } else {
+      //   s = `${y}`;
+      // }
   
       // Group amount
       s = TiBank.toBankText(s);
@@ -16400,36 +16415,36 @@ const { Bank } = (function(){
       return `${neg}${t}${s}`;
     },
     //-----------------------------------
-    toYuanTokenText2(cent = 0.0, currency = "RMB", precise = 2) {
-      let s = TiBank.toYuanTokenText(cent, currency, precise);
+    toYuanTokenText2(cent = 0.0, currency = "RMB", precision = 2) {
+      let s = TiBank.toYuanTokenText(cent, currency, precision);
       return `${s}${currency}`;
     },
     //-----------------------------------
-    toZeroText(cent = 0.0, { precise = 2, placeholder = "---" } = {}) {
+    toZeroText(cent = 0.0, { precision = 2, placeholder = "---" } = {}) {
       if (!cent) {
         return placeholder;
       }
-      return TiBank.toYuanText(cent, precise);
+      return TiBank.toYuanText(cent, precision);
     },
     //-----------------------------------
     toZeroTokenText(
       cent = 0.0,
-      { currency = "RMB", precise = 2, placeholder = "---" } = {}
+      { currency = "RMB", precision = 2, placeholder = "---" } = {}
     ) {
       if (!cent) {
         return placeholder;
       }
-      return TiBank.toYuanTokenText(cent, currency, precise);
+      return TiBank.toYuanTokenText(cent, currency, precision);
     },
     //-----------------------------------
     toZeroTokenText2(
       cent = 0.0,
-      { currency = "RMB", precise = 2, placeholder = "---" } = {}
+      { currency = "RMB", precision = 2, placeholder = "---" } = {}
     ) {
       if (!cent) {
         return placeholder;
       }
-      return TiBank.toYuanTokenText2(cent, currency, precise);
+      return TiBank.toYuanTokenText2(cent, currency, precision);
     },
     //-----------------------------------
     toChineseText(cent = 0.0, capitalized = false) {
@@ -20550,7 +20565,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.97",
+  "version": "1.98",
   "dev": false,
   "appName": null,
   "session": {},
