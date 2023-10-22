@@ -12,6 +12,9 @@
    "path": "@deps:leaflet/leaflet.js"
 }, {
    "type": "js",
+   "path": "@deps:antv/v4/g6/g6.min.js"
+}, {
+   "type": "js",
    "path": "@deps:sortable.js"
 }, {
    "type": "js",

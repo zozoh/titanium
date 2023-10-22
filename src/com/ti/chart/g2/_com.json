@@ -1,10 +1,8 @@
 {
-  "name" : "ti-chart-g2",
-  "globally" : true,
-  "template" : "./ti-chart-g2.html",
-  "mixins"   : ["./ti-chart-g2.mjs"],
-  "components" : [],
-  "deps" : [
-    "@deps:antv/v4/g2/g2.min.js"
-  ]
+  "name": "ti-chart-g2",
+  "globally": true,
+  "template": "./ti-chart-g2.html",
+  "mixins": ["./ti-chart-g2.mjs"],
+  "components": [],
+  "deps": ["@deps:antv/v4/g2/g2.min.js"]
 }

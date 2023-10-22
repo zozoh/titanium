@@ -1,4 +1,4 @@
-// Pack At: 2023-10-19 20:47:00
+// Pack At: 2023-10-22 23:10:15
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -80907,6 +80907,60 @@ const _M = {
 return _M;;
 })()
 // ============================================================
+// EXPORT 'ti-chart-g6.mjs' -> null
+// ============================================================
+window.TI_PACK_EXPORTS['ti/com/ti/chart/g6/ti-chart-g6.mjs'] = (function(){
+const __TI_MOD_EXPORT_VAR_NM = {
+  /////////////////////////////////////////
+  props: {
+    "data": {
+      type: [Array, Object],
+      default: () => []
+    },
+    // Function(chart, data):void
+    "redraw": {
+      type: Function,
+      default: _.identity
+    }
+  },
+  //////////////////////////////////////////
+  computed: {
+    //--------------------------------------
+    TopClass() {
+      return this.getTopClass();
+    },
+    //--------------------------------------
+    TopStyle() {
+      return Ti.Css.toStyle({
+        width: this.width,
+        height: this.height
+      });
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  methods: {
+    //--------------------------------------
+    redrawChart() {
+      this.redraw(this.data, { $con: this.$refs.chart, G6 });
+    }
+    //--------------------------------------
+  },
+  //////////////////////////////////////////
+  watch: {
+    "data": "redrawChart"
+  },
+  //////////////////////////////////////////
+  mounted: function () {
+    this.redrawChart();
+  },
+  //////////////////////////////////////////
+  beforeDestroy: function () {}
+  //////////////////////////////////////////
+};
+return __TI_MOD_EXPORT_VAR_NM;;
+})()
+// ============================================================
 // EXPORT 'tiny-wn-video.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/text/rich/tinymce/plugin/tiny-wn-video.mjs'] = (function(){
@@ -89078,14 +89132,36 @@ Ti.Preload("ti/com/ti/chart/g2/ti-chart-g2.mjs", TI_PACK_EXPORTS['ti/com/ti/char
 // JOIN <_com.json> ti/com/ti/chart/g2/_com.json
 //========================================
 Ti.Preload("ti/com/ti/chart/g2/_com.json", {
-  "name" : "ti-chart-g2",
-  "globally" : true,
-  "template" : "./ti-chart-g2.html",
-  "mixins"   : ["./ti-chart-g2.mjs"],
-  "components" : [],
-  "deps" : [
-    "@deps:antv/v4/g2/g2.min.js"
-  ]
+  "name": "ti-chart-g2",
+  "globally": true,
+  "template": "./ti-chart-g2.html",
+  "mixins": ["./ti-chart-g2.mjs"],
+  "components": [],
+  "deps": ["@deps:antv/v4/g2/g2.min.js"]
+});
+//========================================
+// JOIN <ti-chart-g6.html> ti/com/ti/chart/g6/ti-chart-g6.html
+//========================================
+Ti.Preload("ti/com/ti/chart/g6/ti-chart-g6.html", `<div class="ti-chart ti-chart-g6"
+  :class="TopClass"
+  :style="TopStyle">
+  <div ref="chart"
+    class="chart-main ti-fill-parent"></div>
+</div>`);
+//========================================
+// JOIN <ti-chart-g6.mjs> ti/com/ti/chart/g6/ti-chart-g6.mjs
+//========================================
+Ti.Preload("ti/com/ti/chart/g6/ti-chart-g6.mjs", TI_PACK_EXPORTS['ti/com/ti/chart/g6/ti-chart-g6.mjs']);
+//========================================
+// JOIN <_com.json> ti/com/ti/chart/g6/_com.json
+//========================================
+Ti.Preload("ti/com/ti/chart/g6/_com.json", {
+  "name": "ti-chart-g6",
+  "globally": true,
+  "template": "./ti-chart-g6.html",
+  "mixins": ["./ti-chart-g6.mjs"],
+  "components": [],
+  "deps": ["@deps:antv/v4/g6/g6.min.js"]
 });
 //========================================
 // JOIN <ti-chart-raw-bar.html> ti/com/ti/chart/raw/bar/ti-chart-raw-bar.html

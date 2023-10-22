@@ -1,0 +1,8 @@
+{
+  "name": "ti-chart-g6",
+  "globally": true,
+  "template": "./ti-chart-g6.html",
+  "mixins": ["./ti-chart-g6.mjs"],
+  "components": [],
+  "deps": ["@deps:antv/v4/g6/g6.min.js"]
+}
