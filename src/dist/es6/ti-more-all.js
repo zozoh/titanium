@@ -1,4 +1,4 @@
-// Pack At: 2023-10-22 23:10:15
+// Pack At: 2023-10-26 01:14:30
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12407,7 +12407,9 @@ const __TI_MOD_EXPORT_VAR_NM = {
       for (let i = 0; i < rows.length; i++) {
         promiseLoadRows.push(this.evalOneTableRow(rows, i, count));
       }
-      await Promise.all(promiseLoadRows);
+      try {
+        await Promise.all(promiseLoadRows);
+      } catch (error) {}
       if (count.N > 0) {
         this.rowsRenderedAt = Date.now();
       }

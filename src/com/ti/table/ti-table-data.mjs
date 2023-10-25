@@ -266,7 +266,9 @@ export default {
       for (let i = 0; i < rows.length; i++) {
         promiseLoadRows.push(this.evalOneTableRow(rows, i, count));
       }
-      await Promise.all(promiseLoadRows);
+      try {
+        await Promise.all(promiseLoadRows);
+      } catch (error) {}
       if (count.N > 0) {
         this.rowsRenderedAt = Date.now();
       }
