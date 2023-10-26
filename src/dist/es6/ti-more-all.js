@@ -1,4 +1,4 @@
-// Pack At: 2023-10-26 01:14:30
+// Pack At: 2023-10-26 23:14:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -15738,7 +15738,7 @@ const _M = {
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(
         fld,
-        this.myData
+        this.FormVars
       );
 
       //............................................
@@ -24600,6 +24600,10 @@ const _M = {
       return !Ti.Util.isNil(this.data);
     },
     //--------------------------------------------------
+    FormVars() {
+      return _.assign({}, this.myData, this.vars);
+    },
+    //--------------------------------------------------
     FormMode() {
       return (
         {
@@ -32691,6 +32695,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "batchHint": {
     type: Array,
     default: undefined
+  },
+  // 用例判断 visiblity 的上下文变量
+  // 会在 FormVars 里与 myData 融合
+  "vars": {
+    type:Object,
+    default:undefined
   },
   //-----------------------------------
   // Behavior

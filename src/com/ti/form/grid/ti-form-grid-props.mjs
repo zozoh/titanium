@@ -24,6 +24,12 @@ export default {
     type: Array,
     default: undefined
   },
+  // 用例判断 visiblity 的上下文变量
+  // 会在 FormVars 里与 myData 融合
+  "vars": {
+    type:Object,
+    default:undefined
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

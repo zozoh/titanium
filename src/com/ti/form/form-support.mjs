@@ -557,7 +557,7 @@ const _M = {
       // Visibility
       let { hidden, disabled } = Ti.Types.getFormFieldVisibility(
         fld,
-        this.myData
+        this.FormVars
       );
 
       //............................................

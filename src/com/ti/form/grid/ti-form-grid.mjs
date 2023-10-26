@@ -53,6 +53,10 @@ const _M = {
       return !Ti.Util.isNil(this.data);
     },
     //--------------------------------------------------
+    FormVars() {
+      return _.assign({}, this.myData, this.vars);
+    },
+    //--------------------------------------------------
     FormMode() {
       return (
         {
