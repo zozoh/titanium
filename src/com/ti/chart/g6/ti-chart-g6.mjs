@@ -29,8 +29,13 @@ export default {
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
-    redrawChart() {
-      this.redraw(this.data, { $con: this.$refs.chart, G6 });
+    redrawChart({ force = false, firstTime } = {}) {
+      this.$graph = this.redraw(this.data, {
+        $con: this.$refs.chart,
+        G6,
+        force,
+        firstTime
+      });
     }
     //--------------------------------------
   },
@@ -38,11 +43,30 @@ export default {
   watch: {
     "data": "redrawChart"
   },
+  ////////////////////////////////////////////////////
+  created: function () {
+    this._debounce_redraw = _.debounce(() => {
+      let { $graph } = this;
+      if (this.$graph) {
+        $graph.destroy();
+        this.$graph = undefined;
+        this.redrawChart({ force: true, firstTime: false });
+      }
+    }, 500);
+  },
   //////////////////////////////////////////
   mounted: function () {
     this.redrawChart();
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this._debounce_redraw();
+      }
+    });
   },
   //////////////////////////////////////////
-  beforeDestroy: function () {}
+  beforeDestroy: function () {
+    this.$graph?.destroy();
+    Ti.Viewport.unwatch(this);
+  }
   //////////////////////////////////////////
 };
