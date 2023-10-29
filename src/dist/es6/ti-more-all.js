@@ -1,4 +1,4 @@
-// Pack At: 2023-10-26 23:14:00
+// Pack At: 2023-10-30 00:36:07
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -80953,8 +80953,13 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //////////////////////////////////////////
   methods: {
     //--------------------------------------
-    redrawChart() {
-      this.redraw(this.data, { $con: this.$refs.chart, G6 });
+    redrawChart({ force = false, firstTime } = {}) {
+      this.$graph = this.redraw(this.data, {
+        $con: this.$refs.chart,
+        G6,
+        force,
+        firstTime
+      });
     }
     //--------------------------------------
   },
@@ -80962,12 +80967,33 @@ const __TI_MOD_EXPORT_VAR_NM = {
   watch: {
     "data": "redrawChart"
   },
+  ////////////////////////////////////////////////////
+  created: function () {
+    this._debounce_redraw = _.debounce(() => {
+      let { $graph } = this;
+      if (this.$graph) {
+        $graph.destroy();
+        this.$graph = undefined;
+        this.redrawChart({ force: true, firstTime: false });
+      }
+    }, 500);
+  },
   //////////////////////////////////////////
   mounted: function () {
     this.redrawChart();
+    Ti.Viewport.watch(this, {
+      resize: () => {
+        this._debounce_redraw();
+      }
+    });
   },
   //////////////////////////////////////////
-  beforeDestroy: function () {}
+  beforeDestroy: function () {
+    if (this.$graph) {
+      this.$graph.destroy();
+    }
+    Ti.Viewport.unwatch(this);
+  }
   //////////////////////////////////////////
 };
 return __TI_MOD_EXPORT_VAR_NM;;
@@ -89154,11 +89180,12 @@ Ti.Preload("ti/com/ti/chart/g2/_com.json", {
 //========================================
 // JOIN <ti-chart-g6.html> ti/com/ti/chart/g6/ti-chart-g6.html
 //========================================
-Ti.Preload("ti/com/ti/chart/g6/ti-chart-g6.html", `<div class="ti-chart ti-chart-g6"
+Ti.Preload("ti/com/ti/chart/g6/ti-chart-g6.html", `<div
+  class="ti-chart ti-chart-g6 ti-cover-parent"
   :class="TopClass"
-  :style="TopStyle">
-  <div ref="chart"
-    class="chart-main ti-fill-parent"></div>
+  :style="TopStyle"
+>
+  <div ref="chart" class="chart-main ti-fill-parent"></div>
 </div>`);
 //========================================
 // JOIN <ti-chart-g6.mjs> ti/com/ti/chart/g6/ti-chart-g6.mjs

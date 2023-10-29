@@ -65,7 +65,9 @@ export default {
   },
   //////////////////////////////////////////
   beforeDestroy: function () {
-    this.$graph?.destroy();
+    if (this.$graph) {
+      this.$graph.destroy();
+    }
     Ti.Viewport.unwatch(this);
   }
   //////////////////////////////////////////
