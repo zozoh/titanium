@@ -1,4 +1,4 @@
-// Pack At: 2023-10-30 00:36:07
+// Pack At: 2023-11-07 23:42:16
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -24933,15 +24933,25 @@ const _M = {
       this.myReadonly = false;
     },
     //--------------------------------------------------
-    OnFormConfirm() {
+    async OnFormConfirm() {
       //console.log("OnFormConfirm");
       // Check Required
       let data = this.getData();
       let formData = _.assign(_.cloneDeep(this.myData), data);
       let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
       if (errMsg) {
-        Ti.Alert(errMsg, { type: "error" });
-        return;
+        if (this.confirmWithConfirm) {
+          let confirmMsg = [errMsg, Ti.I18n.text(this.confirmWithConfirm)].join(
+            "; "
+          );
+          if (!(await Ti.Confirm(confirmMsg))) {
+            return;
+          }
+        }
+        // 直接拒绝
+        else {
+          return await Ti.Alert(errMsg, { type: "error" });
+        }
       }
 
       this.$notify("change", data);
@@ -26991,7 +27001,9 @@ const _M = {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass();
+      return this.getTopClass({
+        "full-field": this.fitField
+      });
     },
     //------------------------------------------------
     TopStyle() {
@@ -32699,8 +32711,8 @@ const __TI_MOD_EXPORT_VAR_NM = {
   // 用例判断 visiblity 的上下文变量
   // 会在 FormVars 里与 myData 融合
   "vars": {
-    type:Object,
-    default:undefined
+    type: Object,
+    default: undefined
   },
   //-----------------------------------
   // Behavior
@@ -32821,6 +32833,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "canSubmit": {
     type: Boolean,
     default: false
+  },
+  // 当表单是 confirm 模式提交时，会自动检查 required 字段
+  // 如果仍然有字段没填写，就会拒绝 confirm
+  // 为本选项设置一个询问信息，那么控件会用这个信息提示用户
+  // 如果用户选择 yes，则会强制 confirm
+  "confirmWithConfirm": {
+    type: String,
+    default: undefined
   },
   // More customized actions
   // TiButton.setup
@@ -49976,6 +49996,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: "i18n:new-item"
   },
   "itemEditable": {
+    type: Boolean,
+    default: true
+  },
+  "fitField": {
     type: Boolean,
     default: true
   },
@@ -89904,7 +89928,7 @@ Ti.Preload("ti/com/ti/combo/table/ti-combo-table-props.mjs", TI_PACK_EXPORTS['ti
 //========================================
 // JOIN <ti-combo-table.html> ti/com/ti/combo/table/ti-combo-table.html
 //========================================
-Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table full-field"
+Ti.Preload("ti/com/ti/combo/table/ti-combo-table.html", `<div class="ti-combo-table"
   :class="TopClass"
   :style="TopStyle">
   <!--wrap-->

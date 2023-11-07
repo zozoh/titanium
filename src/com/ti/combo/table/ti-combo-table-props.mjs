@@ -80,6 +80,10 @@ export default {
     type: Boolean,
     default: true
   },
+  "fitField": {
+    type: Boolean,
+    default: true
+  },
   //-----------------------------------
   // Measure
   //-----------------------------------

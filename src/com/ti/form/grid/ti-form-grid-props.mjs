@@ -27,8 +27,8 @@ export default {
   // 用例判断 visiblity 的上下文变量
   // 会在 FormVars 里与 myData 融合
   "vars": {
-    type:Object,
-    default:undefined
+    type: Object,
+    default: undefined
   },
   //-----------------------------------
   // Behavior
@@ -149,6 +149,14 @@ export default {
   "canSubmit": {
     type: Boolean,
     default: false
+  },
+  // 当表单是 confirm 模式提交时，会自动检查 required 字段
+  // 如果仍然有字段没填写，就会拒绝 confirm
+  // 为本选项设置一个询问信息，那么控件会用这个信息提示用户
+  // 如果用户选择 yes，则会强制 confirm
+  "confirmWithConfirm": {
+    type: String,
+    default: undefined
   },
   // More customized actions
   // TiButton.setup

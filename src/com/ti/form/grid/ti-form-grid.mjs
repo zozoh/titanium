@@ -386,15 +386,25 @@ const _M = {
       this.myReadonly = false;
     },
     //--------------------------------------------------
-    OnFormConfirm() {
+    async OnFormConfirm() {
       //console.log("OnFormConfirm");
       // Check Required
       let data = this.getData();
       let formData = _.assign(_.cloneDeep(this.myData), data);
       let errMsg = Ti.Util.checkFormRequiredFields(this.myFormFields, formData);
       if (errMsg) {
-        Ti.Alert(errMsg, { type: "error" });
-        return;
+        if (this.confirmWithConfirm) {
+          let confirmMsg = [errMsg, Ti.I18n.text(this.confirmWithConfirm)].join(
+            "; "
+          );
+          if (!(await Ti.Confirm(confirmMsg))) {
+            return;
+          }
+        }
+        // 直接拒绝
+        else {
+          return await Ti.Alert(errMsg, { type: "error" });
+        }
       }
 
       this.$notify("change", data);

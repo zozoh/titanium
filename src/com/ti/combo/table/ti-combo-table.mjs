@@ -3,7 +3,9 @@ const _M = {
   computed: {
     //------------------------------------------------
     TopClass() {
-      return this.getTopClass();
+      return this.getTopClass({
+        "full-field": this.fitField
+      });
     },
     //------------------------------------------------
     TopStyle() {
