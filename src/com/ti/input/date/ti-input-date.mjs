@@ -1,3 +1,4 @@
+const COM_TYPE = "TiInputDate";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -16,7 +17,7 @@ const _M = {
     "valueType": {
       type: String,
       default: "ds",
-      validator: v => /^(ms|ds|date)$/.test(v)
+      validator: (v) => /^(ms|ds|date)$/.test(v)
     },
     //-----------------------------------
     // Behavior
@@ -31,11 +32,15 @@ const _M = {
     },
     "beginYear": {
       type: [Number, String],
-      default: 1970
+      default: Ti.Config.getComProp(COM_TYPE, "beginYear", 1970)
     },
     "endYear": {
       type: [Number, String],
-      default: (new Date().getFullYear() + 1)
+      default: Ti.Config.getComProp(
+        COM_TYPE,
+        "endYear",
+        new Date().getFullYear() + 1
+      )
     },
     //-----------------------------------
     // Aspect
@@ -83,29 +88,33 @@ const _M = {
   computed: {
     //------------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return Ti.Css.mergeClassName(this.className);
     },
     //------------------------------------------------
-    isCollapse() { return "collapse" == this.status },
-    isExtended() { return "extended" == this.status },
+    isCollapse() {
+      return "collapse" == this.status;
+    },
+    isExtended() {
+      return "extended" == this.status;
+    },
     //------------------------------------------------
     theDate() {
-      return Ti.Types.toDate(this.value, null)
+      return Ti.Types.toDate(this.value, null);
     },
     //------------------------------------------------
     theDropDate() {
-      return this.runtime || this.theDate
+      return this.runtime || this.theDate;
     },
     //------------------------------------------------
     theInputValue() {
       if (this.isExtended) {
-        return this.getDateText(this.theDropDate)
+        return this.getDateText(this.theDropDate);
       }
-      return this.getDateText(this.theDropDate, this.format)
+      return this.getDateText(this.theDropDate, this.format);
     },
     //------------------------------------------------
     theStatusIcon() {
-      return this.statusIcons[this.status]
+      return this.statusIcons[this.status];
     }
     //------------------------------------------------
   },
@@ -114,31 +123,31 @@ const _M = {
     //------------------------------------------------
     applyRuntime() {
       if (this.runtime) {
-        let dt = this.runtime
-        this.runtime = null
-        let v = this.getDateValue(dt)
-        this.$notify("change", v)
+        let dt = this.runtime;
+        this.runtime = null;
+        let v = this.getDateValue(dt);
+        this.$notify("change", v);
       }
     },
     //-----------------------------------------------
     doExtend() {
-      this.status = "extended"
+      this.status = "extended";
     },
     //-----------------------------------------------
     doCollapse({ escaped = false } = {}) {
-      this.status = "collapse"
+      this.status = "collapse";
       // Drop runtime
       if (escaped) {
-        this.runtime = null
+        this.runtime = null;
       }
       // Apply Changed for runtime
       else {
-        this.applyRuntime()
+        this.applyRuntime();
       }
     },
     //------------------------------------------------
     onInputFocused() {
-      this.doExtend()
+      this.doExtend();
     },
     //------------------------------------------------
     onChanged(val) {
@@ -148,50 +157,50 @@ const _M = {
       }
       // Parsed value
       else {
-        let dt = Ti.Types.toDate(val)
-        let v = this.getDateValue(dt)
-        this.$notify("change", v)
+        let dt = Ti.Types.toDate(val);
+        let v = this.getDateValue(dt);
+        this.$notify("change", v);
       }
     },
     //------------------------------------------------
     onClickStatusIcon() {
       // extended -> collapse
       if (this.isExtended) {
-        this.doCollapse()
+        this.doCollapse();
       }
       // collapse -> extended
       else {
-        this.doExtend()
+        this.doExtend();
       }
     },
     //------------------------------------------------
     onDateChanged(dt) {
-      this.runtime = dt
+      this.runtime = dt;
       if (this.autoCollapse) {
-        this.doCollapse()
+        this.doCollapse();
       }
     },
     //------------------------------------------------
     getDateText(dt, fmt = "yyyy-MM-dd") {
-      let dt2 = Ti.Types.toDate(dt, null)
-      return Ti.Types.formatDate(dt2, fmt)
+      let dt2 = Ti.Types.toDate(dt, null);
+      return Ti.Types.formatDate(dt2, fmt);
     },
     //------------------------------------------------
     getDateValue(date) {
-      let func = ({
-        "ms": d => d.getTime(),
-        "ds": d => this.getDateText(d),
-        "date": d => d
-      })[this.valueType]
+      let func = {
+        "ms": (d) => d.getTime(),
+        "ds": (d) => this.getDateText(d),
+        "date": (d) => d
+      }[this.valueType];
 
       // Move to 00:00:00
-      Ti.DateTime.setTime(date)
+      Ti.DateTime.setTime(date);
 
       // Done
-      return func(date)
+      return func(date);
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 export default _M;

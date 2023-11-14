@@ -155,6 +155,14 @@ const _M = {
   setFixedMatch(state, fm) {
     state.fixedMatch = _.cloneDeep(fm);
   },
+  assignFixedMatch(state, fm) {
+    let _old = _.cloneDeep(state.fixedMatch);
+    state.fixedMatch = _.assign(_old, fm);
+  },
+  mergeFixedMatch(state, fm) {
+    let _old = _.cloneDeep(state.fixedMatch);
+    state.fixedMatch = _.merge(_old, fm);
+  },
   //----------------------------------------
   /*
   agg: {

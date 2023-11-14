@@ -505,6 +505,14 @@ const _M = {
       return;
     }
     state.LOG = () => {};
+    // Unwrap  meta == {meta, fixedMatch}
+    let fixedMatch = {};
+    let fixedMatchMergeMode = "override";
+    if (meta && meta.meta) {
+      fixedMatch = meta.fixedMatch || {};
+      fixedMatchMergeMode = meta.fixedMatchMergeMode;
+      meta = meta.meta;
+    }
 
     // if ("main" == state.moduleName) {
     //  state.LOG = console.log;
@@ -581,6 +589,22 @@ const _M = {
     dispatch("updateSchemaBehavior");
     // 这里也会调用 applyBehavior
     dispatch("restoreLocalBehavior");
+
+    // 重新确保直传的 fixedMatch 是有效的
+    if (!_.isEmpty(fixedMatch)) {
+      // 深层合并
+      if ("merge" == fixedMatchMergeMode) {
+        commit("mergeFixedMatch", fixedMatch);
+      }
+      // 浅层合并
+      else if ("assign" == fixedMatchMergeMode) {
+        commit("assignFixedMatch", fixedMatch);
+      }
+      // 默认覆盖
+      else {
+        commit("setFixedMatch", fixedMatch);
+      }
+    }
 
     // Load more fixed data
     await dispatch("applyLoad");

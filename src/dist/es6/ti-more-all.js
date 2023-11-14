@@ -1,4 +1,4 @@
-// Pack At: 2023-11-07 23:42:16
+// Pack At: 2023-11-15 00:48:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6002,6 +6002,14 @@ const _M = {
   //----------------------------------------
   setFixedMatch(state, fm) {
     state.fixedMatch = _.cloneDeep(fm);
+  },
+  assignFixedMatch(state, fm) {
+    let _old = _.cloneDeep(state.fixedMatch);
+    state.fixedMatch = _.assign(_old, fm);
+  },
+  mergeFixedMatch(state, fm) {
+    let _old = _.cloneDeep(state.fixedMatch);
+    state.fixedMatch = _.merge(_old, fm);
   },
   //----------------------------------------
   /*
@@ -53066,6 +53074,7 @@ return __TI_MOD_EXPORT_VAR_NM;;
 // EXPORT 'ti-input-date.mjs' -> null
 // ============================================================
 window.TI_PACK_EXPORTS['ti/com/ti/input/date/ti-input-date.mjs'] = (function(){
+const COM_TYPE = "TiInputDate";
 const _M = {
   ////////////////////////////////////////////////////
   data: () => ({
@@ -53084,7 +53093,7 @@ const _M = {
     "valueType": {
       type: String,
       default: "ds",
-      validator: v => /^(ms|ds|date)$/.test(v)
+      validator: (v) => /^(ms|ds|date)$/.test(v)
     },
     //-----------------------------------
     // Behavior
@@ -53099,11 +53108,15 @@ const _M = {
     },
     "beginYear": {
       type: [Number, String],
-      default: 1970
+      default: Ti.Config.getComProp(COM_TYPE, "beginYear", 1970)
     },
     "endYear": {
       type: [Number, String],
-      default: (new Date().getFullYear() + 1)
+      default: Ti.Config.getComProp(
+        COM_TYPE,
+        "endYear",
+        new Date().getFullYear() + 1
+      )
     },
     //-----------------------------------
     // Aspect
@@ -53151,29 +53164,33 @@ const _M = {
   computed: {
     //------------------------------------------------
     topClass() {
-      return Ti.Css.mergeClassName(this.className)
+      return Ti.Css.mergeClassName(this.className);
     },
     //------------------------------------------------
-    isCollapse() { return "collapse" == this.status },
-    isExtended() { return "extended" == this.status },
+    isCollapse() {
+      return "collapse" == this.status;
+    },
+    isExtended() {
+      return "extended" == this.status;
+    },
     //------------------------------------------------
     theDate() {
-      return Ti.Types.toDate(this.value, null)
+      return Ti.Types.toDate(this.value, null);
     },
     //------------------------------------------------
     theDropDate() {
-      return this.runtime || this.theDate
+      return this.runtime || this.theDate;
     },
     //------------------------------------------------
     theInputValue() {
       if (this.isExtended) {
-        return this.getDateText(this.theDropDate)
+        return this.getDateText(this.theDropDate);
       }
-      return this.getDateText(this.theDropDate, this.format)
+      return this.getDateText(this.theDropDate, this.format);
     },
     //------------------------------------------------
     theStatusIcon() {
-      return this.statusIcons[this.status]
+      return this.statusIcons[this.status];
     }
     //------------------------------------------------
   },
@@ -53182,31 +53199,31 @@ const _M = {
     //------------------------------------------------
     applyRuntime() {
       if (this.runtime) {
-        let dt = this.runtime
-        this.runtime = null
-        let v = this.getDateValue(dt)
-        this.$notify("change", v)
+        let dt = this.runtime;
+        this.runtime = null;
+        let v = this.getDateValue(dt);
+        this.$notify("change", v);
       }
     },
     //-----------------------------------------------
     doExtend() {
-      this.status = "extended"
+      this.status = "extended";
     },
     //-----------------------------------------------
     doCollapse({ escaped = false } = {}) {
-      this.status = "collapse"
+      this.status = "collapse";
       // Drop runtime
       if (escaped) {
-        this.runtime = null
+        this.runtime = null;
       }
       // Apply Changed for runtime
       else {
-        this.applyRuntime()
+        this.applyRuntime();
       }
     },
     //------------------------------------------------
     onInputFocused() {
-      this.doExtend()
+      this.doExtend();
     },
     //------------------------------------------------
     onChanged(val) {
@@ -53216,52 +53233,52 @@ const _M = {
       }
       // Parsed value
       else {
-        let dt = Ti.Types.toDate(val)
-        let v = this.getDateValue(dt)
-        this.$notify("change", v)
+        let dt = Ti.Types.toDate(val);
+        let v = this.getDateValue(dt);
+        this.$notify("change", v);
       }
     },
     //------------------------------------------------
     onClickStatusIcon() {
       // extended -> collapse
       if (this.isExtended) {
-        this.doCollapse()
+        this.doCollapse();
       }
       // collapse -> extended
       else {
-        this.doExtend()
+        this.doExtend();
       }
     },
     //------------------------------------------------
     onDateChanged(dt) {
-      this.runtime = dt
+      this.runtime = dt;
       if (this.autoCollapse) {
-        this.doCollapse()
+        this.doCollapse();
       }
     },
     //------------------------------------------------
     getDateText(dt, fmt = "yyyy-MM-dd") {
-      let dt2 = Ti.Types.toDate(dt, null)
-      return Ti.Types.formatDate(dt2, fmt)
+      let dt2 = Ti.Types.toDate(dt, null);
+      return Ti.Types.formatDate(dt2, fmt);
     },
     //------------------------------------------------
     getDateValue(date) {
-      let func = ({
-        "ms": d => d.getTime(),
-        "ds": d => this.getDateText(d),
-        "date": d => d
-      })[this.valueType]
+      let func = {
+        "ms": (d) => d.getTime(),
+        "ds": (d) => this.getDateText(d),
+        "date": (d) => d
+      }[this.valueType];
 
       // Move to 00:00:00
-      Ti.DateTime.setTime(date)
+      Ti.DateTime.setTime(date);
 
       // Done
-      return func(date)
+      return func(date);
     }
     //------------------------------------------------
   }
   ////////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -78229,6 +78246,14 @@ const _M = {
       return;
     }
     state.LOG = () => {};
+    // Unwrap  meta == {meta, fixedMatch}
+    let fixedMatch = {};
+    let fixedMatchMergeMode = "override";
+    if (meta && meta.meta) {
+      fixedMatch = meta.fixedMatch || {};
+      fixedMatchMergeMode = meta.fixedMatchMergeMode;
+      meta = meta.meta;
+    }
 
     // if ("main" == state.moduleName) {
     //  state.LOG = console.log;
@@ -78305,6 +78330,22 @@ const _M = {
     dispatch("updateSchemaBehavior");
     // 这里也会调用 applyBehavior
     dispatch("restoreLocalBehavior");
+
+    // 重新确保直传的 fixedMatch 是有效的
+    if (!_.isEmpty(fixedMatch)) {
+      // 深层合并
+      if ("merge" == fixedMatchMergeMode) {
+        commit("mergeFixedMatch", fixedMatch);
+      }
+      // 浅层合并
+      else if ("assign" == fixedMatchMergeMode) {
+        commit("assignFixedMatch", fixedMatch);
+      }
+      // 默认覆盖
+      else {
+        commit("setFixedMatch", fixedMatch);
+      }
+    }
 
     // Load more fixed data
     await dispatch("applyLoad");
