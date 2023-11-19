@@ -289,7 +289,6 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
-        //console.log(itV)
         if (!this.selIdMap[itV]) {
           list.push(it)
         }

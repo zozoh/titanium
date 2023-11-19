@@ -29,6 +29,7 @@ export default {
     },
     //-------------------------------------
     MajorItems() {
+      //console.log("MajorItems");
       let list = [];
       if (this.majors) {
         if (_.isArray(this.majors)) {
@@ -69,6 +70,11 @@ export default {
       };
       if (!_.isEmpty(this.advanceForm)) {
         comConf.suffixIcon = this.suffixIcon;
+      }
+      if (this.suffixText) {
+        comConf.suffixText = this.suffixText;
+        comConf.suffixTextNotifyName = "suffix:text";
+        comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
       }
       return comConf;
     },
@@ -194,12 +200,14 @@ export default {
     },
     //-------------------------------------
     tryEvalMajors(newVal, oldVal) {
+      //console.log("tryEvalMajors");
       if (!_.isEqual(newVal, oldVal)) {
         this.evalMajors();
       }
     },
     //-------------------------------------
     evalMajors(items = this.MajorItems) {
+      //console.log("evalMajors");
       let isAtTop = Ti.AutoMatch.parse(this.topMajors);
       let sides = [];
       let tops = [];

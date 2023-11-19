@@ -1,4 +1,4 @@
-// Pack At: 2023-11-15 00:48:37
+// Pack At: 2023-11-19 22:47:19
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3940,6 +3940,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
+  },
+  "suffixText": {
+    type: String,
+    default: undefined
   }
   //-----------------------------------
   // Measure
@@ -6892,7 +6896,6 @@ const _M = {
       let list = []
       _.forEach(this.myOptionsData, it => {
         let itV = this.Dict.getValue(it)
-        //console.log(itV)
         if (!this.selIdMap[itV]) {
           list.push(it)
         }
@@ -9317,6 +9320,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     MajorItems() {
+      //console.log("MajorItems");
       let list = [];
       if (this.majors) {
         if (_.isArray(this.majors)) {
@@ -9357,6 +9361,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
       };
       if (!_.isEmpty(this.advanceForm)) {
         comConf.suffixIcon = this.suffixIcon;
+      }
+      if (this.suffixText) {
+        comConf.suffixText = this.suffixText;
+        comConf.suffixTextNotifyName = "suffix:text";
+        comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
       }
       return comConf;
     },
@@ -9482,12 +9491,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     },
     //-------------------------------------
     tryEvalMajors(newVal, oldVal) {
+      //console.log("tryEvalMajors");
       if (!_.isEqual(newVal, oldVal)) {
         this.evalMajors();
       }
     },
     //-------------------------------------
     evalMajors(items = this.MajorItems) {
+      //console.log("evalMajors");
       let isAtTop = Ti.AutoMatch.parse(this.topMajors);
       let sides = [];
       let tops = [];

@@ -100,6 +100,10 @@ export default {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
+  },
+  "suffixText": {
+    type: String,
+    default: undefined
   }
   //-----------------------------------
   // Measure
