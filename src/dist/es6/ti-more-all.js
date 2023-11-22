@@ -1,4 +1,4 @@
-// Pack At: 2023-11-19 22:47:19
+// Pack At: 2023-11-23 01:09:05
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3921,6 +3921,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: Object,
     default: undefined
   },
+  "suffixText": {
+    type: String,
+    default: undefined
+  },
+  "suffixTextNotifyName": {
+    type: String,
+    default: "suffix:text"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -3940,10 +3948,6 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
-  },
-  "suffixText": {
-    type: String,
-    default: undefined
   }
   //-----------------------------------
   // Measure
@@ -9364,8 +9368,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       }
       if (this.suffixText) {
         comConf.suffixText = this.suffixText;
-        comConf.suffixTextNotifyName = "suffix:text";
-        comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+        comConf.suffixTextNotifyName = this.suffixTextNotifyName;
+        if (this.suffixTextNotifyName) {
+          comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+        }
       }
       return comConf;
     },
@@ -24205,6 +24211,7 @@ const _M = {
     },
     //------------------------------------------------
     OnClickInput() {
+      console.log("OnClickInput")
       if (!this.readonly) {
         this.isFocused = true;
       }
@@ -38989,14 +38996,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "extension": {
       type: String,
       default: "rows",
-      validator: v => /^(none|cols|rows|both)$/.test(v)
+      validator: (v) => /^(none|cols|rows|both)$/.test(v)
     },
     "columns": {
       type: Array,
       default: undefined
     },
     "cellComType": {
-      type: String,
+      type: String
     },
     "cellComConf": {
       type: Object,
@@ -39038,19 +39045,25 @@ const __TI_MOD_EXPORT_VAR_NM = {
   computed: {
     //---------------------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //---------------------------------------------------
     SheetData() {
-      return _.isEmpty(this.data) ? {} : this.data
+      return _.isEmpty(this.data) ? {} : this.data;
     },
     //---------------------------------------------------
-    isCanExtendCols() { return /^(cols|both)$/.test(this.extension) },
-    isCanExtendRows() { return /^(rows|both)$/.test(this.extension) },
-    isCanRemoveRow() { return this.removeRowEventName ? true : false },
+    isCanExtendCols() {
+      return /^(cols|both)$/.test(this.extension);
+    },
+    isCanExtendRows() {
+      return /^(rows|both)$/.test(this.extension);
+    },
+    isCanRemoveRow() {
+      return this.removeRowEventName ? true : false;
+    },
     //---------------------------------------------------
     SheetColumnList() {
-      let list = []
+      let list = [];
       // Make list by dataWidth
       if (_.isEmpty(this.columns)) {
         for (let i = 0; i < this.dataWidth; i++) {
@@ -39071,58 +39084,77 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 "min-width": "1rem"
               }
             }
-          }
-          list.push(col)
+          };
+          list.push(col);
         }
       }
       // Upgrade defination by default
       else {
-        _.forEach(this.columns, ({
-          name, title, width = this.defaultCellWidth,
-          readonly = this.cellReadonly,
-          dict, transformer, type, display,
-          autoSort, emptyAsNull = true,
-          comType, comConf, mergeConf = true
-        }, index) => {
-          //.....................................
-          let key = Ti.Num.toBase26(index)
-          //.....................................
-          if (mergeConf) {
-            let conf = _.cloneDeep(this.cellComConf) || {
-              autoSelect: true,
-              focused: true,
-              value: "=@CellValue",
-              style: {
-                width: "100%",
-                "min-width": "1rem"
-              }
+        _.forEach(
+          this.columns,
+          (
+            {
+              name,
+              title,
+              width = this.defaultCellWidth,
+              readonly = this.cellReadonly,
+              dict,
+              transformer,
+              type,
+              display,
+              autoSort,
+              emptyAsNull = true,
+              comType,
+              comConf,
+              mergeConf = true
+            },
+            index
+          ) => {
+            //.....................................
+            let key = Ti.Num.toBase26(index);
+            //.....................................
+            if (mergeConf) {
+              let conf = _.cloneDeep(this.cellComConf) || {
+                autoSelect: true,
+                focused: true,
+                value: "=@CellValue",
+                style: {
+                  width: "100%",
+                  "min-width": "1rem"
+                }
+              };
+              comConf = _.merge(conf, comConf);
             }
-            comConf = _.merge(conf, comConf)
+            //.....................................
+            let col = {
+              index,
+              key,
+              readonly,
+              autoSort,
+              emptyAsNull,
+              name: name || key,
+              title: title || name || key,
+              type,
+              width,
+              display,
+              comType: comType || this.cellComType || "TiInput",
+              comConf
+            };
+            //.....................................
+            if (dict) {
+              col.$dict = Ti.DictFactory.CheckDict(dict);
+            }
+            //.....................................
+            if (transformer) {
+              col.transformer = Ti.Util.genInvoking(transformer);
+            }
+            //.....................................
+            list.push(col);
           }
-          //.....................................
-          let col = {
-            index, key, readonly,
-            autoSort, emptyAsNull,
-            name: name || key,
-            title: title || name || key,
-            type, width, display,
-            comType: comType || this.cellComType || "TiInput",
-            comConf
-          }
-          //.....................................
-          if (dict) {
-            col.$dict = Ti.DictFactory.CheckDict(dict)
-          }
-          //.....................................
-          if (transformer) {
-            col.transformer = Ti.Util.genInvoking(transformer)
-          }
-          //.....................................
-          list.push(col)
-        })
+        );
       }
       // Done
-      return list
+      return list;
     },
     //---------------------------------------------------
     /**
@@ -39132,14 +39164,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
      *   - `name`  : "age"
      */
     SheetColumnMap() {
-      let re = {}
+      let re = {};
       _.forEach(this.SheetColumnList, (col) => {
-        let { index, key, name } = col
-        re[`#${index}`] = col
-        re[`@${key}`] = col
-        re[name] = col
-      })
-      return re
+        let { index, key, name } = col;
+        re[`#${index}`] = col;
+        re[`@${key}`] = col;
+        re[name] = col;
+      });
+      return re;
     },
     //---------------------------------------------------
     /**
@@ -39147,7 +39179,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
      * if columns is not empty
      */
     SheetDisplayColumns() {
-      return this.SheetColumnList
+      return this.SheetColumnList;
     }
     //---------------------------------------------------
   },
@@ -39155,172 +39187,174 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //---------------------------------------------------
     OnClickCell({ cellKey, x, y }) {
       // Eval com
-      this.evalActivedCellCom(cellKey, x, y)
+      this.evalActivedCellCom(cellKey, x, y);
       // Then display it
-      this.myActivedCellKey = cellKey
+      this.myActivedCellKey = cellKey;
     },
     //---------------------------------------------------
     OnCancelCell() {
-      this.evalActivedCellCom(null)
+      this.evalActivedCellCom(null);
     },
     //---------------------------------------------------
     OnCellChange(val, { cellKey, x, y }) {
       //console.log("SheetTable CellChanged", { cellKey, x, y, val })
       // Default, empty value as null
-      let col = this.SheetColumnList[x]
-      let { type, emptyAsNull, autoSort } = col
+      let col = this.SheetColumnList[x];
+      let { type, emptyAsNull, autoSort } = col;
       // pre-treat value
-      if (emptyAsNull && (
-        Ti.Util.isNil(val)
-        || (_.isArray(val) && _.isEmpty(val))
-      )) {
-        val = null
+      if (
+        emptyAsNull &&
+        (Ti.Util.isNil(val) || (_.isArray(val) && _.isEmpty(val)))
+      ) {
+        val = null;
       }
       // sort value when array
       if (autoSort && _.isArray(val)) {
-        val.sort()
+        val.sort();
       }
       // Convert type
       if (type) {
-        let fnName = Ti.Types.getFuncByType(type)
-        let typeFn = Ti.Types.evalFunc(fnName)
-        val = typeFn(val)
+        let fnName = Ti.Types.getFuncByType(type);
+        let typeFn = Ti.Types.evalFunc(fnName);
+        val = typeFn(val);
       }
       // Notify cell change
       if (this.cellChangeEventName) {
         this.$notify(this.cellChangeEventName, {
-          x, y,
+          x,
+          y,
           key: cellKey,
           name: col.name,
           title: col.title,
           value: val
-        })
+        });
       }
 
       // Notify row change
       if (this.rowChangEventeName) {
-        let item = this.getRowDataByIndex(y)
+        let item = this.getRowDataByIndex(y);
         if (Ti.Util.isNil(val)) {
-          delete item[col.name]
+          delete item[col.name];
         } else {
-          item[col.name] = val
+          item[col.name] = val;
         }
         this.$notify(this.rowChangEventeName, {
           index: y,
-          col, item
-        })
+          col,
+          item
+        });
       }
 
       // Notify change
       if (this.dataChangeEventName) {
-        let data = _.cloneDeep(this.SheetData)
-        data[cellKey] = val
-        this.$notify(this.dataChangeEventName, data)
+        let data = _.cloneDeep(this.SheetData);
+        data[cellKey] = val;
+        this.$notify(this.dataChangeEventName, data);
       }
     },
     //---------------------------------------------------
     OnClickRowCreator() {
       if (this.myNextRowAmount) {
-        this.$notify("create:row", this.myNextRowAmount)
+        this.$notify("create:row", this.myNextRowAmount);
       }
     },
     //---------------------------------------------------
     OnClickRowDeletor(row) {
       if (this.removeRowEventName) {
         //console.log("SheetTable CellRemove", row)
-        this.$notify("remove:row", row)
+        this.$notify("remove:row", row);
       }
     },
     //---------------------------------------------------
     /**
-     * 
+     *
      * @param {String} cellKey cell key like `A1`
-     * 
+     *
      * @return `{x:0, y:0}`
      */
     getCellIndexByKey(cellKey) {
-      let m = /^([A-Z]+)(\d+)$/.exec(cellKey)
+      let m = /^([A-Z]+)(\d+)$/.exec(cellKey);
       if (!m) {
-        throw `Invalid cellKey format : "${cellKey}"`
+        throw `Invalid cellKey format : "${cellKey}"`;
       }
       return {
         x: Ti.Num.fromBase26(m[1]),
-        y: parseInt(m[2]) - 1,
-      }
+        y: parseInt(m[2]) - 1
+      };
     },
     //---------------------------------------------------
     /**
-     * Get a data key 
-     * 
+     * Get a data key
+     *
      * @param {Number} x 0 base column index
      * @param {Number} y 0 base row index
      */
     getCellKeyByIndex(x = 0, y = 0) {
-      let key = Ti.Num.toBase26(x)
-      return `${key}${y + 1}`
+      let key = Ti.Num.toBase26(x);
+      return `${key}${y + 1}`;
     },
     //---------------------------------------------------
     /**
      * Gen a var-context for dataKey rendering.
-     * 
+     *
      * @param {Number} x 0 base column index
      * @param {Number} y 0 base row index
      */
     getCellValueByIndex(x, y) {
-      let key = this.getCellKeyByIndex(x, y)
-      let val = this.SheetData[key]
-      return val
+      let key = this.getCellKeyByIndex(x, y);
+      let val = this.SheetData[key];
+      return val;
     },
     //---------------------------------------------------
     /**
-     * 
+     *
      * @param {Number} y 0 base row index
      */
     getRowDataByIndex(y) {
-      let re = {}
+      let re = {};
       for (let col of this.SheetColumnList) {
-        let { index, name } = col
-        let val = this.getCellValueByIndex(index, y)
+        let { index, name } = col;
+        let val = this.getCellValueByIndex(index, y);
         if (!_.isUndefined(val)) {
-          re[name] = val
+          re[name] = val;
         }
       }
-      return re
+      return re;
     },
     //---------------------------------------------------
     getRowDataList() {
-      let list = []
+      let list = [];
       for (let row of this.SheetRowList) {
-        let obj = this.getRowDataByIndex(row.index)
-        list.push(obj)
+        let obj = this.getRowDataByIndex(row.index);
+        list.push(obj);
       }
-      return list
+      return list;
     },
     //---------------------------------------------------
     evalActivedCellCom(cellKey, x, y) {
       // Cancel Actived cell com
       if (!cellKey) {
-        this.myActivedCellKey = null
-        this.myActivedCellComType = null
-        this.myActivedCellComConf = {}
-        return
+        this.myActivedCellKey = null;
+        this.myActivedCellComType = null;
+        this.myActivedCellComConf = {};
+        return;
       }
       // Get back x/y from cellKey
       if (_.isUndefined(x)) {
-        let pos = this.getCellIndexByKey(cellKey)
-        x = pos.x
-        y = pos.y
+        let pos = this.getCellIndexByKey(cellKey);
+        x = pos.x;
+        y = pos.y;
       }
-      let col = this.SheetColumnList[x]
-      let item = this.getRowDataByIndex(y)
-      item["@CellValue"] = this.SheetData[cellKey]
-      let comConf = _.cloneDeep(col.comConf)
+      let col = this.SheetColumnList[x];
+      let item = this.getRowDataByIndex(y);
+      item["@CellValue"] = this.SheetData[cellKey];
+      let comConf = _.cloneDeep(col.comConf);
       if (!comConf.value) {
-        comConf.value = "=@CellValue"
+        comConf.value = "=@CellValue";
       }
       // Setup editing component
-      this.myActivedCellComType = col.comType
-      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf)
+      this.myActivedCellComType = col.comType;
+      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf);
     },
     //---------------------------------------------------
     /**
@@ -39343,83 +39377,88 @@ const __TI_MOD_EXPORT_VAR_NM = {
       // Eval display text
       const genCellDisplayText = async (cellVal, col) => {
         if (_.isArray(cellVal)) {
-          let vList = []
+          let vList = [];
           for (let cv of cellVal) {
-            let v2 = await genCellDisplayText(cv, col)
-            vList.push(v2)
+            let v2 = await genCellDisplayText(cv, col);
+            vList.push(v2);
           }
-          return vList.join(",")
+          return vList.join(",");
         }
-        let displayText = cellVal
+        let displayText = cellVal;
         if (col.$dict) {
-          displayText = await col.$dict.getItemText(cellVal)
+          displayText = await col.$dict.getItemText(cellVal);
         }
         if (_.isFunction(col.transformer)) {
-          displayText = col.transformer(displayText)
+          displayText = col.transformer(displayText);
         }
-        return displayText
-      }
+        if(!displayText && col.comConf && col.comConf.placeholder){
+          return col.comConf.placeholder
+        }
+        return displayText;
+      };
       // Gen matrix
-      let matrix = []
+      let matrix = [];
       for (let y = 0; y < this.dataHeight; y++) {
         // Explain cells
-        let cells = []
+        let cells = [];
         for (let col of this.SheetDisplayColumns) {
-          let x = col.index
+          let x = col.index;
           //................................
-          let cellKey = this.getCellKeyByIndex(x, y)
-          let cellVal = this.SheetData[cellKey]
-          let actived = this.myActivedCellKey == cellKey
+          let cellKey = this.getCellKeyByIndex(x, y);
+          let cellVal = this.SheetData[cellKey];
+          let actived = this.myActivedCellKey == cellKey;
           //................................
-          let displayText = await genCellDisplayText(cellVal, col)
+          let displayText = await genCellDisplayText(cellVal, col);
           let context = {
             text: displayText,
             value: cellVal
-          }
+          };
           //................................
           // Eval display
           let dis = col.display || {
             major: "=text"
-          }
-          let display = Ti.Util.explainObj(context, dis)
+          };
+          let display = Ti.Util.explainObj(context, dis);
           //................................
           let cell = _.assign(_.cloneDeep(col), {
             actived,
             className: {
+              "is-nil": _.isNil(cellVal),
               "is-actived": actived,
               "no-actived": !actived,
               "is-readonly": col.readonly,
-              "no-readonly": !col.readonly,
+              "no-readonly": !col.readonly
             },
             cellKey,
             rowIndex: y,
-            x, y,
+            x,
+            y,
             value: cellVal,
             ...display,
             showMajor: !Ti.Util.isNil(display.major),
             showSuffix: !Ti.Util.isNil(display.suffix)
-          })
+          });
           //................................
-          cells.push(cell)
+          cells.push(cell);
         }
 
         // Join to matrix
         matrix.push({
           index: y,
           cells
-        })
+        });
       }
-      this.myMatrix = matrix
+      this.myMatrix = matrix;
       //console.log("evalSheetMatrix() -> ", matrix.length)
       // Re-eval actived com if it has had
       if (this.myActivedCellKey) {
-        this.evalActivedCellCom(this.myActivedCellKey)
+        this.evalActivedCellCom(this.myActivedCellKey);
       }
     },
     //---------------------------------------------------
     tryEvalMatrix(newVal, oldVal) {
       if (!_.isEqual(newVal, oldVal)) {
-        this.evalSheetMatrix()
+        this.evalSheetMatrix();
       }
     }
     //---------------------------------------------------
@@ -39436,7 +39475,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     await this.evalSheetMatrix();
   }
   ///////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -44821,7 +44860,9 @@ const _M = {
           this.myFreeValue = val;
         }
       }
-      if (!byKeyboardArrow) this.tryNotifyChanged();
+      if (!byKeyboardArrow) {
+        this.tryNotifyChanged();
+      }
     },
     //-----------------------------------------------
     async OnInputFocused() {
@@ -65650,6 +65691,13 @@ const _M = {
     loading: false
   }),
   ////////////////////////////////////////////////////
+  props: {
+    "notifyWhenCollapse": {
+      type: Boolean,
+      default: true
+    }
+  },
+  ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
     isCollapse() {
@@ -65776,6 +65824,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
+      console.log("hahah")
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend();
       }
@@ -65800,7 +65849,9 @@ const _M = {
 
       let vals = Ti.Util.truthyKeys(checkedIds);
       await this.evalMyTags(_.concat(vals, this.myFreeValues));
-      this.tryNotifyChanged();
+      if (!this.notifyWhenCollapse) {
+        this.tryNotifyChanged();
+      }
     },
     //-----------------------------------------------
     // Core Methods
@@ -65819,6 +65870,9 @@ const _M = {
     doCollapse({ escaped = false } = {}) {
       if (escaped) {
         this.$notify("change", this.myOldValue);
+      }
+      if (this.notifyWhenCollapse) {
+        this.tryNotifyChanged();
       }
       this.myDropStatus = "collapse";
       this.myOptionsData = [];
@@ -89745,6 +89799,7 @@ Ti.Preload("ti/com/ti/combo/multi-input/ti-combo-multi-input.html", `<ti-combo-b
 
       @inputing="OnInputInputing"
       @input:focus="OnInputFocused"
+      @input:click="OnInputFocused"
       @change="OnTagListChanged"
       @prefix:icon="$notify('prefix:icon')"
       @suffix:icon="OnClickStatusIcon"/>

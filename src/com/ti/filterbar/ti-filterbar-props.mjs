@@ -81,6 +81,14 @@ export default {
     type: Object,
     default: undefined
   },
+  "suffixText": {
+    type: String,
+    default: undefined
+  },
+  "suffixTextNotifyName": {
+    type: String,
+    default: "suffix:text"
+  },
   //-----------------------------------
   // Aspect
   //-----------------------------------
@@ -100,10 +108,6 @@ export default {
   "suffixIcon": {
     type: String,
     default: "fas-bars"
-  },
-  "suffixText": {
-    type: String,
-    default: undefined
   }
   //-----------------------------------
   // Measure

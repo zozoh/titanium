@@ -7560,6 +7560,9 @@ div.ti-input-tags {
           opacity: 0.6; }
       .ti-sheet-table > .sheet-con > table td.as-row-cell {
         position: relative; }
+        .ti-sheet-table > .sheet-con > table td.as-row-cell.is-nil > div.as-cell-val {
+          opacity: 0.6;
+          font-size: 0.8em; }
         .ti-sheet-table > .sheet-con > table td.as-row-cell .as-cell-editor {
           position: absolute;
           left: -1px;

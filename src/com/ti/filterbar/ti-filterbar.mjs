@@ -73,8 +73,10 @@ export default {
       }
       if (this.suffixText) {
         comConf.suffixText = this.suffixText;
-        comConf.suffixTextNotifyName = "suffix:text";
-        comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+        comConf.suffixTextNotifyName = this.suffixTextNotifyName;
+        if (this.suffixTextNotifyName) {
+          comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+        }
       }
       return comConf;
     },

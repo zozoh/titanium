@@ -133,6 +133,13 @@
       td.as-row-cell {
         position: relative;
         //------------------------------------------
+        &.is-nil {
+          > div.as-cell-val {
+            opacity: 0.6;
+            font-size: 0.8em;
+          }
+        }
+        //------------------------------------------
         .as-cell-editor {
           @include pos-abs($t: -1px, $b: -1px, $l: -1px);
           min-height: SZ(28);

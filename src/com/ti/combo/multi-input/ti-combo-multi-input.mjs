@@ -14,6 +14,13 @@ const _M = {
     loading: false
   }),
   ////////////////////////////////////////////////////
+  props: {
+    "notifyWhenCollapse": {
+      type: Boolean,
+      default: true
+    }
+  },
+  ////////////////////////////////////////////////////
   computed: {
     //------------------------------------------------
     isCollapse() {
@@ -140,6 +147,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
+      console.log("hahah")
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend();
       }
@@ -164,7 +172,9 @@ const _M = {
 
       let vals = Ti.Util.truthyKeys(checkedIds);
       await this.evalMyTags(_.concat(vals, this.myFreeValues));
-      this.tryNotifyChanged();
+      if (!this.notifyWhenCollapse) {
+        this.tryNotifyChanged();
+      }
     },
     //-----------------------------------------------
     // Core Methods
@@ -183,6 +193,9 @@ const _M = {
     doCollapse({ escaped = false } = {}) {
       if (escaped) {
         this.$notify("change", this.myOldValue);
+      }
+      if (this.notifyWhenCollapse) {
+        this.tryNotifyChanged();
       }
       this.myDropStatus = "collapse";
       this.myOptionsData = [];

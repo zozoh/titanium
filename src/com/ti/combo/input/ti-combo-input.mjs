@@ -297,7 +297,9 @@ const _M = {
           this.myFreeValue = val;
         }
       }
-      if (!byKeyboardArrow) this.tryNotifyChanged();
+      if (!byKeyboardArrow) {
+        this.tryNotifyChanged();
+      }
     },
     //-----------------------------------------------
     async OnInputFocused() {
