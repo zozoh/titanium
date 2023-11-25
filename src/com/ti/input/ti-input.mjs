@@ -190,7 +190,6 @@ const _M = {
     },
     //------------------------------------------------
     OnClickInput() {
-      console.log("OnClickInput")
       if (!this.readonly) {
         this.isFocused = true;
       }

@@ -71,13 +71,23 @@ export default {
       if (!_.isEmpty(this.advanceForm)) {
         comConf.suffixIcon = this.suffixIcon;
       }
+      let hover = ["prefixIcon", "suffixIcon"];
+      if (this.prefixText) {
+        comConf.prefixText = this.prefixText;
+        comConf.prefixTextNotifyName = this.prefixTextNotifyName;
+        if (this.prefixTextNotifyName) {
+          hover.push("prefixText");
+        }
+      }
       if (this.suffixText) {
         comConf.suffixText = this.suffixText;
         comConf.suffixTextNotifyName = this.suffixTextNotifyName;
         if (this.suffixTextNotifyName) {
-          comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+          hover.push("suffixText");
         }
       }
+
+      comConf.hover = hover;
       return comConf;
     },
     //-------------------------------------

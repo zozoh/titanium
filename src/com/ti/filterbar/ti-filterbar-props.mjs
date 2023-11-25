@@ -81,6 +81,14 @@ export default {
     type: Object,
     default: undefined
   },
+  "prefixText": {
+    type: String,
+    default: undefined
+  },
+  "prefixTextNotifyName": {
+    type: String,
+    default: "suffix:text"
+  },
   "suffixText": {
     type: String,
     default: undefined
