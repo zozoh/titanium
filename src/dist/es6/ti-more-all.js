@@ -1,4 +1,4 @@
-// Pack At: 2023-11-23 01:09:05
+// Pack At: 2023-11-27 22:00:59
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -3920,6 +3920,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "sorterConf": {
     type: Object,
     default: undefined
+  },
+  "prefixText": {
+    type: String,
+    default: undefined
+  },
+  "prefixTextNotifyName": {
+    type: String,
+    default: "suffix:text"
   },
   "suffixText": {
     type: String,
@@ -9366,13 +9374,23 @@ const __TI_MOD_EXPORT_VAR_NM = {
       if (!_.isEmpty(this.advanceForm)) {
         comConf.suffixIcon = this.suffixIcon;
       }
+      let hover = ["prefixIcon", "suffixIcon"];
+      if (this.prefixText) {
+        comConf.prefixText = this.prefixText;
+        comConf.prefixTextNotifyName = this.prefixTextNotifyName;
+        if (this.prefixTextNotifyName) {
+          hover.push("prefixText");
+        }
+      }
       if (this.suffixText) {
         comConf.suffixText = this.suffixText;
         comConf.suffixTextNotifyName = this.suffixTextNotifyName;
         if (this.suffixTextNotifyName) {
-          comConf.hover = ["prefixIcon", "suffixIcon", "suffixText"];
+          hover.push("suffixText");
         }
       }
+
+      comConf.hover = hover;
       return comConf;
     },
     //-------------------------------------
@@ -24211,7 +24229,6 @@ const _M = {
     },
     //------------------------------------------------
     OnClickInput() {
-      console.log("OnClickInput")
       if (!this.readonly) {
         this.isFocused = true;
       }
