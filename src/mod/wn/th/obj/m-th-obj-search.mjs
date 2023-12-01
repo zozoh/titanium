@@ -626,7 +626,7 @@ const _M = {
     let input = JSON.stringify(qmeta);
 
     // Command
-    let cmds = [`thing ${thingSetId} query -cqn`];
+    let cmds = [`o 'id:${thingSetId}/index' @query`];
 
     // Eval Pager
     if (getters.isPagerEnabled) {
@@ -640,10 +640,33 @@ const _M = {
       cmds.push(`-sort '${JSON.stringify(sorter)}'`);
     }
 
+    // Join One
+    if (state.joinOne && !_.isEmpty(state.joinOne.query)) {
+      cmds.push("@join_one");
+      let jo = state.joinOne;
+      if (jo.path) {
+        cmds.push(`'${jo.path}'`);
+      }
+      if (jo.query) {
+        cmds.push(`-query '${JSON.stringify(jo.query)}'`);
+      }
+      if (jo.sort) {
+        cmds.push(`-sort '${JSON.stringify(jo.sort)}'`);
+      }
+      if (jo.explain) {
+        cmds.push(`-explain '${JSON.stringify(jo.explain)}'`);
+      }
+    }
+
+    // Output
+    cmds.push(`@json`);
+
     // Show Thing Keys
     if (thingObjKeys) {
-      cmds.push(`-e '${thingObjKeys}'`);
+      cmds.push(`'${thingObjKeys}'`);
     }
+
+    cmds.push("-cqnl");
 
     // Process Query
     let cmdText = cmds.join(" ");

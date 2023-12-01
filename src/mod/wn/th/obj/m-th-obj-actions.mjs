@@ -319,6 +319,7 @@ const _M = {
       match,
       exportSettings,
       importSettings,
+      joinOne,
       agg,
       aggQuery,
       aggAutoReload,
@@ -357,6 +358,11 @@ const _M = {
     }
     if (importSettings) {
       commit("assignImportSettings", importSettings);
+    }
+
+    // Apply Join One
+    if (!_.isEmpty(joinOne)) {
+      commit("setJoinOne", joinOne);
     }
 
     // Apply agg setting

@@ -24,6 +24,10 @@ export default {
       type: Number,
       default: 100
     },
+    "vars": {
+      type: Object,
+      default: () => ({})
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -407,26 +411,37 @@ export default {
      * }]
      */
     async evalSheetMatrix() {
-      //console.log("evalSheetMatrix()", this.dataHeight)
+      console.log("evalSheetMatrix()", this.dataHeight);
+      const sheetData = _.cloneDeep(this.SheetData)
       // Eval display text
-      const genCellDisplayText = async (cellVal, col) => {
+      const genCellDisplayText = async (cellVal, options) => {
         if (_.isArray(cellVal)) {
           let vList = [];
           for (let cv of cellVal) {
-            let v2 = await genCellDisplayText(cv, col);
+            let v2 = await genCellDisplayText(cv, options);
             vList.push(v2);
           }
           return vList.join(",");
         }
+        let col = options.column;
         let displayText = cellVal;
         if (col.$dict) {
           displayText = await col.$dict.getItemText(cellVal);
         }
+
+        // 准备上下文
+        let context = {
+          ...options,
+          vars: this.vars
+        };
+
         if (_.isFunction(col.transformer)) {
-          displayText = col.transformer(displayText);
+          displayText = col.transformer(displayText, context);
         }
-        if(!displayText && col.comConf && col.comConf.placeholder){
-          return col.comConf.placeholder
+        if (!displayText && col.comConf && col.comConf.placeholder) {
+          return Ti.Util.explainObj(context, col.comConf.placeholder, {
+            evalFunc: true
+          });
         }
         return displayText;
       };
@@ -442,7 +457,14 @@ export default {
           let cellVal = this.SheetData[cellKey];
           let actived = this.myActivedCellKey == cellKey;
           //................................
-          let displayText = await genCellDisplayText(cellVal, col);
+          let displayText = await genCellDisplayText(cellVal, {
+            column: col,
+            rowIndex: y,
+            rowI: y + 1,
+            colIndex: x,
+            cellKey,
+            sheetData
+          });
           let context = {
             text: displayText,
             value: cellVal

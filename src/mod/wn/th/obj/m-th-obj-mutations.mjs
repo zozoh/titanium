@@ -164,6 +164,11 @@ const _M = {
     state.fixedMatch = _.merge(_old, fm);
   },
   //----------------------------------------
+  setJoinOne(state, joinOne) {
+    console.log("setJoinOne", joinOne)
+    state.joinOne = _.cloneDeep(joinOne);
+  },
+  //----------------------------------------
   /*
   agg: {
     "$ResultKey": {

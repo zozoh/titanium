@@ -245,7 +245,9 @@ const _M = {
       json = await this.openDialogForSource(json);
 
       // User cancel
-      if (_.isUndefined(json)) return;
+      if (_.isUndefined(json)) {
+        return;
+      }
 
       // Join to
       try {

@@ -21,6 +21,7 @@
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
+  "joinOne": null,
   "agg": {},
   "aggResult": {},
   "aggQuery": null,
