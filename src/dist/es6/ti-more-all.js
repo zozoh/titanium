@@ -1,4 +1,4 @@
-// Pack At: 2023-11-27 22:00:59
+// Pack At: 2023-12-03 22:11:21
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -6026,6 +6026,11 @@ const _M = {
   mergeFixedMatch(state, fm) {
     let _old = _.cloneDeep(state.fixedMatch);
     state.fixedMatch = _.merge(_old, fm);
+  },
+  //----------------------------------------
+  setJoinOne(state, joinOne) {
+    console.log("setJoinOne", joinOne)
+    state.joinOne = _.cloneDeep(joinOne);
   },
   //----------------------------------------
   /*
@@ -14299,7 +14304,7 @@ const _M = {
     let input = JSON.stringify(qmeta);
 
     // Command
-    let cmds = [`thing ${thingSetId} query -cqn`];
+    let cmds = [`o 'id:${thingSetId}/index' @query`];
 
     // Eval Pager
     if (getters.isPagerEnabled) {
@@ -14313,10 +14318,33 @@ const _M = {
       cmds.push(`-sort '${JSON.stringify(sorter)}'`);
     }
 
+    // Join One
+    if (state.joinOne && !_.isEmpty(state.joinOne.query)) {
+      cmds.push("@join_one");
+      let jo = state.joinOne;
+      if (jo.path) {
+        cmds.push(`'${jo.path}'`);
+      }
+      if (jo.query) {
+        cmds.push(`-query '${JSON.stringify(jo.query)}'`);
+      }
+      if (jo.sort) {
+        cmds.push(`-sort '${JSON.stringify(jo.sort)}'`);
+      }
+      if (jo.explain) {
+        cmds.push(`-explain '${JSON.stringify(jo.explain)}'`);
+      }
+    }
+
+    // Output
+    cmds.push(`@json`);
+
     // Show Thing Keys
     if (thingObjKeys) {
-      cmds.push(`-e '${thingObjKeys}'`);
+      cmds.push(`'${thingObjKeys}'`);
     }
+
+    cmds.push("-cqnl");
 
     // Process Query
     let cmdText = cmds.join(" ");
@@ -15902,7 +15930,7 @@ const _M = {
           if (_.isBoolean(fld.required)) {
             field.required = true;
           } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.myData);
+            field.required = Ti.AutoMatch.test(fld.required, this.FormVars);
           }
         }
 
@@ -27286,7 +27314,9 @@ const _M = {
       json = await this.openDialogForSource(json);
 
       // User cancel
-      if (_.isUndefined(json)) return;
+      if (_.isUndefined(json)) {
+        return;
+      }
 
       // Join to
       try {
@@ -39007,6 +39037,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
       type: Number,
       default: 100
     },
+    "vars": {
+      type: Object,
+      default: () => ({})
+    },
     //-----------------------------------
     // Behavior
     //-----------------------------------
@@ -39362,16 +39396,31 @@ const __TI_MOD_EXPORT_VAR_NM = {
         x = pos.x;
         y = pos.y;
       }
+      //................................
+      let cellVal = this.SheetData[cellKey];
       let col = this.SheetColumnList[x];
       let item = this.getRowDataByIndex(y);
-      item["@CellValue"] = this.SheetData[cellKey];
+      item["@CellValue"] = cellVal;
+      _.assign(item, {
+        column: col,
+        rowIndex: y,
+        rowI: y + 1,
+        colIndex: x,
+        cellKey,
+        sheetData: this.SheetData,
+        forCellCom: true,
+        vars: this.vars
+      });
+      //................................
       let comConf = _.cloneDeep(col.comConf);
       if (!comConf.value) {
         comConf.value = "=@CellValue";
       }
       // Setup editing component
       this.myActivedCellComType = col.comType;
-      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf);
+      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf, {
+        evalFunc: true
+      });
     },
     //---------------------------------------------------
     /**
@@ -39390,26 +39439,37 @@ const __TI_MOD_EXPORT_VAR_NM = {
      * }]
      */
     async evalSheetMatrix() {
-      //console.log("evalSheetMatrix()", this.dataHeight)
+      console.log("evalSheetMatrix()", this.dataHeight);
+      const sheetData = _.cloneDeep(this.SheetData);
       // Eval display text
-      const genCellDisplayText = async (cellVal, col) => {
+      const genCellDisplayText = async (cellVal, options) => {
         if (_.isArray(cellVal)) {
           let vList = [];
           for (let cv of cellVal) {
-            let v2 = await genCellDisplayText(cv, col);
+            let v2 = await genCellDisplayText(cv, options);
             vList.push(v2);
           }
           return vList.join(",");
         }
+        let col = options.column;
         let displayText = cellVal;
         if (col.$dict) {
           displayText = await col.$dict.getItemText(cellVal);
         }
+
+        // 准备上下文
+        let context = {
+          ...options,
+          vars: this.vars
+        };
+
         if (_.isFunction(col.transformer)) {
-          displayText = col.transformer(displayText);
+          displayText = col.transformer(displayText, context);
         }
-        if(!displayText && col.comConf && col.comConf.placeholder){
-          return col.comConf.placeholder
+        if (!displayText && col.comConf && col.comConf.placeholder) {
+          return Ti.Util.explainObj(context, col.comConf.placeholder, {
+            evalFunc: true
+          });
         }
         return displayText;
       };
@@ -39425,7 +39485,14 @@ const __TI_MOD_EXPORT_VAR_NM = {
           let cellVal = this.SheetData[cellKey];
           let actived = this.myActivedCellKey == cellKey;
           //................................
-          let displayText = await genCellDisplayText(cellVal, col);
+          let displayText = await genCellDisplayText(cellVal, {
+            column: col,
+            rowIndex: y,
+            rowI: y + 1,
+            colIndex: x,
+            cellKey,
+            sheetData
+          });
           let context = {
             text: displayText,
             value: cellVal
@@ -78142,6 +78209,7 @@ const _M = {
       match,
       exportSettings,
       importSettings,
+      joinOne,
       agg,
       aggQuery,
       aggAutoReload,
@@ -78180,6 +78248,11 @@ const _M = {
     }
     if (importSettings) {
       commit("assignImportSettings", importSettings);
+    }
+
+    // Apply Join One
+    if (!_.isEmpty(joinOne)) {
+      commit("setJoinOne", joinOne);
     }
 
     // Apply agg setting
@@ -103023,6 +103096,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "thingSetId": null,
   "oTs": null,
   "fixedMatch": {},
+  "joinOne": null,
   "agg": {},
   "aggResult": {},
   "aggQuery": null,

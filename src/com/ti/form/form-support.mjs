@@ -678,7 +678,7 @@ const _M = {
           if (_.isBoolean(fld.required)) {
             field.required = true;
           } else {
-            field.required = Ti.AutoMatch.test(fld.required, this.myData);
+            field.required = Ti.AutoMatch.test(fld.required, this.FormVars);
           }
         }
 

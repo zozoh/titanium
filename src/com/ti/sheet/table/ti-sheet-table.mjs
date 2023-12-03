@@ -383,16 +383,31 @@ export default {
         x = pos.x;
         y = pos.y;
       }
+      //................................
+      let cellVal = this.SheetData[cellKey];
       let col = this.SheetColumnList[x];
       let item = this.getRowDataByIndex(y);
-      item["@CellValue"] = this.SheetData[cellKey];
+      item["@CellValue"] = cellVal;
+      _.assign(item, {
+        column: col,
+        rowIndex: y,
+        rowI: y + 1,
+        colIndex: x,
+        cellKey,
+        sheetData: this.SheetData,
+        forCellCom: true,
+        vars: this.vars
+      });
+      //................................
       let comConf = _.cloneDeep(col.comConf);
       if (!comConf.value) {
         comConf.value = "=@CellValue";
       }
       // Setup editing component
       this.myActivedCellComType = col.comType;
-      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf);
+      this.myActivedCellComConf = Ti.Util.explainObj(item, comConf, {
+        evalFunc: true
+      });
     },
     //---------------------------------------------------
     /**
@@ -412,7 +427,7 @@ export default {
      */
     async evalSheetMatrix() {
       console.log("evalSheetMatrix()", this.dataHeight);
-      const sheetData = _.cloneDeep(this.SheetData)
+      const sheetData = _.cloneDeep(this.SheetData);
       // Eval display text
       const genCellDisplayText = async (cellVal, options) => {
         if (_.isArray(cellVal)) {
