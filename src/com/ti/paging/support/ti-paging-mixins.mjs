@@ -13,7 +13,7 @@ export default {
     },
     "valueType": {
       type: String,
-      default: "shortName",
+      default: "longName",
       validator: v => /^(short|long)Name$/.test(v)
     }
   },
