@@ -426,7 +426,7 @@ export default {
      * }]
      */
     async evalSheetMatrix() {
-      console.log("evalSheetMatrix()", this.dataHeight);
+      //console.log("evalSheetMatrix()", this.dataHeight);
       const sheetData = _.cloneDeep(this.SheetData);
       // Eval display text
       const genCellDisplayText = async (cellVal, options) => {

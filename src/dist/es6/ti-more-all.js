@@ -1,4 +1,4 @@
-// Pack At: 2023-12-03 22:11:21
+// Pack At: 2023-12-03 23:43:32
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -39439,7 +39439,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
      * }]
      */
     async evalSheetMatrix() {
-      console.log("evalSheetMatrix()", this.dataHeight);
+      //console.log("evalSheetMatrix()", this.dataHeight);
       const sheetData = _.cloneDeep(this.SheetData);
       // Eval display text
       const genCellDisplayText = async (cellVal, options) => {
