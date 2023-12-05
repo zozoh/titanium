@@ -1,4 +1,4 @@
-// Pack At: 2023-12-04 00:40:15
+// Pack At: 2023-12-06 02:06:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -1695,7 +1695,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
       default: "nickname,text,value,title,abbr,nm,id"
     },
     "filterBy": {
-      type: [Function, String]
+      type: [Function, Object, String]
     },
     "list": {
       type: Object,
@@ -1706,64 +1706,67 @@ const __TI_MOD_EXPORT_VAR_NM = {
     "listType": {
       type: String,
       default: "list",
-      validator: v => /^(list|table|wall)$/.test(v)
+      validator: (v) => /^(list|table|wall)$/.test(v)
     }
   },
   //////////////////////////////////////////
   computed: {
     //-------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //-------------------------------------
     ListFilterBy() {
       // Function
       if (_.isFunction(this.filterBy)) {
-        return this.filterBy
+        return this.filterBy;
       }
       // Invoking
       if (_.isString(this.filterBy) || _.isPlainObject(this.filterBy)) {
-        return Ti.Util.genInvoking(this.filterBy)
+        return Ti.Util.genInvoking(this.filterBy);
       }
       // Auto get filter keys
-      let itKeys = []
-      let kss = _.concat([], this.filterKeys)
+      let itKeys = [];
+      let kss = _.concat([], this.filterKeys);
       for (let ks of kss) {
-        let keys = Ti.S.splitIgnoreBlank(ks)
+        let keys = Ti.S.splitIgnoreBlank(ks);
         if (!_.isEmpty(keys) && _.isArray(keys)) {
-          itKeys.push(...keys)
+          itKeys.push(...keys);
         }
       }
       // Gen the function
       return (it, fltv) => {
         if (Ti.Util.isNil(fltv)) {
-          return true
+          return true;
         }
         //console.log("filter", { it, fltv })
         for (let k of itKeys) {
-          let v = (it.rawData || it)[k]
+          let v = (it.rawData || it)[k];
           if (Ti.Util.isNil(v)) {
             continue;
           }
-          let s = v + ""
+          let s = v + "";
           if (s.indexOf(fltv) >= 0) {
-            return true
+            return true;
           }
         }
-        return false
-      }
+        return false;
+      };
     },
     //-------------------------------------
     FilterInputComConf() {
-      return _.assign({
-        width: "100%",
-        prefixIcon: "fas-filter",
-        placeholder: "i18n:filter"
-      }, this.filterInput)
+      return _.assign(
+        {
+          width: "100%",
+          prefixIcon: "fas-filter",
+          placeholder: "i18n:filter"
+        },
+        this.filterInput
+      );
     },
     //-------------------------------------
     ListComType() {
-      return `ti-${this.listType}`
+      return `ti-${this.listType}`;
     }
     //-------------------------------------
   },
@@ -1771,12 +1774,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
   methods: {
     //-------------------------------------
     OnInputChange(str) {
-      this.myFilterValue = str || null
+      this.myFilterValue = str || null;
     }
     //-------------------------------------
   }
   //////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
@@ -6029,7 +6032,7 @@ const _M = {
   },
   //----------------------------------------
   setJoinOne(state, joinOne) {
-    console.log("setJoinOne", joinOne)
+    //console.log("setJoinOne", joinOne)
     state.joinOne = _.cloneDeep(joinOne);
   },
   //----------------------------------------
@@ -31822,7 +31825,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     default: undefined
   },
   "filterBy": {
-    type: Function,
+    type: [Function, Object, Array],
     default: undefined
   },
   //-----------------------------------
@@ -31953,7 +31956,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
     type: [Number, String],
     default: undefined
   }
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================

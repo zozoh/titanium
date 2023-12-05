@@ -1,4 +1,4 @@
-// Pack At: 2023-12-04 00:40:15
+// Pack At: 2023-12-06 02:06:31
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -17906,7 +17906,7 @@ const { Dict, DictFactory } = (function(){
       // Try get
       let dKey = `${name}.${key}`;
       let d = _.get(DYNAMIC_DICTS.instances, dKey);
-      console.log("GetDynamicDict", {name, key, vars})
+      //console.log("GetDynamicDict", {name, key, vars})
       // Create New instance
       if (!d) {
         let dd = DYNAMIC_DICTS.definations[name];
@@ -20565,7 +20565,7 @@ function MatchCache(url) {
 }
 //---------------------------------------
 const ENV = {
-  "version": "1.2.5",
+  "version": "1.2.6",
   "dev": false,
   "appName": null,
   "session": {},

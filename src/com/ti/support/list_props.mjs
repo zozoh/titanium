@@ -52,7 +52,7 @@ export default {
     default: undefined
   },
   "filterBy": {
-    type: Function,
+    type: [Function, Object, Array],
     default: undefined
   },
   //-----------------------------------
@@ -183,4 +183,4 @@ export default {
     type: [Number, String],
     default: undefined
   }
-}
+};

@@ -657,7 +657,7 @@ export const DictFactory = {
     // Try get
     let dKey = `${name}.${key}`;
     let d = _.get(DYNAMIC_DICTS.instances, dKey);
-    console.log("GetDynamicDict", {name, key, vars})
+    //console.log("GetDynamicDict", {name, key, vars})
     // Create New instance
     if (!d) {
       let dd = DYNAMIC_DICTS.definations[name];

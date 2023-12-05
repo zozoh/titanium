@@ -165,7 +165,7 @@ const _M = {
   },
   //----------------------------------------
   setJoinOne(state, joinOne) {
-    console.log("setJoinOne", joinOne)
+    //console.log("setJoinOne", joinOne)
     state.joinOne = _.cloneDeep(joinOne);
   },
   //----------------------------------------
