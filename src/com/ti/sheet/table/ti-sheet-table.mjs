@@ -537,6 +537,7 @@ export default {
   ///////////////////////////////////////////////////////
   watch: {
     "data": "tryEvalMatrix",
+    "vars": "tryEvalMatrix",
     "dataWidth": "tryEvalMatrix",
     "dataHeight": "tryEvalMatrix",
     "myActivedCellKey": "tryEvalMatrix"

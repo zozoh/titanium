@@ -126,7 +126,9 @@ const _M = {
   computed: {
     //--------------------------------------
     AcceptTypes() {
-      if (_.isString(this.supportTypes)) return this.supportTypes.split(",");
+      if (_.isString(this.supportTypes)) {
+        return this.supportTypes.split(",");
+      }
       return this.supportTypes;
     },
     //--------------------------------------

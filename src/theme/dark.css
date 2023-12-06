@@ -5621,8 +5621,7 @@ div.ti-input-tags {
     .ti-list > .list-row .row-checker {
       margin: 0 0.06rem; }
     .ti-list > .list-row.is-current > .row-actived-indicator {
-      color: #DA2;
-      background-color: rgba(100, 100, 100, 0.8);
+      color: #FC4;
       opacity: 1; }
     .ti-list > .list-row.is-checked {
       color: #222;
@@ -5632,7 +5631,6 @@ div.ti-input-tags {
         color: inherit; }
       .ti-list > .list-row.is-checked.is-current > .row-actived-indicator {
         color: #222;
-        background-color: #FC4;
         opacity: 1; }
     .ti-list > .list-row > .row-number {
       display: flex;
@@ -5669,6 +5667,175 @@ div.ti-input-tags {
           width: 0.42rem; }
         .ti-list > .list-row > .row-con .ti-icon.icon-w48 {
           width: 0.48rem; }
+    .ti-list > .list-row.is-primary {
+      color: #FC4; }
+      .ti-list > .list-row.is-primary.is-checked {
+        color: #222;
+        background-color: #FC4; }
+        .ti-list > .list-row.is-primary.is-checked > td {
+          border-color: #222; }
+    .ti-list > .list-row.is-primary-r {
+      color: #222;
+      background-color: #FC4; }
+      .ti-list > .list-row.is-primary-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-primary-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #FC4; }
+    .ti-list > .list-row.is-secondary {
+      color: #F48; }
+      .ti-list > .list-row.is-secondary.is-checked {
+        color: #FFF;
+        background-color: #F48; }
+        .ti-list > .list-row.is-secondary.is-checked > td {
+          border-color: #FFF; }
+    .ti-list > .list-row.is-secondary-r {
+      color: #FFF;
+      background-color: #F48; }
+      .ti-list > .list-row.is-secondary-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-secondary-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #F48; }
+    .ti-list > .list-row.is-success {
+      color: #5A5; }
+      .ti-list > .list-row.is-success.is-checked {
+        color: #CFC;
+        background-color: #5A5; }
+        .ti-list > .list-row.is-success.is-checked > td {
+          border-color: #CFC; }
+    .ti-list > .list-row.is-success-r {
+      color: #CFC;
+      background-color: #5A5; }
+      .ti-list > .list-row.is-success-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-success-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #5A5; }
+    .ti-list > .list-row.is-warn {
+      color: #FE0; }
+      .ti-list > .list-row.is-warn.is-checked {
+        color: #620;
+        background-color: #FE0; }
+        .ti-list > .list-row.is-warn.is-checked > td {
+          border-color: #620; }
+    .ti-list > .list-row.is-warn-r {
+      color: #620;
+      background-color: #FE0; }
+      .ti-list > .list-row.is-warn-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-warn-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #FE0; }
+    .ti-list > .list-row.is-info {
+      color: #44AAFF; }
+      .ti-list > .list-row.is-info.is-checked {
+        color: #FFF;
+        background-color: #44AAFF; }
+        .ti-list > .list-row.is-info.is-checked > td {
+          border-color: #FFF; }
+    .ti-list > .list-row.is-info-r {
+      color: #FFF;
+      background-color: #44AAFF; }
+      .ti-list > .list-row.is-info-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-info-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #44AAFF; }
+    .ti-list > .list-row.is-error {
+      color: #F65; }
+      .ti-list > .list-row.is-error.is-checked {
+        color: #FFF;
+        background-color: #F65; }
+        .ti-list > .list-row.is-error.is-checked > td {
+          border-color: #FFF; }
+    .ti-list > .list-row.is-error-r {
+      color: #FFF;
+      background-color: #F65; }
+      .ti-list > .list-row.is-error-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-error-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #F65; }
+    .ti-list > .list-row.is-track {
+      color: rgba(220, 220, 220, 0.6); }
+      .ti-list > .list-row.is-track.is-checked {
+        color: #666;
+        background-color: rgba(220, 220, 220, 0.6); }
+        .ti-list > .list-row.is-track.is-checked > td {
+          border-color: #666; }
+    .ti-list > .list-row.is-track-r {
+      color: #666;
+      background-color: rgba(220, 220, 220, 0.6); }
+      .ti-list > .list-row.is-track-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-track-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: rgba(220, 220, 220, 0.6); }
+    .ti-list > .list-row.is-disable {
+      color: rgba(160, 160, 160, 0.6); }
+      .ti-list > .list-row.is-disable.is-checked {
+        color: rgba(0, 0, 0, 0.38);
+        background-color: rgba(160, 160, 160, 0.6); }
+        .ti-list > .list-row.is-disable.is-checked > td {
+          border-color: rgba(0, 0, 0, 0.38); }
+    .ti-list > .list-row.is-disable-r {
+      color: rgba(0, 0, 0, 0.38);
+      background-color: rgba(160, 160, 160, 0.6); }
+      .ti-list > .list-row.is-disable-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-disable-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: rgba(160, 160, 160, 0.6); }
+    .ti-list > .list-row.is-delete {
+      text-decoration: line-through; }
+    .ti-list > .list-row.is-italic {
+      font-style: italic; }
+    .ti-list > .list-row.is-text {
+      color: #00CC00; }
+      .ti-list > .list-row.is-text.is-checked {
+        color: #FFF;
+        background-color: #00CC00; }
+        .ti-list > .list-row.is-text.is-checked > td {
+          border-color: #FFF; }
+    .ti-list > .list-row.is-number {
+      color: #44AAFF; }
+      .ti-list > .list-row.is-number.is-checked {
+        color: #FFF;
+        background-color: #44AAFF; }
+        .ti-list > .list-row.is-number.is-checked > td {
+          border-color: #FFF; }
+    .ti-list > .list-row.is-paper {
+      color: #FFF; }
+      .ti-list > .list-row.is-paper.is-checked {
+        color: #222;
+        background-color: #888; }
+        .ti-list > .list-row.is-paper.is-checked > td {
+          border-color: #444; }
+    .ti-list > .list-row.is-boldtip {
+      color: #000; }
+      .ti-list > .list-row.is-boldtip.is-checked {
+        color: #222;
+        background-color: #888; }
+        .ti-list > .list-row.is-boldtip.is-checked > td {
+          border-color: #aaffaa; }
+    .ti-list > .list-row.is-boldtip-r {
+      color: #000;
+      background-color: #aaffaa; }
+      .ti-list > .list-row.is-boldtip-r td a {
+        color: inherit; }
+      .ti-list > .list-row.is-boldtip-r.is-checked {
+        font-weight: bold;
+        background-color: #888;
+        color: #aaffaa; }
   .ti-list.as-grid {
     display: grid;
     grid-auto-columns: 1fr;
