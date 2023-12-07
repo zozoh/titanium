@@ -1,4 +1,4 @@
-// Pack At: 2023-12-06 02:06:31
+// Pack At: 2023-12-08 03:28:47
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -39553,6 +39553,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   ///////////////////////////////////////////////////////
   watch: {
     "data": "tryEvalMatrix",
+    "vars": "tryEvalMatrix",
     "dataWidth": "tryEvalMatrix",
     "dataHeight": "tryEvalMatrix",
     "myActivedCellKey": "tryEvalMatrix"
@@ -72888,7 +72889,9 @@ const _M = {
   computed: {
     //--------------------------------------
     AcceptTypes() {
-      if (_.isString(this.supportTypes)) return this.supportTypes.split(",");
+      if (_.isString(this.supportTypes)) {
+        return this.supportTypes.split(",");
+      }
       return this.supportTypes;
     },
     //--------------------------------------
