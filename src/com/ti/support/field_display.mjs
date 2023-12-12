@@ -23,6 +23,7 @@ function __eval_com_conf_item(val, cx = {}) {
   // String valu3
   if (_.isString(val)) {
     if (/^:*([-=]|[!=]=|->|==?>)/.test(val)) {
+      // console.log("explain", val, cx);
       return Ti.Util.explainObj(cx, val);
     }
     //........................................

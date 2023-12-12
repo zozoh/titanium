@@ -1,4 +1,4 @@
-// Pack At: 2023-12-08 03:28:47
+// Pack At: 2023-12-12 23:19:01
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -45118,7 +45118,11 @@ const _M = {
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];
-            let li2 = this.FnOptionFilter(li, i, list);
+            let li2 = this.FnOptionFilter(li, {
+              index: i,
+              list,
+              vars: this.optionVars
+            });
             if (!li2) {
               continue;
             }
@@ -50707,6 +50711,7 @@ function __eval_com_conf_item(val, cx = {}) {
   // String valu3
   if (_.isString(val)) {
     if (/^:*([-=]|[!=]=|->|==?>)/.test(val)) {
+      // console.log("explain", val, cx);
       return Ti.Util.explainObj(cx, val);
     }
     //........................................
@@ -65912,7 +65917,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
-      console.log("hahah")
+      //console.log("hahah");
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend();
       }
@@ -66036,7 +66041,12 @@ const _M = {
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];
-            let li2 = this.FnOptionFilter(li, i, list);
+            // console.log(i, li)
+            let li2 = this.FnOptionFilter(li, {
+              index: i,
+              list,
+              vars: this.optionVars
+            });
             if (!li2) {
               continue;
             }

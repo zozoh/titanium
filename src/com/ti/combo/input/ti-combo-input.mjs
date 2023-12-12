@@ -467,7 +467,11 @@ const _M = {
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];
-            let li2 = this.FnOptionFilter(li, i, list);
+            let li2 = this.FnOptionFilter(li, {
+              index: i,
+              list,
+              vars: this.optionVars
+            });
             if (!li2) {
               continue;
             }

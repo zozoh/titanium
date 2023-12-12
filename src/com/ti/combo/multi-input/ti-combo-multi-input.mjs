@@ -147,7 +147,7 @@ const _M = {
     },
     //-----------------------------------------------
     async OnInputFocused() {
-      console.log("hahah")
+      //console.log("hahah");
       if (this.autoFocusExtended && !this.isExtended) {
         await this.doExtend();
       }
@@ -271,7 +271,12 @@ const _M = {
           let list2 = [];
           for (let i = 0; i < list.length; i++) {
             let li = list[i];
-            let li2 = this.FnOptionFilter(li, i, list);
+            // console.log(i, li)
+            let li2 = this.FnOptionFilter(li, {
+              index: i,
+              list,
+              vars: this.optionVars
+            });
             if (!li2) {
               continue;
             }
