@@ -560,12 +560,23 @@ const _M = {
         this.FormVars
       );
 
+      // Field title
+      let title = fld.title;
+      if (_.isArray(fld.title)) {
+        //console.log(`auto select 【${fld.name}】 title:`, fld.title);
+        title = Ti.Util.selectValue(this.FormVars, fld.title, {
+          autoParse: false
+        });
+        title = Ti.I18n.text(title);
+      }
+
       //............................................
       let field;
-      let omitKeys = ["hidden", "disabled", "enabled", "visible"];
+      let omitKeys = ["title", "hidden", "disabled", "enabled", "visible"];
       // For group
       if (this.isGroup(fld)) {
         let group = _.assign(_.omit(fld, omitKeys), {
+          title,
           disabled,
           race: "Group",
           key: fldKey,
@@ -593,6 +604,7 @@ const _M = {
       // Label
       else if (this.isLabel(fld)) {
         field = _.assign(_.omit(fld, omitKeys), {
+          title,
           disabled,
           race: "Label",
           key: fldKey
@@ -604,6 +616,7 @@ const _M = {
         let comType = grp.defaultComType || this.defaultComType || "TiLabel";
         let comConf = _.cloneDeep(grp.defaultComConf) || {};
         field = _.defaults(_.omit(fld, omitKeys), {
+          title,
           race: "Normal",
           key: fldKey,
           isActived: this.myActivedFieldKey == fldKey,

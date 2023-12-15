@@ -647,8 +647,8 @@ const TiUtil = {
    * the form for the arm like:
    * ```
    * [
-   *    [AutoMatch, Value],
-   *    [AutoMatch, Value],
+   *    [Value, AutoMatch],
+   *    [Value, AutoMatch],
    *    [DefaultValue]
    * ]
    * ```
