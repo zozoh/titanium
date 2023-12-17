@@ -1,4 +1,4 @@
-// Pack At: 2023-12-12 23:19:01
+// Pack At: 2023-12-17 23:06:53
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -12687,8 +12687,8 @@ const { Util } = (function(){
      * the form for the arm like:
      * ```
      * [
-     *    [AutoMatch, Value],
-     *    [AutoMatch, Value],
+     *    [Value, AutoMatch],
+     *    [Value, AutoMatch],
      *    [DefaultValue]
      * ]
      * ```
@@ -16420,8 +16420,8 @@ const { Bank } = (function(){
       return `${s}${currency}`;
     },
     //-----------------------------------
-    toZeroText(cent = 0.0, { precision = 2, placeholder = "---" } = {}) {
-      if (!cent) {
+    toZeroText(cent = 0.0, { precision = 2, placeholder = "0.00" } = {}) {
+      if (!cent && placeholder) {
         return placeholder;
       }
       return TiBank.toYuanText(cent, precision);
@@ -16429,9 +16429,9 @@ const { Bank } = (function(){
     //-----------------------------------
     toZeroTokenText(
       cent = 0.0,
-      { currency = "RMB", precision = 2, placeholder = "---" } = {}
+      { currency = "RMB", precision = 2, placeholder = "0.00" } = {}
     ) {
-      if (!cent) {
+      if (!cent && placeholder) {
         return placeholder;
       }
       return TiBank.toYuanTokenText(cent, currency, precision);
@@ -16439,9 +16439,9 @@ const { Bank } = (function(){
     //-----------------------------------
     toZeroTokenText2(
       cent = 0.0,
-      { currency = "RMB", precision = 2, placeholder = "---" } = {}
+      { currency = "RMB", precision = 2, placeholder = "0.00" } = {}
     ) {
-      if (!cent) {
+      if (!cent && placeholder) {
         return placeholder;
       }
       return TiBank.toYuanTokenText2(cent, currency, precision);

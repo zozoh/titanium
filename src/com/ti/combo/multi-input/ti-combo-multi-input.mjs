@@ -343,7 +343,7 @@ const _M = {
     },
     //-----------------------------------------------
     "options": function (newval, oldval) {
-      console.log("watch options");
+      //console.log("watch options");
       if (!_.isEqual(newval, oldval)) {
         this.myDict = this.createDict();
         this.myOptionsData = [];
