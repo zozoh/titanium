@@ -775,7 +775,7 @@ const _M = {
         };
       }
       // Explain field com
-      // if ("case_type" == fld.name) {
+      // if ("list" == fld.name) {
       //   console.log("explain field", fld);
       // }
       let com = await this.evalDataForFieldDisplayItem({

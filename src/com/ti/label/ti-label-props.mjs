@@ -33,6 +33,10 @@ export default {
     type: [String, Function, Object],
     default: undefined
   },
+  "formatEvenArray": {
+    type: Boolean,
+    default: false
+  },
   //-----------------------------------
   // Behavior
   //-----------------------------------

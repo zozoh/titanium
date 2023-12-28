@@ -77,10 +77,12 @@ export default {
                 multiValSep = ",",
                 valueMustInDict = true,
                 inDictsplitBy = /[,;]+/g,
+                valueTip,
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
               if (
+                !valueTip &&
                 !editable &&
                 !enterNotifyName &&
                 !leaveNotifyName &&

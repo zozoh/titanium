@@ -14,7 +14,7 @@ const _M = {
       default: Ti.Config.getComProp(COM_TYPE, "autoLoadDictIcon", true)
     },
     "valueTip": {
-      type: [Boolean, String, Object],
+      type: [Boolean, String, Object, Function],
       default: Ti.Config.getComProp(COM_TYPE, "valueTip", false)
     },
     "valueClickable": {
@@ -477,7 +477,7 @@ const _M = {
         return val;
       }
       // Collection
-      if (_.isArray(val)) {
+      if (_.isArray(val) && !this.formatEvenArray) {
         if (this.format) {
           let ss = [];
           for (let v of val) {

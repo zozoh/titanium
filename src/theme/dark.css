@@ -5097,6 +5097,10 @@ div.ti-input-tags {
     border-radius: 0.06rem; }
   .ti-label.r-8 {
     border-radius: 0.08rem; }
+  .ti-label.mea-tiny {
+    font-size: 0.09rem; }
+    .ti-label.mea-tiny > .as-value {
+      padding: 0; }
   .ti-label.as-tip-block {
     font-size: 0.9em;
     opacity: 0.7;
@@ -5111,12 +5115,12 @@ div.ti-input-tags {
     flex: 1 0 auto; }
   .ti-label.flex-shrink {
     flex: 0 1 auto;
-    width: unset; }
+    width: auto; }
   .ti-label.flex-auto {
     flex: 1 1 auto; }
   .ti-label.flex-none {
     flex: 0 0 auto;
-    width: unset; }
+    width: auto; }
   .ti-label.as-uppercase {
     text-transform: uppercase; }
   .ti-label.as-lowercase {
@@ -8480,6 +8484,9 @@ div.ti-input-tags {
             margin: 0 0.2em; }
           .ti-table > table > tbody td > .cell-wrapper > .cell-con .ti-label.item-0 {
             padding: 0 0.3em; }
+          .ti-table > table > tbody td > .cell-wrapper > .cell-con .ti-label.mea-tiny,
+          .ti-table > table > tbody td > .cell-wrapper > .cell-con .ti-label.item-0.mea-tiny {
+            padding: 0; }
           .ti-table > table > tbody td > .cell-wrapper > .cell-con .ti-tags-item {
             font-size: 0.8em; }
           .ti-table > table > tbody td > .cell-wrapper > .cell-con .ti-icon {

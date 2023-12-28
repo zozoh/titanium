@@ -1,4 +1,4 @@
-// Pack At: 2023-12-24 23:44:08
+// Pack At: 2023-12-29 02:21:37
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -12269,10 +12269,12 @@ const __TI_MOD_EXPORT_VAR_NM = {
                 multiValSep = ",",
                 valueMustInDict = true,
                 inDictsplitBy = /[,;]+/g,
+                valueTip,
                 enterNotifyName,
                 leaveNotifyName
               } = comConf;
               if (
+                !valueTip &&
                 !editable &&
                 !enterNotifyName &&
                 !leaveNotifyName &&
@@ -16030,7 +16032,7 @@ const _M = {
         };
       }
       // Explain field com
-      // if ("case_type" == fld.name) {
+      // if ("list" == fld.name) {
       //   console.log("explain field", fld);
       // }
       let com = await this.evalDataForFieldDisplayItem({
@@ -17183,7 +17185,7 @@ const _M = {
       default: Ti.Config.getComProp(COM_TYPE, "autoLoadDictIcon", true)
     },
     "valueTip": {
-      type: [Boolean, String, Object],
+      type: [Boolean, String, Object, Function],
       default: Ti.Config.getComProp(COM_TYPE, "valueTip", false)
     },
     "valueClickable": {
@@ -17646,7 +17648,7 @@ const _M = {
         return val;
       }
       // Collection
-      if (_.isArray(val)) {
+      if (_.isArray(val) && !this.formatEvenArray) {
         if (this.format) {
           let ss = [];
           for (let v of val) {
@@ -21189,6 +21191,10 @@ const __TI_MOD_EXPORT_VAR_NM = {
   "format": {
     type: [String, Function, Object],
     default: undefined
+  },
+  "formatEvenArray": {
+    type: Boolean,
+    default: false
   },
   //-----------------------------------
   // Behavior

@@ -334,7 +334,7 @@
         @mixin row-status-color-r($color: null) {
           @include color($color, r, c);
           td a {
-            color: inherit; 
+            color: inherit;
           }
           &.is-checked {
             font-weight: bold;
@@ -581,6 +581,10 @@
 
             .ti-label.item-0 {
               padding: 0 0.3em;
+            }
+            .ti-label.mea-tiny,
+            .ti-label.item-0.mea-tiny {
+              padding: 0;
             }
 
             //---------------------------------------
