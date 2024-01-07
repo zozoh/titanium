@@ -311,7 +311,8 @@ const _M = {
             title: "i18n:select",
             position: "top",
             width: "4.8rem",
-            height: "62%"
+            height: "62%",
+            clickMaskToClose: true
           },
           this.dialog,
           {
