@@ -16,6 +16,10 @@ const _M = {
       type: [String, Array, Function, Ti.Dict],
       default: () => []
     },
+    "optionFilter": {
+      type: [Function, Object, Array],
+      default: undefined
+    },
     // If dynamic dictionary: options = '#DickName(=varName)'
     // it will use Ti.DictFactory.CheckDynamicDict,
     // The key of the instance name, should explain for the vars set
@@ -123,6 +127,15 @@ const _M = {
         width: this.width,
         height: this.height
       });
+    },
+    //-----------------------------------------------
+    FnOptionFilter() {
+      if (_.isFunction(this.optionFilter)) {
+        return this.optionFilter;
+      }
+      if (this.optionFilter) {
+        return Ti.AutoMatch.parse(this.optionFilter);
+      }
     },
     //------------------------------------------------
     InputBoxMode() {
@@ -276,10 +289,15 @@ const _M = {
       // 获取数据
       let dataList = await this.Dict.getData();
 
+      if (this.FnOptionFilter) {
+        dataList = _.filter(dataList, this.FnOptionFilter);
+      }
+
       // Prepare list conf
       let listConf = {
         multi: this.multi,
         checkable: this.multi,
+        filterBy: this.optionFilter,
         idBy: this.valueBy,
         dftLabelHoverCopy: false,
         data: dataList,
