@@ -64,6 +64,10 @@ const _M = {
     state.lbkOff = !on;
   },
   //----------------------------------------
+  setExportScript(state, script) {
+    state.exportScript = script;
+  },
+  //----------------------------------------
   assignExportSettings(state, settings) {
     let se = _.cloneDeep(state.exportSettings || {});
     _.assign(se, settings);

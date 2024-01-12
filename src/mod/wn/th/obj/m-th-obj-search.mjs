@@ -168,6 +168,10 @@ const _M = {
         }
         state.LOG("Export Filter Input", fltInput);
 
+        if (state.exportScript) {
+          cmds.push(`| ${state.exportScript}`);
+        }
+
         // Join the export
         cmds.push('| sheet -process "<auto>" -tpo xlsx');
         if (fldReg) {

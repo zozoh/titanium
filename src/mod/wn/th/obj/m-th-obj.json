@@ -12,6 +12,7 @@
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
+  "exportScript": null,
   "exportSettings": {},
   "importSettings": {},
   "lbkAt": null,

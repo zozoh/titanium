@@ -1,4 +1,4 @@
-// Pack At: 2024-01-09 22:09:56
+// Pack At: 2024-01-12 16:01:39
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -5929,6 +5929,10 @@ const _M = {
   },
   setLbkOn(state, on = true) {
     state.lbkOff = !on;
+  },
+  //----------------------------------------
+  setExportScript(state, script) {
+    state.exportScript = script;
   },
   //----------------------------------------
   assignExportSettings(state, settings) {
@@ -13850,6 +13854,10 @@ const _M = {
           throw Ti.Err.make("e.export_data.UnknownMode", mode);
         }
         state.LOG("Export Filter Input", fltInput);
+
+        if (state.exportScript) {
+          cmds.push(`| ${state.exportScript}`);
+        }
 
         // Join the export
         cmds.push('| sheet -process "<auto>" -tpo xlsx');
@@ -78246,6 +78254,7 @@ const _M = {
       sorter,
       matchMergeMode = "reset",
       match,
+      exportScript,
       exportSettings,
       importSettings,
       joinOne,
@@ -78281,7 +78290,12 @@ const _M = {
       commit("setSorter", sorter);
     }
 
+    //
     // Import/export
+    //
+    if (exportScript) {
+      commit("setExportScript", exportScript);
+    }
     if (exportSettings) {
       commit("assignExportSettings", exportSettings);
     }
@@ -103145,6 +103159,7 @@ Ti.Preload("ti/mod/wn/th/obj/m-th-obj.json", {
   "localBehaviorKeepAt": "->ThingSet-State-${thingSetId}",
   "localBehaviorIgnore": null,
   "schemaBehaviorIgnore": null,
+  "exportScript": null,
   "exportSettings": {},
   "importSettings": {},
   "lbkAt": null,

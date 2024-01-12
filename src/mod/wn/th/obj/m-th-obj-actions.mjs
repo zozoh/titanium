@@ -317,6 +317,7 @@ const _M = {
       sorter,
       matchMergeMode = "reset",
       match,
+      exportScript,
       exportSettings,
       importSettings,
       joinOne,
@@ -352,7 +353,12 @@ const _M = {
       commit("setSorter", sorter);
     }
 
+    //
     // Import/export
+    //
+    if (exportScript) {
+      commit("setExportScript", exportScript);
+    }
     if (exportSettings) {
       commit("assignExportSettings", exportSettings);
     }
