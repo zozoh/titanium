@@ -480,6 +480,9 @@ const _M = {
   },
   //--------------------------------------------
   async reloadData({ state, dispatch, getters }) {
+    if (!_.isFunction(state.LOG)) {
+      state.LOG = () => {};
+    }
     state.LOG("reloadData");
     // Guard
     if (
