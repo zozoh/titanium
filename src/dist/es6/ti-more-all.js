@@ -1,4 +1,4 @@
-// Pack At: 2024-01-20 07:44:04
+// Pack At: 2024-01-24 20:40:51
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -56591,10 +56591,11 @@ const _M = {
     },
     //--------------------------------------
     checkTypeInGivenList(list, str, invalidMsg, vars) {
+      let lower = str ? str.toLowerCase() : str;
       if (!_.isEmpty(list)) {
         let invalid = true;
         for (let li of list) {
-          if (li == str) {
+          if (li == lower) {
             invalid = false;
             break;
           }
@@ -73055,10 +73056,11 @@ const _M = {
   methods: {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
+      let lower = str ? str.toLowerCase() : str;
       if (!_.isEmpty(list)) {
         let invalid = true;
         for (let li of list) {
-          if (li == str) {
+          if (li == lower) {
             invalid = false;
             break;
           }

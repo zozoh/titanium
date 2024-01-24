@@ -251,10 +251,11 @@ const _M = {
   methods: {
     //--------------------------------------
     async assertListHas(list, str, invalidMsg, vars) {
+      let lower = str ? str.toLowerCase() : str;
       if (!_.isEmpty(list)) {
         let invalid = true;
         for (let li of list) {
-          if (li == str) {
+          if (li == lower) {
             invalid = false;
             break;
           }
