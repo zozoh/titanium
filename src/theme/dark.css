@@ -5134,6 +5134,12 @@ div.ti-input-tags {
     line-height: 1.2em;
     min-height: unset;
     margin: 0.04rem 0.02rem; }
+  .ti-label.is-bold {
+    font-weight: bold; }
+  .ti-label.is-underline {
+    text-decoration: underline; }
+  .ti-label.is-text-border {
+    text-shadow: -1px -1px 0 #444, 1px -1px 0 #444, -1px 1px 0 #444, 1px 1px 0 #444, 1px 1px 4px rgba(0, 0, 0, 0.6); }
   .ti-label.is-success {
     color: #5A5; }
   .ti-label.is-warn {
@@ -8190,6 +8196,9 @@ div.ti-input-tags {
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-number,
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-number {
           color: #FFF; }
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-icon.is-text-border,
+        .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-text-border {
+          text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.4), 1px -1px 0 rgba(0, 0, 0, 0.4), -1px 1px 0 rgba(0, 0, 0, 0.4), 1px 1px 0 rgba(0, 0, 0, 0.4); }
         .ti-table > table > tbody > tr.is-checked .cell-con .ti-label.is-success-tag {
           color: #5A5;
           background-color: #CFC; }

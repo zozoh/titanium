@@ -280,6 +280,14 @@
               &.is-number {
                 @include color($color-number, r);
               }
+
+              &.is-text-border {
+                text-shadow:
+                  -1px -1px 0 map-get($color-shadow, thin),
+                  1px -1px 0 map-get($color-shadow, thin),
+                  -1px 1px 0 map-get($color-shadow, thin),
+                  1px 1px 0 map-get($color-shadow, thin);
+              }
             }
 
             //-------------------------------------

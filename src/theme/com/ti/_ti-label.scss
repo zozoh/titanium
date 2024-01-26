@@ -219,6 +219,21 @@
     margin: SZ(4) SZ(2);
   }
   //------------------------------------------
+  &.is-bold {
+    font-weight: bold;
+  }
+  &.is-underline {
+    text-decoration: underline;
+  }
+  &.is-text-border {
+    text-shadow:
+      -1px -1px 0 map-get($color-body, c),
+      1px -1px 0 map-get($color-body, c),
+      -1px 1px 0 map-get($color-body, c),
+      1px 1px 0 map-get($color-body, c),
+      1px 1px 4px map-get($color-shadow, bushy);
+  }
+  //------------------------------------------
   &.is-success {
     color: map-get($color-success, c);
   }
