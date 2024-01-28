@@ -1326,18 +1326,17 @@ const TiTypes = {
     data = {}
   ) {
     let is_hidden = false;
-    // Supprot ["xxx", "!xxx"] quick mode
+    // 
+    //
     const eval_cond = function (input) {
+      if (_.isString(input) && /^=/.test(input)) {
+        input = Ti.Util.explainObj(data, input);
+      }
       if (_.isArray(input)) {
         let list = [];
         for (let it of input) {
-          if (_.isString(it)) {
-            list.push({
-              [it]: (v) => (v ? true : false)
-            });
-          } else {
-            list.push(it);
-          }
+          let it2 = eval_cond(it);
+          list.push(it2);
         }
         return list;
       }

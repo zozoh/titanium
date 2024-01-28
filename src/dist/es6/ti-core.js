@@ -1,4 +1,4 @@
-// Pack At: 2024-01-24 20:40:51
+// Pack At: 2024-01-28 21:18:14
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -11300,18 +11300,17 @@ const { Types } = (function(){
       data = {}
     ) {
       let is_hidden = false;
-      // Supprot ["xxx", "!xxx"] quick mode
+      // 
+      //
       const eval_cond = function (input) {
+        if (_.isString(input) && /^=/.test(input)) {
+          input = Ti.Util.explainObj(data, input);
+        }
         if (_.isArray(input)) {
           let list = [];
           for (let it of input) {
-            if (_.isString(it)) {
-              list.push({
-                [it]: (v) => (v ? true : false)
-              });
-            } else {
-              list.push(it);
-            }
+            let it2 = eval_cond(it);
+            list.push(it2);
           }
           return list;
         }
