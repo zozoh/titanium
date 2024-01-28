@@ -1,4 +1,4 @@
-// Pack At: 2024-01-28 21:18:14
+// Pack At: 2024-01-29 00:00:31
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13708,11 +13708,7 @@ const _M = {
       return await Ti.Toast.Open("ThObj thingSetId without defined", "warn");
     }
 
-    let modes = ["current", "scope", "all"];
-    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
-    if (!_.isEmpty(ids)) {
-      modes.splice(0, 0, "checked");
-    }
+    let modes = ["checked", "current", "scope", "all"];
 
     //console.log(modes);
     let tsName = Ti.Util.getFallback(state.oTs, "title", "nm") || "export";
