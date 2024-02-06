@@ -1,4 +1,4 @@
-// Pack At: 2024-01-29 00:00:31
+// Pack At: 2024-02-06 15:52:13
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -55748,6 +55748,7 @@ const _M = {
     },
     //---------------------------------------------------
     async reloadMappingFields(mappingId = this.MappingFileId) {
+      console.log("reloadMappingFields", mappingId)
       if (mappingId && !this.myCanFields[mappingId]) {
         // Try Cache
         let json = await Wn.Sys.exec2(
@@ -55785,7 +55786,7 @@ const _M = {
     },
     //---------------------------------------------------
     async reload() {
-      //console.log("WDE:reload");
+      console.log("WDE:reload");
       // reload all option mapping paths
       let paths = _.concat(this.mappingPath);
       let fld = "^(id|race|tp|mime|nm|name|title)$";
@@ -55857,6 +55858,10 @@ const _M = {
       }
     }
     //---------------------------------------------------
+  },
+  ///////////////////////////////////////////////////////
+  watch: {
+    "data.mapping": "reloadMappingFields"
   },
   ///////////////////////////////////////////////////////
   mounted: async function () {
