@@ -1,4 +1,4 @@
-// Pack At: 2024-02-12 22:31:05
+// Pack At: 2024-03-01 18:40:20
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -72819,7 +72819,7 @@ const _M = {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "value": {
+    value: {
       type: [String, Object],
       default: null
     },
@@ -72827,25 +72827,25 @@ const _M = {
     // If declare the valueType
     // It will transform the WnObj
     // to relaitve value mode
-    "valueType": {
+    valueType: {
       type: String,
       default: "obj",
       validator: (v) => /^(obj|path|fullPath|idPath|id)$/.test(v)
     },
     // Auto append the extra-meta after file been uploaded
-    "fileMeta": {
+    fileMeta: {
       type: Object
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
     // Input a image link directly
-    "exlink": {
+    exlink: {
       type: Boolean,
       default: false
     },
     // support remove the objects
-    "removable": {
+    removable: {
       type: Boolean,
       default: true
     },
@@ -72853,28 +72853,28 @@ const _M = {
     // Of cause, if the `value` exists, replace it
     // The `target` must be a path to a image object,
     // it will auto transfrom the image format by `cmd_imagic`
-    "target": {
+    target: {
       type: String,
       default: null
     },
     // which type supported to upload
     // nulll or empty array will support any types
-    "supportTypes": {
+    supportTypes: {
       type: [String, Array],
       default: () => []
       //default : ()=>["png","jpg","jpeg","gif"]
     },
-    "minFileSize": {
+    minFileSize: {
       type: Number,
       default: 0
     },
-    "maxFileSize": {
+    maxFileSize: {
       type: Number,
       default: 0
     },
     // which mime supported to upload
     // nulll or empty array will support any mimes
-    "supportMimes": {
+    supportMimes: {
       type: [String, Array],
       default: () => []
       //default : ()=>["image/png","image/jpeg","image/gif"]
@@ -72882,48 +72882,48 @@ const _M = {
     // Image object only: it will auto apply image filter
     // just like clip the image size etc..
     // @see cmd_imagic for more detail about the filter
-    "filter": {
+    filter: {
       type: [Array, String],
       default: null
     },
     // Image object only: if `>0 and <=1` mean output quality
     // if not match the range, will depends on the `cmd_imagic` default
-    "quality": {
+    quality: {
       type: Number,
       default: 0
     },
-    "readonly": {
+    readonly: {
       type: Boolean,
       default: false
     },
-    "actions": {
+    actions: {
       type: Array,
       default: () => []
     },
     // remove  the refer file when click remove button
     // default is undefined, it will auto determined by target
     // is same target, then true, else false
-    "shallowRemove": {
+    shallowRemove: {
       tyep: Boolean
     },
     //------------------------------------------------
     // Measure
     //------------------------------------------------
     // Display width
-    "width": {
+    width: {
       type: [String, Number],
       default: undefined
     },
     // Display height
-    "height": {
+    height: {
       type: [String, Number],
       default: undefined
     },
-    "maxWidth": {
+    maxWidth: {
       type: [String, Number],
       default: undefined
     },
-    "maxHeight": {
+    maxHeight: {
       type: [String, Number],
       default: undefined
     }
@@ -73229,6 +73229,13 @@ const _M = {
       // Extra-file-meta
       if (!_.isEmpty(this.fileMeta)) {
         let fileMeta = Ti.Util.explainObj(vars, this.fileMeta);
+        for (let key of _.keys(fileMeta)) {
+          let val = fileMeta[key];
+          if (_.isString(val)) {
+            let v2 = Ti.Tmpl.exec(val, vars);
+            fileMeta[key] = v2;
+          }
+        }
         let metaJson = JSON.stringify(fileMeta);
         let cmdText = `o id:${data.id} @update @json -cqn`;
         data = await Wn.Sys.exec2(cmdText, { input: metaJson, as: "json" });
@@ -73291,7 +73298,7 @@ const _M = {
   },
   //////////////////////////////////////////
   watch: {
-    "value": function () {
+    value: function () {
       this.reload();
     }
   },
