@@ -1,46 +1,46 @@
 ///////////////////////////////////////
 const CURRENCIES = {
-  "AUD": {
+  AUD: {
     token: "$",
     icon: "fas-dollar-sign",
     text: `i18n:currency-AUD`
   },
-  "CAD": {
+  CAD: {
     token: "$",
     icon: "fas-dollar-sign",
     text: `i18n:currency-CAD`
   },
-  "EUR": {
+  EUR: {
     token: "€",
     icon: "fas-euro-sign",
     text: `i18n:currency-EUR`
   },
-  "GBP": {
+  GBP: {
     token: "£",
     icon: "fas-pound-sign",
     text: `i18n:currency-GBP`
   },
-  "HKD": {
+  HKD: {
     token: "¥",
     icon: "fas-yen-sign",
     text: `i18n:currency-HKD`
   },
-  "JPY": {
+  JPY: {
     token: "¥",
     icon: "fas-yen-sign",
     text: `i18n:currency-JPY`
   },
-  "MOP": {
+  MOP: {
     token: "¥",
     icon: "fas-yen-sign",
     text: `i18n:currency-MOP`
   },
-  "RMB": {
+  RMB: {
     token: "¥",
     icon: "fas-yen-sign",
     text: `i18n:currency-RMB`
   },
-  "USD": {
+  USD: {
     token: "$",
     icon: "fas-dollar-sign",
     text: `i18n:currency-USD`
@@ -65,7 +65,14 @@ const TiBank = {
    */
   exchange(
     val,
-    { from = "RMB", to = "RMB", bridge = "RMB", exrs = {}, dft = -1 } = {}
+    {
+      from = "RMB",
+      to = "RMB",
+      bridge = "RMB",
+      exrs = {},
+      dft = -1,
+      setRealExchange = (_v) => _v
+    } = {}
   ) {
     let { cent, currency } = TiBank.parseCurrency(val, {
       currency: from,
@@ -74,16 +81,19 @@ const TiBank = {
     from = currency || from;
     val = cent;
     if (from == to) {
+      setRealExchange(1);
       return val;
     }
     //
     // Try exchange directly
     let exr = exrs[`${from}_${to}`];
     if (exr > 0) {
+      setRealExchange(exr);
       return val * exr;
     }
     exr = exrs[`${to}_${from}`];
     if (exr > 0) {
+      setRealExchange(exr);
       return val / exr;
     }
     //
@@ -91,12 +101,22 @@ const TiBank = {
     let br0 = exrs[`${from}_${bridge}`] || exrs[`${bridge}_${from}`];
     let br1 = exrs[`${to}_${bridge}`] || exrs[`${bridge}_${to}`];
     if (br0 > 0 && br1 > 0) {
-      let v0 = TiBank.exchange(val, { from, to: bridge, exrs });
-      let v1 = TiBank.exchange(v0, { from: bridge, to, exrs });
+      let v0 = TiBank.exchange(val, {
+        from,
+        to: bridge,
+        exrs
+      });
+      let v1 = TiBank.exchange(v0, {
+        from: bridge,
+        to,
+        exrs
+      });
+      setRealExchange(val / v1);
       return v1;
     }
 
     // Fail to exchange return the default
+    setRealExchange(val / dft);
     return dft;
   },
   //-----------------------------------
