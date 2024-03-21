@@ -1,5 +1,16 @@
 ///////////////////////////////////////
 const CURRENCIES = {
+  RMB: {
+    token: "¥",
+    icon: "fas-yen-sign",
+    text: `i18n:currency-RMB`
+  },
+  CNY: {
+    token: "¥",
+    icon: "fas-yen-sign",
+    text: `i18n:currency-RMB`
+  },
+  // ,,,,,,,,,,,,,,,,,,,,,,,
   AUD: {
     token: "$",
     icon: "fas-dollar-sign",
@@ -34,11 +45,6 @@ const CURRENCIES = {
     token: "¥",
     icon: "fas-yen-sign",
     text: `i18n:currency-MOP`
-  },
-  RMB: {
-    token: "¥",
-    icon: "fas-yen-sign",
-    text: `i18n:currency-RMB`
   },
   USD: {
     token: "$",
