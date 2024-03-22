@@ -1,4 +1,4 @@
-// Pack At: 2024-03-11 01:21:43
+// Pack At: 2024-03-23 01:13:15
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16149,6 +16149,17 @@ const { GIS } = (function(){
 const { Bank } = (function(){
   ///////////////////////////////////////
   const CURRENCIES = {
+    RMB: {
+      token: "¥",
+      icon: "fas-yen-sign",
+      text: `i18n:currency-RMB`
+    },
+    CNY: {
+      token: "¥",
+      icon: "fas-yen-sign",
+      text: `i18n:currency-RMB`
+    },
+    // ,,,,,,,,,,,,,,,,,,,,,,,
     AUD: {
       token: "$",
       icon: "fas-dollar-sign",
@@ -16183,11 +16194,6 @@ const { Bank } = (function(){
       token: "¥",
       icon: "fas-yen-sign",
       text: `i18n:currency-MOP`
-    },
-    RMB: {
-      token: "¥",
-      icon: "fas-yen-sign",
-      text: `i18n:currency-RMB`
     },
     USD: {
       token: "$",
