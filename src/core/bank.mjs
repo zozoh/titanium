@@ -122,7 +122,9 @@ const TiBank = {
     }
 
     // Fail to exchange return the default
-    setRealExchange(val / dft);
+    if (dft > 0) {
+      setRealExchange(val / dft);
+    }
     return dft;
   },
   //-----------------------------------

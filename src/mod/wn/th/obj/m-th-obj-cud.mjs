@@ -85,8 +85,8 @@ const _M = {
       dispatch("selectMeta", {
         currentId: newMeta.id,
         checkedIds: {
-          [newMeta.id]: true,
-        },
+          [newMeta.id]: true
+        }
       });
     }
 
@@ -101,6 +101,39 @@ const _M = {
   //               Delete
   //
   //--------------------------------------------
+  async getRemoveCheckedCmdText({ state }) {
+    if (!state.thingSetId) {
+      await Ti.Alert("State Has No ThingSetId", "warn");
+      return false;
+    }
+
+    let ids = Ti.Util.getTruthyKeyInArray(state.checkedIds);
+    if (_.isEmpty(ids)) {
+      return await Ti.Alert("i18n:nil-obj", { type: "info" });
+    }
+    let oTs = await Wn.Sys.exec(`o @get ${state.thingSetId} @json -path -cqn`, {
+      as: "json"
+    });
+    let tsPath = Wn.Io.getFormedPath(oTs);
+    let cmdText = `thing '${tsPath}' delete ${ids.join(" ")};`;
+    await Ti.App.Open({
+      title: "Batch Remove Command of Checked Items",
+      position: "bottom",
+      width: "61.8%",
+      height: "61.8%",
+      textOk: null,
+      textCancel: "i18n:close",
+      clickMaskToClose: true,
+      result: cmdText,
+      comType: "TiInputText",
+      comConf: {
+        width: "100%",
+        height: "100%",
+        readonly: true
+      }
+    });
+  },
+
   async removeChecked(
     { state, commit, dispatch, getters },
     { hard, confirm, hardTipMessage = "i18n:del-hard" } = {}
@@ -133,7 +166,7 @@ const _M = {
       if (
         !(await Ti.Confirm(hardTipMessage, {
           type: "warn",
-          vars: { N: ids.length },
+          vars: { N: ids.length }
         }))
       ) {
         return false;
@@ -155,7 +188,7 @@ const _M = {
       errorAs: ({ data }) => {
         let id = _.trim(data);
         failIds[id] = true;
-      },
+      }
     });
 
     // Get the removeIds
@@ -188,7 +221,7 @@ const _M = {
 
     // Open Editor
     let newContent = await Wn.EditObjContent(meta, {
-      content: state.content,
+      content: state.content
     });
 
     // Cancel the editing
@@ -216,7 +249,7 @@ const _M = {
       // Edit current meta
       let reo = await Wn.EditObjMeta(state.meta, {
         fields: "default",
-        autoSave: false,
+        autoSave: false
       });
 
       // Cancel the editing
@@ -239,7 +272,7 @@ const _M = {
     //.........................................
     return await Wn.EditObjMeta(state.oTs, {
       fields: "auto",
-      autoSave: getters.isCanUpdate,
+      autoSave: getters.isCanUpdate
     });
   },
   //--------------------------------------------
@@ -503,7 +536,7 @@ const _M = {
 
     // return the new meta
     return newMeta;
-  },
+  }
   //--------------------------------------------
 };
 export default _M;

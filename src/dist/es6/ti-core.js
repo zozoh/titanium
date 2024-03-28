@@ -1,4 +1,4 @@
-// Pack At: 2024-03-23 01:13:15
+// Pack At: 2024-03-29 00:41:35
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16271,7 +16271,9 @@ const { Bank } = (function(){
       }
   
       // Fail to exchange return the default
-      setRealExchange(val / dft);
+      if (dft > 0) {
+        setRealExchange(val / dft);
+      }
       return dft;
     },
     //-----------------------------------
