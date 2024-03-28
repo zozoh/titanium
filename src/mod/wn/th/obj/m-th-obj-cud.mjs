@@ -115,7 +115,7 @@ const _M = {
       as: "json"
     });
     let tsPath = Wn.Io.getFormedPath(oTs);
-    let cmdText = `thing '${tsPath}' delete ${ids.join(" ")};`;
+    let cmdText = `thing '${tsPath}' delete ${ids.join(" ")} -Q ;`;
     await Ti.App.Open({
       title: "Batch Remove Command of Checked Items",
       position: "bottom",

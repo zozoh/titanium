@@ -1,4 +1,4 @@
-// Pack At: 2024-03-29 00:41:35
+// Pack At: 2024-03-29 03:22:00
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -28125,7 +28125,7 @@ const _M = {
       as: "json"
     });
     let tsPath = Wn.Io.getFormedPath(oTs);
-    let cmdText = `thing '${tsPath}' delete ${ids.join(" ")};`;
+    let cmdText = `thing '${tsPath}' delete ${ids.join(" ")} -Q ;`;
     await Ti.App.Open({
       title: "Batch Remove Command of Checked Items",
       position: "bottom",
