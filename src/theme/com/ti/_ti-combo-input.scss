@@ -1,7 +1,35 @@
 .ti-combo-input {
-  > .as-box > .ti-input {flex:1 1 auto;}
+  > .as-box > .ti-input {
+    flex: 1 1 auto;
+  }
 }
 
 .ti-combo-multi-input {
-  > .as-box > .ti-input {flex:1 1 auto;}
+  > .as-box > .ti-input {
+    flex: 1 1 auto;
+  }
+  &.as-nowrap-input {
+    > .as-box > .ti-input {
+      flex-wrap: nowrap;
+      > .as-tags {
+        overflow: hidden;
+        flex: 1 1 auto;
+        width: 100px;
+        > .ti-tags {
+          flex-wrap: nowrap;
+          overflow: hidden;
+          max-width: 100%;
+        }
+      }
+    }
+  }
+  &.hide-input-box {
+    > .as-box > .ti-input > .as-input {
+      flex: 0 0 auto;
+      width: 2em;
+      > input {
+        display: none;
+      }
+    }
+  }
 }

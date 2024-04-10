@@ -3,7 +3,7 @@ div.ti-input-tags {flex-wrap: wrap;}
   //-----------------------------------------
   // Tag Box
   > .as-tags {
-    @include flex-center;
+    @include flex-center($jc:flex-start);
     padding:0 SZ(4); font-size:.8em;
     .ti-tags-item {
       min-height: 2em;

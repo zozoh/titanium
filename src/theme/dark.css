@@ -2284,6 +2284,21 @@ i.im {
 
 .ti-combo-multi-input > .as-box > .ti-input {
   flex: 1 1 auto; }
+.ti-combo-multi-input.as-nowrap-input > .as-box > .ti-input {
+  flex-wrap: nowrap; }
+  .ti-combo-multi-input.as-nowrap-input > .as-box > .ti-input > .as-tags {
+    overflow: hidden;
+    flex: 1 1 auto;
+    width: 100px; }
+    .ti-combo-multi-input.as-nowrap-input > .as-box > .ti-input > .as-tags > .ti-tags {
+      flex-wrap: nowrap;
+      overflow: hidden;
+      max-width: 100%; }
+.ti-combo-multi-input.hide-input-box > .as-box > .ti-input > .as-input {
+  flex: 0 0 auto;
+  width: 2em; }
+  .ti-combo-multi-input.hide-input-box > .as-box > .ti-input > .as-input > input {
+    display: none; }
 
 .ti-combo-pair-text .as-title {
   user-select: none;
@@ -4816,7 +4831,7 @@ div.ti-input-tags {
 
 .ti-input-tags > .as-tags {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   align-content: center;
   flex-wrap: wrap;
