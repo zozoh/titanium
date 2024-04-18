@@ -1,4 +1,4 @@
-// Pack At: 2024-03-29 03:22:00
+// Pack At: 2024-04-18 17:15:46
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -16355,7 +16355,7 @@ const { Bank } = (function(){
       }
       // Input String
       else {
-        let m = /^(\d*\.?\d+)([A-Z]{3})?$/.exec(input);
+        let m = /^(-?\d*\.?\d+)([A-Z]{3})?$/.exec(input);
         if (m) {
           // Indicate the current, then the number part should be yuan
           if (m[2]) {
@@ -16439,7 +16439,7 @@ const { Bank } = (function(){
       s = TiBank.toBankText(s);
   
       // done
-      return `${neg}${t}${s}`;
+      return `${t}${neg}${s}`;
     },
     //-----------------------------------
     toYuanTokenText2(cent = 0.0, currency = "RMB", precision = 2) {

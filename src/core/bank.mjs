@@ -206,7 +206,7 @@ const TiBank = {
     }
     // Input String
     else {
-      let m = /^(\d*\.?\d+)([A-Z]{3})?$/.exec(input);
+      let m = /^(-?\d*\.?\d+)([A-Z]{3})?$/.exec(input);
       if (m) {
         // Indicate the current, then the number part should be yuan
         if (m[2]) {
@@ -290,7 +290,7 @@ const TiBank = {
     s = TiBank.toBankText(s);
 
     // done
-    return `${neg}${t}${s}`;
+    return `${t}${neg}${s}`;
   },
   //-----------------------------------
   toYuanTokenText2(cent = 0.0, currency = "RMB", precision = 2) {
