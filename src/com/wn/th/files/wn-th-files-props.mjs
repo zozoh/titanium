@@ -2,118 +2,130 @@ export default {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "data": {
+  metaId: {
+    type: String
+  },
+  data: {
     type: Object,
     default: () => ({
       list: [],
       pager: {}
     })
   },
-  "currentId": {
+  currentId: {
     type: String
   },
-  "checkedIds": {
+  checkedIds: {
     type: Object,
     default: () => ({})
   },
-  "dirName": {
+  dirName: {
     type: String,
     default: undefined
   },
-  "dataHome": {
+  dataHome: {
     type: String,
     default: undefined
   },
-  "status": {
+  status: {
     type: Object,
     default: () => ({})
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "files": {
+  files: {
     type: Object,
     default: undefined
   },
-  "preview": {
+  preview: {
     type: Object,
     default: undefined
   },
-  "previewEdit": {
+  previewEdit: {
     type: Object,
     default: undefined
   },
-  "actions": {
+  actions: {
     type: Array,
-    default: () => [{
-      "name": "reloading",
-      "type": "action",
-      "icon": "zmdi-refresh",
-      "tip": "i18n:refresh",
-      "altDisplay": {
-        "icon": "zmdi-refresh zmdi-hc-spin"
+    default: () => [
+      {
+        name: "reloading",
+        type: "action",
+        icon: "zmdi-refresh",
+        tip: "i18n:refresh",
+        altDisplay: {
+          icon: "zmdi-refresh zmdi-hc-spin"
+        },
+        action: "$parent:reloadData"
       },
-      "action": "$parent:reloadData"
-    }, {
-      "type": "line"
-    }, {
-      "name": "deleting",
-      "type": "action",
-      "icon": "zmdi-delete",
-      "text": "i18n:del",
-      "altDisplay": {
-        "icon": "zmdi-refresh zmdi-hc-spin",
-        "text": "i18n:del-ing"
+      {
+        type: "line"
       },
-      "action": "$parent:doDeleteSelected"
-    }, {
-      "type": "line"
-    }, {
-      "name": "upload",
-      "type": "action",
-      "icon": "zmdi-cloud-upload",
-      "text": "i18n:upload",
-      //"action" : "commit:main/files/showUploadFilePicker"
-      "action": "$parent:doUploadFiles"
-    }]
+      {
+        name: "deleting",
+        type: "action",
+        icon: "zmdi-delete",
+        text: "i18n:del",
+        altDisplay: {
+          icon: "zmdi-refresh zmdi-hc-spin",
+          text: "i18n:del-ing"
+        },
+        action: "$parent:doDeleteSelected"
+      },
+      {
+        type: "line"
+      },
+      {
+        name: "upload",
+        type: "action",
+        icon: "zmdi-cloud-upload",
+        text: "i18n:upload",
+        //"action" : "commit:main/files/showUploadFilePicker"
+        action: "$parent:doUploadFiles"
+      }
+    ]
   },
-  "stateLocalKey": {
+  stateLocalKey: {
     type: String,
     default: null
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "dirNameTip": {
+  dirNameTip: {
     type: String,
     default: undefined
     //default : "i18n:thing-files"
   },
-  "dirNameComType": {
+  dirNameComType: {
     type: String,
     default: "ti-droplist"
   },
-  "dirNameOptions": {
+  dirNameOptions: {
     type: Array,
-    default: () => [{
-      icon: "zmdi-collection-image",
-      text: "i18n:media",
-      value: "media"
-    }, {
-      icon: "zmdi-attachment-alt",
-      text: "i18n:attachment",
-      value: "attachment"
-    }]
+    default: () => [
+      {
+        icon: "zmdi-collection-image",
+        text: "i18n:media",
+        value: "media"
+      },
+      {
+        icon: "zmdi-attachment-alt",
+        text: "i18n:attachment",
+        value: "attachment"
+      }
+    ]
   },
-  "nilIcon": {
+  nilIcon: {
     type: String,
     default: "fas-braille"
   },
-  "nilText": {
+  nilText: {
     type: String,
     default: null
   }
   //-----------------------------------
   // Measure
   //-----------------------------------
-}
+};

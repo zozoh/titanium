@@ -55,6 +55,7 @@ const _M = {
   //
   //----------------------------------------
   async dfQueryFiles({ state, commit, getters }, flt = {}) {
+    //console.log('dfQueryFiles')
     state.LOG("async dfQueryFiles")
     let {
       dataHome,

@@ -1,4 +1,4 @@
-// Pack At: 2024-04-18 17:15:46
+// Pack At: 2024-05-28 01:50:52
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -23892,39 +23892,40 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //--------------------------------------
     hasDataHome() {
-      return this.dataHome ? true : false
+      return this.dataHome ? true : false;
     },
     //--------------------------------------
     hasDirNameOptions() {
-      return !_.isEmpty(this.dirNameOptions)
+      return !_.isEmpty(this.dirNameOptions);
     },
     //--------------------------------------
     DataList() {
-      return _.get(this.data, "list") || []
+      return _.get(this.data, "list") || [];
     },
     //--------------------------------------
     DataPager() {
-      return _.get(this.data, "pager") || {}
+      return _.get(this.data, "pager") || {};
     },
     //--------------------------------------
     CurrentFile() {
       if (this.currentId && this.DataList) {
         for (let it of this.DataList) {
           if (this.currentId == it.id) {
-            return it
+            return it;
           }
         }
       }
     },
     //--------------------------------------
     ThePreview() {
-      let preview = Ti.Util.getFallback(this.preview, this.dirName, "@default")
-        || this.preview
-        || {}
+      let preview =
+        Ti.Util.getFallback(this.preview, this.dirName, "@default") ||
+        this.preview ||
+        {};
 
       return {
         showInfo: false,
@@ -23935,11 +23936,11 @@ const _M = {
         stateLocalKey: this.getStateLocalKey("preview"),
         // Customized
         ...preview,
-        // Edit Info 
+        // Edit Info
         editInfoBy: () => {
-          this.editPreviewInfo()
+          this.editPreviewInfo();
         }
-      }
+      };
     },
     //--------------------------------------
     TheFiles() {
@@ -23947,44 +23948,46 @@ const _M = {
         currentId: this.currentId,
         checkedIds: this.checkedIds,
         routers: {
-          "reload": async () => {
-            await this.reloadData()
+          reload: async () => {
+            await this.reloadData();
           }
         }
-      })
+      });
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods: {
     //--------------------------------------
-    OnAdaptListInit($adaptlist) { this.$adaptlist = $adaptlist },
+    OnAdaptListInit($adaptlist) {
+      this.$adaptlist = $adaptlist;
+    },
     //--------------------------------------
     // Events
     //--------------------------------------
     async OnDirNameChanged(dirName) {
-      this.$ta.commit("setDataDirName", dirName)
+      this.$ta.commit("setDataDirName", dirName);
       await this.reloadData();
     },
     //--------------------------------------
     OnFileSelect({ currentId, checkedIds }) {
-      this.$ta.dispatch("selectDataFile", { currentId, checkedIds })
+      this.$ta.dispatch("selectDataFile", { currentId, checkedIds });
     },
     //--------------------------------------
     OnFileOpen(obj) {
-      this.$notify("file:open", obj)
+      this.$notify("file:open", obj);
     },
     //--------------------------------------
     async OnFileUploaded(files = []) {
       if (!_.isEmpty(files)) {
-        let checkedIds = {}
+        let checkedIds = {};
         for (let file of files) {
-          checkedIds[file.id] = true
+          checkedIds[file.id] = true;
         }
         this.OnFileSelect({
           currentId: files[0].id,
           checkedIds
-        })
+        });
       }
     },
     //--------------------------------------
@@ -23992,63 +23995,63 @@ const _M = {
     //--------------------------------------
     getStateLocalKey(name) {
       if (this.stateLocalKey && name) {
-        return `${this.stateLocalKey}_${name}`
+        return `${this.stateLocalKey}_${name}`;
       }
     },
     //--------------------------------------
     getThAdaptor() {
-      return this.tiParentCom("WnThAdaptor")
+      return this.tiParentCom("WnThAdaptor");
     },
     //--------------------------------------
     async doDeleteSelected() {
-      await this.$ta.dispatch("dfRemoveChecked")
+      await this.$ta.dispatch("dfRemoveChecked");
     },
     //--------------------------------------
     async checkDataDir() {
       // Guard
       if (!this.hasDataHome) {
-        return
+        return;
       }
       // If empty data home, create one
       if (!this.myDataDirObj && this.dirName) {
-        let cmdText = `o @create -p ${this.dataHome} -auto -race DIR '${this.dirName}'`
-        console.log(cmdText)
-        await Wn.Sys.exec2(cmdText)
+        let cmdText = `o @create -p ${this.dataHome} -auto -race DIR '${this.dirName}'`;
+        console.log(cmdText);
+        await Wn.Sys.exec2(cmdText);
 
-        this.myDataDirObj = await this.loadDataDirObj()
+        this.myDataDirObj = await this.loadDataDirObj();
       }
     },
     //--------------------------------------
     async doUploadFiles() {
       // Guard
-      await this.checkDataDir()
+      await this.checkDataDir();
 
       // Do upload
       if (this.myDataDirObj) {
-        this.$adaptlist.openLocalFileSelectdDialog()
+        this.$adaptlist.openLocalFileSelectdDialog();
       }
       // Impossible
       else {
-        throw "Impossible!!!"
+        throw "Impossible!!!";
       }
     },
     //--------------------------------------
     async editPreviewInfo() {
       //console.log("showPreviewObjInfo:", this.preview)
       if (this.CurrentFile) {
-        let options = _.get(this.previewEdit, this.dirName)
-        let reo = await Wn.EditObjMeta(this.CurrentFile, options)
+        let options = _.get(this.previewEdit, this.dirName);
+        let reo = await Wn.EditObjMeta(this.CurrentFile, options);
         if (reo && reo.data) {
-          this.updateItemInDataList(reo.data)
+          this.updateItemInDataList(reo.data);
         }
       }
     },
     //--------------------------------------
     updateItemInDataList(meta) {
       if (meta && this.myData && _.isArray(this.myData.list)) {
-        this.myData.list = _.map(
-          this.myData.list,
-          it => it.id == meta.id ? meta : it)
+        this.myData.list = _.map(this.myData.list, (it) =>
+          it.id == meta.id ? meta : it
+        );
       }
     },
     //--------------------------------------
@@ -24056,18 +24059,18 @@ const _M = {
     //--------------------------------------
     async loadDataDirObj() {
       if (this.dataHome) {
-        let aph = Ti.Util.appendPath(this.dataHome, this.dirName)
-        return await Wn.Io.loadMeta(aph)
+        let aph = Ti.Util.appendPath(this.dataHome, this.dirName);
+        return await Wn.Io.loadMeta(aph);
       }
     },
     //--------------------------------------
     async reloadData() {
       if (this.dataHome && this.$ta) {
-        this.myDataDirObj = await this.loadDataDirObj()
+        this.myDataDirObj = await this.loadDataDirObj();
         if (this.myDataDirObj) {
-          await this.$ta.dispatch("dfQueryFiles")
+          await this.$ta.dispatch("dfQueryFiles");
         } else {
-          this.$ta.commit("setDataDirFiles")
+          this.$ta.commit("setDataDirFiles");
         }
       }
     }
@@ -24075,17 +24078,17 @@ const _M = {
   },
   ///////////////////////////////////////////
   watch: {
-    "dirName": "reloadData"
+    dirName: "reloadData",
+    metaId: "reloadData"
   },
   ///////////////////////////////////////////
   mounted: async function () {
-    this.$ta = this.getThAdaptor()
-    await this.reloadData()
+    this.$ta = this.getThAdaptor();
+    await this.reloadData();
   }
   ///////////////////////////////////////////
-}
-return _M;
-;
+};
+return _M;;
 })()
 // ============================================================
 // EXPORT 'ti-input.mjs' -> null
@@ -27649,6 +27652,7 @@ const _M = {
   //
   //----------------------------------------
   async dfQueryFiles({ state, commit, getters }, flt = {}) {
+    //console.log('dfQueryFiles')
     state.LOG("async dfQueryFiles")
     let {
       dataHome,
@@ -75187,121 +75191,133 @@ const __TI_MOD_EXPORT_VAR_NM = {
   //-----------------------------------
   // Data
   //-----------------------------------
-  "data": {
+  metaId: {
+    type: String
+  },
+  data: {
     type: Object,
     default: () => ({
       list: [],
       pager: {}
     })
   },
-  "currentId": {
+  currentId: {
     type: String
   },
-  "checkedIds": {
+  checkedIds: {
     type: Object,
     default: () => ({})
   },
-  "dirName": {
+  dirName: {
     type: String,
     default: undefined
   },
-  "dataHome": {
+  dataHome: {
     type: String,
     default: undefined
   },
-  "status": {
+  status: {
     type: Object,
     default: () => ({})
   },
   //-----------------------------------
   // Behavior
   //-----------------------------------
-  "files": {
+  files: {
     type: Object,
     default: undefined
   },
-  "preview": {
+  preview: {
     type: Object,
     default: undefined
   },
-  "previewEdit": {
+  previewEdit: {
     type: Object,
     default: undefined
   },
-  "actions": {
+  actions: {
     type: Array,
-    default: () => [{
-      "name": "reloading",
-      "type": "action",
-      "icon": "zmdi-refresh",
-      "tip": "i18n:refresh",
-      "altDisplay": {
-        "icon": "zmdi-refresh zmdi-hc-spin"
+    default: () => [
+      {
+        name: "reloading",
+        type: "action",
+        icon: "zmdi-refresh",
+        tip: "i18n:refresh",
+        altDisplay: {
+          icon: "zmdi-refresh zmdi-hc-spin"
+        },
+        action: "$parent:reloadData"
       },
-      "action": "$parent:reloadData"
-    }, {
-      "type": "line"
-    }, {
-      "name": "deleting",
-      "type": "action",
-      "icon": "zmdi-delete",
-      "text": "i18n:del",
-      "altDisplay": {
-        "icon": "zmdi-refresh zmdi-hc-spin",
-        "text": "i18n:del-ing"
+      {
+        type: "line"
       },
-      "action": "$parent:doDeleteSelected"
-    }, {
-      "type": "line"
-    }, {
-      "name": "upload",
-      "type": "action",
-      "icon": "zmdi-cloud-upload",
-      "text": "i18n:upload",
-      //"action" : "commit:main/files/showUploadFilePicker"
-      "action": "$parent:doUploadFiles"
-    }]
+      {
+        name: "deleting",
+        type: "action",
+        icon: "zmdi-delete",
+        text: "i18n:del",
+        altDisplay: {
+          icon: "zmdi-refresh zmdi-hc-spin",
+          text: "i18n:del-ing"
+        },
+        action: "$parent:doDeleteSelected"
+      },
+      {
+        type: "line"
+      },
+      {
+        name: "upload",
+        type: "action",
+        icon: "zmdi-cloud-upload",
+        text: "i18n:upload",
+        //"action" : "commit:main/files/showUploadFilePicker"
+        action: "$parent:doUploadFiles"
+      }
+    ]
   },
-  "stateLocalKey": {
+  stateLocalKey: {
     type: String,
     default: null
   },
   //-----------------------------------
   // Aspect
   //-----------------------------------
-  "dirNameTip": {
+  dirNameTip: {
     type: String,
     default: undefined
     //default : "i18n:thing-files"
   },
-  "dirNameComType": {
+  dirNameComType: {
     type: String,
     default: "ti-droplist"
   },
-  "dirNameOptions": {
+  dirNameOptions: {
     type: Array,
-    default: () => [{
-      icon: "zmdi-collection-image",
-      text: "i18n:media",
-      value: "media"
-    }, {
-      icon: "zmdi-attachment-alt",
-      text: "i18n:attachment",
-      value: "attachment"
-    }]
+    default: () => [
+      {
+        icon: "zmdi-collection-image",
+        text: "i18n:media",
+        value: "media"
+      },
+      {
+        icon: "zmdi-attachment-alt",
+        text: "i18n:attachment",
+        value: "attachment"
+      }
+    ]
   },
-  "nilIcon": {
+  nilIcon: {
     type: String,
     default: "fas-braille"
   },
-  "nilText": {
+  nilText: {
     type: String,
     default: null
   }
   //-----------------------------------
   // Measure
   //-----------------------------------
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================

@@ -8,39 +8,40 @@ const _M = {
   computed: {
     //--------------------------------------
     TopClass() {
-      return this.getTopClass()
+      return this.getTopClass();
     },
     //--------------------------------------
     hasDataHome() {
-      return this.dataHome ? true : false
+      return this.dataHome ? true : false;
     },
     //--------------------------------------
     hasDirNameOptions() {
-      return !_.isEmpty(this.dirNameOptions)
+      return !_.isEmpty(this.dirNameOptions);
     },
     //--------------------------------------
     DataList() {
-      return _.get(this.data, "list") || []
+      return _.get(this.data, "list") || [];
     },
     //--------------------------------------
     DataPager() {
-      return _.get(this.data, "pager") || {}
+      return _.get(this.data, "pager") || {};
     },
     //--------------------------------------
     CurrentFile() {
       if (this.currentId && this.DataList) {
         for (let it of this.DataList) {
           if (this.currentId == it.id) {
-            return it
+            return it;
           }
         }
       }
     },
     //--------------------------------------
     ThePreview() {
-      let preview = Ti.Util.getFallback(this.preview, this.dirName, "@default")
-        || this.preview
-        || {}
+      let preview =
+        Ti.Util.getFallback(this.preview, this.dirName, "@default") ||
+        this.preview ||
+        {};
 
       return {
         showInfo: false,
@@ -51,11 +52,11 @@ const _M = {
         stateLocalKey: this.getStateLocalKey("preview"),
         // Customized
         ...preview,
-        // Edit Info 
+        // Edit Info
         editInfoBy: () => {
-          this.editPreviewInfo()
+          this.editPreviewInfo();
         }
-      }
+      };
     },
     //--------------------------------------
     TheFiles() {
@@ -63,44 +64,46 @@ const _M = {
         currentId: this.currentId,
         checkedIds: this.checkedIds,
         routers: {
-          "reload": async () => {
-            await this.reloadData()
+          reload: async () => {
+            await this.reloadData();
           }
         }
-      })
+      });
     }
     //--------------------------------------
   },
   ///////////////////////////////////////////
   methods: {
     //--------------------------------------
-    OnAdaptListInit($adaptlist) { this.$adaptlist = $adaptlist },
+    OnAdaptListInit($adaptlist) {
+      this.$adaptlist = $adaptlist;
+    },
     //--------------------------------------
     // Events
     //--------------------------------------
     async OnDirNameChanged(dirName) {
-      this.$ta.commit("setDataDirName", dirName)
+      this.$ta.commit("setDataDirName", dirName);
       await this.reloadData();
     },
     //--------------------------------------
     OnFileSelect({ currentId, checkedIds }) {
-      this.$ta.dispatch("selectDataFile", { currentId, checkedIds })
+      this.$ta.dispatch("selectDataFile", { currentId, checkedIds });
     },
     //--------------------------------------
     OnFileOpen(obj) {
-      this.$notify("file:open", obj)
+      this.$notify("file:open", obj);
     },
     //--------------------------------------
     async OnFileUploaded(files = []) {
       if (!_.isEmpty(files)) {
-        let checkedIds = {}
+        let checkedIds = {};
         for (let file of files) {
-          checkedIds[file.id] = true
+          checkedIds[file.id] = true;
         }
         this.OnFileSelect({
           currentId: files[0].id,
           checkedIds
-        })
+        });
       }
     },
     //--------------------------------------
@@ -108,63 +111,63 @@ const _M = {
     //--------------------------------------
     getStateLocalKey(name) {
       if (this.stateLocalKey && name) {
-        return `${this.stateLocalKey}_${name}`
+        return `${this.stateLocalKey}_${name}`;
       }
     },
     //--------------------------------------
     getThAdaptor() {
-      return this.tiParentCom("WnThAdaptor")
+      return this.tiParentCom("WnThAdaptor");
     },
     //--------------------------------------
     async doDeleteSelected() {
-      await this.$ta.dispatch("dfRemoveChecked")
+      await this.$ta.dispatch("dfRemoveChecked");
     },
     //--------------------------------------
     async checkDataDir() {
       // Guard
       if (!this.hasDataHome) {
-        return
+        return;
       }
       // If empty data home, create one
       if (!this.myDataDirObj && this.dirName) {
-        let cmdText = `o @create -p ${this.dataHome} -auto -race DIR '${this.dirName}'`
-        console.log(cmdText)
-        await Wn.Sys.exec2(cmdText)
+        let cmdText = `o @create -p ${this.dataHome} -auto -race DIR '${this.dirName}'`;
+        console.log(cmdText);
+        await Wn.Sys.exec2(cmdText);
 
-        this.myDataDirObj = await this.loadDataDirObj()
+        this.myDataDirObj = await this.loadDataDirObj();
       }
     },
     //--------------------------------------
     async doUploadFiles() {
       // Guard
-      await this.checkDataDir()
+      await this.checkDataDir();
 
       // Do upload
       if (this.myDataDirObj) {
-        this.$adaptlist.openLocalFileSelectdDialog()
+        this.$adaptlist.openLocalFileSelectdDialog();
       }
       // Impossible
       else {
-        throw "Impossible!!!"
+        throw "Impossible!!!";
       }
     },
     //--------------------------------------
     async editPreviewInfo() {
       //console.log("showPreviewObjInfo:", this.preview)
       if (this.CurrentFile) {
-        let options = _.get(this.previewEdit, this.dirName)
-        let reo = await Wn.EditObjMeta(this.CurrentFile, options)
+        let options = _.get(this.previewEdit, this.dirName);
+        let reo = await Wn.EditObjMeta(this.CurrentFile, options);
         if (reo && reo.data) {
-          this.updateItemInDataList(reo.data)
+          this.updateItemInDataList(reo.data);
         }
       }
     },
     //--------------------------------------
     updateItemInDataList(meta) {
       if (meta && this.myData && _.isArray(this.myData.list)) {
-        this.myData.list = _.map(
-          this.myData.list,
-          it => it.id == meta.id ? meta : it)
+        this.myData.list = _.map(this.myData.list, (it) =>
+          it.id == meta.id ? meta : it
+        );
       }
     },
     //--------------------------------------
@@ -172,18 +175,18 @@ const _M = {
     //--------------------------------------
     async loadDataDirObj() {
       if (this.dataHome) {
-        let aph = Ti.Util.appendPath(this.dataHome, this.dirName)
-        return await Wn.Io.loadMeta(aph)
+        let aph = Ti.Util.appendPath(this.dataHome, this.dirName);
+        return await Wn.Io.loadMeta(aph);
       }
     },
     //--------------------------------------
     async reloadData() {
       if (this.dataHome && this.$ta) {
-        this.myDataDirObj = await this.loadDataDirObj()
+        this.myDataDirObj = await this.loadDataDirObj();
         if (this.myDataDirObj) {
-          await this.$ta.dispatch("dfQueryFiles")
+          await this.$ta.dispatch("dfQueryFiles");
         } else {
-          this.$ta.commit("setDataDirFiles")
+          this.$ta.commit("setDataDirFiles");
         }
       }
     }
@@ -191,13 +194,14 @@ const _M = {
   },
   ///////////////////////////////////////////
   watch: {
-    "dirName": "reloadData"
+    dirName: "reloadData",
+    metaId: "reloadData"
   },
   ///////////////////////////////////////////
   mounted: async function () {
-    this.$ta = this.getThAdaptor()
-    await this.reloadData()
+    this.$ta = this.getThAdaptor();
+    await this.reloadData();
   }
   ///////////////////////////////////////////
-}
-export default _M
+};
+export default _M;
