@@ -22,7 +22,7 @@
   "am-not": "不",
   "am-not-sure": "不太确定",
   "am-notEquals": "不等于${val} ",
-  "am-notMatchOf": "不匹配'${FFFval}'",
+  "am-notMatchOf": "不匹配'${val}'",
   "am-notNil": "不为空",
   "am-notNilOf": "字段${val}不为空",
   "am-null": "为空值",
