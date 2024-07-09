@@ -30,12 +30,12 @@ const _M = {
     // Settings
     let settings = _.cloneDeep(state.exportSettings) || {};
     _.defaults(settings, {
-      "mappingPath": `id:${state.thingSetId}/export/`,
-      "defaultMappingName": undefined,
-      "outputName": `${tsTitle}-\${now}`,
-      "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
-      "outputModeOptions": modes,
-      "outputMode": _.first(modes)
+      mappingPath: `id:${state.thingSetId}/export/`,
+      defaultMappingName: undefined,
+      outputName: `${tsTitle}-\${now}`,
+      outputTarget: `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
+      outputModeOptions: modes,
+      outputMode: _.first(modes)
     });
     settings = Ti.Util.explainObj(state, settings);
     state.LOG("export settings:", settings);
@@ -333,9 +333,9 @@ const _M = {
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
-        "mappingPath": mappingPath || `id:${state.thingSetId}/import/`,
-        "defaultMappingName": defaultMappingName,
-        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`,
+        mappingPath: mappingPath || `id:${state.thingSetId}/import/`,
+        defaultMappingName: defaultMappingName,
+        uploadTarget: uploadTarget || `id:${state.thingSetId}/tmp/import/`,
         moreFields
       },
       components: ["@com:wn/data/importer-form"]
@@ -517,7 +517,7 @@ const _M = {
   //
   //----------------------------------------
   async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
-    //console.log("applySearch", {filter, sorter})
+    console.log("applySearch", { filter, sorter });
     if (filter) {
       commit("setFilter", filter);
     }
@@ -526,7 +526,7 @@ const _M = {
     }
     // If pager enabled, should auto jump to first page
     if (getters.isPagerEnabled && filter) {
-      commit("assignPager", { pn: 1 });
+      commit("assignPager", { pn: 1, pageNumber: 1 });
     }
     // Reload data by new search condition
     await dispatch("queryList");

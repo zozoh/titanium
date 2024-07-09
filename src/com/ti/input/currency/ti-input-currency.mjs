@@ -6,11 +6,11 @@ export default {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value": {
+    value: {
       type: [String, Number, Object],
       default: undefined
     },
-    "valueType": {
+    valueType: {
       type: String,
       default: "str",
       validator: (v) => /^(str|obj|num)$/.test(v)
@@ -25,7 +25,7 @@ export default {
      *  - `10`   : jiao : 角
      *  - `1`    : cent : 分
      */
-    "unit": {
+    unit: {
       type: Number,
       default: 100
     },
@@ -35,46 +35,49 @@ export default {
     //   default: 2
     // },
     /* default currency */
-    "currency": {
+    currency: {
       type: String,
       default: "RMB"
     },
     /* currency options */
-    "options": {
+    options: {
       type: [String, Array, Function, Ti.Dict],
       default: undefined
     },
-    "autoSelect": {
+    autoSelect: {
       type: Boolean,
       default: true
     },
-    "readonly": {
+    readonly: {
       type: Boolean,
       default: false
     },
-    "focused": {
+    focused: {
       type: Boolean,
       default: false
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "placeholder": {
+    placeholder: {
       type: [String, Number],
       default: undefined
     },
-    "hideBorder": {
+    hideBorder: {
       type: Boolean,
       default: false
+    },
+    prefixText: {
+      type: String
     },
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "width": {
+    width: {
       type: [Number, String],
       default: undefined
     },
-    "height": {
+    height: {
       type: [Number, String],
       default: undefined
     }

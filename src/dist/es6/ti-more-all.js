@@ -1,4 +1,4 @@
-// Pack At: 2024-05-28 01:50:52
+// Pack At: 2024-07-09 21:25:34
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -13717,12 +13717,12 @@ const _M = {
     // Settings
     let settings = _.cloneDeep(state.exportSettings) || {};
     _.defaults(settings, {
-      "mappingPath": `id:${state.thingSetId}/export/`,
-      "defaultMappingName": undefined,
-      "outputName": `${tsTitle}-\${now}`,
-      "outputTarget": `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
-      "outputModeOptions": modes,
-      "outputMode": _.first(modes)
+      mappingPath: `id:${state.thingSetId}/export/`,
+      defaultMappingName: undefined,
+      outputName: `${tsTitle}-\${now}`,
+      outputTarget: `id:${state.thingSetId}/tmp/export/\${name}.\${type}`,
+      outputModeOptions: modes,
+      outputMode: _.first(modes)
     });
     settings = Ti.Util.explainObj(state, settings);
     state.LOG("export settings:", settings);
@@ -14020,9 +14020,9 @@ const _M = {
       model: { event: "change", prop: "data" },
       comType: "WnDataImporterForm",
       comConf: {
-        "mappingPath": mappingPath || `id:${state.thingSetId}/import/`,
-        "defaultMappingName": defaultMappingName,
-        "uploadTarget": uploadTarget || `id:${state.thingSetId}/tmp/import/`,
+        mappingPath: mappingPath || `id:${state.thingSetId}/import/`,
+        defaultMappingName: defaultMappingName,
+        uploadTarget: uploadTarget || `id:${state.thingSetId}/tmp/import/`,
         moreFields
       },
       components: ["@com:wn/data/importer-form"]
@@ -14204,7 +14204,7 @@ const _M = {
   //
   //----------------------------------------
   async applySearch({ state, commit, getters, dispatch }, { filter, sorter }) {
-    //console.log("applySearch", {filter, sorter})
+    console.log("applySearch", { filter, sorter });
     if (filter) {
       commit("setFilter", filter);
     }
@@ -14213,7 +14213,7 @@ const _M = {
     }
     // If pager enabled, should auto jump to first page
     if (getters.isPagerEnabled && filter) {
-      commit("assignPager", { pn: 1 });
+      commit("assignPager", { pn: 1, pageNumber: 1 });
     }
     // Reload data by new search condition
     await dispatch("queryList");
@@ -53498,11 +53498,11 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value": {
+    value: {
       type: [String, Number, Object],
       default: undefined
     },
-    "valueType": {
+    valueType: {
       type: String,
       default: "str",
       validator: (v) => /^(str|obj|num)$/.test(v)
@@ -53517,7 +53517,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
      *  - `10`   : jiao : 角
      *  - `1`    : cent : 分
      */
-    "unit": {
+    unit: {
       type: Number,
       default: 100
     },
@@ -53527,46 +53527,49 @@ const __TI_MOD_EXPORT_VAR_NM = {
     //   default: 2
     // },
     /* default currency */
-    "currency": {
+    currency: {
       type: String,
       default: "RMB"
     },
     /* currency options */
-    "options": {
+    options: {
       type: [String, Array, Function, Ti.Dict],
       default: undefined
     },
-    "autoSelect": {
+    autoSelect: {
       type: Boolean,
       default: true
     },
-    "readonly": {
+    readonly: {
       type: Boolean,
       default: false
     },
-    "focused": {
+    focused: {
       type: Boolean,
       default: false
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "placeholder": {
+    placeholder: {
       type: [String, Number],
       default: undefined
     },
-    "hideBorder": {
+    hideBorder: {
       type: Boolean,
       default: false
+    },
+    prefixText: {
+      type: String
     },
     //-----------------------------------
     // Measure
     //-----------------------------------
-    "width": {
+    width: {
       type: [Number, String],
       default: undefined
     },
-    "height": {
+    height: {
       type: [Number, String],
       default: undefined
     }
@@ -71414,71 +71417,71 @@ const _M = {
     //-----------------------------------
     // Data
     //-----------------------------------
-    "value": {
+    value: {
       type: [String, Object],
       default: undefined
     },
     //-----------------------------------
     // Behavior
     //-----------------------------------
-    "canEditName": {
+    canEditName: {
       type: Boolean,
       default: false
     },
-    "canEditValue": {
+    canEditValue: {
       type: Boolean,
       default: false
     },
-    "multiLines": {
+    multiLines: {
       type: Boolean,
       default: false
     },
-    "emptyAsNull": {
+    emptyAsNull: {
       type: Boolean,
       default: true
     },
     //-----------------------------------
     // Aspect
     //-----------------------------------
-    "nameText": {
+    nameText: {
       type: String,
       default: "i18n:name"
     },
-    "valueText": {
+    valueText: {
       type: String,
       default: "i18n:value"
     },
-    "fields": {
+    fields: {
       type: Array,
       default: () => []
     },
-    "onlyFields": {
+    onlyFields: {
       type: Boolean,
       default: false
     },
-    "blankAs": {
+    blankAs: {
       type: Object,
       default: () => ({
         icon: "im-plugin",
         text: "i18n:empty"
       })
     },
-    "showHead": {
+    showHead: {
       type: Boolean,
       default: true
     },
-    "showEmpty": {
+    showEmpty: {
       type: Boolean,
       default: true
     },
-    "autoI18n": {
+    autoI18n: {
       type: Boolean,
       default: true
     },
-    "autoShowBlank": {
+    autoShowBlank: {
       type: Boolean,
       default: false
-    },
+    }
     //-----------------------------------
     // Measure
     //-----------------------------------
@@ -71490,32 +71493,30 @@ const _M = {
       return this.getTopClass({
         "can-edit-name": this.canEditName,
         "can-edit-value": this.canEditValue
-      })
+      });
     },
     //--------------------------------------------
     FieldsMap() {
-      let map = {}
+      let map = {};
       for (let fld of this.fields) {
-        if (fld.name)
-          map[fld.name] = fld
+        if (fld.name) map[fld.name] = fld;
       }
-      return map
+      return map;
     },
     //--------------------------------------------
     TheData() {
       if (!this.value) {
-        return {}
+        return {};
       }
       if (_.isString(this.value)) {
-        return JSON.parse(this.value)
+        return JSON.parse(this.value);
       }
-      if (_.isPlainObject(this.value))
-        return this.value
-      return {}
+      if (_.isPlainObject(this.value)) return this.value;
+      return {};
     },
     //--------------------------------------------
     isEmpty() {
-      return _.isEmpty(this.TheData)
+      return _.isEmpty(this.TheData);
     }
     //--------------------------------------------
   },
@@ -71524,24 +71525,26 @@ const _M = {
     //--------------------------------------------
     OnPairComChange(newVal, { name, value }) {
       if (!_.isEqual(newVal, value)) {
-        if (this.emptyAsNull && _.isEmpty(newVal)) {
-          newVal = null
+        if (this.emptyAsNull && !_.isNumber(newVal) && !_.isBoolean(newVal)) {
+          if (_.isEmpty(newVal)) {
+            newVal = null;
+          }
         }
-        let data = _.cloneDeep(this.TheData)
-        _.set(data, name, newVal)
-        this.$notify("change", data)
+        let data = _.cloneDeep(this.TheData);
+        _.set(data, name, newVal);
+        this.$notify("change", data);
       }
     },
     //--------------------------------------------
     OnPairValueChange(evt, { name, value }) {
-      let newVal = _.trim(evt.target.value)
+      let newVal = _.trim(evt.target.value);
       if (newVal != value) {
         if (this.emptyAsNull && _.isEmpty(newVal)) {
-          newVal = null
+          newVal = null;
         }
-        let data = _.cloneDeep(this.TheData)
-        _.set(data, name, newVal)
-        this.$notify("change", data)
+        let data = _.cloneDeep(this.TheData);
+        _.set(data, name, newVal);
+        this.$notify("change", data);
       }
     },
     //--------------------------------------------
@@ -71558,101 +71561,100 @@ const _M = {
           height: "100%"
         },
         components: ["@com:ti/input/text"]
-      })
+      });
 
       // User cancel
-      if (Ti.Util.isNil(newVal) || newVal == value)
-        return
+      if (Ti.Util.isNil(newVal) || newVal == value) return;
 
       // Update value
-      let data = _.cloneDeep(this.TheData)
-      _.set(data, name, newVal)
-      this.$notify("change", data)
+      let data = _.cloneDeep(this.TheData);
+      _.set(data, name, newVal);
+      this.$notify("change", data);
     },
     //--------------------------------------------
     async evalThePairList() {
       // Flat pairs  [keyPath] : [pairValue]
-      let pairs = {}
-      this.joinPairs(pairs, [], this.TheData)
+      let pairs = {};
+      this.joinPairs(pairs, [], this.TheData);
       // format list
-      let list = []
+      let list = [];
       for (let fld of this.fields) {
-        let pa = pairs[fld.name]
+        let pa = pairs[fld.name];
         if (pa || this.showEmpty) {
           pa = pa || {
             name: fld.name
-          }
+          };
           // Title
-          let title = fld.title || fld.name
+          let title = fld.title || fld.name;
           if (this.autoI18n) {
-            title = Ti.I18n.text(title)
+            title = Ti.I18n.text(title);
           }
-          pa.title = title
+          pa.title = title;
           // Mapping Value
           if (fld.dict) {
-            let d = Ti.DictFactory.CheckDict(fld.dict)
-            pa.text = await d.getItemText(pa.value)
+            let d = Ti.DictFactory.CheckDict(fld.dict);
+            pa.text = await d.getItemText(pa.value);
           }
           // Customized the display text
           if (fld.comType) {
-            pa.comType = fld.comType
-            pa.comConf = fld.comConf || {}
+            pa.comType = fld.comType;
+            pa.comConf = fld.comConf || {};
           }
 
           // Push
-          list.push(pa)
+          list.push(pa);
         }
       }
 
       // find remain
       if (!this.onlyFields) {
-        let remains = []
+        let remains = [];
         _.forEach(pairs, (pa) => {
           if (pa.name && !this.FieldsMap[pa.name]) {
-            pa.title = pa.name
-            remains.push(pa)
+            pa.title = pa.name;
+            remains.push(pa);
           }
-        })
-        list.push(...remains)
+        });
+        list.push(...remains);
       }
 
-      this.myPairList = list
+      this.myPairList = list;
     },
     //--------------------------------------------
     joinPairs(pairs = [], path = [], obj) {
       // recursion
       if (_.isPlainObject(obj)) {
         _.forEach(obj, (val, key) => {
-          this.joinPairs(pairs, _.concat(path, key), val)
-        })
+          this.joinPairs(pairs, _.concat(path, key), val);
+        });
       }
       // Array
       else if (_.isArray(obj)) {
         for (let i = 0; i < obj.length; i++) {
-          let val = obj[i]
-          this.joinPairs(pairs, _.concat(path, i + ""), val)
+          let val = obj[i];
+          this.joinPairs(pairs, _.concat(path, i + ""), val);
         }
       }
       // join pair
       else {
-        let name = path.join(".")
-        let value = obj
-        pairs[name] = { name, value }
+        let name = path.join(".");
+        let value = obj;
+        pairs[name] = { name, value };
       }
     }
     //--------------------------------------------
   },
   ////////////////////////////////////////////////
   watch: {
-    "value": "evalThePairList",
+    value: "evalThePairList"
     //"fields": "evalThePairList",
   },
   ////////////////////////////////////////////////
   mounted() {
-    this.evalThePairList()
+    this.evalThePairList();
   }
   ////////////////////////////////////////////////
-}
+};
 return _M;;
 })()
 // ============================================================
@@ -91991,6 +91993,7 @@ Ti.Preload("ti/com/ti/input/currency/ti-input-currency.html", `<ti-input
   :autoI18n="false"
   :placeholder="placeholder"
   :prefixIcon="ValIcon"
+  :prefixText="prefixText"
   :prefixIconForClean="!readonly"
   :prefixHoverIcon="InputPrefixHoverIcon"
   :suffixText="ValCurrency"
@@ -107182,7 +107185,7 @@ Ti.Preload("ti/i18n/zh-cn/hmaker.i18n.json", {
   "am-not": "不",
   "am-not-sure": "不太确定",
   "am-notEquals": "不等于${val} ",
-  "am-notMatchOf": "不匹配'${FFFval}'",
+  "am-notMatchOf": "不匹配'${val}'",
   "am-notNil": "不为空",
   "am-notNilOf": "字段${val}不为空",
   "am-null": "为空值",
