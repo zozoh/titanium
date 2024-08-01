@@ -39,11 +39,11 @@ export class TiMsRange {
     }
     let left = {
       val: _.trim(_.first(vals)),
-      open: "(" == m[1]
+      open: "(" == m[1],
     };
     let right = {
       val: vals.length > 1 ? _.trim(_.last(vals)) : NaN,
-      open: ")" == m[3]
+      open: ")" == m[3],
     };
     if (_.isString(left.val) && left.val) {
       left.val *= 1;
@@ -65,7 +65,7 @@ export class TiMsRange {
     leftOpen = "(",
     leftClose = "[",
     rightOpen = ")",
-    rightClose = "]"
+    rightClose = "]",
   } = {}) {
     if (this.invalid) {
       return "<!!!Invalid MsRange!!!>";
@@ -108,7 +108,7 @@ export class TiMsRange {
       leftOpen,
       leftClose,
       rightOpen,
-      rightClose
+      rightClose,
     });
   }
   //--------------------------------
@@ -129,7 +129,7 @@ export class TiMsRange {
       leftOpen,
       leftClose,
       rightOpen,
-      rightClose
+      rightClose,
     });
   }
   //--------------------------------
@@ -201,10 +201,10 @@ export class TiTime {
     // Number as Seconds
     else if (_.isNumber(input)) {
       let ms = {
-        "ms": (v) => Math.round(v),
-        "s": (v) => Math.round(v * 1000),
-        "min": (v) => Math.round(v * 1000 * 60),
-        "hr": (v) => Math.round(v * 1000 * 60 * 60)
+        ms: (v) => Math.round(v),
+        s: (v) => Math.round(v * 1000),
+        min: (v) => Math.round(v * 1000 * 60),
+        hr: (v) => Math.round(v * 1000 * 60 * 60),
       }[unit](input);
       ms = _.clamp(ms, 0, 86400000);
       let sec = parseInt(ms / 1000);
@@ -314,21 +314,21 @@ export class TiTime {
       // Replace
       let s = m[0];
       sb += {
-        "a": () => (this.value > 43200 ? "PM" : "AM"), // am|pm
-        "H": () => this.hours, // Hour in day (0-23)
-        "k": () => this.hours + 1, // Hour in day (1-24)
-        "K": () => this.hours % 12, // Hour in am/pm (0-11)
-        "h": () => (this.hours % 12) + 1, // Hour in am/pm (1-12)
-        "m": () => this.minutes, // Minute in hour
-        "s": () => this.seconds, // Second in minute
-        "S": () => this.milliseconds, // Millisecond Number
-        "HH": () => _.padStart(this.hours, 2, "0"),
-        "kk": () => _.padStart(this.hours + 1, 2, "0"),
-        "KK": () => _.padStart(this.hours % 12, 2, "0"),
-        "hh": () => _.padStart((this.hours % 12) + 1, 2, "0"),
-        "mm": () => _.padStart(this.minutes, 2, "0"),
-        "ss": () => _.padStart(this.seconds, 2, "0"),
-        "SSS": () => _.padStart(this.milliseconds, 3, "0")
+        a: () => (this.value > 43200 ? "PM" : "AM"), // am|pm
+        H: () => this.hours, // Hour in day (0-23)
+        k: () => this.hours + 1, // Hour in day (1-24)
+        K: () => this.hours % 12, // Hour in am/pm (0-11)
+        h: () => (this.hours % 12) + 1, // Hour in am/pm (1-12)
+        m: () => this.minutes, // Minute in hour
+        s: () => this.seconds, // Second in minute
+        S: () => this.milliseconds, // Millisecond Number
+        HH: () => _.padStart(this.hours, 2, "0"),
+        kk: () => _.padStart(this.hours + 1, 2, "0"),
+        KK: () => _.padStart(this.hours % 12, 2, "0"),
+        hh: () => _.padStart((this.hours % 12) + 1, 2, "0"),
+        mm: () => _.padStart(this.minutes, 2, "0"),
+        ss: () => _.padStart(this.seconds, 2, "0"),
+        SSS: () => _.padStart(this.milliseconds, 3, "0"),
       }[s]();
     } // while (m = reg.exec(fmt))
     // Ending
@@ -343,12 +343,12 @@ export class TiTime {
 /////////////////////////////////////
 // Color Object
 const QUICK_COLOR_TABLE = {
-  "red": [255, 0, 0, 1],
-  "green": [0, 255, 0, 1],
-  "blue": [0, 0, 255, 1],
-  "yellow": [255, 255, 0, 1],
-  "black": [0, 0, 0, 1],
-  "white": [255, 255, 255, 1]
+  red: [255, 0, 0, 1],
+  green: [0, 255, 0, 1],
+  blue: [0, 0, 255, 1],
+  yellow: [255, 255, 0, 1],
+  black: [0, 0, 0, 1],
+  white: [255, 255, 255, 1],
 };
 //----------------------------------
 export class TiColor {
@@ -567,7 +567,7 @@ export class TiColor {
       _.clamp(Math.round(r), 0, 255),
       _.clamp(Math.round(g), 0, 255),
       _.clamp(Math.round(b), 0, 255),
-      _.clamp(a, 0, 1)
+      _.clamp(a, 0, 1),
     ]);
   }
   updateByHSL({ h, s, l } = {}) {
@@ -783,7 +783,7 @@ const TiTypes = {
       round: (v) => Math.round(v),
       ceil: (v) => Math.ceil(v),
       floor: (v) => Math.floor(v),
-      int: (v) => parseInt(v)
+      int: (v) => parseInt(v),
     }[mode](val);
     // Apply the default
     if (isNaN(n)) {
@@ -1043,7 +1043,7 @@ const TiTypes = {
     let kwSetup = options.keyword || {
       "=id": "^[\\d\\w]{26}(:.+)?$",
       "=nm": "^[\\d\\w_.-]{3,}$",
-      "title": "^.+"
+      title: "^.+",
     };
     //.....................................
     if (keyword) {
@@ -1157,7 +1157,7 @@ const TiTypes = {
         return {
           ok: false,
           errCode: "e.invalid.json_format",
-          data: dftData
+          data: dftData,
         };
       }
     }
@@ -1166,7 +1166,7 @@ const TiTypes = {
     }
     return {
       ok: true,
-      data: reo
+      data: reo,
     };
   },
   //.......................................
@@ -1176,19 +1176,19 @@ const TiTypes = {
   getFuncByType(type = "String", name = "transformer") {
     return _.get(
       {
-        "String": { transformer: "toStr", serializer: "toStr" },
-        "Number": { transformer: "toNumber", serializer: "toNumber" },
-        "Integer": { transformer: "toInteger", serializer: "toInteger" },
-        "Float": { transformer: "toFloat", serializer: "toFloat" },
-        "Boolean": { transformer: "toBoolean", serializer: "toBoolean" },
-        "Object": { transformer: "toObject", serializer: "toObject" },
-        "Array": { transformer: "toArray", serializer: "toArray" },
-        "DateTime": { transformer: "toDate", serializer: "formatDateTime" },
-        "AMS": { transformer: "toDate", serializer: "toAMS" },
-        "ASEC": { transformer: "toDateSec", serializer: "toSec" },
-        "Time": { transformer: "toTime", serializer: "formatTime" },
-        "Date": { transformer: "toDate", serializer: "formatDate" },
-        "Color": { transformer: "toColor", serializer: "toStr" }
+        String: { transformer: "toStr", serializer: "toStr" },
+        Number: { transformer: "toNumber", serializer: "toNumber" },
+        Integer: { transformer: "toInteger", serializer: "toInteger" },
+        Float: { transformer: "toFloat", serializer: "toFloat" },
+        Boolean: { transformer: "toBoolean", serializer: "toBoolean" },
+        Object: { transformer: "toObject", serializer: "toObject" },
+        Array: { transformer: "toArray", serializer: "toArray" },
+        DateTime: { transformer: "toDate", serializer: "formatDateTime" },
+        AMS: { transformer: "toDate", serializer: "toAMS" },
+        ASEC: { transformer: "toDateSec", serializer: "toSec" },
+        Time: { transformer: "toTime", serializer: "formatTime" },
+        Date: { transformer: "toDate", serializer: "formatDate" },
+        Color: { transformer: "toColor", serializer: "toStr" },
         // Date
         // Color
         // PhoneNumber
@@ -1311,13 +1311,13 @@ const TiTypes = {
     if (pos < 0) {
       return {
         homeId: null,
-        myId: _.trim(str)
+        myId: _.trim(str),
       };
     }
     // Two stage ID
     return {
       homeId: _.trim(str.substring(0, pos)),
-      myId: _.trim(str.substring(pos + 1))
+      myId: _.trim(str.substring(pos + 1)),
     };
   },
   //.......................................
@@ -1326,7 +1326,7 @@ const TiTypes = {
     data = {}
   ) {
     let is_hidden = false;
-    // 
+    //
     //
     const eval_cond = function (input) {
       if (_.isString(input) && /^=/.test(input)) {
@@ -1370,11 +1370,12 @@ const TiTypes = {
       hidden: is_hidden,
       visible: !is_hidden,
       disabled: is_disable,
-      enabled: !is_disable
+      enabled: !is_disable,
     };
   },
   //.......................................
   assertDataByForm(data = {}, fields = []) {
+    //console.log("assertDataByForm", data);
     if (!_.isEmpty(fields)) {
       for (let fld of fields) {
         // Not Required
@@ -1389,14 +1390,22 @@ const TiTypes = {
         }
 
         // Do check value
-        let v = _.get(data, fld.name);
-        if (Ti.Util.isNil(v)) {
-          // 准备错误消息
-          throw Ti.Err.make("e.form.fldInNil", fld);
-        } // isNil
+        let val;
+        if (_.isArray(fld.name)) {
+          val = _.pick(data, fld.name);
+          val = _.omitBy(val, (v) => _.isNil(v));
+          if (_.isEmpty(val)) {
+            throw Ti.Err.make("e.form.fldInNil", fld);
+          } // isEmpty
+        } else {
+          val = _.get(data, fld.name);
+          if (Ti.Util.isNil(val)) {
+            throw Ti.Err.make("e.form.fldInNil", fld);
+          } // isNil
+        }
       } // For
     }
-  }
+  },
   //.......................................
 };
 //---------------------------------------
