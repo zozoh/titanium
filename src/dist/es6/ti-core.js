@@ -1,4 +1,4 @@
-// Pack At: 2024-08-26 15:56:33
+// Pack At: 2024-08-27 01:56:49
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -2038,7 +2038,8 @@ const { S } = (function(){
         if (lastN >= 0) {
           lastI = re.length - 1;
           if (re[lastI] == CN_NC0[0]) {
-            re[lastI] = CN_NU0[4];
+            //re[lastI] = CN_NU0[4];
+            re = re.substring(0,lastI) + CN_NU0[4]
           } else {
             re += CN_NU0[4];
           }

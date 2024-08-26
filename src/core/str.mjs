@@ -111,7 +111,8 @@ const TiStr = {
       if (lastN >= 0) {
         lastI = re.length - 1;
         if (re[lastI] == CN_NC0[0]) {
-          re[lastI] = CN_NU0[4];
+          //re[lastI] = CN_NU0[4];
+          re = re.substring(0,lastI) + CN_NU0[4]
         } else {
           re += CN_NU0[4];
         }
