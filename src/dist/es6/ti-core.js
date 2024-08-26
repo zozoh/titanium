@@ -1,4 +1,4 @@
-// Pack At: 2024-08-01 11:15:28
+// Pack At: 2024-08-26 15:56:33
 //##################################################
 // # import { Alert } from "./ti-alert.mjs";
 const { Alert } = (function(){
@@ -2006,7 +2006,8 @@ const { S } = (function(){
         // 否则加个 '亿'
         lastI = re.length - 1;
         if (re[lastI] == CN_NC0[0]) {
-          re[lastI] = CN_NU0[5];
+          //re[lastI] = CN_NU0[5];
+          re = re.substring(0,lastI) + CN_NU0[5]
         } else {
           re += CN_NU0[5];
         }

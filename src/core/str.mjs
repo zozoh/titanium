@@ -79,7 +79,8 @@ const TiStr = {
       // 否则加个 '亿'
       lastI = re.length - 1;
       if (re[lastI] == CN_NC0[0]) {
-        re[lastI] = CN_NU0[5];
+        //re[lastI] = CN_NU0[5];
+        re = re.substring(0,lastI) + CN_NU0[5]
       } else {
         re += CN_NU0[5];
       }
