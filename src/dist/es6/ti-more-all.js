@@ -1,4 +1,4 @@
-// Pack At: 2024-08-27 01:56:49
+// Pack At: 2024-08-27 18:53:40
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -57682,209 +57682,221 @@ const __TI_MOD_EXPORT_VAR_NM = {
     myFilter: {},
     mySorter: {},
     myList: [],
-    myPager: {}
+    myPager: {},
   }),
   ////////////////////////////////////////////////////
   props: {
     //------------------------------------------------
     // Data
     //------------------------------------------------
-    "tsPath": {
-      type: String
+    tsPath: {
+      type: String,
     },
-    "fixedMatch": {
-      type: Object
+    fixedMatch: {
+      type: Object,
     },
     //------------------------------------------------
     // Behavior
     //------------------------------------------------
-    "localKeepAt": {
-      type: String
-    }
+    localKeepAt: {
+      type: String,
+    },
   },
   ////////////////////////////////////////////////////
   computed: {
     //--------------------------------------------
     isPagerEnabled() {
       if (!this.myPager) {
-        return false
+        return false;
       }
       if (!(this.SearchPageNumber > 0)) {
-        return false
+        return false;
       }
       if (!(this.SearchPageSize > 0)) {
-        return false
+        return false;
       }
-      return true
+      return true;
     },
     //--------------------------------------------
     SearchPageNumber() {
       if (this.pagerValueType == "shortName") {
-        return _.get(this.myPager, "pn")
+        return _.get(this.myPager, "pn");
       }
-      return _.get(this.myPager, "pageNumber")
+      return _.get(this.myPager, "pageNumber");
     },
     //--------------------------------------------
     SearchPageSize() {
       if (this.pagerValueType == "shortName") {
-        return _.get(this.myPager, "pgsz")
+        return _.get(this.myPager, "pgsz");
       }
-      return _.get(this.myPager, "pageSize")
+      return _.get(this.myPager, "pageSize");
     },
     //------------------------------------------------
     SearchInput() {
       // Guard
       if (Ti.S.isBlank(this.tsPath)) {
-        return
+        return;
       }
 
       // Eval the filter
-      let filter = _.cloneDeep(this.myFilter)
-      let fixedMatch = _.cloneDeep(this.fixedMatch)
-      return JSON.stringify(_.assign({}, filter, fixedMatch))
+      let filter = _.cloneDeep(this.myFilter);
+      let fixedMatch = _.cloneDeep(this.fixedMatch);
+      return JSON.stringify(_.assign({}, filter, fixedMatch));
     },
     //------------------------------------------------
     SearchCommand() {
       // Guard
       if (Ti.S.isBlank(this.tsPath)) {
-        return
+        return;
       }
 
       // Command
-      let cmds = [`thing ${this.tsPath} query -cqn`]
+      let cmds = [`thing ${this.tsPath} query -cqn`];
 
       // Eval Pager
       if (this.isPagerEnabled) {
-        let limit = this.SearchPageSize * 1
-        let skip = this.SearchPageSize * (this.SearchPageNumber - 1)
-        cmds.push(`-pager -limit ${limit} -skip ${skip}`)
+        let limit = this.SearchPageSize * 1;
+        let skip = this.SearchPageSize * (this.SearchPageNumber - 1);
+        cmds.push(`-pager -limit ${limit} -skip ${skip}`);
       }
 
       // Sorter
       if (!_.isEmpty(this.mySorter)) {
-        cmds.push(`-sort '${JSON.stringify(this.mySorter)}'`)
+        cmds.push(`-sort '${JSON.stringify(this.mySorter)}'`);
       }
 
       // Show Thing Keys
       if (this.objKeys) {
-        cmds.push(`-e '${this.objKeys}'`)
+        cmds.push(`-e '${this.objKeys}'`);
       }
 
       // Done
-      return cmds.join(" ")
-    }
+      return cmds.join(" ");
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   methods: {
     //------------------------------------------------
     OnFilterChange(payload) {
-      this.myFilter = payload
-      this.saveToLocal()
+      this.myFilter = payload;
+      _.assign(this.myPager, {
+        pn: 1,
+        pageNumber: 1,
+      });
+      this.saveToLocal();
     },
     //------------------------------------------------
     OnSorterChange(payload) {
-      this.mySorter = payload
-      this.saveToLocal()
+      this.mySorter = payload;
+      this.saveToLocal();
     },
     //------------------------------------------------
     OnPagerChange(payload) {
-      this.myPager = _.assign({}, this.myPager, payload)
-      this.saveToLocal()
+      this.myPager = _.assign({}, this.myPager, payload);
+      this.saveToLocal();
     },
     //------------------------------------------------
     saveToLocal() {
       if (this.localKeepAt) {
-        let filter = this.myFilter
-        let sorter = this.mySorter
-        let pager = _.pick(this.myPager, "pn", "pgsz", "pageNumber", "pageSize")
+        let filter = this.myFilter;
+        let sorter = this.mySorter;
+        let pager = _.pick(
+          this.myPager,
+          "pn",
+          "pgsz",
+          "pageNumber",
+          "pageSize"
+        );
         Ti.Storage.local.setObject(this.localKeepAt, {
-          filter, sorter, pager
-        })
+          filter,
+          sorter,
+          pager,
+        });
       }
     },
     //------------------------------------------------
     restoreFromLocal() {
       if (this.localKeepAt) {
-        let reo = Ti.Storage.local.getObject(this.localKeepAt) || {}
-        let { filter, sorter, pager } = reo
-        this.myFilter = filter
-        this.mySorter = sorter
-        this.myPager = _.assign({}, this.pager, pager)
+        let reo = Ti.Storage.local.getObject(this.localKeepAt) || {};
+        let { filter, sorter, pager } = reo;
+        this.myFilter = filter;
+        this.mySorter = sorter;
+        this.myPager = _.assign({}, this.pager, pager);
       }
     },
     //------------------------------------------------
     buildLastSearch() {
       return {
         input: this.SearchInput,
-        command: this.SearchCommand
-      }
+        command: this.SearchCommand,
+      };
     },
     //------------------------------------------------
     async reloadList() {
-      this.myLastSearch = this.buildLastSearch()
-      let cmdText = this.SearchCommand
-      let input = this.SearchInput
+      this.myLastSearch = this.buildLastSearch();
+      let cmdText = this.SearchCommand;
+      let input = this.SearchInput;
       //console.log("WnThSearch.reloadList", cmdText, "<FLT>", input)
 
-      this.myLoading = true
+      this.myLoading = true;
 
-      let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" })
+      let reo = await Wn.Sys.exec2(cmdText, { input, as: "json" });
 
       // Update pager
       if (this.isPagerEnabled) {
-        this.myPager = _.assign({}, this.myPager, reo.pager)
-        this.myList = reo.list
+        this.myPager = _.assign({}, this.myPager, reo.pager);
+        this.myList = reo.list;
       }
       // List all
       else {
-        this.myList = reo
+        this.myList = reo;
       }
 
-      this.myLoading = false
+      this.myLoading = false;
     },
     //------------------------------------------------
     tryReloadList() {
-      let lastSearch = this.buildLastSearch()
+      let lastSearch = this.buildLastSearch();
       if (!_.isEqual(lastSearch, this.myLastSearch)) {
-        this.reloadList()
+        this.reloadList();
       }
-    }
+    },
     //------------------------------------------------
   },
   ////////////////////////////////////////////////////
   watch: {
-    "SearchInput": "tryReloadList",
-    "SearchCommand": "tryReloadList",
-    "filter": {
+    SearchInput: "tryReloadList",
+    SearchCommand: "tryReloadList",
+    filter: {
       handler: function (newVal) {
-        this.myFilter = _.cloneDeep(newVal || {})
+        this.myFilter = _.cloneDeep(newVal || {});
       },
-      immediate: true
+      immediate: true,
     },
-    "sorter": {
+    sorter: {
       handler: function (newVal) {
-        this.mySorter = _.cloneDeep(newVal || {})
+        this.mySorter = _.cloneDeep(newVal || {});
       },
-      immediate: true
+      immediate: true,
     },
-    "pager": {
+    pager: {
       handler: function (newVal) {
-        this.myPager = _.cloneDeep(newVal || {})
+        this.myPager = _.cloneDeep(newVal || {});
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   ////////////////////////////////////////////////////
   created() {
-    this.restoreFromLocal()
+    this.restoreFromLocal();
   },
   ////////////////////////////////////////////////////
   mounted() {
-    this.tryReloadList()
-  }
+    this.tryReloadList();
+  },
   ////////////////////////////////////////////////////
-}
+};
 return __TI_MOD_EXPORT_VAR_NM;;
 })()
 // ============================================================
