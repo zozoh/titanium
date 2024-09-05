@@ -1,4 +1,4 @@
-// Pack At: 2024-08-27 18:53:40
+// Pack At: 2024-09-06 01:42:03
 // ============================================================
 // OUTPUT TARGET IMPORTS
 // ============================================================
@@ -20603,7 +20603,7 @@ const __TI_MOD_EXPORT_VAR_NM = {
   },
   "autoScrollIntoView": {
     type: Boolean,
-    default: true
+    default: false
   },
   // Virtual render neccessary rows (subset of the larget list)
   // we need a hint of row height

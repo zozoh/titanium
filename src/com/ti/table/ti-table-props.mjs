@@ -25,7 +25,7 @@ export default {
   },
   "autoScrollIntoView": {
     type: Boolean,
-    default: true
+    default: false
   },
   // Virtual render neccessary rows (subset of the larget list)
   // we need a hint of row height
