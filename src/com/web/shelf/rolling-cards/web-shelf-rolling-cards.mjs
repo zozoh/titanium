@@ -19,6 +19,10 @@ const _M = {
       type: Array,
       default: () => []
     },
+    "vars": {
+      type: Object,
+      default: ()=>({})
+    },
     "currentIndex": {
       type: Number,
       default: -1
@@ -142,7 +146,8 @@ const _M = {
         }
         // Explain comConf
         else {
-          comConf = Ti.Util.explainObj(it, this.comConf)
+          let ctx = {item:it, ...it, ...this.vars}
+          comConf = Ti.Util.explainObj(ctx, this.comConf)
         }
 
         list.push({
